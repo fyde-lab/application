@@ -57,6 +57,10 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
+            // Carries fyde-sdk's native library, built via a hand-written
+            // JNI bridge instead of :sdkBridge's UniFFI/Gobley wiring; see
+            // ../sdkBridgeAndroid/build.gradle.kts for why.
+            implementation(project(":sdkBridgeAndroid"))
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -75,10 +79,12 @@ kotlin {
             implementation(libs.wrappers.browser)
         }
         // :sdkBridge wraps fyde-sdk (../../sdk) via UniFFI and only targets
-        // jvm/iOS (see sdkBridge/build.gradle.kts for why Android is excluded
-        // for now). Kept out of commonMain so android/js/wasmJs compilations
-        // of :shared, which have no matching target in :sdkBridge, don't
-        // break; FydeSdk's expect/actual in commonMain/FydeSdk.kt is the
+        // jvm/iOS (Android gets fyde-sdk through :sdkBridgeAndroid's
+        // hand-written JNI bridge instead, wired above in androidMain — see
+        // sdkBridge/build.gradle.kts and sdkBridgeAndroid/build.gradle.kts
+        // for why). Kept out of commonMain so js/wasmJs compilations of
+        // :shared, which have no matching target in :sdkBridge, don't break;
+        // FydeSdk's expect/actual in commonMain/FydeSdk.kt is the
         // cross-platform seam instead.
         jvmMain.dependencies {
             implementation(project(":sdkBridge"))
