@@ -34,6 +34,5 @@ plugins {
 include(":androidApp")
 include(":desktopApp")
 include(":sdkBridge")
-include(":sdkBridgeAndroid")
 include(":shared")
 include(":webApp")

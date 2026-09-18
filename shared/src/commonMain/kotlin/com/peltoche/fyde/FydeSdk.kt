@@ -2,9 +2,9 @@ package com.peltoche.fyde
 
 /**
  * Cross-platform entry point to `fyde-sdk` (`../../sdk`), the Rust client
- * library for talking to a fyde server. Implemented for Desktop (JVM) and
- * iOS via the UniFFI-generated bindings in `:sdkBridge`; not yet wired for
- * Android or Web, see `../../../CLAUDE.md`.
+ * library for talking to a fyde server. Implemented for Desktop (JVM),
+ * Android and iOS via the UniFFI-generated bindings in `:sdkBridge`; not
+ * yet wired for Web, see `../../../CLAUDE.md`.
  */
 expect object FydeSdk {
     /**
