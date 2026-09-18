@@ -24,6 +24,14 @@ import fyde.shared.generated.resources.compose_multiplatform
 fun App() {
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
+        var sdkStatus by remember { mutableStateOf("Initializing fyde-sdk…") }
+        LaunchedEffect(Unit) {
+            sdkStatus = FydeSdk.initialize("http://127.0.0.1:40051")
+                .fold(
+                    onSuccess = { "fyde-sdk connected" },
+                    onFailure = { "fyde-sdk unavailable: ${it.message}" },
+                )
+        }
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.primaryContainer)
@@ -31,6 +39,7 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Text(sdkStatus)
             Button(onClick = { showContent = !showContent }) {
                 Text("Click me!")
             }

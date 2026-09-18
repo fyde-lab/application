@@ -74,6 +74,18 @@ kotlin {
         jsMain.dependencies {
             implementation(libs.wrappers.browser)
         }
+        // :sdkBridge wraps fyde-sdk (../../sdk) via UniFFI and only targets
+        // jvm/iOS (see sdkBridge/build.gradle.kts for why Android is excluded
+        // for now). Kept out of commonMain so android/js/wasmJs compilations
+        // of :shared, which have no matching target in :sdkBridge, don't
+        // break; FydeSdk's expect/actual in commonMain/FydeSdk.kt is the
+        // cross-platform seam instead.
+        jvmMain.dependencies {
+            implementation(project(":sdkBridge"))
+        }
+        iosMain.dependencies {
+            implementation(project(":sdkBridge"))
+        }
     }
 }
 
