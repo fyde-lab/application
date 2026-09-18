@@ -15,11 +15,25 @@ plugins {
 // support JS/Wasm targets at all yet. This module is kept separate from
 // :shared so those targets are unaffected; see ../shared/build.gradle.kts
 // and ../../CLAUDE.md.
+//
+// The iOS targets are further gated to macOS hosts only: Gobley's cargo
+// plugin doesn't just skip cross-compiling to Apple targets when it can't
+// (the way Kotlin's own klib/cinterop machinery does, with a warning) - it
+// actively shells out `cargo rustc --target aarch64-apple-ios ... --print
+// native-static-libs` during Gradle sync/configuration to probe link flags,
+// which fails outright with exit code 101 on non-Apple hosts (no Xcode/iOS
+// SDK/linker available - not something any Rust target or toolchain install
+// can fix). Declaring these targets at all is what triggers that probe, so
+// they're only declared when actually on macOS.
+val isMacOsHost: Boolean = GobleyHost.current.platform == GobleyHost.Platform.MacOS
+
 kotlin {
     jvm()
 
-    iosArm64()
-    iosSimulatorArm64()
+    if (isMacOsHost) {
+        iosArm64()
+        iosSimulatorArm64()
+    }
 }
 
 // fyde-sdk (../../sdk) is a sibling, independently-versioned Rust repo — not
