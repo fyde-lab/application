@@ -1,0 +1,50 @@
+version: '3'
+
+tasks:
+  android:
+    desc: Build the Android app (debug APK)
+    cmd: ./gradlew :androidApp:assembleDebug
+
+  desktop:
+    desc: Run the desktop app
+    cmd: ./gradlew :desktopApp:run
+
+  desktop-hot:
+    desc: Run the desktop app with hot reload
+    cmd: ./gradlew :desktopApp:hotRun --auto
+
+  web-wasm:
+    desc: Run the web app (Wasm target, faster/modern browsers)
+    cmd: ./gradlew :webApp:wasmJsBrowserDevelopmentRun
+
+  web-js:
+    desc: Run the web app (JS target, slower/older browsers)
+    cmd: ./gradlew :webApp:jsBrowserDevelopmentRun
+
+  test-android:
+    desc: Run shared module tests (Android)
+    cmd: ./gradlew :shared:testAndroidHostTest
+
+  test-jvm:
+    desc: Run shared module tests (Desktop/JVM)
+    cmd: ./gradlew :shared:jvmTest
+
+  test-wasm:
+    desc: Run shared module tests (Web, Wasm)
+    cmd: ./gradlew :shared:wasmJsTest
+
+  test-js:
+    desc: Run shared module tests (Web, JS)
+    cmd: ./gradlew :shared:jsTest
+
+  test-ios:
+    desc: Run shared module tests (iOS simulator; requires Xcode/macOS)
+    cmd: ./gradlew :shared:iosSimulatorArm64Test
+
+  test:
+    desc: Run shared module tests for Android, Desktop, and Web (JS + Wasm)
+    cmds:
+      - task: test-android
+      - task: test-jvm
+      - task: test-wasm
+      - task: test-js
