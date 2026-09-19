@@ -8,17 +8,27 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+// :sdkBridge only declares its iOS targets on macOS hosts (see
+// sdkBridge/build.gradle.kts), since its cargo plugin needs Xcode/an iOS SDK
+// to probe link flags. iosMain here depends on :sdkBridge, so declaring
+// these targets unconditionally breaks KMP dependency resolution on
+// non-macOS hosts ("Unresolved platforms: [iosArm64, iosSimulatorArm64]") —
+// gate them the same way to keep the two modules' target sets in sync.
+val isMacOsHost: Boolean = System.getProperty("os.name").contains("Mac", ignoreCase = true)
+
 kotlin {
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "Shared"
-            isStatic = true
+    if (isMacOsHost) {
+        listOf(
+            iosArm64(),
+            iosSimulatorArm64()
+        ).forEach { iosTarget ->
+            iosTarget.binaries.framework {
+                baseName = "Shared"
+                isStatic = true
+            }
         }
     }
-    
+
     jvm()
     
     js {
@@ -85,8 +95,10 @@ kotlin {
         jvmMain.dependencies {
             implementation(project(":sdkBridge"))
         }
-        iosMain.dependencies {
-            implementation(project(":sdkBridge"))
+        if (isMacOsHost) {
+            iosMain.dependencies {
+                implementation(project(":sdkBridge"))
+            }
         }
     }
 }
