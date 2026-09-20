@@ -35,11 +35,33 @@ private val FydeDarkColorScheme = darkColorScheme(
     onErrorContainer = Color(0xFFFFB4A9),
 )
 
+/** Which top-level screen [App] is currently showing. */
+private sealed interface Screen {
+    data object Login : Screen
+    data object Register : Screen
+    data object Documents : Screen
+}
+
 @Composable
 @Preview
 fun App() {
     MaterialTheme(colorScheme = FydeDarkColorScheme) {
-        DocumentsScreen()
+        var screen by remember { mutableStateOf<Screen>(Screen.Login) }
+
+        when (screen) {
+            // fyde-sdk has no auth API yet (see ../../../CLAUDE.md on the
+            // Users service) — accepting any non-blank credentials here is a
+            // placeholder until that's wired up.
+            Screen.Login -> LoginScreen(
+                onLogIn = { _, _ -> screen = Screen.Documents },
+                onNavigateToRegister = { screen = Screen.Register },
+            )
+            Screen.Register -> RegisterScreen(
+                onRegister = { _, _ -> screen = Screen.Documents },
+                onNavigateToLogin = { screen = Screen.Login },
+            )
+            Screen.Documents -> DocumentsScreen()
+        }
     }
 }
 
