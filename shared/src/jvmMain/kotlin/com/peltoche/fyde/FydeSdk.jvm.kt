@@ -1,6 +1,9 @@
 package com.peltoche.fyde
 
+import uniffi.fyde_sdk.ChangelogListener
+import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiDocument
+import uniffi.fyde_sdk.FfiEventType
 import uniffi.fyde_sdk.FydeClient
 
 actual object FydeSdk {
@@ -15,6 +18,14 @@ actual object FydeSdk {
             val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
             client.listDocuments(offset, limit).map(FfiDocument::toFydeDocument)
         }
+
+    actual suspend fun consume(onEvent: (FydeChangelogEvent) -> Unit): Result<Unit> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        val listener = onEvent
+        client.consume(object : ChangelogListener {
+            override fun onEvent(event: FfiChangelogEvent) = listener(event.toFydeChangelogEvent())
+        })
+    }
 }
 
 private fun FfiDocument.toFydeDocument() = FydeDocument(
@@ -26,4 +37,28 @@ private fun FfiDocument.toFydeDocument() = FydeDocument(
     checksum = metadata.checksum,
     transcript = metadata.transcript,
     content = content,
+)
+
+private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
+    offset = offset,
+    eventType = when (eventType) {
+        FfiEventType.CREATED -> FydeEventType.CREATED
+        FfiEventType.UPDATE_METADATA -> FydeEventType.UPDATE_METADATA
+        FfiEventType.DELETED -> FydeEventType.DELETED
+    },
+    documentId = documentId,
+    document = content?.let { eventContent ->
+        metadata?.let { eventMetadata ->
+            FydeDocument(
+                id = documentId,
+                name = eventMetadata.name,
+                contentType = eventMetadata.contentType,
+                createdAt = eventMetadata.createdAt,
+                size = eventMetadata.size.toLong(),
+                checksum = eventMetadata.checksum,
+                transcript = eventMetadata.transcript,
+                content = eventContent,
+            )
+        }
+    },
 )

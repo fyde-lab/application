@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -35,6 +36,36 @@ data class Document(
 
 /** The lime-green accent used to mark PDF files across the document list. */
 val PdfAccentColor = Color(0xFFD7EE5B)
+
+/**
+ * The folded-corner document glyph used to represent a PDF, drawn without an
+ * icon pack (this project has no Material Icons dependency). Shared by
+ * [PdfFileIcon] (small, per-row) and the document list's empty state
+ * (large, dimmed) so both read as the same visual vocabulary.
+ */
+@Composable
+fun DocumentGlyph(modifier: Modifier = Modifier, tint: Color = PdfAccentColor, strokeWidth: Dp = 1.4.dp) {
+    Canvas(modifier = modifier) {
+        val fold = size.minDimension * 0.32f
+        val body = Path().apply {
+            moveTo(0f, 0f)
+            lineTo(size.width - fold, 0f)
+            lineTo(size.width, fold)
+            lineTo(size.width, size.height)
+            lineTo(0f, size.height)
+            close()
+        }
+        drawPath(body, color = tint, style = Stroke(width = strokeWidth.toPx()))
+
+        val flap = Path().apply {
+            moveTo(size.width - fold, 0f)
+            lineTo(size.width - fold, fold)
+            lineTo(size.width, fold)
+            close()
+        }
+        drawPath(flap, color = tint, style = Stroke(width = strokeWidth.toPx() * 0.7f))
+    }
+}
 
 /**
  * One row in the "Latest imported documents" list: a file-type icon next to
@@ -81,34 +112,15 @@ private fun PdfFileIcon(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(44.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
-        Canvas(
+        DocumentGlyph(
             modifier = Modifier
                 .align(Alignment.Center)
                 .size(20.dp)
                 .padding(bottom = 4.dp),
-        ) {
-            val fold = size.minDimension * 0.32f
-            val body = Path().apply {
-                moveTo(0f, 0f)
-                lineTo(size.width - fold, 0f)
-                lineTo(size.width, fold)
-                lineTo(size.width, size.height)
-                lineTo(0f, size.height)
-                close()
-            }
-            drawPath(body, color = PdfAccentColor, style = Stroke(width = 1.4.dp.toPx()))
-
-            val flap = Path().apply {
-                moveTo(size.width - fold, 0f)
-                lineTo(size.width - fold, fold)
-                lineTo(size.width, fold)
-                close()
-            }
-            drawPath(flap, color = PdfAccentColor, style = Stroke(width = 1.dp.toPx()))
-        }
+        )
         Text(
             text = "PDF",
             color = PdfAccentColor,

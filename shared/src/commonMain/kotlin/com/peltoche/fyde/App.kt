@@ -1,109 +1,96 @@
 package com.peltoche.fyde
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
-// TODO: replace with documents fetched from fyde-sdk once it exposes a way
-// to list/watch received documents (see ../../CLAUDE.md: the server has no
-// list RPC yet, so this will go through the changelog service).
-private val sampleDocuments = listOf(
-    Document("Receipt for Groceries", "50.37 KB", "8 months ago"),
-    Document("Blackmail letter from Reginald Thornton-Fiennes", "31.56 KB", "8 months ago"),
-    Document("Dr Watson letter - Missing heirloom", "31.31 KB", "8 months ago"),
-)
+/** How many of the most recently cached documents to show; the screen
+ * doesn't paginate yet. */
+private const val DOCUMENT_LIST_LIMIT = 100L
 
+/** Color tokens from DESIGN.md's dark (and only, for now) theme. */
 private val FydeDarkColorScheme = darkColorScheme(
     background = Color(0xFF141414),
     surface = Color(0xFF141414),
     surfaceVariant = Color(0xFF242424),
+    surfaceContainerLow = Color(0xFF191919),
+    surfaceContainer = Color(0xFF1F1F1F),
+    surfaceContainerHigh = Color(0xFF242424),
+    surfaceContainerHighest = Color(0xFF2A2A2A),
     onBackground = Color(0xFFF2F2F2),
     onSurface = Color(0xFFF2F2F2),
     onSurfaceVariant = Color(0xFF8A8A8E),
+    outline = Color(0xFF3A3A3C),
     outlineVariant = Color(0xFF2A2A2C),
     primary = PdfAccentColor,
+    onPrimary = Color(0xFF141414),
+    primaryContainer = Color(0xFF333B12),
+    onPrimaryContainer = Color(0xFFE9F79B),
+    error = Color(0xFFFF8A80),
+    onError = Color(0xFF141414),
+    errorContainer = Color(0xFF3A1616),
+    onErrorContainer = Color(0xFFFFB4A9),
 )
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme(colorScheme = FydeDarkColorScheme) {
-        var sdkStatus by remember { mutableStateOf("Initializing fyde-sdk…") }
-        var searchQuery by remember { mutableStateOf("") }
-        LaunchedEffect(Unit) {
-            sdkStatus = FydeSdk.initialize("http://127.0.0.1:40051")
-                .fold(
-                    onSuccess = { "fyde-sdk connected" },
-                    onFailure = { "fyde-sdk unavailable: ${it.message}" },
-                )
+        DocumentsScreen()
+    }
+}
+
+/**
+ * Owns the `fyde-sdk` connection and the changelog subscription, and maps
+ * their results into [DocumentListUiState]. Deliberately has no opinion on
+ * how that state is drawn — see [DocumentListScreen] for the visual design,
+ * which can change without touching anything in this function.
+ */
+@Composable
+private fun DocumentsScreen() {
+    var retryKey by remember { mutableStateOf(0) }
+    var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
+
+    LaunchedEffect(retryKey) {
+        uiState = DocumentListUiState.Connecting
+
+        val initResult = FydeSdk.initialize("http://127.0.0.1:40051")
+        if (initResult.isFailure) {
+            uiState = DocumentListUiState.ConnectFailed(
+                message = initResult.exceptionOrNull()?.message ?: "Unknown error",
+                onRetry = { retryKey++ },
+            )
+            return@LaunchedEffect
         }
-        val filteredDocuments = sampleDocuments.filter {
-            it.title.contains(searchQuery, ignoreCase = true)
-        }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
-                .safeContentPadding()
-                .fillMaxSize(),
-        ) {
-            Text(
-                text = sdkStatus,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-            Text(
-                text = "Latest imported documents",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-            TextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = {
-                    Text("File name", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                },
-                singleLine = true,
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-                    cursorColor = MaterialTheme.colorScheme.onBackground,
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(top = 4.dp),
-            ) {
-                items(filteredDocuments) { document ->
-                    DocumentRow(document)
-                }
+
+        uiState = DocumentListUiState.Loaded(documents = null)
+        uiState = DocumentListUiState.Loaded(
+            documents = FydeSdk.listDocuments(offset = 0, limit = DOCUMENT_LIST_LIMIT).getOrElse { emptyList() },
+        )
+
+        // Re-lists the cached documents every time a new changelog event
+        // comes in, so the screen stays in sync with what fyde-sdk has
+        // materialized locally. Suspends for as long as the stream is open,
+        // i.e. for the lifetime of this effect.
+        FydeSdk.consume {
+            launch {
+                val refreshed = FydeSdk.listDocuments(offset = 0, limit = DOCUMENT_LIST_LIMIT)
+                    .getOrElse { (uiState as? DocumentListUiState.Loaded)?.documents ?: emptyList() }
+                uiState = DocumentListUiState.Loaded(documents = refreshed)
             }
+        }.onFailure { error ->
+            val current = uiState as? DocumentListUiState.Loaded ?: return@onFailure
+            uiState = current.copy(
+                banner = "Live updates stopped: ${error.message}",
+                onDismissBanner = {
+                    (uiState as? DocumentListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
+                },
+            )
         }
     }
+
+    DocumentListScreen(state = uiState)
 }

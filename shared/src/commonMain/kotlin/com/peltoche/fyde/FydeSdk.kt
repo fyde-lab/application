@@ -17,6 +17,29 @@ data class FydeDocument(
 )
 
 /**
+ * The kind of write recorded by a [FydeChangelogEvent], mirroring the SDK's
+ * `FfiEventType`.
+ */
+enum class FydeEventType {
+    CREATED,
+    UPDATE_METADATA,
+    DELETED,
+}
+
+/**
+ * A single recorded write against a document, mirroring the SDK's
+ * `FfiChangelogEvent` without leaking `:sdkBridge`'s generated bindings into
+ * `commonMain`. [document] is only present for [FydeEventType.CREATED]
+ * events, which are the only ones that carry content and metadata today.
+ */
+data class FydeChangelogEvent(
+    val offset: Long,
+    val eventType: FydeEventType,
+    val documentId: String,
+    val document: FydeDocument?,
+)
+
+/**
  * Cross-platform entry point to `fyde-sdk` (`../../sdk`), the Rust client
  * library for talking to a fyde server. Implemented for Desktop (JVM),
  * Android and iOS via the UniFFI-generated bindings in `:sdkBridge`; not
@@ -36,4 +59,16 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>>
+
+    /**
+     * Streams and decrypts every changelog event since the last consumed
+     * offset, invoking [onEvent] once for each (replaying history, then
+     * continuing with the live tail). Resumes from the cursor persisted
+     * locally by a previous call, or from the beginning of the changelog if
+     * there is none. Suspends until the server closes the stream or an
+     * error occurs, so run it from a background coroutine. Mirrors
+     * [`crate::ChangelogService::consume`]; fails if [initialize] hasn't
+     * been called yet.
+     */
+    suspend fun consume(onEvent: (FydeChangelogEvent) -> Unit): Result<Unit>
 }
