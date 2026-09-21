@@ -58,6 +58,17 @@ fun App() {
         var authError by remember { mutableStateOf<String?>(null) }
         val scope = rememberCoroutineScope()
 
+        // Startup check: if a session token is already persisted from a
+        // previous run, skip straight to the document list instead of
+        // making the user log in again.
+        LaunchedEffect(Unit) {
+            FydeSdk.initialize(FYDE_SERVER_URL).onSuccess {
+                if (FydeSdk.isConnected().getOrDefault(false)) {
+                    screen = Screen.Documents
+                }
+            }
+        }
+
         when (screen) {
             Screen.Login -> LoginScreen(
                 errorMessage = authError,

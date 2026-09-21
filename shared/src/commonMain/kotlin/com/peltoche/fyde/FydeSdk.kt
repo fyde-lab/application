@@ -71,6 +71,14 @@ expect object FydeSdk {
     suspend fun register(username: String, password: String): Result<Unit>
 
     /**
+     * Returns whether a session token is currently persisted, i.e. a prior
+     * [login]/[register] call succeeded and no session-clearing call has
+     * happened since. Mirrors `sessions::Service::is_connected`; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun isConnected(): Result<Boolean>
+
+    /**
      * Lists documents previously cached locally, oldest first, one page at a
      * time. Mirrors [`crate::DocumentsService::list`]; fails if
      * [initialize] hasn't been called yet.
