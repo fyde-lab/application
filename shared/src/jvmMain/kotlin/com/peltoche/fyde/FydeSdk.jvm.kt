@@ -34,6 +34,11 @@ actual object FydeSdk {
             client.listDocuments(offset, limit).map(FfiDocument::toFydeDocument)
         }
 
+    actual suspend fun uploadDocument(path: String): Result<String> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.uploadDocument(path)
+    }
+
     actual suspend fun consume(onEvent: (FydeChangelogEvent) -> Unit): Result<Unit> = runCatching {
         val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
         val listener = onEvent

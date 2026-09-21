@@ -15,4 +15,6 @@ actual object FydeSdk {
     actual suspend fun register(username: String, password: String): Result<Unit> = unsupported()
 
     actual suspend fun isConnected(): Result<Boolean> = unsupported()
+
+    actual suspend fun uploadDocument(path: String): Result<String> = unsupported()
 }

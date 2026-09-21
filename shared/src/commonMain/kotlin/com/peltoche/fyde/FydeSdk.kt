@@ -86,6 +86,14 @@ expect object FydeSdk {
     suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>>
 
     /**
+     * Reads the local file at [path], encrypts it and its metadata, then
+     * publishes it as a "created" changelog event, returning its generated
+     * id. Mirrors [`crate::DocumentsService::upload`]; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun uploadDocument(path: String): Result<String>
+
+    /**
      * Streams and decrypts every changelog event since the last consumed
      * offset, invoking [onEvent] once for each (replaying history, then
      * continuing with the live tail). Resumes from the cursor persisted

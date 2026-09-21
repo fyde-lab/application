@@ -31,4 +31,7 @@
     <string name="no_documents_title">Aucun document pour le moment</string>
     <string name="no_documents_description">Les documents que vous importez apparaîtront ici.</string>
     <string name="no_documents_match">Aucun document ne correspond à « %1$s »</string>
+    <string name="upload_document">Importer un document</string>
+    <string name="upload_failed">Échec de l\'import : %1$s</string>
+    <string name="uploads_failed">%1$d import(s) sur %2$d ont échoué</string>
 </resources>

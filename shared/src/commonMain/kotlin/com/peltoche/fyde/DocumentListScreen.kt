@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -53,6 +56,7 @@ import com.peltoche.fyde.resources.no_documents_match
 import com.peltoche.fyde.resources.no_documents_title
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.search_documents_placeholder
+import com.peltoche.fyde.resources.upload_document
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -83,11 +87,16 @@ sealed interface DocumentListUiState {
 }
 
 @Composable
-fun DocumentListScreen(state: DocumentListUiState, modifier: Modifier = Modifier) {
+fun DocumentListScreen(
+    state: DocumentListUiState,
+    modifier: Modifier = Modifier,
+    onUpload: () -> Unit = {},
+    isUploading: Boolean = false,
+) {
     when (state) {
         DocumentListUiState.Connecting -> ConnectingState(modifier)
         is DocumentListUiState.ConnectFailed -> ConnectFailedState(state, modifier)
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading)
     }
 }
 
@@ -127,7 +136,12 @@ private fun ConnectFailedState(state: DocumentListUiState.ConnectFailed, modifie
 }
 
 @Composable
-private fun LoadedDocumentList(state: DocumentListUiState.Loaded, modifier: Modifier = Modifier) {
+private fun LoadedDocumentList(
+    state: DocumentListUiState.Loaded,
+    modifier: Modifier = Modifier,
+    onUpload: () -> Unit = {},
+    isUploading: Boolean = false,
+) {
     var searchQuery by remember { mutableStateOf("") }
 
     Column(
@@ -135,7 +149,7 @@ private fun LoadedDocumentList(state: DocumentListUiState.Loaded, modifier: Modi
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        DocumentListTopBar()
+        DocumentListTopBar(onUpload = onUpload, isUploading = isUploading)
         state.banner?.let { message ->
             StatusBanner(message = message, onDismiss = state.onDismissBanner)
         }
@@ -194,7 +208,7 @@ private fun LoadedDocumentList(state: DocumentListUiState.Loaded, modifier: Modi
 }
 
 @Composable
-private fun DocumentListTopBar() {
+private fun DocumentListTopBar(onUpload: () -> Unit = {}, isUploading: Boolean = false) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,10 +223,39 @@ private fun DocumentListTopBar() {
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
+        UploadButton(
+            onUpload = onUpload,
+            isUploading = isUploading,
+            modifier = Modifier.align(Alignment.CenterEnd).padding(horizontal = 8.dp),
+        )
         HorizontalDivider(
             modifier = Modifier.align(Alignment.BottomCenter),
             color = MaterialTheme.colorScheme.outlineVariant,
         )
+    }
+}
+
+@Composable
+private fun UploadButton(onUpload: () -> Unit, isUploading: Boolean, modifier: Modifier = Modifier) {
+    if (isUploading) {
+        CircularProgressIndicator(
+            modifier = modifier.size(20.dp),
+            strokeWidth = 2.dp,
+            color = MaterialTheme.colorScheme.primary,
+        )
+    } else {
+        val description = stringResource(Res.string.upload_document)
+        IconButton(
+            onClick = onUpload,
+            modifier = modifier.semantics { contentDescription = description },
+        ) {
+            Text(
+                text = "+",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
     }
 }
 

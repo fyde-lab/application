@@ -71,6 +71,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
+            implementation(libs.androidx.activity.compose)
             implementation(project(":sdkBridge"))
         }
         commonMain.dependencies {

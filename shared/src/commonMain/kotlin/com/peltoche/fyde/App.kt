@@ -10,6 +10,8 @@ import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.error_unknown
 import com.peltoche.fyde.resources.live_updates_stopped
+import com.peltoche.fyde.resources.upload_failed
+import com.peltoche.fyde.resources.uploads_failed
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 
@@ -132,6 +134,38 @@ private suspend fun authenticate(
 private fun DocumentsScreen() {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
+    var isUploading by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    // Picks one or more local files and uploads each via fyde-sdk,
+    // sequentially (one FydeClient, so no concurrent calls into it). No
+    // manual refresh is needed on success: each upload publishes a "created"
+    // changelog event, which the FydeSdk.consume() loop below is already
+    // listening for and will re-list documents in response to.
+    val pickDocuments = rememberDocumentPicker { paths ->
+        if (paths.isEmpty()) return@rememberDocumentPicker
+        isUploading = true
+        scope.launch {
+            val failures = paths.mapNotNull { path -> FydeSdk.uploadDocument(path).exceptionOrNull() }
+            if (failures.isNotEmpty()) {
+                val current = uiState as? DocumentListUiState.Loaded
+                if (current != null) {
+                    val message = if (paths.size == 1) {
+                        getString(Res.string.upload_failed, failures.first().message ?: getString(Res.string.error_unknown))
+                    } else {
+                        getString(Res.string.uploads_failed, failures.size, paths.size)
+                    }
+                    uiState = current.copy(
+                        banner = message,
+                        onDismissBanner = {
+                            (uiState as? DocumentListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
+                        },
+                    )
+                }
+            }
+            isUploading = false
+        }
+    }
 
     LaunchedEffect(retryKey) {
         uiState = DocumentListUiState.Connecting
@@ -171,5 +205,5 @@ private fun DocumentsScreen() {
         }
     }
 
-    DocumentListScreen(state = uiState)
+    DocumentListScreen(state = uiState, onUpload = pickDocuments, isUploading = isUploading)
 }
