@@ -16,6 +16,10 @@ plugins {
 // gate them the same way to keep the two modules' target sets in sync.
 val isMacOsHost: Boolean = System.getProperty("os.name").contains("Mac", ignoreCase = true)
 
+compose.resources {
+    packageOfResClass = "com.peltoche.fyde.resources"
+}
+
 kotlin {
     if (isMacOsHost) {
         listOf(

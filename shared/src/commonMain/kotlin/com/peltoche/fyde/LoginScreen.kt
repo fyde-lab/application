@@ -26,6 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.log_in
+import com.peltoche.fyde.resources.no_account_prompt
+import com.peltoche.fyde.resources.password_label
+import com.peltoche.fyde.resources.sign_up
+import com.peltoche.fyde.resources.username_label
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Caps the form's content width on wide (desktop) viewports so it doesn't
@@ -68,18 +75,18 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "Log in",
+                text = stringResource(Res.string.log_in),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Spacer(Modifier.height(24.dp))
-            AuthTextField(value = username, onValueChange = { username = it }, label = "Username")
+            AuthTextField(value = username, onValueChange = { username = it }, label = stringResource(Res.string.username_label))
             Spacer(Modifier.height(12.dp))
             AuthTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = "Password",
+                label = stringResource(Res.string.password_label),
                 isPassword = true,
             )
             if (errorMessage != null) {
@@ -99,7 +106,7 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .height(48.dp),
             ) {
-                Text("Log in")
+                Text(stringResource(Res.string.log_in))
             }
             Spacer(Modifier.height(8.dp))
             Row(
@@ -108,12 +115,12 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = "Don't have an account?",
+                    text = stringResource(Res.string.no_account_prompt),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 TextButton(onClick = onNavigateToRegister) {
-                    Text("Sign up", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.sign_up), fontWeight = FontWeight.SemiBold)
                 }
             }
         }

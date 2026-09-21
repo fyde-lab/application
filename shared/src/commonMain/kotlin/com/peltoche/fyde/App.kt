@@ -5,7 +5,13 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.auth_error_login_failed
+import com.peltoche.fyde.resources.auth_error_register_failed
+import com.peltoche.fyde.resources.error_unknown
+import com.peltoche.fyde.resources.live_updates_stopped
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 
 /** How many of the most recently cached documents to show; the screen
  * doesn't paginate yet. */
@@ -60,7 +66,7 @@ fun App() {
                     scope.launch {
                         authenticate(username, password, FydeSdk::login)
                             .onSuccess { screen = Screen.Documents }
-                            .onFailure { authError = it.message ?: "Failed to log in" }
+                            .onFailure { authError = it.message ?: getString(Res.string.auth_error_login_failed) }
                     }
                 },
                 onNavigateToRegister = {
@@ -75,7 +81,7 @@ fun App() {
                     scope.launch {
                         authenticate(username, password, FydeSdk::register)
                             .onSuccess { screen = Screen.Documents }
-                            .onFailure { authError = it.message ?: "Failed to create account" }
+                            .onFailure { authError = it.message ?: getString(Res.string.auth_error_register_failed) }
                     }
                 },
                 onNavigateToLogin = {
@@ -122,7 +128,7 @@ private fun DocumentsScreen() {
         val initResult = FydeSdk.initialize(FYDE_SERVER_URL)
         if (initResult.isFailure) {
             uiState = DocumentListUiState.ConnectFailed(
-                message = initResult.exceptionOrNull()?.message ?: "Unknown error",
+                message = initResult.exceptionOrNull()?.message ?: getString(Res.string.error_unknown),
                 onRetry = { retryKey++ },
             )
             return@LaunchedEffect
@@ -146,7 +152,7 @@ private fun DocumentsScreen() {
         }.onFailure { error ->
             val current = uiState as? DocumentListUiState.Loaded ?: return@onFailure
             uiState = current.copy(
-                banner = "Live updates stopped: ${error.message}",
+                banner = getString(Res.string.live_updates_stopped, error.message ?: ""),
                 onDismissBanner = {
                     (uiState as? DocumentListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
                 },

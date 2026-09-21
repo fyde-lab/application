@@ -25,6 +25,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.confirm_password_label
+import com.peltoche.fyde.resources.create_account_title
+import com.peltoche.fyde.resources.has_account_prompt
+import com.peltoche.fyde.resources.log_in
+import com.peltoche.fyde.resources.password_label
+import com.peltoche.fyde.resources.passwords_mismatch
+import com.peltoche.fyde.resources.sign_up
+import com.peltoche.fyde.resources.username_label
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Registration screen: username/password/confirm-password fields plus a
@@ -61,31 +71,31 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "Create an account",
+                text = stringResource(Res.string.create_account_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Spacer(Modifier.height(24.dp))
-            AuthTextField(value = username, onValueChange = { username = it }, label = "Username")
+            AuthTextField(value = username, onValueChange = { username = it }, label = stringResource(Res.string.username_label))
             Spacer(Modifier.height(12.dp))
             AuthTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = "Password",
+                label = stringResource(Res.string.password_label),
                 isPassword = true,
             )
             Spacer(Modifier.height(12.dp))
             AuthTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = "Confirm password",
+                label = stringResource(Res.string.confirm_password_label),
                 isPassword = true,
             )
             if (confirmPassword.isNotEmpty() && !passwordsMatch) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Passwords don't match",
+                    text = stringResource(Res.string.passwords_mismatch),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -107,7 +117,7 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .height(48.dp),
             ) {
-                Text("Sign up")
+                Text(stringResource(Res.string.sign_up))
             }
             Spacer(Modifier.height(8.dp))
             Row(
@@ -116,12 +126,12 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = "Already have an account?",
+                    text = stringResource(Res.string.has_account_prompt),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 TextButton(onClick = onNavigateToLogin) {
-                    Text("Log in", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.log_in), fontWeight = FontWeight.SemiBold)
                 }
             }
         }

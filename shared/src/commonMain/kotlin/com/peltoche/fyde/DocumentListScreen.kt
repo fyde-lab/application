@@ -43,6 +43,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.connect_failed_title
+import com.peltoche.fyde.resources.connecting_message
+import com.peltoche.fyde.resources.dismiss
+import com.peltoche.fyde.resources.documents_title
+import com.peltoche.fyde.resources.no_documents_description
+import com.peltoche.fyde.resources.no_documents_match
+import com.peltoche.fyde.resources.no_documents_title
+import com.peltoche.fyde.resources.retry
+import com.peltoche.fyde.resources.search_documents_placeholder
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Everything [DocumentListScreen] needs to render, and nothing it doesn't —
@@ -92,7 +103,7 @@ private fun ConnectingState(modifier: Modifier = Modifier) {
             CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(36.dp))
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "Connecting to fyde-sdk…",
+                text = stringResource(Res.string.connecting_message),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -108,9 +119,9 @@ private fun ConnectFailedState(state: DocumentListUiState.ConnectFailed, modifie
         icon = {
             Text("!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
         },
-        title = "Can't reach the server",
+        title = stringResource(Res.string.connect_failed_title),
         description = state.message,
-        actionLabel = "Retry",
+        actionLabel = stringResource(Res.string.retry),
         onAction = state.onRetry,
     )
 }
@@ -144,8 +155,8 @@ private fun LoadedDocumentList(state: DocumentListUiState.Loaded, modifier: Modi
                         strokeWidth = 2.dp,
                     )
                 },
-                title = "No documents yet",
-                description = "Documents you import will show up here.",
+                title = stringResource(Res.string.no_documents_title),
+                description = stringResource(Res.string.no_documents_description),
             )
 
             else -> {
@@ -161,7 +172,7 @@ private fun LoadedDocumentList(state: DocumentListUiState.Loaded, modifier: Modi
                         contentAlignment = Alignment.TopCenter,
                     ) {
                         Text(
-                            text = "No documents match “$searchQuery”",
+                            text = stringResource(Res.string.no_documents_match, searchQuery),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
@@ -192,7 +203,7 @@ private fun DocumentListTopBar() {
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(
-            text = "Documents",
+            text = stringResource(Res.string.documents_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -211,7 +222,7 @@ private fun SearchField(value: String, onValueChange: (String) -> Unit) {
         value = value,
         onValueChange = onValueChange,
         placeholder = {
-            Text("Search documents", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(Res.string.search_documents_placeholder), color = MaterialTheme.colorScheme.onSurfaceVariant)
         },
         singleLine = true,
         colors = TextFieldDefaults.colors(
@@ -246,7 +257,7 @@ private fun StatusBanner(message: String, onDismiss: () -> Unit) {
             modifier = Modifier.weight(1f),
         )
         TextButton(onClick = onDismiss) {
-            Text("Dismiss", color = MaterialTheme.colorScheme.onErrorContainer)
+            Text(stringResource(Res.string.dismiss), color = MaterialTheme.colorScheme.onErrorContainer)
         }
     }
 }

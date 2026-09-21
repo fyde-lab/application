@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared / auth -->
+    <string name="log_in">Log in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="username_label">Username</string>
+    <string name="password_label">Password</string>
+
+    <!-- Login screen -->
+    <string name="no_account_prompt">Don\'t have an account?</string>
+    <string name="auth_error_login_failed">Failed to log in</string>
+
+    <!-- Register screen -->
+    <string name="create_account_title">Create an account</string>
+    <string name="confirm_password_label">Confirm password</string>
+    <string name="passwords_mismatch">Passwords don\'t match</string>
+    <string name="has_account_prompt">Already have an account?</string>
+    <string name="auth_error_register_failed">Failed to create account</string>
+
+    <!-- Connection -->
+    <string name="error_unknown">Unknown error</string>
+    <string name="live_updates_stopped">Live updates stopped: %1$s</string>
+    <string name="connecting_message">Connecting to fyde-sdk…</string>
+    <string name="connect_failed_title">Can\'t reach the server</string>
+    <string name="retry">Retry</string>
+
+    <!-- Document list -->
+    <string name="documents_title">Documents</string>
+    <string name="search_documents_placeholder">Search documents</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="no_documents_title">No documents yet</string>
+    <string name="no_documents_description">Documents you import will show up here.</string>
+    <string name="no_documents_match">No documents match “%1$s”</string>
+</resources>
