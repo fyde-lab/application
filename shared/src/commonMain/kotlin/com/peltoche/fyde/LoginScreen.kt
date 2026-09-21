@@ -48,6 +48,7 @@ fun LoginScreen(
     onLogIn: (username: String, password: String) -> Unit,
     onNavigateToRegister: () -> Unit,
     modifier: Modifier = Modifier,
+    errorMessage: String? = null,
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -81,6 +82,14 @@ fun LoginScreen(
                 label = "Password",
                 isPassword = true,
             )
+            if (errorMessage != null) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
             Spacer(Modifier.height(20.dp))
             Button(
                 onClick = { onLogIn(username, password) },

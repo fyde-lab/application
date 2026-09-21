@@ -54,6 +54,23 @@ expect object FydeSdk {
     suspend fun initialize(serverUrl: String): Result<Unit>
 
     /**
+     * Verifies [username]/[password] and opens a session for this device,
+     * storing the resulting session token so that subsequent calls (like
+     * [consume]) can authenticate with the server. Mirrors
+     * [`crate::UsersService::login`]; fails if [initialize] hasn't been
+     * called yet.
+     */
+    suspend fun login(username: String, password: String): Result<Unit>
+
+    /**
+     * Creates a new account for [username] and opens a session for this
+     * device, the same as a subsequent [login] would. Mirrors
+     * [`crate::UsersService::create`]; fails if [initialize] hasn't been
+     * called yet.
+     */
+    suspend fun register(username: String, password: String): Result<Unit>
+
+    /**
      * Lists documents previously cached locally, oldest first, one page at a
      * time. Mirrors [`crate::DocumentsService::list`]; fails if
      * [initialize] hasn't been called yet.

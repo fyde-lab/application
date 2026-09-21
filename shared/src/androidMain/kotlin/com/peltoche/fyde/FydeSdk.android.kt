@@ -13,6 +13,16 @@ actual object FydeSdk {
         client = FydeClient.connect(serverUrl)
     }
 
+    actual suspend fun login(username: String, password: String): Result<Unit> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.login(username, password, getPlatform().name)
+    }.map { }
+
+    actual suspend fun register(username: String, password: String): Result<Unit> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.createUser(username, password, getPlatform().name)
+    }.map { }
+
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> =
         runCatching {
             val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }

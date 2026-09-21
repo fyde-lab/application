@@ -37,6 +37,7 @@ fun RegisterScreen(
     onRegister: (username: String, password: String) -> Unit,
     onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier,
+    errorMessage: String? = null,
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -85,6 +86,14 @@ fun RegisterScreen(
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = "Passwords don't match",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+            if (errorMessage != null) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = errorMessage,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )

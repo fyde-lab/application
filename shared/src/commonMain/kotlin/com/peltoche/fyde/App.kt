@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
  * doesn't paginate yet. */
 private const val DOCUMENT_LIST_LIMIT = 100L
 
+private const val FYDE_SERVER_URL = "http://127.0.0.1:40051"
+
 /** Color tokens from DESIGN.md's dark (and only, for now) theme. */
 private val FydeDarkColorScheme = darkColorScheme(
     background = Color(0xFF141414),
@@ -47,23 +49,61 @@ private sealed interface Screen {
 fun App() {
     MaterialTheme(colorScheme = FydeDarkColorScheme) {
         var screen by remember { mutableStateOf<Screen>(Screen.Login) }
+        var authError by remember { mutableStateOf<String?>(null) }
+        val scope = rememberCoroutineScope()
 
         when (screen) {
-            // fyde-sdk has no auth API yet (see ../../../CLAUDE.md on the
-            // Users service) — accepting any non-blank credentials here is a
-            // placeholder until that's wired up.
             Screen.Login -> LoginScreen(
-                onLogIn = { _, _ -> screen = Screen.Documents },
-                onNavigateToRegister = { screen = Screen.Register },
+                errorMessage = authError,
+                onLogIn = { username, password ->
+                    authError = null
+                    scope.launch {
+                        authenticate(username, password, FydeSdk::login)
+                            .onSuccess { screen = Screen.Documents }
+                            .onFailure { authError = it.message ?: "Failed to log in" }
+                    }
+                },
+                onNavigateToRegister = {
+                    authError = null
+                    screen = Screen.Register
+                },
             )
             Screen.Register -> RegisterScreen(
-                onRegister = { _, _ -> screen = Screen.Documents },
-                onNavigateToLogin = { screen = Screen.Login },
+                errorMessage = authError,
+                onRegister = { username, password ->
+                    authError = null
+                    scope.launch {
+                        authenticate(username, password, FydeSdk::register)
+                            .onSuccess { screen = Screen.Documents }
+                            .onFailure { authError = it.message ?: "Failed to create account" }
+                    }
+                },
+                onNavigateToLogin = {
+                    authError = null
+                    screen = Screen.Login
+                },
             )
             Screen.Documents -> DocumentsScreen()
         }
     }
 }
+
+/**
+ * Connects to the fyde server and then runs [credentialCall] (either
+ * [FydeSdk.login] or [FydeSdk.register]) against that connection, so the
+ * session token it stores is set before [DocumentsScreen] opens the
+ * changelog stream. [FydeSdk.initialize] is safe to call again from
+ * [DocumentsScreen] afterwards — it's a no-op reconnect.
+ */
+private suspend fun authenticate(
+    username: String,
+    password: String,
+    credentialCall: suspend (String, String) -> Result<Unit>,
+): Result<Unit> =
+    FydeSdk.initialize(FYDE_SERVER_URL).fold(
+        onSuccess = { credentialCall(username, password) },
+        onFailure = { Result.failure(it) },
+    )
 
 /**
  * Owns the `fyde-sdk` connection and the changelog subscription, and maps
@@ -79,7 +119,7 @@ private fun DocumentsScreen() {
     LaunchedEffect(retryKey) {
         uiState = DocumentListUiState.Connecting
 
-        val initResult = FydeSdk.initialize("http://127.0.0.1:40051")
+        val initResult = FydeSdk.initialize(FYDE_SERVER_URL)
         if (initResult.isFailure) {
             uiState = DocumentListUiState.ConnectFailed(
                 message = initResult.exceptionOrNull()?.message ?: "Unknown error",
