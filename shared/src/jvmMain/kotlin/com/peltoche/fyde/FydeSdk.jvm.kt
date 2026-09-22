@@ -42,7 +42,7 @@ actual object FydeSdk {
     actual suspend fun consume(onEvent: (FydeChangelogEvent) -> Unit): Result<Unit> = runCatching {
         val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
         val listener = onEvent
-        client.consume(object : ChangelogListener {
+        client.sync(object : ChangelogListener {
             override fun onEvent(event: FfiChangelogEvent) = listener(event.toFydeChangelogEvent())
         })
     }
