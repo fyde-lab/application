@@ -60,7 +60,7 @@ private fun FfiDocument.toFydeDocument() = FydeDocument(
 )
 
 private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
-    offset = offset,
+    id = id,
     eventType = when (eventType) {
         FfiEventType.CREATED -> FydeEventType.CREATED
         FfiEventType.UPDATE_METADATA -> FydeEventType.UPDATE_METADATA

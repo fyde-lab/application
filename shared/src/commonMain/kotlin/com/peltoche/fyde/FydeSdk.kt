@@ -33,7 +33,7 @@ enum class FydeEventType {
  * events, which are the only ones that carry content and metadata today.
  */
 data class FydeChangelogEvent(
-    val offset: Long,
+    val id: String,
     val eventType: FydeEventType,
     val documentId: String,
     val document: FydeDocument?,
@@ -95,7 +95,7 @@ expect object FydeSdk {
 
     /**
      * Streams and decrypts every changelog event since the last consumed
-     * offset, invoking [onEvent] once for each (replaying history, then
+     * id, invoking [onEvent] once for each (replaying history, then
      * continuing with the live tail). Resumes from the cursor persisted
      * locally by a previous call, or from the beginning of the changelog if
      * there is none. Suspends until the server closes the stream or an
