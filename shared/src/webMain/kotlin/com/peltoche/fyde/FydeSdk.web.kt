@@ -16,5 +16,7 @@ actual object FydeSdk {
 
     actual suspend fun isConnected(): Result<Boolean> = unsupported()
 
+    actual suspend fun isServerReachable(): Result<Boolean> = unsupported()
+
     actual suspend fun uploadDocument(path: String): Result<String> = unsupported()
 }

@@ -28,6 +28,11 @@ actual object FydeSdk {
         client.isConnected()
     }
 
+    actual suspend fun isServerReachable(): Result<Boolean> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.isServerReachable()
+    }
+
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> =
         runCatching {
             val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }

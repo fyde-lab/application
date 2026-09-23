@@ -79,6 +79,13 @@ expect object FydeSdk {
     suspend fun isConnected(): Result<Boolean>
 
     /**
+     * Returns whether the fyde server currently responds as reachable.
+     * Mirrors [`crate::ServerStateService::is_server_reachable`]; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun isServerReachable(): Result<Boolean>
+
+    /**
      * Lists documents previously cached locally, oldest first, one page at a
      * time. Mirrors [`crate::DocumentsService::list`]; fails if
      * [initialize] hasn't been called yet.

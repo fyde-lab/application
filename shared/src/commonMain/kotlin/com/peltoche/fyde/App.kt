@@ -12,6 +12,7 @@ import com.peltoche.fyde.resources.error_unknown
 import com.peltoche.fyde.resources.live_updates_stopped
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 
@@ -20,6 +21,9 @@ import org.jetbrains.compose.resources.getString
 private const val DOCUMENT_LIST_LIMIT = 100L
 
 private const val FYDE_SERVER_URL = "http://127.0.0.1:40051"
+
+/** How often to poll [FydeSdk.isServerReachable] while the document list is open. */
+private const val SERVER_REACHABILITY_POLL_INTERVAL_MS = 200L
 
 /** Color tokens from DESIGN.md's dark (and only, for now) theme. */
 private val FydeDarkColorScheme = darkColorScheme(
@@ -202,6 +206,20 @@ private fun DocumentsScreen() {
                     (uiState as? DocumentListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
                 },
             )
+        }
+    }
+
+    // Polls fyde-sdk's own reachability check independently of the changelog
+    // stream above, so the upload button reflects whether calls into the SDK
+    // are currently expected to succeed rather than just whether that one
+    // stream happened to drop.
+    LaunchedEffect(retryKey) {
+        while (true) {
+            val reachable = FydeSdk.isServerReachable().getOrDefault(false)
+            (uiState as? DocumentListUiState.Loaded)?.let { current ->
+                uiState = current.copy(serverReachable = reachable)
+            }
+            delay(SERVER_REACHABILITY_POLL_INTERVAL_MS)
         }
     }
 

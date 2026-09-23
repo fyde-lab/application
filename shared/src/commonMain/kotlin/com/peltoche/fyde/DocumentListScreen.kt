@@ -77,12 +77,16 @@ sealed interface DocumentListUiState {
      * fetched (known shape, unknown content — rendered as a skeleton rather
      * than a spinner), and non-null once loaded (possibly empty).
      * [banner] surfaces a non-fatal problem (e.g. the changelog stream
-     * dropping) without discarding what's already loaded.
+     * dropping) without discarding what's already loaded. [serverReachable]
+     * mirrors `fyde-sdk`'s own `is_server_reachable` check, polled
+     * periodically by the caller — the upload button reflects it by
+     * disabling itself whenever the server isn't currently reachable.
      */
     data class Loaded(
         val documents: List<FydeDocument>?,
         val banner: String? = null,
         val onDismissBanner: () -> Unit = {},
+        val serverReachable: Boolean = true,
     ) : DocumentListUiState
 }
 
@@ -149,7 +153,7 @@ private fun LoadedDocumentList(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        DocumentListTopBar(onUpload = onUpload, isUploading = isUploading)
+        DocumentListTopBar(onUpload = onUpload, isUploading = isUploading, uploadEnabled = state.serverReachable)
         state.banner?.let { message ->
             StatusBanner(message = message, onDismiss = state.onDismissBanner)
         }
@@ -208,7 +212,7 @@ private fun LoadedDocumentList(
 }
 
 @Composable
-private fun DocumentListTopBar(onUpload: () -> Unit = {}, isUploading: Boolean = false) {
+private fun DocumentListTopBar(onUpload: () -> Unit = {}, isUploading: Boolean = false, uploadEnabled: Boolean = true) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -226,6 +230,7 @@ private fun DocumentListTopBar(onUpload: () -> Unit = {}, isUploading: Boolean =
         UploadButton(
             onUpload = onUpload,
             isUploading = isUploading,
+            enabled = uploadEnabled,
             modifier = Modifier.align(Alignment.CenterEnd).padding(horizontal = 8.dp),
         )
         HorizontalDivider(
@@ -236,7 +241,7 @@ private fun DocumentListTopBar(onUpload: () -> Unit = {}, isUploading: Boolean =
 }
 
 @Composable
-private fun UploadButton(onUpload: () -> Unit, isUploading: Boolean, modifier: Modifier = Modifier) {
+private fun UploadButton(onUpload: () -> Unit, isUploading: Boolean, enabled: Boolean = true, modifier: Modifier = Modifier) {
     if (isUploading) {
         CircularProgressIndicator(
             modifier = modifier.size(20.dp),
@@ -247,13 +252,14 @@ private fun UploadButton(onUpload: () -> Unit, isUploading: Boolean, modifier: M
         val description = stringResource(Res.string.upload_document)
         IconButton(
             onClick = onUpload,
+            enabled = enabled,
             modifier = modifier.semantics { contentDescription = description },
         ) {
             Text(
                 text = "+",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
