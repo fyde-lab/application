@@ -1,16 +1,43 @@
 package com.peltoche.fyde
 
+import android.util.Log
 import uniffi.fyde_sdk.ChangelogListener
 import uniffi.fyde_sdk.FfiChangelogEvent
+import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiEventType
+import uniffi.fyde_sdk.FfiLogLevel
+import uniffi.fyde_sdk.FfiStorage
 import uniffi.fyde_sdk.FydeClient
+import uniffi.fyde_sdk.LogListener
+
+private const val LOG_TAG = "FydeSdk"
+
+/** Forwards every SDK log line to Android's `Log`, mirroring its level. */
+private class AndroidLogListener : LogListener {
+    override fun onLog(level: FfiLogLevel, line: String) {
+        val priority = when (level) {
+            FfiLogLevel.OFF -> return
+            FfiLogLevel.ERROR -> Log.ERROR
+            FfiLogLevel.WARN -> Log.WARN
+            FfiLogLevel.INFO -> Log.INFO
+            FfiLogLevel.DEBUG -> Log.DEBUG
+            FfiLogLevel.TRACE -> Log.VERBOSE
+        }
+        Log.println(priority, LOG_TAG, line)
+    }
+}
 
 actual object FydeSdk {
     private var client: FydeClient? = null
 
     actual suspend fun initialize(serverUrl: String): Result<Unit> = runCatching {
-        client = FydeClient.connect(serverUrl)
+        val config = FfiClientConfig(
+            url = serverUrl,
+            storage = FfiStorage.DISK,
+            logLevel = FfiLogLevel.DEBUG,
+        )
+        client = FydeClient.init(config, AndroidLogListener())
     }
 
     actual suspend fun login(username: String, password: String): Result<Unit> = runCatching {

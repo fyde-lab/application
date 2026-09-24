@@ -1,16 +1,34 @@
 package com.peltoche.fyde
 
+import platform.Foundation.NSLog
 import uniffi.fyde_sdk.ChangelogListener
 import uniffi.fyde_sdk.FfiChangelogEvent
+import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiEventType
+import uniffi.fyde_sdk.FfiLogLevel
+import uniffi.fyde_sdk.FfiStorage
 import uniffi.fyde_sdk.FydeClient
+import uniffi.fyde_sdk.LogListener
+
+/** Forwards every SDK log line to iOS's `NSLog`, prefixed with its level. */
+private class IosLogListener : LogListener {
+    override fun onLog(level: FfiLogLevel, line: String) {
+        if (level == FfiLogLevel.OFF) return
+        NSLog("[FydeSdk] %s: %s", level.name, line)
+    }
+}
 
 actual object FydeSdk {
     private var client: FydeClient? = null
 
     actual suspend fun initialize(serverUrl: String): Result<Unit> = runCatching {
-        client = FydeClient.connect(serverUrl)
+        val config = FfiClientConfig(
+            url = serverUrl,
+            storage = FfiStorage.DISK,
+            logLevel = FfiLogLevel.DEBUG,
+        )
+        client = FydeClient.init(config, IosLogListener())
     }
 
     actual suspend fun login(username: String, password: String): Result<Unit> = runCatching {

@@ -1,16 +1,44 @@
 package com.peltoche.fyde
 
+import java.util.logging.Level
+import java.util.logging.Logger
 import uniffi.fyde_sdk.ChangelogListener
 import uniffi.fyde_sdk.FfiChangelogEvent
+import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiEventType
+import uniffi.fyde_sdk.FfiLogLevel
+import uniffi.fyde_sdk.FfiStorage
 import uniffi.fyde_sdk.FydeClient
+import uniffi.fyde_sdk.LogListener
+
+private val logger = Logger.getLogger("FydeSdk")
+
+/** Forwards every SDK log line to the JVM's `java.util.logging`, mirroring its level. */
+private class JvmLogListener : LogListener {
+    override fun onLog(level: FfiLogLevel, line: String) {
+        val julLevel = when (level) {
+            FfiLogLevel.OFF -> return
+            FfiLogLevel.ERROR -> Level.SEVERE
+            FfiLogLevel.WARN -> Level.WARNING
+            FfiLogLevel.INFO -> Level.INFO
+            FfiLogLevel.DEBUG -> Level.FINE
+            FfiLogLevel.TRACE -> Level.FINEST
+        }
+        logger.log(julLevel, line)
+    }
+}
 
 actual object FydeSdk {
     private var client: FydeClient? = null
 
     actual suspend fun initialize(serverUrl: String): Result<Unit> = runCatching {
-        client = FydeClient.connect(serverUrl)
+        val config = FfiClientConfig(
+            url = serverUrl,
+            storage = FfiStorage.DISK,
+            logLevel = FfiLogLevel.DEBUG,
+        )
+        client = FydeClient.init(config, JvmLogListener())
     }
 
     actual suspend fun login(username: String, password: String): Result<Unit> = runCatching {
