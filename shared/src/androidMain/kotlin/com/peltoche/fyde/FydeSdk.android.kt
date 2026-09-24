@@ -43,7 +43,7 @@ actual object FydeSdk {
         val config = FfiClientConfig(
             url = serverUrl,
             storage = FfiStorage.Disk(path = defaultStoragePath()),
-            logLevel = FfiLogLevel.DEBUG,
+            logLevel = FfiLogLevel.INFO,
         )
         client = FydeClient.init(config, AndroidLogListener())
     }
