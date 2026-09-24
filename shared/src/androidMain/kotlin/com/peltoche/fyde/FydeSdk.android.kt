@@ -1,6 +1,7 @@
 package com.peltoche.fyde
 
 import android.util.Log
+import java.io.File
 import uniffi.fyde_sdk.ChangelogListener
 import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
@@ -28,13 +29,20 @@ private class AndroidLogListener : LogListener {
     }
 }
 
+/**
+ * The on-disk database path fyde-sdk persists local state to on Android:
+ * `fyde.db` inside the app's private, per-app storage directory (backed up
+ * on app uninstall/data-clear, and off-limits to other apps).
+ */
+private fun defaultStoragePath(): String = File(appContext.filesDir, "fyde.db").absolutePath
+
 actual object FydeSdk {
     private var client: FydeClient? = null
 
     actual suspend fun initialize(serverUrl: String): Result<Unit> = runCatching {
         val config = FfiClientConfig(
             url = serverUrl,
-            storage = FfiStorage.DISK,
+            storage = FfiStorage.Disk(path = defaultStoragePath()),
             logLevel = FfiLogLevel.DEBUG,
         )
         client = FydeClient.init(config, AndroidLogListener())

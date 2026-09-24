@@ -1,5 +1,6 @@
 package com.peltoche.fyde
 
+import java.io.File
 import java.util.logging.Level
 import java.util.logging.Logger
 import uniffi.fyde_sdk.ChangelogListener
@@ -29,13 +30,26 @@ private class JvmLogListener : LogListener {
     }
 }
 
+/**
+ * The on-disk database path fyde-sdk persists local state to on Desktop
+ * (JVM): `fyde.db` under the XDG data directory (`$XDG_DATA_HOME/fyde`,
+ * falling back to `~/.local/share/fyde` when unset), mirroring the
+ * default `fyde-sdk` itself uses for non-FFI callers (see `sdk/CLAUDE.md`).
+ */
+private fun defaultStoragePath(): String {
+    val dataHome = System.getenv("XDG_DATA_HOME")?.takeIf { it.isNotBlank() }
+        ?: "${System.getProperty("user.home")}/.local/share"
+    val directory = File(dataHome, "fyde").apply { mkdirs() }
+    return File(directory, "fyde.db").absolutePath
+}
+
 actual object FydeSdk {
     private var client: FydeClient? = null
 
     actual suspend fun initialize(serverUrl: String): Result<Unit> = runCatching {
         val config = FfiClientConfig(
             url = serverUrl,
-            storage = FfiStorage.DISK,
+            storage = FfiStorage.Disk(path = defaultStoragePath()),
             logLevel = FfiLogLevel.DEBUG,
         )
         client = FydeClient.init(config, JvmLogListener())

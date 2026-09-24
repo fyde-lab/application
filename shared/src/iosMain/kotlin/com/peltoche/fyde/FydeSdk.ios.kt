@@ -1,6 +1,11 @@
 package com.peltoche.fyde
 
+import platform.Foundation.NSApplicationSupportDirectory
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSLog
+import platform.Foundation.NSSearchPathForDirectoriesInDomains
+import platform.Foundation.NSUserDomainMask
 import uniffi.fyde_sdk.ChangelogListener
 import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
@@ -19,13 +24,33 @@ private class IosLogListener : LogListener {
     }
 }
 
+/**
+ * The on-disk database path fyde-sdk persists local state to on iOS:
+ * `fyde.db` inside the app's Application Support directory, the
+ * Apple-recommended location for app-generated data the user doesn't
+ * browse directly (unlike Documents).
+ */
+private fun defaultStoragePath(): String {
+    val directoryPath = (
+        NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true)
+            .firstOrNull() as? String
+        ) ?: NSHomeDirectory()
+    NSFileManager.defaultManager.createDirectoryAtPath(
+        directoryPath,
+        withIntermediateDirectories = true,
+        attributes = null,
+        error = null,
+    )
+    return "$directoryPath/fyde.db"
+}
+
 actual object FydeSdk {
     private var client: FydeClient? = null
 
     actual suspend fun initialize(serverUrl: String): Result<Unit> = runCatching {
         val config = FfiClientConfig(
             url = serverUrl,
-            storage = FfiStorage.DISK,
+            storage = FfiStorage.Disk(path = defaultStoragePath()),
             logLevel = FfiLogLevel.DEBUG,
         )
         client = FydeClient.init(config, IosLogListener())

@@ -72,6 +72,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.startup.runtime)
             implementation(project(":sdkBridge"))
         }
         commonMain.dependencies {
