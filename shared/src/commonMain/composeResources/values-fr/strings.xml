@@ -19,7 +19,6 @@
 
     <!-- Connection -->
     <string name="error_unknown">Erreur inconnue</string>
-    <string name="live_updates_stopped">Mises à jour en direct interrompues : %1$s</string>
     <string name="connecting_message">Connexion à fyde-sdk…</string>
     <string name="connect_failed_title">Impossible de joindre le serveur</string>
     <string name="retry">Réessayer</string>
@@ -34,4 +33,11 @@
     <string name="upload_document">Importer un document</string>
     <string name="upload_failed">Échec de l\'import : %1$s</string>
     <string name="uploads_failed">%1$d import(s) sur %2$d ont échoué</string>
+    <string name="profile_menu">Menu du profil</string>
+    <string name="log_out">Se déconnecter</string>
+
+    <!-- PDF viewer -->
+    <string name="back">Retour</string>
+    <string name="pdf_render_failed">Impossible d\'afficher ce PDF : %1$s</string>
+    <string name="pdf_preview_unavailable">L\'aperçu PDF n\'est pas encore disponible sur le Web.</string>
 </resources>

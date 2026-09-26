@@ -8,7 +8,10 @@ actual object FydeSdk {
         )
     )
 
-    actual suspend fun initialize(serverUrl: String): Result<Unit> = unsupported()
+    actual suspend fun initialize(
+        serverUrl: String,
+        onDocumentChange: ((FydeChangelogEvent) -> Unit)?,
+    ): Result<Unit> = unsupported()
 
     actual suspend fun login(username: String, password: String): Result<Unit> = unsupported()
 

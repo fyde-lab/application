@@ -9,7 +9,6 @@ import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.error_unknown
-import com.peltoche.fyde.resources.live_updates_stopped
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import kotlinx.coroutines.delay
@@ -54,6 +53,7 @@ private sealed interface Screen {
     data object Login : Screen
     data object Register : Screen
     data object Documents : Screen
+    data class DocumentViewer(val document: FydeDocument) : Screen
 }
 
 @Composable
@@ -75,7 +75,7 @@ fun App() {
             }
         }
 
-        when (screen) {
+        when (val currentScreen = screen) {
             Screen.Login -> LoginScreen(
                 errorMessage = authError,
                 onLogIn = { username, password ->
@@ -106,7 +106,14 @@ fun App() {
                     screen = Screen.Login
                 },
             )
-            Screen.Documents -> DocumentsScreen()
+            Screen.Documents -> DocumentsScreen(
+                onLogout = { screen = Screen.Login },
+                onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
+            )
+            is Screen.DocumentViewer -> PdfViewerScreen(
+                document = currentScreen.document,
+                onBack = { screen = Screen.Documents },
+            )
         }
     }
 }
@@ -135,7 +142,7 @@ private suspend fun authenticate(
  * which can change without touching anything in this function.
  */
 @Composable
-private fun DocumentsScreen() {
+private fun DocumentsScreen(onLogout: () -> Unit, onOpenDocument: (FydeDocument) -> Unit) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
     var isUploading by remember { mutableStateOf(false) }
@@ -174,7 +181,19 @@ private fun DocumentsScreen() {
     LaunchedEffect(retryKey) {
         uiState = DocumentListUiState.Connecting
 
-        val initResult = FydeSdk.initialize(FYDE_SERVER_URL)
+        // Re-lists the cached documents every time a new changelog event
+        // comes in, so the screen stays in sync with what fyde-sdk has
+        // materialized locally. fyde-sdk consumes the changelog in the
+        // background for the lifetime of the session (started by login/
+        // register, or immediately here if one is already persisted), so
+        // no separate streaming call is needed.
+        val initResult = FydeSdk.initialize(FYDE_SERVER_URL) {
+            scope.launch {
+                val refreshed = FydeSdk.listDocuments(offset = 0, limit = DOCUMENT_LIST_LIMIT)
+                    .getOrElse { (uiState as? DocumentListUiState.Loaded)?.documents ?: emptyList() }
+                uiState = DocumentListUiState.Loaded(documents = refreshed)
+            }
+        }
         if (initResult.isFailure) {
             uiState = DocumentListUiState.ConnectFailed(
                 message = initResult.exceptionOrNull()?.message ?: getString(Res.string.error_unknown),
@@ -187,26 +206,6 @@ private fun DocumentsScreen() {
         uiState = DocumentListUiState.Loaded(
             documents = FydeSdk.listDocuments(offset = 0, limit = DOCUMENT_LIST_LIMIT).getOrElse { emptyList() },
         )
-
-        // Re-lists the cached documents every time a new changelog event
-        // comes in, so the screen stays in sync with what fyde-sdk has
-        // materialized locally. Suspends for as long as the stream is open,
-        // i.e. for the lifetime of this effect.
-        FydeSdk.consume {
-            launch {
-                val refreshed = FydeSdk.listDocuments(offset = 0, limit = DOCUMENT_LIST_LIMIT)
-                    .getOrElse { (uiState as? DocumentListUiState.Loaded)?.documents ?: emptyList() }
-                uiState = DocumentListUiState.Loaded(documents = refreshed)
-            }
-        }.onFailure { error ->
-            val current = uiState as? DocumentListUiState.Loaded ?: return@onFailure
-            uiState = current.copy(
-                banner = getString(Res.string.live_updates_stopped, error.message ?: ""),
-                onDismissBanner = {
-                    (uiState as? DocumentListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
-                },
-            )
-        }
     }
 
     // Polls fyde-sdk's own reachability check independently of the changelog
@@ -223,5 +222,11 @@ private fun DocumentsScreen() {
         }
     }
 
-    DocumentListScreen(state = uiState, onUpload = pickDocuments, isUploading = isUploading)
+    DocumentListScreen(
+        state = uiState,
+        onUpload = pickDocuments,
+        isUploading = isUploading,
+        onLogout = onLogout,
+        onOpenDocument = onOpenDocument,
+    )
 }

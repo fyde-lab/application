@@ -2,7 +2,7 @@ package com.peltoche.fyde
 
 import android.util.Log
 import java.io.File
-import uniffi.fyde_sdk.ChangelogListener
+import uniffi.fyde_sdk.DocumentChangeListener
 import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocument
@@ -39,13 +39,21 @@ private fun defaultStoragePath(): String = File(appContext.filesDir, "fyde.db").
 actual object FydeSdk {
     private var client: FydeClient? = null
 
-    actual suspend fun initialize(serverUrl: String): Result<Unit> = runCatching {
+    actual suspend fun initialize(
+        serverUrl: String,
+        onDocumentChange: ((FydeChangelogEvent) -> Unit)?,
+    ): Result<Unit> = runCatching {
         val config = FfiClientConfig(
             url = serverUrl,
             storage = FfiStorage.Disk(path = defaultStoragePath()),
             logLevel = FfiLogLevel.INFO,
         )
-        client = FydeClient.init(config, AndroidLogListener())
+        val listener = onDocumentChange?.let { callback ->
+            object : DocumentChangeListener {
+                override fun onEvent(event: FfiChangelogEvent) = callback(event.toFydeChangelogEvent())
+            }
+        }
+        client = FydeClient.init(config, AndroidLogListener(), listener)
     }
 
     actual suspend fun login(username: String, password: String): Result<Unit> = runCatching {
@@ -77,14 +85,6 @@ actual object FydeSdk {
     actual suspend fun uploadDocument(path: String): Result<String> = runCatching {
         val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
         client.uploadDocument(path)
-    }
-
-    actual suspend fun consume(onEvent: (FydeChangelogEvent) -> Unit): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
-        val listener = onEvent
-        client.consume(object : ChangelogListener {
-            override fun onEvent(event: FfiChangelogEvent) = listener(event.toFydeChangelogEvent())
-        })
     }
 }
 

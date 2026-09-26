@@ -49,14 +49,23 @@ expect object FydeSdk {
     /**
      * Connects to a fyde server at [serverUrl], initializing the SDK client
      * for the lifetime of the process. Safe to call more than once; the last
-     * call wins.
+     * call wins. [onDocumentChange], if given, is invoked once for every
+     * changelog event consumed by the background sync job that [login]/
+     * [register] start automatically (replaying persisted history, then
+     * continuing with the live tail) — or immediately, if a session from a
+     * previous run is already persisted. Mirrors `ClientConfig`'s
+     * `on_document_change`.
      */
-    suspend fun initialize(serverUrl: String): Result<Unit>
+    suspend fun initialize(
+        serverUrl: String,
+        onDocumentChange: ((FydeChangelogEvent) -> Unit)? = null,
+    ): Result<Unit>
 
     /**
      * Verifies [username]/[password] and opens a session for this device,
-     * storing the resulting session token so that subsequent calls (like
-     * [consume]) can authenticate with the server. Mirrors
+     * storing the resulting session token so that subsequent calls can
+     * authenticate with the server, and starts the background changelog
+     * sync that feeds [initialize]'s `onDocumentChange`. Mirrors
      * [`crate::UsersService::login`]; fails if [initialize] hasn't been
      * called yet.
      */
@@ -99,16 +108,4 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun uploadDocument(path: String): Result<String>
-
-    /**
-     * Streams and decrypts every changelog event since the last consumed
-     * id, invoking [onEvent] once for each (replaying history, then
-     * continuing with the live tail). Resumes from the cursor persisted
-     * locally by a previous call, or from the beginning of the changelog if
-     * there is none. Suspends until the server closes the stream or an
-     * error occurs, so run it from a background coroutine. Mirrors
-     * [`crate::ChangelogService::consume`]; fails if [initialize] hasn't
-     * been called yet.
-     */
-    suspend fun consume(onEvent: (FydeChangelogEvent) -> Unit): Result<Unit>
 }
