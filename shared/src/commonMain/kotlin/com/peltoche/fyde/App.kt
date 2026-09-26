@@ -54,6 +54,7 @@ private sealed interface Screen {
     data object Register : Screen
     data object Documents : Screen
     data class DocumentViewer(val document: FydeDocument) : Screen
+    data object Settings : Screen
 }
 
 @Composable
@@ -109,9 +110,14 @@ fun App() {
             Screen.Documents -> DocumentsScreen(
                 onLogout = { screen = Screen.Login },
                 onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
+                onOpenSettings = { screen = Screen.Settings },
             )
             is Screen.DocumentViewer -> PdfViewerScreen(
                 document = currentScreen.document,
+                onBack = { screen = Screen.Documents },
+            )
+            Screen.Settings -> SettingsScreen(
+                serverUrl = FYDE_SERVER_URL,
                 onBack = { screen = Screen.Documents },
             )
         }
@@ -142,7 +148,11 @@ private suspend fun authenticate(
  * which can change without touching anything in this function.
  */
 @Composable
-private fun DocumentsScreen(onLogout: () -> Unit, onOpenDocument: (FydeDocument) -> Unit) {
+private fun DocumentsScreen(
+    onLogout: () -> Unit,
+    onOpenDocument: (FydeDocument) -> Unit,
+    onOpenSettings: () -> Unit,
+) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
     var isUploading by remember { mutableStateOf(false) }
@@ -228,5 +238,6 @@ private fun DocumentsScreen(onLogout: () -> Unit, onOpenDocument: (FydeDocument)
         isUploading = isUploading,
         onLogout = onLogout,
         onOpenDocument = onOpenDocument,
+        onOpenSettings = onOpenSettings,
     )
 }

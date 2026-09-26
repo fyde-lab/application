@@ -61,6 +61,7 @@ import com.peltoche.fyde.resources.no_documents_title
 import com.peltoche.fyde.resources.profile_menu
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.search_documents_placeholder
+import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.resources.upload_document
 import org.jetbrains.compose.resources.stringResource
 
@@ -103,11 +104,12 @@ fun DocumentListScreen(
     isUploading: Boolean = false,
     onLogout: () -> Unit = {},
     onOpenDocument: (FydeDocument) -> Unit = {},
+    onOpenSettings: () -> Unit = {},
 ) {
     when (state) {
         DocumentListUiState.Connecting -> ConnectingState(modifier)
         is DocumentListUiState.ConnectFailed -> ConnectFailedState(state, modifier)
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onLogout, onOpenDocument)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onLogout, onOpenDocument, onOpenSettings)
     }
 }
 
@@ -154,6 +156,7 @@ private fun LoadedDocumentList(
     isUploading: Boolean = false,
     onLogout: () -> Unit = {},
     onOpenDocument: (FydeDocument) -> Unit = {},
+    onOpenSettings: () -> Unit = {},
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -167,6 +170,7 @@ private fun LoadedDocumentList(
             isUploading = isUploading,
             uploadEnabled = state.serverReachable,
             onLogout = onLogout,
+            onOpenSettings = onOpenSettings,
         )
         state.banner?.let { message ->
             StatusBanner(message = message, onDismiss = state.onDismissBanner)
@@ -233,6 +237,7 @@ private fun DocumentListTopBar(
     isUploading: Boolean = false,
     uploadEnabled: Boolean = true,
     onLogout: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -254,7 +259,7 @@ private fun DocumentListTopBar(
         ) {
             UploadButton(onUpload = onUpload, isUploading = isUploading, enabled = uploadEnabled)
             Spacer(Modifier.width(4.dp))
-            ProfileMenu(onLogout = onLogout)
+            ProfileMenu(onOpenSettings = onOpenSettings, onLogout = onLogout)
         }
         HorizontalDivider(
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -265,11 +270,11 @@ private fun DocumentListTopBar(
 
 /**
  * The round avatar in the top-right corner. Opens a dropdown on click with
- * account actions — currently just log out, since the app has no profile
+ * account actions — settings and log out, since the app has no profile
  * data of its own yet (hence the placeholder glyph instead of a real image).
  */
 @Composable
-private fun ProfileMenu(onLogout: () -> Unit) {
+private fun ProfileMenu(onOpenSettings: () -> Unit, onLogout: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val menuLabel = stringResource(Res.string.profile_menu)
 
@@ -288,6 +293,13 @@ private fun ProfileMenu(onLogout: () -> Unit) {
             )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(Res.string.settings)) },
+                onClick = {
+                    expanded = false
+                    onOpenSettings()
+                },
+            )
             DropdownMenuItem(
                 text = { Text(stringResource(Res.string.log_out)) },
                 onClick = {

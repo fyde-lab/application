@@ -34,7 +34,13 @@
     <string name="upload_failed">Upload failed: %1$s</string>
     <string name="uploads_failed">%1$d of %2$d uploads failed</string>
     <string name="profile_menu">Profile menu</string>
+    <string name="settings">Settings</string>
     <string name="log_out">Log out</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="server_section_title">Server</string>
+    <string name="server_url_label">Server URL</string>
 
     <!-- PDF viewer -->
     <string name="back">Back</string>

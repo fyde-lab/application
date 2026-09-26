@@ -34,7 +34,13 @@
     <string name="upload_failed">Échec de l\'import : %1$s</string>
     <string name="uploads_failed">%1$d import(s) sur %2$d ont échoué</string>
     <string name="profile_menu">Menu du profil</string>
+    <string name="settings">Paramètres</string>
     <string name="log_out">Se déconnecter</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Paramètres</string>
+    <string name="server_section_title">Serveur</string>
+    <string name="server_url_label">URL du serveur</string>
 
     <!-- PDF viewer -->
     <string name="back">Retour</string>
