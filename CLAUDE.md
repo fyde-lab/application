@@ -32,7 +32,7 @@ Tests are per-target, all against code in `shared/src/*Test`:
 ./gradlew :shared:iosSimulatorArm64Test    # iOS
 ```
 
-Toolchain: JDK 21 (Gradle toolchain via the Foojay resolver plugin, see `gradle/gradle-daemon-jvm.properties`), Kotlin 2.4.20, Compose Multiplatform 1.12.0, AGP 9.1.1 (versions pinned in `gradle/libs.versions.toml`). Note: unlike `server`/`sdk`, there is currently no `shell.nix` in this directory — the JDK/Gradle toolchain is resolved automatically by the Gradle wrapper rather than provided by a nix shell.
+Toolchain: JDK 21 (Gradle toolchain via the Foojay resolver plugin, see `gradle/gradle-daemon-jvm.properties`), Kotlin 2.4.20, Compose Multiplatform 1.12.0, AGP 9.1.1 (versions pinned in `gradle/libs.versions.toml`). This directory has its own `shell.nix`/`.envrc` (not wired to the repo-root one) providing `jdk21`, the Rust toolchain `sdkBridge` needs to cross-compile `../sdk`, and the native libs (X11/GL/fontconfig) desktop's Compose UI needs at runtime — load it (`nix-shell` or direnv) before running Gradle, since `JAVA_HOME` is not otherwise set.
 
 ## Architecture
 
