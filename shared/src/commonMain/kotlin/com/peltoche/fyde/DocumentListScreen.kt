@@ -5,7 +5,9 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +26,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,7 +42,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,9 +54,11 @@ import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.documents_title
+import com.peltoche.fyde.resources.log_out
 import com.peltoche.fyde.resources.no_documents_description
 import com.peltoche.fyde.resources.no_documents_match
 import com.peltoche.fyde.resources.no_documents_title
+import com.peltoche.fyde.resources.profile_menu
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.search_documents_placeholder
 import com.peltoche.fyde.resources.upload_document
@@ -93,11 +101,13 @@ fun DocumentListScreen(
     modifier: Modifier = Modifier,
     onUpload: () -> Unit = {},
     isUploading: Boolean = false,
+    onLogout: () -> Unit = {},
+    onOpenDocument: (FydeDocument) -> Unit = {},
 ) {
     when (state) {
         DocumentListUiState.Connecting -> ConnectingState(modifier)
         is DocumentListUiState.ConnectFailed -> ConnectFailedState(state, modifier)
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onLogout, onOpenDocument)
     }
 }
 
@@ -142,6 +152,8 @@ private fun LoadedDocumentList(
     modifier: Modifier = Modifier,
     onUpload: () -> Unit = {},
     isUploading: Boolean = false,
+    onLogout: () -> Unit = {},
+    onOpenDocument: (FydeDocument) -> Unit = {},
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
@@ -150,7 +162,12 @@ private fun LoadedDocumentList(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        DocumentListTopBar(onUpload = onUpload, isUploading = isUploading, uploadEnabled = state.serverReachable)
+        DocumentListTopBar(
+            onUpload = onUpload,
+            isUploading = isUploading,
+            uploadEnabled = state.serverReachable,
+            onLogout = onLogout,
+        )
         state.banner?.let { message ->
             StatusBanner(message = message, onDismiss = state.onDismissBanner)
         }
@@ -200,7 +217,9 @@ private fun LoadedDocumentList(
                             .fillMaxWidth(),
                         contentPadding = PaddingValues(top = 4.dp),
                     ) {
-                        items(filtered) { document -> DocumentRow(document.toUiDocument()) }
+                        items(filtered) { document ->
+                            DocumentRow(document.toUiDocument(), onClick = { onOpenDocument(document) })
+                        }
                     }
                 }
             }
@@ -209,7 +228,12 @@ private fun LoadedDocumentList(
 }
 
 @Composable
-private fun DocumentListTopBar(onUpload: () -> Unit = {}, isUploading: Boolean = false, uploadEnabled: Boolean = true) {
+private fun DocumentListTopBar(
+    onUpload: () -> Unit = {},
+    isUploading: Boolean = false,
+    uploadEnabled: Boolean = true,
+    onLogout: () -> Unit = {},
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -224,16 +248,78 @@ private fun DocumentListTopBar(onUpload: () -> Unit = {}, isUploading: Boolean =
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
-        UploadButton(
-            onUpload = onUpload,
-            isUploading = isUploading,
-            enabled = uploadEnabled,
+        Row(
             modifier = Modifier.align(Alignment.CenterEnd).padding(horizontal = 8.dp),
-        )
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            UploadButton(onUpload = onUpload, isUploading = isUploading, enabled = uploadEnabled)
+            Spacer(Modifier.width(4.dp))
+            ProfileMenu(onLogout = onLogout)
+        }
         HorizontalDivider(
             modifier = Modifier.align(Alignment.BottomCenter),
             color = MaterialTheme.colorScheme.outlineVariant,
         )
+    }
+}
+
+/**
+ * The round avatar in the top-right corner. Opens a dropdown on click with
+ * account actions — currently just log out, since the app has no profile
+ * data of its own yet (hence the placeholder glyph instead of a real image).
+ */
+@Composable
+private fun ProfileMenu(onLogout: () -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val menuLabel = stringResource(Res.string.profile_menu)
+
+    Box {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .clickable(onClickLabel = menuLabel) { expanded = true },
+            contentAlignment = Alignment.Center,
+        ) {
+            AvatarGlyph(
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(Res.string.log_out)) },
+                onClick = {
+                    expanded = false
+                    onLogout()
+                },
+            )
+        }
+    }
+}
+
+/** A generic person silhouette (head + shoulders), drawn without an icon pack. */
+@Composable
+private fun AvatarGlyph(modifier: Modifier = Modifier, tint: Color) {
+    Canvas(modifier = modifier) {
+        val headRadius = size.minDimension * 0.28f
+        drawCircle(
+            color = tint,
+            radius = headRadius,
+            center = Offset(size.width / 2f, size.height * 0.32f),
+        )
+        val shouldersPath = Path().apply {
+            val shoulderTop = size.height * 0.62f
+            moveTo(0f, size.height)
+            cubicTo(
+                0f, shoulderTop,
+                size.width, shoulderTop,
+                size.width, size.height,
+            )
+            close()
+        }
+        drawPath(shouldersPath, color = tint)
     }
 }
 

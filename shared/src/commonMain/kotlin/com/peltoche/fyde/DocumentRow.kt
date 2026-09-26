@@ -2,6 +2,7 @@ package com.peltoche.fyde
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -72,11 +73,12 @@ fun DocumentGlyph(modifier: Modifier = Modifier, tint: Color = PdfAccentColor, s
  * the title and a "size · received" caption, with a hairline divider below.
  */
 @Composable
-fun DocumentRow(document: Document, modifier: Modifier = Modifier, showDivider: Boolean = true) {
+fun DocumentRow(document: Document, modifier: Modifier = Modifier, showDivider: Boolean = true, onClick: () -> Unit = {}) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(onClick = onClick)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

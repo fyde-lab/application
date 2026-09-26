@@ -100,6 +100,7 @@ kotlin {
         // instead.
         jvmMain.dependencies {
             implementation(project(":sdkBridge"))
+            implementation(libs.pdfbox)
         }
         if (isMacOsHost) {
             iosMain.dependencies {
