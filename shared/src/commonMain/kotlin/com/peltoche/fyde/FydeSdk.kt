@@ -108,4 +108,20 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun uploadDocument(path: String): Result<String>
+
+    /**
+     * Persists [language] (a short code, e.g. "en", "fr") as this device's
+     * UI language preference, read back by [getLanguage]. Mirrors
+     * [`crate::UsersService::set_language`]; fails if [initialize] hasn't
+     * been called yet.
+     */
+    suspend fun setLanguage(language: String): Result<Unit>
+
+    /**
+     * Returns this device's UI language preference previously persisted by
+     * [setLanguage], or `null` if never set. Mirrors
+     * [`crate::UsersService::get_language`]; fails if [initialize] hasn't
+     * been called yet.
+     */
+    suspend fun getLanguage(): Result<String?>
 }

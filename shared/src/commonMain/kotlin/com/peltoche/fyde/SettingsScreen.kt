@@ -18,8 +18,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.peltoche.fyde.components.feedback.AppBanner
+import com.peltoche.fyde.components.form.AppDropdown
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.back
+import com.peltoche.fyde.resources.dismiss
+import com.peltoche.fyde.resources.language_label
+import com.peltoche.fyde.resources.language_section_title
 import com.peltoche.fyde.resources.server_section_title
 import com.peltoche.fyde.resources.server_url_label
 import com.peltoche.fyde.resources.settings_title
@@ -30,20 +35,66 @@ import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Opened from [DocumentListScreen]'s profile dropdown. Read-only for now —
- * the app has no editable preferences yet, just the server it's connected
- * to (see `App.kt`'s `FYDE_SERVER_URL`).
+ * The app's two supported UI languages, each showing its own name in its own
+ * language (an "endonym") rather than a translation of it — the standard
+ * convention for a language picker, so a reader can find their language
+ * regardless of whichever one currently happens to be active. [code] must
+ * match one of the resource sets under `commonMain/composeResources`
+ * (`values`/`values-fr`).
+ */
+private enum class AppLanguage(val code: String, val displayName: String) {
+    ENGLISH("en", "English"),
+    FRENCH("fr", "Français"),
+    ;
+
+    companion object {
+        fun fromCode(code: String?): AppLanguage? = entries.find { it.code == code }
+    }
+}
+
+/**
+ * Opened from [DocumentListScreen]'s profile dropdown. Mostly read-only —
+ * the server it's connected to (see `App.kt`'s `FYDE_SERVER_URL`) — except
+ * for [currentLanguage], which [onLanguageChange] lets the user override via
+ * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
+ * where that call and [languageError] actually live).
  */
 @Composable
-fun SettingsScreen(serverUrl: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun SettingsScreen(
+    serverUrl: String,
+    currentLanguage: String?,
+    onLanguageChange: (String) -> Unit,
+    onBack: () -> Unit,
+    languageError: String? = null,
+    onDismissLanguageError: () -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(AppColors.background),
     ) {
         SettingsTopBar(onBack = onBack)
+        if (languageError != null) {
+            AppBanner(
+                message = languageError,
+                onDismiss = onDismissLanguageError,
+                dismissLabel = stringResource(Res.string.dismiss),
+            )
+        }
         SectionTitle(stringResource(Res.string.server_section_title))
         SettingsRow(label = stringResource(Res.string.server_url_label), value = serverUrl)
+        SectionTitle(stringResource(Res.string.language_section_title))
+        AppDropdown(
+            label = stringResource(Res.string.language_label),
+            options = AppLanguage.entries,
+            selectedOption = AppLanguage.fromCode(currentLanguage),
+            onOptionSelected = { onLanguageChange(it.code) },
+            optionLabel = AppLanguage::displayName,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
+        )
     }
 }
 

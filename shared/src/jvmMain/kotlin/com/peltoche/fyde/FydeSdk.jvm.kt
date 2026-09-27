@@ -93,6 +93,16 @@ actual object FydeSdk {
         val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
         client.uploadDocument(path)
     }
+
+    actual suspend fun setLanguage(language: String): Result<Unit> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.setLanguage(language)
+    }
+
+    actual suspend fun getLanguage(): Result<String?> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.getLanguage()
+    }
 }
 
 private fun FfiDocument.toFydeDocument() = FydeDocument(

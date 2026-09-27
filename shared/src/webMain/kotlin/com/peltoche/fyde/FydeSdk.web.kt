@@ -24,4 +24,8 @@ actual object FydeSdk {
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> = unsupported()
 
     actual suspend fun uploadDocument(path: String): Result<String> = unsupported()
+
+    actual suspend fun setLanguage(language: String): Result<Unit> = unsupported()
+
+    actual suspend fun getLanguage(): Result<String?> = unsupported()
 }

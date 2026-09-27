@@ -6,6 +6,7 @@ import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.error_unknown
+import com.peltoche.fyde.resources.language_save_failed
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
@@ -39,63 +40,104 @@ fun App() {
         AppWindowSizeClassProvider {
             var screen by remember { mutableStateOf<Screen>(Screen.Login) }
             var authError by remember { mutableStateOf<String?>(null) }
+            // The device's persisted language preference (see
+            // FydeSdk.setLanguage/getLanguage), or `null` if never set (in
+            // which case the platform's own locale is left alone). Wrapping
+            // the `when` below in `key(language)` forces every screen to be
+            // torn down and rebuilt from scratch whenever this changes,
+            // which is what actually makes a language change "take" -
+            // Compose Multiplatform Resources has no public API to swap the
+            // language it resolves against directly, it always derives it
+            // from the platform's own current locale (see
+            // `applyPlatformLocale`'s doc), so forcing a full rebuild is
+            // what gets `stringResource` calls to notice that locale
+            // changed. A side effect: navigating away from `Screen.Login`/
+            // `Screen.Register` isn't possible while `Screen.Settings` (the
+            // only place `language` changes) is open, so the only screen
+            // that actually loses in-flight state to this is
+            // `Screen.Documents`, which reconnects from scratch same as a
+            // manual retry would.
+            var language by remember { mutableStateOf<String?>(null) }
+            var languageError by remember { mutableStateOf<String?>(null) }
             val scope = rememberCoroutineScope()
 
             // Startup check: if a session token is already persisted from a
             // previous run, skip straight to the document list instead of
-            // making the user log in again.
+            // making the user log in again. Also picks up and (re-)applies
+            // this device's previously chosen language preference, if any -
+            // needed every launch, not just the first, since
+            // applyPlatformLocale's effect doesn't itself persist across
+            // process restarts (unlike the fyde-sdk preference it reads).
             LaunchedEffect(Unit) {
                 FydeSdk.initialize(FYDE_SERVER_URL).onSuccess {
+                    FydeSdk.getLanguage().getOrNull()?.let { savedLanguage ->
+                        applyPlatformLocale(savedLanguage)
+                        language = savedLanguage
+                    }
                     if (FydeSdk.isConnected().getOrDefault(false)) {
                         screen = Screen.Documents
                     }
                 }
             }
 
-            when (val currentScreen = screen) {
-                Screen.Login -> LoginScreen(
-                    errorMessage = authError,
-                    onLogIn = { username, password ->
-                        authError = null
-                        scope.launch {
-                            authenticate(username, password, FydeSdk::login)
-                                .onSuccess { screen = Screen.Documents }
-                                .onFailure { authError = it.message ?: getString(Res.string.auth_error_login_failed) }
-                        }
-                    },
-                    onNavigateToRegister = {
-                        authError = null
-                        screen = Screen.Register
-                    },
-                )
-                Screen.Register -> RegisterScreen(
-                    errorMessage = authError,
-                    onRegister = { username, password ->
-                        authError = null
-                        scope.launch {
-                            authenticate(username, password, FydeSdk::register)
-                                .onSuccess { screen = Screen.Documents }
-                                .onFailure { authError = it.message ?: getString(Res.string.auth_error_register_failed) }
-                        }
-                    },
-                    onNavigateToLogin = {
-                        authError = null
-                        screen = Screen.Login
-                    },
-                )
-                Screen.Documents -> DocumentsScreen(
-                    onLogout = { screen = Screen.Login },
-                    onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
-                    onOpenSettings = { screen = Screen.Settings },
-                )
-                is Screen.DocumentViewer -> PdfViewerScreen(
-                    document = currentScreen.document,
-                    onBack = { screen = Screen.Documents },
-                )
-                Screen.Settings -> SettingsScreen(
-                    serverUrl = FYDE_SERVER_URL,
-                    onBack = { screen = Screen.Documents },
-                )
+            key(language) {
+                when (val currentScreen = screen) {
+                    Screen.Login -> LoginScreen(
+                        errorMessage = authError,
+                        onLogIn = { username, password ->
+                            authError = null
+                            scope.launch {
+                                authenticate(username, password, FydeSdk::login)
+                                    .onSuccess { screen = Screen.Documents }
+                                    .onFailure { authError = it.message ?: getString(Res.string.auth_error_login_failed) }
+                            }
+                        },
+                        onNavigateToRegister = {
+                            authError = null
+                            screen = Screen.Register
+                        },
+                    )
+                    Screen.Register -> RegisterScreen(
+                        errorMessage = authError,
+                        onRegister = { username, password ->
+                            authError = null
+                            scope.launch {
+                                authenticate(username, password, FydeSdk::register)
+                                    .onSuccess { screen = Screen.Documents }
+                                    .onFailure { authError = it.message ?: getString(Res.string.auth_error_register_failed) }
+                            }
+                        },
+                        onNavigateToLogin = {
+                            authError = null
+                            screen = Screen.Login
+                        },
+                    )
+                    Screen.Documents -> DocumentsScreen(
+                        onLogout = { screen = Screen.Login },
+                        onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
+                        onOpenSettings = { screen = Screen.Settings },
+                    )
+                    is Screen.DocumentViewer -> PdfViewerScreen(
+                        document = currentScreen.document,
+                        onBack = { screen = Screen.Documents },
+                    )
+                    Screen.Settings -> SettingsScreen(
+                        serverUrl = FYDE_SERVER_URL,
+                        currentLanguage = language,
+                        onLanguageChange = { newLanguage ->
+                            applyPlatformLocale(newLanguage)
+                            language = newLanguage
+                            languageError = null
+                            scope.launch {
+                                FydeSdk.setLanguage(newLanguage)
+                                    .onFailure { languageError = getString(Res.string.language_save_failed, it.message ?: getString(Res.string.error_unknown)) }
+                            }
+                        },
+                        onBack = { screen = Screen.Documents },
+                        languageError = languageError,
+                        onDismissLanguageError = { languageError = null },
+                    )
+                }
             }
         }
     }
