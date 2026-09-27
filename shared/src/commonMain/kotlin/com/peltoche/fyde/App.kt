@@ -1,9 +1,6 @@
 package com.peltoche.fyde
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.auth_error_login_failed
@@ -11,6 +8,8 @@ import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.error_unknown
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
+import com.peltoche.fyde.layout.AppWindowSizeClassProvider
+import com.peltoche.fyde.theme.AppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
@@ -24,30 +23,6 @@ private const val FYDE_SERVER_URL = "http://127.0.0.1:40051"
 /** How often to poll [FydeSdk.isServerReachable] while the document list is open. */
 private const val SERVER_REACHABILITY_POLL_INTERVAL_MS = 200L
 
-/** Color tokens from DESIGN.md's dark (and only, for now) theme. */
-private val FydeDarkColorScheme = darkColorScheme(
-    background = Color(0xFF141414),
-    surface = Color(0xFF141414),
-    surfaceVariant = Color(0xFF242424),
-    surfaceContainerLow = Color(0xFF191919),
-    surfaceContainer = Color(0xFF1F1F1F),
-    surfaceContainerHigh = Color(0xFF242424),
-    surfaceContainerHighest = Color(0xFF2A2A2A),
-    onBackground = Color(0xFFF2F2F2),
-    onSurface = Color(0xFFF2F2F2),
-    onSurfaceVariant = Color(0xFF8A8A8E),
-    outline = Color(0xFF3A3A3C),
-    outlineVariant = Color(0xFF2A2A2C),
-    primary = PdfAccentColor,
-    onPrimary = Color(0xFF141414),
-    primaryContainer = Color(0xFF333B12),
-    onPrimaryContainer = Color(0xFFE9F79B),
-    error = Color(0xFFFF8A80),
-    onError = Color(0xFF141414),
-    errorContainer = Color(0xFF3A1616),
-    onErrorContainer = Color(0xFFFFB4A9),
-)
-
 /** Which top-level screen [App] is currently showing. */
 private sealed interface Screen {
     data object Login : Screen
@@ -60,66 +35,68 @@ private sealed interface Screen {
 @Composable
 @Preview
 fun App() {
-    MaterialTheme(colorScheme = FydeDarkColorScheme) {
-        var screen by remember { mutableStateOf<Screen>(Screen.Login) }
-        var authError by remember { mutableStateOf<String?>(null) }
-        val scope = rememberCoroutineScope()
+    AppTheme {
+        AppWindowSizeClassProvider {
+            var screen by remember { mutableStateOf<Screen>(Screen.Login) }
+            var authError by remember { mutableStateOf<String?>(null) }
+            val scope = rememberCoroutineScope()
 
-        // Startup check: if a session token is already persisted from a
-        // previous run, skip straight to the document list instead of
-        // making the user log in again.
-        LaunchedEffect(Unit) {
-            FydeSdk.initialize(FYDE_SERVER_URL).onSuccess {
-                if (FydeSdk.isConnected().getOrDefault(false)) {
-                    screen = Screen.Documents
+            // Startup check: if a session token is already persisted from a
+            // previous run, skip straight to the document list instead of
+            // making the user log in again.
+            LaunchedEffect(Unit) {
+                FydeSdk.initialize(FYDE_SERVER_URL).onSuccess {
+                    if (FydeSdk.isConnected().getOrDefault(false)) {
+                        screen = Screen.Documents
+                    }
                 }
             }
-        }
 
-        when (val currentScreen = screen) {
-            Screen.Login -> LoginScreen(
-                errorMessage = authError,
-                onLogIn = { username, password ->
-                    authError = null
-                    scope.launch {
-                        authenticate(username, password, FydeSdk::login)
-                            .onSuccess { screen = Screen.Documents }
-                            .onFailure { authError = it.message ?: getString(Res.string.auth_error_login_failed) }
-                    }
-                },
-                onNavigateToRegister = {
-                    authError = null
-                    screen = Screen.Register
-                },
-            )
-            Screen.Register -> RegisterScreen(
-                errorMessage = authError,
-                onRegister = { username, password ->
-                    authError = null
-                    scope.launch {
-                        authenticate(username, password, FydeSdk::register)
-                            .onSuccess { screen = Screen.Documents }
-                            .onFailure { authError = it.message ?: getString(Res.string.auth_error_register_failed) }
-                    }
-                },
-                onNavigateToLogin = {
-                    authError = null
-                    screen = Screen.Login
-                },
-            )
-            Screen.Documents -> DocumentsScreen(
-                onLogout = { screen = Screen.Login },
-                onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
-                onOpenSettings = { screen = Screen.Settings },
-            )
-            is Screen.DocumentViewer -> PdfViewerScreen(
-                document = currentScreen.document,
-                onBack = { screen = Screen.Documents },
-            )
-            Screen.Settings -> SettingsScreen(
-                serverUrl = FYDE_SERVER_URL,
-                onBack = { screen = Screen.Documents },
-            )
+            when (val currentScreen = screen) {
+                Screen.Login -> LoginScreen(
+                    errorMessage = authError,
+                    onLogIn = { username, password ->
+                        authError = null
+                        scope.launch {
+                            authenticate(username, password, FydeSdk::login)
+                                .onSuccess { screen = Screen.Documents }
+                                .onFailure { authError = it.message ?: getString(Res.string.auth_error_login_failed) }
+                        }
+                    },
+                    onNavigateToRegister = {
+                        authError = null
+                        screen = Screen.Register
+                    },
+                )
+                Screen.Register -> RegisterScreen(
+                    errorMessage = authError,
+                    onRegister = { username, password ->
+                        authError = null
+                        scope.launch {
+                            authenticate(username, password, FydeSdk::register)
+                                .onSuccess { screen = Screen.Documents }
+                                .onFailure { authError = it.message ?: getString(Res.string.auth_error_register_failed) }
+                        }
+                    },
+                    onNavigateToLogin = {
+                        authError = null
+                        screen = Screen.Login
+                    },
+                )
+                Screen.Documents -> DocumentsScreen(
+                    onLogout = { screen = Screen.Login },
+                    onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
+                    onOpenSettings = { screen = Screen.Settings },
+                )
+                is Screen.DocumentViewer -> PdfViewerScreen(
+                    document = currentScreen.document,
+                    onBack = { screen = Screen.Documents },
+                )
+                Screen.Settings -> SettingsScreen(
+                    serverUrl = FYDE_SERVER_URL,
+                    onBack = { screen = Screen.Documents },
+                )
+            }
         }
     }
 }
