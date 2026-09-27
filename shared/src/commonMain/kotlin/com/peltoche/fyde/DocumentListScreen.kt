@@ -1,13 +1,7 @@
 package com.peltoche.fyde
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,24 +10,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,9 +31,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.peltoche.fyde.components.action.AppMenuAction
+import com.peltoche.fyde.components.action.AppMenuButton
+import com.peltoche.fyde.components.action.AppTextButton
+import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.feedback.AppBanner
+import com.peltoche.fyde.components.feedback.AppEmptyState
+import com.peltoche.fyde.components.feedback.AppErrorState
+import com.peltoche.fyde.components.feedback.AppLoading
+import com.peltoche.fyde.components.feedback.AppSkeleton
+import com.peltoche.fyde.components.content.AppListItem
+import com.peltoche.fyde.components.form.AppSearchField
+import com.peltoche.fyde.components.navigation.AppTopBar
+import com.peltoche.fyde.layout.AppContentContainer
+import com.peltoche.fyde.layout.AppContentWidth
+import com.peltoche.fyde.layout.AppScaffold
+import com.peltoche.fyde.layout.AppTwoPaneLayout
+import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.LocalAppWindowSizeClass
+import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.AppSpacing
+import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.clear_search
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
@@ -61,6 +71,8 @@ import com.peltoche.fyde.resources.no_documents_title
 import com.peltoche.fyde.resources.profile_menu
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.search_documents_placeholder
+import com.peltoche.fyde.resources.select_document_description
+import com.peltoche.fyde.resources.select_document_title
 import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.resources.upload_document
 import org.jetbrains.compose.resources.stringResource
@@ -107,45 +119,24 @@ fun DocumentListScreen(
     onOpenSettings: () -> Unit = {},
 ) {
     when (state) {
-        DocumentListUiState.Connecting -> ConnectingState(modifier)
-        is DocumentListUiState.ConnectFailed -> ConnectFailedState(state, modifier)
+        DocumentListUiState.Connecting -> AppLoading(
+            modifier = modifier,
+            message = stringResource(Res.string.connecting_message),
+        )
+        is DocumentListUiState.ConnectFailed -> AppErrorState(
+            modifier = modifier,
+            icon = {
+                // "!" stands in for an icon glyph, not language — exempt from
+                // the Regular/Medium/SemiBold-only rule real text follows.
+                Text("!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = AppColors.error)
+            },
+            title = stringResource(Res.string.connect_failed_title),
+            description = state.message,
+            actionLabel = stringResource(Res.string.retry),
+            onAction = state.onRetry,
+        )
         is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onLogout, onOpenDocument, onOpenSettings)
     }
-}
-
-@Composable
-private fun ConnectingState(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(36.dp))
-            Spacer(Modifier.height(12.dp))
-            Text(
-                text = stringResource(Res.string.connecting_message),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ConnectFailedState(state: DocumentListUiState.ConnectFailed, modifier: Modifier = Modifier) {
-    CenteredMessage(
-        modifier = modifier,
-        iconBackground = MaterialTheme.colorScheme.errorContainer,
-        icon = {
-            Text("!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
-        },
-        title = stringResource(Res.string.connect_failed_title),
-        description = state.message,
-        actionLabel = stringResource(Res.string.retry),
-        onAction = state.onRetry,
-    )
 }
 
 @Composable
@@ -159,70 +150,114 @@ private fun LoadedDocumentList(
     onOpenSettings: () -> Unit = {},
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    // Which document is highlighted in the Medium/Expanded preview pane —
+    // presentation-only, like searchQuery, so it stays local rather than
+    // being hoisted to the caller (see AppTwoPaneLayout's doc comment).
+    var selectedDocument by remember { mutableStateOf<FydeDocument?>(null) }
+    val windowSizeClass = LocalAppWindowSizeClass.current
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
-        DocumentListTopBar(
-            onUpload = onUpload,
-            isUploading = isUploading,
-            uploadEnabled = state.serverReachable,
-            onLogout = onLogout,
-            onOpenSettings = onOpenSettings,
-        )
-        state.banner?.let { message ->
-            StatusBanner(message = message, onDismiss = state.onDismissBanner)
-        }
-        SearchField(value = searchQuery, onValueChange = { searchQuery = it })
-
-        val documents = state.documents
-        when {
-            documents == null -> DocumentListSkeleton(modifier = Modifier.weight(1f))
-
-            documents.isEmpty() && searchQuery.isBlank() -> CenteredMessage(
-                modifier = Modifier.weight(1f),
-                iconBackground = MaterialTheme.colorScheme.surfaceContainerLow,
-                icon = {
-                    DocumentGlyph(
-                        modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        strokeWidth = 2.dp,
-                    )
-                },
-                title = stringResource(Res.string.no_documents_title),
-                description = stringResource(Res.string.no_documents_description),
-            )
-
-            else -> {
-                val filtered = remember(documents, searchQuery) {
-                    documents.filter { it.name.contains(searchQuery, ignoreCase = true) }
+    AppScaffold(
+        modifier = modifier,
+        windowSizeClass = windowSizeClass,
+        topBar = {
+            AppTopBar(title = stringResource(Res.string.documents_title), windowSizeClass = windowSizeClass) {
+                AppTextButton(
+                    text = stringResource(Res.string.upload_document),
+                    onClick = onUpload,
+                    enabled = state.serverReachable,
+                    loading = isUploading,
+                    leadingIcon = {
+                        // "+" stands in for an icon glyph, not language.
+                        Text("+", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                    },
+                )
+                Spacer(Modifier.width(AppSpacing.space2))
+                AppMenuButton(
+                    contentDescription = stringResource(Res.string.profile_menu),
+                    actions = listOf(
+                        AppMenuAction(label = stringResource(Res.string.settings), onClick = onOpenSettings),
+                        AppMenuAction(label = stringResource(Res.string.log_out), onClick = onLogout),
+                    ),
+                ) {
+                    AvatarGlyph(modifier = Modifier.size(18.dp), tint = AppColors.textMuted)
                 }
-                if (filtered.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .padding(top = 32.dp, start = 32.dp, end = 32.dp),
-                        contentAlignment = Alignment.TopCenter,
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.no_documents_match, searchQuery),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        contentPadding = PaddingValues(top = 4.dp),
-                    ) {
-                        items(filtered) { document ->
-                            DocumentRow(document.toUiDocument(), onClick = { onOpenDocument(document) })
+            }
+        },
+    ) { contentPadding ->
+        // The whole content area shares one margin/max-width, not just the
+        // list — found via review that the search field (and banner) sat
+        // outside this container while the list didn't, so their edges
+        // visibly failed to line up at Medium/Expanded.
+        AppContentContainer(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+                .background(AppColors.background),
+            width = AppContentWidth.List,
+            windowSizeClass = windowSizeClass,
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                state.banner?.let { message ->
+                    AppBanner(message = message, onDismiss = state.onDismissBanner, dismissLabel = stringResource(Res.string.dismiss))
+                }
+                AppSearchField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = stringResource(Res.string.search_documents_placeholder),
+                    onClear = { searchQuery = "" },
+                    clearContentDescription = stringResource(Res.string.clear_search),
+                )
+
+                val documents = state.documents
+                when {
+                    documents == null -> DocumentSkeletonList(modifier = Modifier.weight(1f))
+
+                    documents.isEmpty() && searchQuery.isBlank() -> AppEmptyState(
+                        modifier = Modifier.weight(1f),
+                        icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                        title = stringResource(Res.string.no_documents_title),
+                        description = stringResource(Res.string.no_documents_description),
+                    )
+
+                    else -> {
+                        val filtered = remember(documents, searchQuery) {
+                            documents.filter { it.name.contains(searchQuery, ignoreCase = true) }
+                        }
+                        if (filtered.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
+                                    .padding(top = AppSpacing.space8, start = AppSpacing.space8, end = AppSpacing.space8),
+                                contentAlignment = Alignment.TopCenter,
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.no_documents_match, searchQuery),
+                                    style = AppTypography.body,
+                                    color = AppColors.textMuted,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        } else {
+                            AppTwoPaneLayout(
+                                modifier = Modifier.weight(1f),
+                                windowSizeClass = windowSizeClass,
+                                primary = {
+                                    DocumentList(
+                                        documents = filtered,
+                                        selectedId = selectedDocument?.id,
+                                        rowMinHeight = rowMinHeightFor(windowSizeClass),
+                                        onClick = { document ->
+                                            if (windowSizeClass == AppWindowSizeClass.Compact) {
+                                                onOpenDocument(document)
+                                            } else {
+                                                selectedDocument = document
+                                            }
+                                        },
+                                    )
+                                },
+                                secondary = { DocumentPreviewPane(document = selectedDocument) },
+                            )
                         }
                     }
                 }
@@ -231,87 +266,71 @@ private fun LoadedDocumentList(
     }
 }
 
+private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (windowSizeClass) {
+    AppWindowSizeClass.Compact -> AppDimensions.rowHeightComfortable
+    AppWindowSizeClass.Medium -> AppDimensions.rowHeightStandard
+    AppWindowSizeClass.Expanded -> AppDimensions.rowHeightCompact
+}
+
 @Composable
-private fun DocumentListTopBar(
-    onUpload: () -> Unit = {},
-    isUploading: Boolean = false,
-    uploadEnabled: Boolean = true,
-    onLogout: () -> Unit = {},
-    onOpenSettings: () -> Unit = {},
+private fun DocumentList(
+    documents: List<FydeDocument>,
+    selectedId: String?,
+    rowMinHeight: Dp,
+    onClick: (FydeDocument) -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        Text(
-            text = stringResource(Res.string.documents_title),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
-        Row(
-            modifier = Modifier.align(Alignment.CenterEnd).padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            UploadButton(onUpload = onUpload, isUploading = isUploading, enabled = uploadEnabled)
-            Spacer(Modifier.width(4.dp))
-            ProfileMenu(onOpenSettings = onOpenSettings, onLogout = onLogout)
+    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(top = AppSpacing.space2)) {
+        items(documents, key = { it.id }) { document ->
+            AppListItem(
+                title = document.name,
+                supportingText = "${formatSize(document.size)} · ${formatDate(document.createdAt)}",
+                supportingTextStyle = AppTypography.data,
+                leadingContent = { PdfFileIcon() },
+                selected = document.id == selectedId,
+                onClick = { onClick(document) },
+                modifier = Modifier.heightIn(min = rowMinHeight),
+            )
+            AppDivider()
         }
-        HorizontalDivider(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            color = MaterialTheme.colorScheme.outlineVariant,
+    }
+}
+
+/** The Medium/Expanded secondary pane: the selected document's real preview, or a prompt to pick one. */
+@Composable
+private fun DocumentPreviewPane(document: FydeDocument?) {
+    if (document == null) {
+        AppEmptyState(
+            title = stringResource(Res.string.select_document_title),
+            description = stringResource(Res.string.select_document_description),
+            icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
         )
+        return
+    }
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
+            Text(
+                text = document.name,
+                style = AppTypography.bodyEmphasis,
+                color = AppColors.text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(AppSpacing.space1))
+            Text(
+                text = "${formatSize(document.size)} · ${formatDate(document.createdAt)}",
+                style = AppTypography.data,
+                color = AppColors.textMuted,
+            )
+        }
+        AppDivider()
+        PdfViewer(pdfBytes = document.content, modifier = Modifier.fillMaxWidth().weight(1f))
     }
 }
 
 /**
- * The round avatar in the top-right corner. Opens a dropdown on click with
- * account actions — settings and log out, since the app has no profile
- * data of its own yet (hence the placeholder glyph instead of a real image).
+ * The round avatar in the top-right corner's [AppMenuButton] trigger. Just a
+ * placeholder glyph — the app has no profile picture of its own yet.
  */
-@Composable
-private fun ProfileMenu(onOpenSettings: () -> Unit, onLogout: () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    val menuLabel = stringResource(Res.string.profile_menu)
-
-    Box {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                .clickable(onClickLabel = menuLabel) { expanded = true },
-            contentAlignment = Alignment.Center,
-        ) {
-            AvatarGlyph(
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                text = { Text(stringResource(Res.string.settings)) },
-                onClick = {
-                    expanded = false
-                    onOpenSettings()
-                },
-            )
-            DropdownMenuItem(
-                text = { Text(stringResource(Res.string.log_out)) },
-                onClick = {
-                    expanded = false
-                    onLogout()
-                },
-            )
-        }
-    }
-}
-
-/** A generic person silhouette (head + shoulders), drawn without an icon pack. */
 @Composable
 private fun AvatarGlyph(modifier: Modifier = Modifier, tint: Color) {
     Canvas(modifier = modifier) {
@@ -335,187 +354,57 @@ private fun AvatarGlyph(modifier: Modifier = Modifier, tint: Color) {
     }
 }
 
+/** A folded-corner PDF file icon on a rounded chip, drawn without an icon pack (see [DocumentGlyph]). */
 @Composable
-private fun UploadButton(onUpload: () -> Unit, isUploading: Boolean, enabled: Boolean = true, modifier: Modifier = Modifier) {
-    if (isUploading) {
-        CircularProgressIndicator(
-            modifier = modifier.size(20.dp),
-            strokeWidth = 2.dp,
-            color = MaterialTheme.colorScheme.primary,
-        )
-    } else {
-        val label = stringResource(Res.string.upload_document)
-        val contentColor = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-        TextButton(
-            onClick = onUpload,
-            enabled = enabled,
-            modifier = modifier,
-        ) {
-            Text(
-                text = "+",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = contentColor,
-            )
-            Spacer(Modifier.width(4.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = contentColor,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SearchField(value: String, onValueChange: (String) -> Unit) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = {
-            Text(stringResource(Res.string.search_documents_placeholder), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        },
-        singleLine = true,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
-            focusedTextColor = MaterialTheme.colorScheme.onBackground,
-            unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-            cursorColor = MaterialTheme.colorScheme.onBackground,
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-    )
-}
-
-/** A dismissible, non-fatal problem banner pinned above the list — the list itself stays put. */
-@Composable
-private fun StatusBanner(message: String, onDismiss: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.errorContainer)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onErrorContainer,
-            modifier = Modifier.weight(1f),
-        )
-        TextButton(onClick = onDismiss) {
-            Text(stringResource(Res.string.dismiss), color = MaterialTheme.colorScheme.onErrorContainer)
-        }
-    }
-}
-
-/** The icon-in-circle / title / description / optional-action layout shared by empty and full-screen error states. */
-@Composable
-private fun CenteredMessage(
-    modifier: Modifier = Modifier,
-    iconBackground: Color,
-    icon: @Composable () -> Unit,
-    title: String,
-    description: String,
-    actionLabel: String? = null,
-    onAction: (() -> Unit)? = null,
-) {
+private fun PdfFileIcon(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 32.dp),
-        contentAlignment = Alignment.Center,
+            .size(44.dp)
+            .clip(AppRadius.md)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(
-                modifier = Modifier
-                    .size(96.dp)
-                    .clip(CircleShape)
-                    .background(iconBackground),
-                contentAlignment = Alignment.Center,
-            ) { icon() }
-            Spacer(Modifier.height(16.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.widthIn(max = 280.dp),
-            )
-            if (actionLabel != null && onAction != null) {
-                Spacer(Modifier.height(20.dp))
-                Button(onClick = onAction) { Text(actionLabel) }
-            }
-        }
+        DocumentGlyph(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .size(20.dp)
+                .padding(bottom = 4.dp),
+        )
+        Text(
+            text = "PDF",
+            color = AppColors.primary,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 7.sp,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 6.dp),
+        )
     }
 }
 
-/** Six placeholder rows shaped like [DocumentRow], pulsing while the first page loads. */
 @Composable
-private fun DocumentListSkeleton(modifier: Modifier = Modifier) {
-    val transition = rememberInfiniteTransition(label = "skeleton")
-    val alpha by transition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Reverse),
-        label = "skeletonAlpha",
-    )
+private fun DocumentSkeletonList(modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
-        repeat(6) { SkeletonRow(alpha) }
+        repeat(6) { SkeletonRow() }
     }
 }
 
 @Composable
-private fun SkeletonRow(alpha: Float) {
+private fun SkeletonRow() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)),
-        )
-        Spacer(Modifier.width(12.dp))
+        AppSkeleton(modifier = Modifier.size(44.dp), shape = AppRadius.md)
+        Spacer(Modifier.width(AppSpacing.space4))
         Column {
-            Box(
-                modifier = Modifier
-                    .width(160.dp)
-                    .height(14.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)),
-            )
-            Spacer(Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)),
-            )
+            AppSkeleton(modifier = Modifier.size(width = 160.dp, height = 14.dp))
+            Spacer(Modifier.height(AppSpacing.space1))
+            AppSkeleton(modifier = Modifier.size(width = 100.dp, height = 10.dp))
         }
     }
 }
-
-private fun FydeDocument.toUiDocument() = Document(
-    title = name,
-    sizeLabel = formatSize(size),
-    receivedLabel = formatDate(createdAt),
-)
 
 private fun formatSize(bytes: Long): String = when {
     bytes >= 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
