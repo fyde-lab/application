@@ -11,10 +11,11 @@ import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppTypography
 
 /**
- * Side navigation for the medium/expanded breakpoint — design-system.md's
- * Responsive section names a rail as where master-detail navigation should
- * live once a screen needs it. Shares [AppNavigationItem] with
- * [AppNavigationBar]; no screen uses either yet.
+ * Side navigation for the medium breakpoint — design-system.md's Responsive
+ * section names a rail as where master-detail navigation should live once a
+ * screen needs it. Yields to the wider [AppNavigationSidebar] at Expanded.
+ * Shares [AppNavigationItem] with [AppNavigationBar]/[AppNavigationSidebar];
+ * no screen uses any of the three yet.
  */
 @Composable
 fun AppNavigationRail(

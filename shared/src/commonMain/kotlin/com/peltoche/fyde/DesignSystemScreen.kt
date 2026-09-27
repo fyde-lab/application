@@ -51,6 +51,7 @@ import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppNavigationBar
 import com.peltoche.fyde.components.navigation.AppNavigationItem
 import com.peltoche.fyde.components.navigation.AppNavigationRail
+import com.peltoche.fyde.components.navigation.AppNavigationSidebar
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.components.overlay.AppBottomSheet
 import com.peltoche.fyde.components.overlay.AppDialog
@@ -320,6 +321,14 @@ private fun NavigationSection() {
                 },
             )
         }
+        CatalogueRow("AppNavigationSidebar") {
+            AppNavigationSidebar(
+                modifier = Modifier.height(240.dp),
+                items = navItems.mapIndexed { index, label ->
+                    AppNavigationItem(label = label, selected = selectedTab == index, onClick = { selectedTab = index }, icon = { DotIcon() })
+                },
+            )
+        }
     }
 }
 
@@ -336,7 +345,7 @@ private fun LayoutSection() {
     CatalogueSection("Layout") {
         CatalogueRow(
             "AppScaffold + AppNavigationLayout + AppContentContainer + AppTwoPaneLayout, together — " +
-                "bottom nav becomes a persistent rail, single pane becomes two, margins grow",
+                "bottom nav becomes a rail then a sidebar, single pane becomes two, margins grow",
         ) {
             Row(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),

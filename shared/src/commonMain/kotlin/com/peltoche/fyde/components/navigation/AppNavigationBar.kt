@@ -10,9 +10,10 @@ import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppTypography
 
 /**
- * One destination in [AppNavigationBar] or [AppNavigationRail] — shared
- * between the two since the shape (label/icon/selected/click) is identical;
- * only the M3 host layout differs by breakpoint.
+ * One destination in [AppNavigationBar], [AppNavigationRail], or
+ * [AppNavigationSidebar] — shared across all three since the shape
+ * (label/icon/selected/click) is identical; only the M3 host layout differs
+ * by breakpoint.
  */
 data class AppNavigationItem(
     val label: String,

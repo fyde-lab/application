@@ -10,21 +10,23 @@ import androidx.compose.ui.Modifier
 import com.peltoche.fyde.components.navigation.AppNavigationBar
 import com.peltoche.fyde.components.navigation.AppNavigationItem
 import com.peltoche.fyde.components.navigation.AppNavigationRail
+import com.peltoche.fyde.components.navigation.AppNavigationSidebar
 
 /**
  * The adaptive navigation switch: bottom navigation at
- * [AppWindowSizeClass.Compact], a persistent side rail at Medium/Expanded —
- * a structural change, not the same bar scaled up. Deliberately just this
- * one decision, decoupled from top bars/snackbars, so a screen that only
- * needs adaptive nav (no [AppScaffold] ceremony) can use it directly; it's
- * also what `AppScaffold` itself is built on.
+ * [AppWindowSizeClass.Compact], an icon rail at Medium, a fully-labeled
+ * sidebar at Expanded — three structurally different surfaces, not one bar
+ * scaled up. Deliberately just this one decision, decoupled from top
+ * bars/snackbars, so a screen that only needs adaptive nav (no [AppScaffold]
+ * ceremony) can use it directly; it's also what `AppScaffold` itself is
+ * built on.
  */
 @Composable
 fun AppNavigationLayout(
     navigationItems: List<AppNavigationItem>,
     modifier: Modifier = Modifier,
     windowSizeClass: AppWindowSizeClass = LocalAppWindowSizeClass.current,
-    railHeader: (@Composable ColumnScope.() -> Unit)? = null,
+    header: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     when (windowSizeClass) {
@@ -36,10 +38,18 @@ fun AppNavigationLayout(
                 }
             }
         }
-        AppWindowSizeClass.Medium, AppWindowSizeClass.Expanded -> {
+        AppWindowSizeClass.Medium -> {
             Row(modifier = modifier.fillMaxSize()) {
                 if (navigationItems.isNotEmpty()) {
-                    AppNavigationRail(items = navigationItems, header = railHeader)
+                    AppNavigationRail(items = navigationItems, header = header)
+                }
+                Box(modifier = Modifier.weight(1f)) { content() }
+            }
+        }
+        AppWindowSizeClass.Expanded -> {
+            Row(modifier = modifier.fillMaxSize()) {
+                if (navigationItems.isNotEmpty()) {
+                    AppNavigationSidebar(items = navigationItems, header = header)
                 }
                 Box(modifier = Modifier.weight(1f)) { content() }
             }
