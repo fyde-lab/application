@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -24,26 +22,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.log_in
 import com.peltoche.fyde.resources.no_account_prompt
 import com.peltoche.fyde.resources.password_label
 import com.peltoche.fyde.resources.sign_up
 import com.peltoche.fyde.resources.username_label
+import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppShapes
+import com.peltoche.fyde.theme.AppSpacing
+import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
-
-/**
- * Caps the form's content width on wide (desktop) viewports so it doesn't
- * stretch edge-to-edge; on mobile the surrounding [Box] just centers it and
- * the cap has no effect. Matches the range DESIGN.md's Navigation section
- * specifies for auth forms.
- */
-internal val AuthFormMaxWidth = 480.dp
-
-/** Button radius per DESIGN.md: `radius-md` (12dp), deliberately not M3's default pill shape. */
-internal val AuthButtonShape = RoundedCornerShape(12.dp)
 
 /**
  * Login screen: username/password fields plus a link to [RegisterScreen]
@@ -63,26 +53,25 @@ fun LoginScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(AppColors.background)
             .safeContentPadding(),
         contentAlignment = Alignment.Center,
     ) {
         Column(
             modifier = Modifier
-                .widthIn(max = AuthFormMaxWidth)
+                .widthIn(max = AppDimensions.maxWidthDetail)
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = AppSpacing.space7),
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = stringResource(Res.string.log_in),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
+                style = AppTypography.title,
+                color = AppColors.text,
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(AppSpacing.space7))
             AuthTextField(value = username, onValueChange = { username = it }, label = stringResource(Res.string.username_label))
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(AppSpacing.space4))
             AuthTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -90,25 +79,25 @@ fun LoginScreen(
                 isPassword = true,
             )
             if (errorMessage != null) {
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(AppSpacing.space3))
                 Text(
                     text = errorMessage,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
+                    style = AppTypography.caption,
+                    color = AppColors.error,
                 )
             }
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(AppSpacing.space6))
             Button(
                 onClick = { onLogIn(username, password) },
                 enabled = username.isNotBlank() && password.isNotBlank(),
-                shape = AuthButtonShape,
+                shape = AppShapes.button,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(AppDimensions.touchTargetMin),
             ) {
                 Text(stringResource(Res.string.log_in))
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(AppSpacing.space3))
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -116,11 +105,11 @@ fun LoginScreen(
             ) {
                 Text(
                     text = stringResource(Res.string.no_account_prompt),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = AppTypography.caption,
+                    color = AppColors.textMuted,
                 )
                 TextButton(onClick = onNavigateToRegister) {
-                    Text(stringResource(Res.string.sign_up), fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.sign_up))
                 }
             }
         }

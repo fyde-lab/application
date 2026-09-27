@@ -18,12 +18,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.resources.server_section_title
 import com.peltoche.fyde.resources.server_url_label
 import com.peltoche.fyde.resources.settings_title
+import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppSpacing
+import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -36,7 +39,7 @@ fun SettingsScreen(serverUrl: String, onBack: () -> Unit, modifier: Modifier = M
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(AppColors.background),
     ) {
         SettingsTopBar(onBack = onBack)
         SectionTitle(stringResource(Res.string.server_section_title))
@@ -49,39 +52,40 @@ private fun SettingsTopBar(onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            .height(AppDimensions.topBarHeight)
+            .background(AppColors.surfaceElevated),
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(end = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(end = AppSpacing.space5),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TextButton(onClick = onBack) {
+                // "←" stands in for an icon glyph, not language — exempt
+                // from the Regular/Medium/SemiBold-only rule real text follows.
                 Text(
                     text = "←",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = AppColors.text,
                 )
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(AppSpacing.space2))
                 Text(
                     text = stringResource(Res.string.back),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    style = AppTypography.label,
+                    color = AppColors.text,
                 )
             }
-            Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(AppSpacing.space2))
             Text(
                 text = stringResource(Res.string.settings_title),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground,
+                style = AppTypography.section,
+                color = AppColors.text,
             )
         }
         HorizontalDivider(
             modifier = Modifier.align(Alignment.BottomCenter),
-            color = MaterialTheme.colorScheme.outlineVariant,
+            color = AppColors.border,
         )
     }
 }
@@ -90,25 +94,24 @@ private fun SettingsTopBar(onBack: () -> Unit) {
 private fun SectionTitle(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.labelLarge,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        style = AppTypography.micro,
+        color = AppColors.textMuted,
+        modifier = Modifier.padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
     )
 }
 
 @Composable
 private fun SettingsRow(label: String, value: String) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3)) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = AppTypography.caption,
+            color = AppColors.textMuted,
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
+            style = AppTypography.body,
+            color = AppColors.text,
         )
     }
 }

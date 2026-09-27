@@ -19,9 +19,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.back
+import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppSpacing
+import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -34,7 +37,7 @@ fun PdfViewerScreen(document: FydeDocument, onBack: () -> Unit, modifier: Modifi
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(AppColors.background),
     ) {
         PdfViewerTopBar(title = document.name, onBack = onBack)
         PdfViewer(
@@ -49,36 +52,37 @@ private fun PdfViewerTopBar(title: String, onBack: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+            .height(AppDimensions.topBarHeight)
+            .background(AppColors.surfaceElevated),
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = 16.dp),
+                .padding(end = AppSpacing.space5),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TextButton(onClick = onBack) {
+                // "←" stands in for an icon glyph, not language — exempt
+                // from the Regular/Medium/SemiBold-only rule real text follows.
                 Text(
                     text = "←",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = AppColors.text,
                 )
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(AppSpacing.space2))
                 Text(
                     text = stringResource(Res.string.back),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    style = AppTypography.label,
+                    color = AppColors.text,
                 )
             }
-            Spacer(Modifier.width(4.dp))
+            Spacer(Modifier.width(AppSpacing.space2))
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onBackground,
+                style = AppTypography.section,
+                color = AppColors.text,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -86,7 +90,7 @@ private fun PdfViewerTopBar(title: String, onBack: () -> Unit) {
         }
         HorizontalDivider(
             modifier = Modifier.align(Alignment.BottomCenter),
-            color = MaterialTheme.colorScheme.outlineVariant,
+            color = AppColors.border,
         )
     }
 }
