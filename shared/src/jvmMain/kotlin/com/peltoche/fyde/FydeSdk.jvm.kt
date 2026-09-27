@@ -9,6 +9,7 @@ import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiEventType
 import uniffi.fyde_sdk.FfiLogLevel
+import uniffi.fyde_sdk.FfiScript
 import uniffi.fyde_sdk.FfiStorage
 import uniffi.fyde_sdk.FydeClient
 import uniffi.fyde_sdk.LogListener
@@ -103,6 +104,27 @@ actual object FydeSdk {
         val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
         client.getLanguage()
     }
+
+    actual suspend fun createScript(name: String, isPublic: Boolean, icon: ByteArray, script: String): Result<FydeScript> =
+        runCatching {
+            val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+            client.createScript(name, isPublic, icon, script).toFydeScript()
+        }
+
+    actual suspend fun enableScript(scriptId: String): Result<Unit> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.enableScript(scriptId)
+    }
+
+    actual suspend fun disableScript(scriptId: String): Result<Unit> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.disableScript(scriptId)
+    }
+
+    actual suspend fun listUserScripts(): Result<List<FydeScript>> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.listUserScripts().map(FfiScript::toFydeScript)
+    }
 }
 
 private fun FfiDocument.toFydeDocument() = FydeDocument(
@@ -114,6 +136,16 @@ private fun FfiDocument.toFydeDocument() = FydeDocument(
     checksum = metadata.checksum,
     transcript = metadata.transcript,
     content = content,
+)
+
+private fun FfiScript.toFydeScript() = FydeScript(
+    id = id,
+    name = name,
+    isPublic = isPublic,
+    icon = icon,
+    version = version.toLong(),
+    script = script,
+    lastUpdated = lastUpdated,
 )
 
 private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(

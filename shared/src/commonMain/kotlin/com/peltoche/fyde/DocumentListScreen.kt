@@ -71,6 +71,7 @@ import com.peltoche.fyde.resources.no_documents_title
 import com.peltoche.fyde.resources.profile_menu
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.search_documents_placeholder
+import com.peltoche.fyde.resources.scripts_menu_item
 import com.peltoche.fyde.resources.select_document_description
 import com.peltoche.fyde.resources.select_document_title
 import com.peltoche.fyde.resources.settings
@@ -117,6 +118,7 @@ fun DocumentListScreen(
     onLogout: () -> Unit = {},
     onOpenDocument: (FydeDocument) -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    onOpenScripts: () -> Unit = {},
 ) {
     when (state) {
         DocumentListUiState.Connecting -> AppLoading(
@@ -135,7 +137,7 @@ fun DocumentListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onLogout, onOpenDocument, onOpenSettings)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onLogout, onOpenDocument, onOpenSettings, onOpenScripts)
     }
 }
 
@@ -148,6 +150,7 @@ private fun LoadedDocumentList(
     onLogout: () -> Unit = {},
     onOpenDocument: (FydeDocument) -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    onOpenScripts: () -> Unit = {},
 ) {
     var searchQuery by remember { mutableStateOf("") }
     // Which document is highlighted in the Medium/Expanded preview pane —
@@ -175,6 +178,7 @@ private fun LoadedDocumentList(
                 AppMenuButton(
                     contentDescription = stringResource(Res.string.profile_menu),
                     actions = listOf(
+                        AppMenuAction(label = stringResource(Res.string.scripts_menu_item), onClick = onOpenScripts),
                         AppMenuAction(label = stringResource(Res.string.settings), onClick = onOpenSettings),
                         AppMenuAction(label = stringResource(Res.string.log_out), onClick = onLogout),
                     ),
@@ -419,7 +423,7 @@ private fun formatSize(bytes: Long): String = when {
  * identically on every Kotlin Multiplatform target without an extra
  * dependency.
  */
-private fun formatDate(epochSeconds: Long): String {
+internal fun formatDate(epochSeconds: Long): String {
     val days = floorDiv(epochSeconds, 86_400L)
     val z = days + 719_468L
     val era = floorDiv(if (z >= 0) z else z - 146_096L, 146_097L)

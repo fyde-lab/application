@@ -40,6 +40,24 @@
     <string name="select_document_title">Sélectionnez un document</string>
     <string name="select_document_description">Choisissez un document dans la liste pour le prévisualiser ici.</string>
 
+    <!-- Scripts screen -->
+    <string name="scripts_menu_item">Scripts</string>
+    <string name="scripts_title">Scripts</string>
+    <string name="no_scripts_title">Aucun script activé</string>
+    <string name="no_scripts_description">Les scripts que vous créez sont activés automatiquement et apparaîtront ici.</string>
+    <string name="new_script">Nouveau script</string>
+    <string name="new_script_sheet_title">Nouveau script</string>
+    <string name="script_name_label">Nom</string>
+    <string name="script_code_label">Script</string>
+    <string name="script_public_label">Rendre public</string>
+    <string name="create">Créer</string>
+    <string name="cancel">Annuler</string>
+    <string name="create_script_failed">Impossible de créer le script : %1$s</string>
+    <string name="disable_script">Désactiver</string>
+    <string name="disable_script_failed">Impossible de désactiver le script : %1$s</string>
+    <string name="script_public_badge">Public</string>
+    <string name="script_private_badge">Privé</string>
+
     <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>
     <string name="server_section_title">Serveur</string>

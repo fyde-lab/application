@@ -5,6 +5,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
+import com.peltoche.fyde.resources.create_script_failed
+import com.peltoche.fyde.resources.disable_script_failed
 import com.peltoche.fyde.resources.error_unknown
 import com.peltoche.fyde.resources.language_save_failed
 import com.peltoche.fyde.resources.upload_failed
@@ -31,6 +33,7 @@ private sealed interface Screen {
     data object Documents : Screen
     data class DocumentViewer(val document: FydeDocument) : Screen
     data object Settings : Screen
+    data object Scripts : Screen
 }
 
 @Composable
@@ -116,11 +119,13 @@ fun App() {
                         onLogout = { screen = Screen.Login },
                         onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
                         onOpenSettings = { screen = Screen.Settings },
+                        onOpenScripts = { screen = Screen.Scripts },
                     )
                     is Screen.DocumentViewer -> PdfViewerScreen(
                         document = currentScreen.document,
                         onBack = { screen = Screen.Documents },
                     )
+                    Screen.Scripts -> ScriptsScreen(onBack = { screen = Screen.Documents })
                     Screen.Settings -> SettingsScreen(
                         serverUrl = FYDE_SERVER_URL,
                         currentLanguage = language,
@@ -171,6 +176,7 @@ private fun DocumentsScreen(
     onLogout: () -> Unit,
     onOpenDocument: (FydeDocument) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenScripts: () -> Unit,
 ) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
@@ -258,5 +264,81 @@ private fun DocumentsScreen(
         onLogout = onLogout,
         onOpenDocument = onOpenDocument,
         onOpenSettings = onOpenSettings,
+        onOpenScripts = onOpenScripts,
+    )
+}
+
+/**
+ * Owns the `fyde-sdk` scripts calls and maps their results into
+ * [ScriptListUiState], mirroring how [DocumentsScreen] owns the documents
+ * calls for [DocumentListScreen]. A newly created script is enabled
+ * immediately (`create_script` alone doesn't enable it — see
+ * `sdk/src/domains/scripts/mod.rs`'s `Service` trait), so it shows up in the
+ * list, which is scoped to enabled scripts only.
+ */
+@Composable
+private fun ScriptsScreen(onBack: () -> Unit) {
+    var retryKey by remember { mutableStateOf(0) }
+    var uiState by remember { mutableStateOf<ScriptListUiState>(ScriptListUiState.Connecting) }
+    var isCreating by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    suspend fun refreshScripts() {
+        val refreshed = FydeSdk.listUserScripts().getOrElse { (uiState as? ScriptListUiState.Loaded)?.scripts ?: emptyList() }
+        uiState = ScriptListUiState.Loaded(scripts = refreshed)
+    }
+
+    LaunchedEffect(retryKey) {
+        uiState = ScriptListUiState.Connecting
+        if (!FydeSdk.isServerReachable().getOrDefault(false)) {
+            uiState = ScriptListUiState.ConnectFailed(
+                message = getString(Res.string.error_unknown),
+                onRetry = { retryKey++ },
+            )
+            return@LaunchedEffect
+        }
+        uiState = ScriptListUiState.Loaded(scripts = null)
+        refreshScripts()
+    }
+
+    ScriptListScreen(
+        state = uiState,
+        onBack = onBack,
+        isCreating = isCreating,
+        onCreateScript = { name, isPublic, script ->
+            isCreating = true
+            scope.launch {
+                FydeSdk.createScript(name = name, isPublic = isPublic, icon = ByteArray(0), script = script)
+                    .mapCatching { created -> FydeSdk.enableScript(created.id).getOrThrow() }
+                    .onSuccess { refreshScripts() }
+                    .onFailure { error ->
+                        val current = uiState as? ScriptListUiState.Loaded
+                        if (current != null) {
+                            val message = getString(Res.string.create_script_failed, error.message ?: getString(Res.string.error_unknown))
+                            uiState = current.copy(
+                                banner = message,
+                                onDismissBanner = { (uiState as? ScriptListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) } },
+                            )
+                        }
+                    }
+                isCreating = false
+            }
+        },
+        onDisableScript = { script ->
+            scope.launch {
+                FydeSdk.disableScript(script.id)
+                    .onSuccess { refreshScripts() }
+                    .onFailure { error ->
+                        val current = uiState as? ScriptListUiState.Loaded
+                        if (current != null) {
+                            val message = getString(Res.string.disable_script_failed, error.message ?: getString(Res.string.error_unknown))
+                            uiState = current.copy(
+                                banner = message,
+                                onDismissBanner = { (uiState as? ScriptListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) } },
+                            )
+                        }
+                    }
+            }
+        },
     )
 }
