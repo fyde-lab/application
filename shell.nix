@@ -38,6 +38,11 @@ pkgs.mkShell {
   shellHook = ''
     export JAVA_HOME="${pkgs.jdk21}"
     export PATH="$JAVA_HOME/bin:$PATH"
+    # Java AWT (used by Compose Desktop/Skiko) mishandles resize under
+    # non-reparenting Wayland tiling WMs (sway, i3, dwm): the window
+    # surface isn't reallocated correctly, leaving stale/garbled
+    # framebuffer content on screen. This is the standard workaround.
+    export _JAVA_AWT_WM_NONREPARENTING=1
     export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [
       pkgs.libglvnd pkgs.libx11 pkgs.libxext pkgs.libxrender pkgs.libxtst
       pkgs.libxi pkgs.libxrandr pkgs.libxcursor pkgs.libxcomposite
