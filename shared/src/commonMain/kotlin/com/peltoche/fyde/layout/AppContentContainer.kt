@@ -26,6 +26,13 @@ fun AppContentContainer(
     modifier: Modifier = Modifier,
     width: AppContentWidth = AppContentWidth.Detail,
     windowSizeClass: AppWindowSizeClass = LocalAppWindowSizeClass.current,
+    // The full screen margin exists to keep content off a bare window edge —
+    // a persistent sidebar (AppNavigationSidebar) already draws that edge,
+    // so a caller composed directly next to one passes true for a smaller
+    // leading gap instead of stacking the full margin on top of it. The
+    // trailing edge keeps its full margin regardless: it's still a bare
+    // window edge either way.
+    sidebarAdjacent: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val maxWidth = when (width) {
@@ -37,13 +44,21 @@ fun AppContentContainer(
         AppWindowSizeClass.Medium -> AppSpacing.space7
         AppWindowSizeClass.Expanded -> AppSpacing.space8
     }
+    val startMargin = if (sidebarAdjacent) AppSpacing.space5 else margin
 
-    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+    // Centering a width-capped box ignores asymmetric padding — on a wide
+    // enough viewport the cap kicks in and centers the box regardless of
+    // `startMargin`, reopening the full gap `sidebarAdjacent` trims down.
+    // Anchoring to the start instead keeps the trimmed gap next to the
+    // sidebar and pushes all the leftover width to the trailing edge.
+    val alignment = if (sidebarAdjacent) Alignment.TopStart else Alignment.TopCenter
+
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = alignment) {
         Box(
             modifier = Modifier
                 .widthIn(max = maxWidth)
                 .fillMaxWidth()
-                .padding(horizontal = margin),
+                .padding(start = startMargin, end = margin),
         ) {
             content()
         }

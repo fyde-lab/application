@@ -201,11 +201,16 @@ private fun LoadedDocumentList(
                 .background(AppColors.background),
             width = AppContentWidth.List,
             windowSizeClass = windowSizeClass,
+            sidebarAdjacent = isDesktop,
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 state.banner?.let { message ->
                     AppBanner(message = message, onDismiss = state.onDismissBanner, dismissLabel = stringResource(Res.string.dismiss))
                 }
+                // Matches the space3 gap below the search field (before the
+                // filter row) so it doesn't sit flush under the top bar
+                // divider while having visible breathing room underneath.
+                Spacer(Modifier.height(AppSpacing.space3))
                 AppSearchField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
