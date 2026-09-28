@@ -34,7 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.peltoche.fyde.components.action.AppTextButton
+import com.peltoche.fyde.components.action.AppButton
+import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppEmptyState
@@ -61,7 +62,6 @@ import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.document_detail_created
-import com.peltoche.fyde.resources.document_detail_name
 import com.peltoche.fyde.resources.document_detail_size
 import com.peltoche.fyde.resources.document_detail_type
 import com.peltoche.fyde.resources.document_details_title
@@ -176,9 +176,10 @@ private fun LoadedDocumentList(
         navigationFooter = if (isDesktop) { { SidebarFooter(current = SidebarDestination.Documents, onOpenSettings = onOpenSettings) } } else null,
         topBar = {
             AppTopBar(title = stringResource(Res.string.documents_title), windowSizeClass = windowSizeClass) {
-                AppTextButton(
+                AppButton(
                     text = stringResource(Res.string.upload_document),
                     onClick = onUpload,
+                    variant = AppButtonVariant.Filled,
                     enabled = state.serverReachable,
                     loading = isUploading,
                     leadingIcon = {
@@ -339,11 +340,15 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
             FileTypeIcon(document, size = 40.dp)
             Spacer(Modifier.width(AppSpacing.space4))
             Column(modifier = Modifier.weight(1f)) {
+                // Unlike the list row (AppListItem, always 1 line — a list is
+                // scanned), this is the one place the full name matters more
+                // than row-height consistency, so it gets 2 lines before
+                // falling back to ellipsis.
                 Text(
                     text = document.name,
                     style = AppTypography.bodyEmphasis,
                     color = AppColors.text,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(Modifier.height(AppSpacing.space1))
@@ -362,11 +367,12 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
 }
 
 /**
- * The document's own known fields (name/type/size/created), laid out as
+ * The document's own known fields (type/size/created), laid out as
  * label/value rows above the preview — no OCR or extraction pipeline exists
  * (the server only ever sees ciphertext, see ../CLAUDE.md), so unlike a
  * document-intelligence product this section surfaces real document
- * metadata rather than fabricated extracted fields.
+ * metadata rather than fabricated extracted fields. Name is deliberately not
+ * repeated here — it's already the pane's header, immediately above.
  */
 @Composable
 private fun DocumentDetailsSection(document: FydeDocument) {
@@ -378,7 +384,6 @@ private fun DocumentDetailsSection(document: FydeDocument) {
             color = AppColors.text,
         )
         Spacer(Modifier.height(AppSpacing.space4))
-        DetailRow(stringResource(Res.string.document_detail_name), document.name)
         DetailRow(stringResource(Res.string.document_detail_type), typeLabel)
         DetailRow(stringResource(Res.string.document_detail_size), formatSize(document.size))
         DetailRow(stringResource(Res.string.document_detail_created), formatDate(document.createdAt))
@@ -469,16 +474,16 @@ private fun FilterChipRow() {
         Spacer(Modifier.width(AppSpacing.space3))
         FilterChip(stringResource(Res.string.filter_period))
         Spacer(Modifier.width(AppSpacing.space3))
-        Text(
-            text = "+ ${stringResource(Res.string.filter_more)}",
-            style = AppTypography.caption,
-            color = AppColors.textMuted,
-        )
+        // No trailing chevron — unlike Type/Period this isn't a dropdown,
+        // but it's still a clickable filter, so it keeps the same chip
+        // container and full-contrast label rather than reading as inert
+        // caption text next to two chips that are actionable.
+        FilterChip(text = "+ ${stringResource(Res.string.filter_more)}", showChevron = false)
     }
 }
 
 @Composable
-private fun FilterChip(label: String) {
+private fun FilterChip(text: String, showChevron: Boolean = true) {
     Row(
         modifier = Modifier
             .clip(AppRadius.sm)
@@ -486,12 +491,17 @@ private fun FilterChip(label: String) {
             .padding(horizontal = AppSpacing.space3, vertical = AppSpacing.space2),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(label, style = AppTypography.caption, color = AppColors.textMuted)
-        Spacer(Modifier.width(AppSpacing.space1))
-        ChevronRightGlyph(
-            modifier = Modifier.size(10.dp).rotate(90f),
-            tint = AppColors.textMuted,
-        )
+        // Label at full text contrast: these are interactive controls, not
+        // muted metadata — textMuted was reserved for the chevron only, to
+        // keep it visually secondary to the label.
+        Text(text, style = AppTypography.caption, color = AppColors.text)
+        if (showChevron) {
+            Spacer(Modifier.width(AppSpacing.space1))
+            ChevronRightGlyph(
+                modifier = Modifier.size(10.dp).rotate(90f),
+                tint = AppColors.textMuted,
+            )
+        }
     }
 }
 

@@ -42,7 +42,6 @@
 
     <!-- Document preview pane: details section -->
     <string name="document_details_title">Details</string>
-    <string name="document_detail_name">Name</string>
     <string name="document_detail_type">Type</string>
     <string name="document_detail_size">Size</string>
     <string name="document_detail_created">Created</string>
