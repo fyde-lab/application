@@ -28,6 +28,7 @@ fun AppNavigationRail(
             NavigationRailItem(
                 selected = item.selected,
                 onClick = item.onClick,
+                enabled = item.enabled,
                 icon = item.icon,
                 label = { Text(item.label, style = AppTypography.micro) },
                 colors = NavigationRailItemDefaults.colors(

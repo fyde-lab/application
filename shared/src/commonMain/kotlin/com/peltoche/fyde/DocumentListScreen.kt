@@ -2,6 +2,8 @@ package com.peltoche.fyde
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -46,6 +49,7 @@ import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.content.AppListItem
 import com.peltoche.fyde.components.form.AppSearchField
+import com.peltoche.fyde.components.navigation.AppNavigationItem
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
@@ -63,8 +67,21 @@ import com.peltoche.fyde.resources.clear_search
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
+import com.peltoche.fyde.resources.documents_count
 import com.peltoche.fyde.resources.documents_title
+import com.peltoche.fyde.resources.encryption_badge_description
+import com.peltoche.fyde.resources.encryption_badge_title
+import com.peltoche.fyde.resources.filter_more
+import com.peltoche.fyde.resources.filter_period
+import com.peltoche.fyde.resources.filter_type
 import com.peltoche.fyde.resources.log_out
+import com.peltoche.fyde.resources.nav_all_documents
+import com.peltoche.fyde.resources.nav_categories
+import com.peltoche.fyde.resources.nav_dates
+import com.peltoche.fyde.resources.nav_favorites
+import com.peltoche.fyde.resources.nav_issuers
+import com.peltoche.fyde.resources.nav_search
+import com.peltoche.fyde.resources.nav_suppliers
 import com.peltoche.fyde.resources.no_documents_description
 import com.peltoche.fyde.resources.no_documents_match
 import com.peltoche.fyde.resources.no_documents_title
@@ -75,6 +92,7 @@ import com.peltoche.fyde.resources.scripts_menu_item
 import com.peltoche.fyde.resources.select_document_description
 import com.peltoche.fyde.resources.select_document_title
 import com.peltoche.fyde.resources.settings
+import com.peltoche.fyde.resources.sidebar_app_title
 import com.peltoche.fyde.resources.upload_document
 import org.jetbrains.compose.resources.stringResource
 
@@ -158,10 +176,18 @@ private fun LoadedDocumentList(
     // being hoisted to the caller (see AppTwoPaneLayout's doc comment).
     var selectedDocument by remember { mutableStateOf<FydeDocument?>(null) }
     val windowSizeClass = LocalAppWindowSizeClass.current
+    // The persistent sidebar is desktop-only chrome — Compact/Medium keep
+    // today's top-bar-only navigation unchanged, so this stays empty there
+    // rather than forcing AppNavigationLayout's bar/rail surfaces to adopt
+    // destinations they were never designed to show.
+    val isDesktop = windowSizeClass == AppWindowSizeClass.Expanded
 
     AppScaffold(
         modifier = modifier,
         windowSizeClass = windowSizeClass,
+        navigationItems = if (isDesktop) sidebarNavigationItems() else emptyList(),
+        navigationHeader = if (isDesktop) { { SidebarHeader() } } else null,
+        navigationFooter = if (isDesktop) { { SidebarFooter(onOpenSettings = onOpenSettings) } } else null,
         topBar = {
             AppTopBar(title = stringResource(Res.string.documents_title), windowSizeClass = windowSizeClass) {
                 AppTextButton(
@@ -210,9 +236,28 @@ private fun LoadedDocumentList(
                     placeholder = stringResource(Res.string.search_documents_placeholder),
                     onClear = { searchQuery = "" },
                     clearContentDescription = stringResource(Res.string.clear_search),
+                    leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
                 )
 
+                if (isDesktop) {
+                    Spacer(Modifier.height(AppSpacing.space3))
+                    FilterChipRow()
+                }
+
                 val documents = state.documents
+                val filteredCount = remember(documents, searchQuery) {
+                    documents?.count { it.name.contains(searchQuery, ignoreCase = true) } ?: 0
+                }
+
+                if (isDesktop && documents != null) {
+                    Spacer(Modifier.height(AppSpacing.space4))
+                    Text(
+                        text = stringResource(Res.string.documents_count, filteredCount),
+                        style = AppTypography.caption,
+                        color = AppColors.textMuted,
+                    )
+                    Spacer(Modifier.height(AppSpacing.space2))
+                }
                 when {
                     documents == null -> DocumentSkeletonList(modifier = Modifier.weight(1f))
 
@@ -289,7 +334,8 @@ private fun DocumentList(
                 title = document.name,
                 supportingText = "${formatSize(document.size)} · ${formatDate(document.createdAt)}",
                 supportingTextStyle = AppTypography.data,
-                leadingContent = { PdfFileIcon() },
+                leadingContent = { FileTypeIcon(document) },
+                trailingContent = { ChevronRightGlyph(modifier = Modifier.size(12.dp)) },
                 selected = document.id == selectedId,
                 onClick = { onClick(document) },
                 modifier = Modifier.heightIn(min = rowMinHeight),
@@ -311,20 +357,27 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
         return
     }
     Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
-            Text(
-                text = document.name,
-                style = AppTypography.bodyEmphasis,
-                color = AppColors.text,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Spacer(Modifier.height(AppSpacing.space1))
-            Text(
-                text = "${formatSize(document.size)} · ${formatDate(document.createdAt)}",
-                style = AppTypography.data,
-                color = AppColors.textMuted,
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            FileTypeIcon(document, size = 40.dp)
+            Spacer(Modifier.width(AppSpacing.space4))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = document.name,
+                    style = AppTypography.bodyEmphasis,
+                    color = AppColors.text,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(AppSpacing.space1))
+                Text(
+                    text = "${formatSize(document.size)} · ${formatDate(document.createdAt)}",
+                    style = AppTypography.data,
+                    color = AppColors.textMuted,
+                )
+            }
         }
         AppDivider()
         PdfViewer(pdfBytes = document.content, modifier = Modifier.fillMaxWidth().weight(1f))
@@ -358,29 +411,207 @@ private fun AvatarGlyph(modifier: Modifier = Modifier, tint: Color) {
     }
 }
 
-/** A folded-corner PDF file icon on a rounded chip, drawn without an icon pack (see [DocumentGlyph]). */
+/**
+ * A folded-corner file icon on a rounded, tinted chip, drawn without an icon
+ * pack (see [DocumentGlyph]). The tint/label vary by file type — reusing the
+ * design system's own semantic tokens (`primary`/`secondary`/`success`/
+ * `warning`), not an arbitrary per-type rainbow — so a mixed document list
+ * stays scannable-by-type while the palette stays within
+ * design-system.md's "one disciplined accent" rule.
+ */
 @Composable
-private fun PdfFileIcon(modifier: Modifier = Modifier) {
+private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, size: Dp = 44.dp) {
+    val (label, tint) = fileTypeVisualsFor(document)
     Box(
         modifier = modifier
-            .size(44.dp)
+            .size(size)
             .clip(AppRadius.md)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .background(tint.copy(alpha = 0.14f)),
     ) {
         DocumentGlyph(
+            tint = tint,
             modifier = Modifier
                 .align(Alignment.Center)
                 .size(20.dp)
                 .padding(bottom = 4.dp),
         )
         Text(
-            text = "PDF",
-            color = AppColors.primary,
+            text = label,
+            color = tint,
             fontWeight = FontWeight.SemiBold,
             fontSize = 7.sp,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 6.dp),
+        )
+    }
+}
+
+/** Short type label + accent tint for [FileTypeIcon], derived from real [FydeDocument] fields only. */
+@Composable
+private fun fileTypeVisualsFor(document: FydeDocument): Pair<String, Color> {
+    val extension = document.name.substringAfterLast('.', "").uppercase().take(4)
+    val type = document.contentType.lowercase()
+    return when {
+        type.contains("pdf") -> "PDF" to AppColors.primary
+        type.contains("spreadsheet") || type.contains("excel") || type.contains("csv") ->
+            extension.ifEmpty { "XLS" } to AppColors.success
+        type.startsWith("image/") -> extension.ifEmpty { "IMG" } to AppColors.warning
+        type.contains("word") || type.contains("document") -> extension.ifEmpty { "DOC" } to AppColors.secondary
+        else -> extension.ifEmpty { "FILE" } to AppColors.textMuted
+    }
+}
+
+/**
+ * The desktop sidebar's destinations. Only [Res.string.nav_search] is wired
+ * to anything real — this screen itself — since [FydeDocument] carries no
+ * category/supplier/issuer/date-grouping/favorite data yet. The rest render
+ * as visible, disabled placeholders (per design review) rather than being
+ * omitted outright, so the information architecture the desktop layout is
+ * heading toward is legible without pretending it already works.
+ */
+@Composable
+private fun sidebarNavigationItems(): List<AppNavigationItem> = listOf(
+    AppNavigationItem(
+        label = stringResource(Res.string.nav_search),
+        selected = true,
+        enabled = true,
+        onClick = {},
+        icon = { SearchGlyph(tint = AppColors.primary, modifier = Modifier.size(20.dp)) },
+    ),
+    AppNavigationItem(
+        label = stringResource(Res.string.nav_all_documents),
+        selected = false,
+        enabled = false,
+        onClick = {},
+        icon = { FolderGlyph(modifier = Modifier.size(20.dp)) },
+    ),
+    AppNavigationItem(
+        label = stringResource(Res.string.nav_categories),
+        selected = false,
+        enabled = false,
+        onClick = {},
+        icon = { TagGlyph(modifier = Modifier.size(20.dp)) },
+    ),
+    AppNavigationItem(
+        label = stringResource(Res.string.nav_suppliers),
+        selected = false,
+        enabled = false,
+        onClick = {},
+        icon = { BuildingGlyph(modifier = Modifier.size(20.dp)) },
+    ),
+    AppNavigationItem(
+        label = stringResource(Res.string.nav_issuers),
+        selected = false,
+        enabled = false,
+        onClick = {},
+        icon = { PersonGlyph(modifier = Modifier.size(20.dp)) },
+    ),
+    AppNavigationItem(
+        label = stringResource(Res.string.nav_dates),
+        selected = false,
+        enabled = false,
+        onClick = {},
+        icon = { CalendarGlyph(modifier = Modifier.size(20.dp)) },
+    ),
+    AppNavigationItem(
+        label = stringResource(Res.string.nav_favorites),
+        selected = false,
+        enabled = false,
+        onClick = {},
+        icon = { StarGlyph(modifier = Modifier.size(20.dp)) },
+    ),
+)
+
+@Composable
+private fun SidebarHeader() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space6),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        DocumentGlyph(modifier = Modifier.size(22.dp), tint = AppColors.primary, strokeWidth = 1.8.dp)
+        Spacer(Modifier.width(AppSpacing.space3))
+        Text(
+            text = stringResource(Res.string.sidebar_app_title),
+            style = AppTypography.section,
+            color = AppColors.text,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** Sidebar foot: a static end-to-end-encryption trust badge (a real property of this app, see the top-level design docs), then the real Settings destination. */
+@Composable
+private fun SidebarFooter(onOpenSettings: () -> Unit) {
+    Column(modifier = Modifier.padding(AppSpacing.space3)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(AppRadius.md)
+                .background(AppColors.success.copy(alpha = 0.10f))
+                .padding(AppSpacing.space3),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            LockGlyph(modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(AppSpacing.space3))
+            Column {
+                Text(stringResource(Res.string.encryption_badge_title), style = AppTypography.caption, color = AppColors.text)
+                Text(stringResource(Res.string.encryption_badge_description), style = AppTypography.micro, color = AppColors.textMuted)
+            }
+        }
+        Spacer(Modifier.height(AppSpacing.space2))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(AppRadius.md)
+                .clickable(onClick = onOpenSettings)
+                .padding(horizontal = AppSpacing.space3, vertical = AppSpacing.space4),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            GearGlyph(modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(AppSpacing.space4))
+            Text(stringResource(Res.string.settings), style = AppTypography.label, color = AppColors.textMuted)
+        }
+    }
+}
+
+/**
+ * Non-functional filter affordances (Type/Period/more) matching the desktop
+ * reference layout's filter row — [FydeDocument] has no émetteur/montant
+ * fields to filter on, so these are visible, disabled placeholders (see
+ * [sidebarNavigationItems]'s doc comment for the same call) rather than a
+ * fabricated filtering feature.
+ */
+@Composable
+private fun FilterChipRow() {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        FilterChip(stringResource(Res.string.filter_type))
+        Spacer(Modifier.width(AppSpacing.space3))
+        FilterChip(stringResource(Res.string.filter_period))
+        Spacer(Modifier.width(AppSpacing.space3))
+        Text(
+            text = "+ ${stringResource(Res.string.filter_more)}",
+            style = AppTypography.caption,
+            color = AppColors.textMuted,
+        )
+    }
+}
+
+@Composable
+private fun FilterChip(label: String) {
+    Row(
+        modifier = Modifier
+            .clip(AppRadius.sm)
+            .border(AppDimensions.borderHairline, AppColors.border, AppRadius.sm)
+            .padding(horizontal = AppSpacing.space3, vertical = AppSpacing.space2),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, style = AppTypography.caption, color = AppColors.textMuted)
+        Spacer(Modifier.width(AppSpacing.space1))
+        ChevronRightGlyph(
+            modifier = Modifier.size(10.dp).rotate(90f),
+            tint = AppColors.textMuted,
         )
     }
 }

@@ -20,6 +20,8 @@ data class AppNavigationItem(
     val selected: Boolean,
     val onClick: () -> Unit,
     val icon: @Composable () -> Unit,
+    /** False for a destination that's visually present but not wired up yet — dimmed, not clickable. */
+    val enabled: Boolean = true,
 )
 
 /**
@@ -35,6 +37,7 @@ fun AppNavigationBar(items: List<AppNavigationItem>, modifier: Modifier = Modifi
             NavigationBarItem(
                 selected = item.selected,
                 onClick = item.onClick,
+                enabled = item.enabled,
                 icon = item.icon,
                 label = { Text(item.label, style = AppTypography.micro) },
                 colors = NavigationBarItemDefaults.colors(

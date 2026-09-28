@@ -27,6 +27,11 @@ fun AppNavigationLayout(
     modifier: Modifier = Modifier,
     windowSizeClass: AppWindowSizeClass = LocalAppWindowSizeClass.current,
     header: (@Composable ColumnScope.() -> Unit)? = null,
+    // Only the Expanded sidebar has room/precedent for foot-of-rail chrome
+    // (a trust badge, a settings destination) — the bar and rail stay
+    // icon/label-only, so this is ignored below Expanded rather than forced
+    // into a shape neither surface was designed for.
+    footer: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     when (windowSizeClass) {
@@ -49,7 +54,7 @@ fun AppNavigationLayout(
         AppWindowSizeClass.Expanded -> {
             Row(modifier = modifier.fillMaxSize()) {
                 if (navigationItems.isNotEmpty()) {
-                    AppNavigationSidebar(items = navigationItems, header = header)
+                    AppNavigationSidebar(items = navigationItems, header = header, footer = footer)
                 }
                 Box(modifier = Modifier.weight(1f)) { content() }
             }

@@ -39,6 +39,22 @@
     <string name="clear_search">Clear search</string>
     <string name="select_document_title">Select a document</string>
     <string name="select_document_description">Choose a document from the list to preview it here.</string>
+    <string name="documents_count">%1$d document(s)</string>
+
+    <!-- Document list: desktop sidebar -->
+    <string name="sidebar_app_title">My documents</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_all_documents">All documents</string>
+    <string name="nav_categories">Categories</string>
+    <string name="nav_suppliers">Suppliers</string>
+    <string name="nav_issuers">Issuers</string>
+    <string name="nav_dates">Dates</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="encryption_badge_title">End-to-end encryption</string>
+    <string name="encryption_badge_description">Your documents are secured</string>
+    <string name="filter_type">Type</string>
+    <string name="filter_period">Period</string>
+    <string name="filter_more">More filters</string>
 
     <!-- Scripts screen -->
     <string name="scripts_menu_item">Scripts</string>
