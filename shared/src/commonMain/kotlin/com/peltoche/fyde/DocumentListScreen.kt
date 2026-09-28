@@ -60,6 +60,11 @@ import com.peltoche.fyde.resources.clear_search
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
+import com.peltoche.fyde.resources.document_detail_created
+import com.peltoche.fyde.resources.document_detail_name
+import com.peltoche.fyde.resources.document_detail_size
+import com.peltoche.fyde.resources.document_detail_type
+import com.peltoche.fyde.resources.document_details_title
 import com.peltoche.fyde.resources.documents_count
 import com.peltoche.fyde.resources.documents_title
 import com.peltoche.fyde.resources.filter_more
@@ -350,7 +355,53 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
             }
         }
         AppDivider()
+        DocumentDetailsSection(document)
+        AppDivider()
         PdfViewer(pdfBytes = document.content, modifier = Modifier.fillMaxWidth().weight(1f))
+    }
+}
+
+/**
+ * The document's own known fields (name/type/size/created), laid out as
+ * label/value rows above the preview — no OCR or extraction pipeline exists
+ * (the server only ever sees ciphertext, see ../CLAUDE.md), so unlike a
+ * document-intelligence product this section surfaces real document
+ * metadata rather than fabricated extracted fields.
+ */
+@Composable
+private fun DocumentDetailsSection(document: FydeDocument) {
+    val (typeLabel, _) = fileTypeVisualsFor(document)
+    Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
+        Text(
+            text = stringResource(Res.string.document_details_title),
+            style = AppTypography.section,
+            color = AppColors.text,
+        )
+        Spacer(Modifier.height(AppSpacing.space4))
+        DetailRow(stringResource(Res.string.document_detail_name), document.name)
+        DetailRow(stringResource(Res.string.document_detail_type), typeLabel)
+        DetailRow(stringResource(Res.string.document_detail_size), formatSize(document.size))
+        DetailRow(stringResource(Res.string.document_detail_created), formatDate(document.createdAt))
+    }
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpacing.space2)) {
+        Text(
+            text = label,
+            style = AppTypography.caption,
+            color = AppColors.textMuted,
+            modifier = Modifier.width(120.dp),
+        )
+        Text(
+            text = value,
+            style = AppTypography.body,
+            color = AppColors.text,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
     }
 }
 
