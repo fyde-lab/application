@@ -49,6 +49,7 @@ import com.peltoche.fyde.components.overlay.AppBottomSheet
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppScaffold
+import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
@@ -103,6 +104,7 @@ fun ScriptListScreen(
     state: ScriptListUiState,
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
     isCreating: Boolean = false,
     onDisableScript: (FydeScript) -> Unit = {},
@@ -124,7 +126,7 @@ fun ScriptListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is ScriptListUiState.Loaded -> LoadedScriptList(state, modifier, onBack, onCreateScript, isCreating, onDisableScript)
+        is ScriptListUiState.Loaded -> LoadedScriptList(state, modifier, onBack, onOpenSettings, onCreateScript, isCreating, onDisableScript)
     }
 }
 
@@ -134,16 +136,27 @@ private fun LoadedScriptList(
     state: ScriptListUiState.Loaded,
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
     isCreating: Boolean = false,
     onDisableScript: (FydeScript) -> Unit = {},
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
+    // Same desktop-only persistent sidebar as DocumentListScreen — see its
+    // isDesktop doc comment for why Compact/Medium stay top-bar-only.
+    val isDesktop = windowSizeClass == AppWindowSizeClass.Expanded
     var showCreateSheet by remember { mutableStateOf(false) }
 
     AppScaffold(
         modifier = modifier,
         windowSizeClass = windowSizeClass,
+        navigationItems = if (isDesktop) {
+            sidebarNavigationItems(current = SidebarDestination.Scripts, onOpenDocuments = onBack, onOpenScripts = {})
+        } else {
+            emptyList()
+        },
+        navigationHeader = if (isDesktop) { { SidebarHeader() } } else null,
+        navigationFooter = if (isDesktop) { { SidebarFooter(current = SidebarDestination.Scripts, onOpenSettings = onOpenSettings) } } else null,
         topBar = {
             AppTopBar(title = stringResource(Res.string.scripts_title), onBack = onBack, windowSizeClass = windowSizeClass) {
                 AppTextButton(

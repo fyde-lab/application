@@ -33,7 +33,6 @@
     <string name="upload_document">Importer un document</string>
     <string name="upload_failed">Échec de l\'import : %1$s</string>
     <string name="uploads_failed">%1$d import(s) sur %2$d ont échoué</string>
-    <string name="profile_menu">Menu du profil</string>
     <string name="settings">Paramètres</string>
     <string name="log_out">Se déconnecter</string>
     <string name="clear_search">Effacer la recherche</string>
@@ -44,12 +43,6 @@
     <!-- Document list: desktop sidebar -->
     <string name="sidebar_app_title">Mes documents</string>
     <string name="nav_search">Rechercher</string>
-    <string name="nav_all_documents">Tous les documents</string>
-    <string name="nav_categories">Catégories</string>
-    <string name="nav_suppliers">Fournisseurs</string>
-    <string name="nav_issuers">Émetteurs</string>
-    <string name="nav_dates">Dates</string>
-    <string name="nav_favorites">Favoris</string>
     <string name="encryption_badge_title">Chiffrement de bout en bout</string>
     <string name="encryption_badge_description">Vos documents sont sécurisés</string>
     <string name="filter_type">Type</string>
@@ -81,6 +74,7 @@
     <string name="language_section_title">Langue</string>
     <string name="language_label">Langue de l\'application</string>
     <string name="language_save_failed">Impossible d\'enregistrer la langue : %1$s</string>
+    <string name="account_section_title">Compte</string>
 
     <!-- PDF viewer -->
     <string name="back">Retour</string>

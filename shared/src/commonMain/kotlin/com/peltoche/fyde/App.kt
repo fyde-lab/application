@@ -116,7 +116,6 @@ fun App() {
                         },
                     )
                     Screen.Documents -> DocumentsScreen(
-                        onLogout = { screen = Screen.Login },
                         onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
                         onOpenSettings = { screen = Screen.Settings },
                         onOpenScripts = { screen = Screen.Scripts },
@@ -125,7 +124,10 @@ fun App() {
                         document = currentScreen.document,
                         onBack = { screen = Screen.Documents },
                     )
-                    Screen.Scripts -> ScriptsScreen(onBack = { screen = Screen.Documents })
+                    Screen.Scripts -> ScriptsScreen(
+                        onBack = { screen = Screen.Documents },
+                        onOpenSettings = { screen = Screen.Settings },
+                    )
                     Screen.Settings -> SettingsScreen(
                         serverUrl = FYDE_SERVER_URL,
                         currentLanguage = language,
@@ -139,6 +141,8 @@ fun App() {
                             }
                         },
                         onBack = { screen = Screen.Documents },
+                        onOpenScripts = { screen = Screen.Scripts },
+                        onLogout = { screen = Screen.Login },
                         languageError = languageError,
                         onDismissLanguageError = { languageError = null },
                     )
@@ -173,7 +177,6 @@ private suspend fun authenticate(
  */
 @Composable
 private fun DocumentsScreen(
-    onLogout: () -> Unit,
     onOpenDocument: (FydeDocument) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenScripts: () -> Unit,
@@ -261,7 +264,6 @@ private fun DocumentsScreen(
         state = uiState,
         onUpload = pickDocuments,
         isUploading = isUploading,
-        onLogout = onLogout,
         onOpenDocument = onOpenDocument,
         onOpenSettings = onOpenSettings,
         onOpenScripts = onOpenScripts,
@@ -277,7 +279,7 @@ private fun DocumentsScreen(
  * list, which is scoped to enabled scripts only.
  */
 @Composable
-private fun ScriptsScreen(onBack: () -> Unit) {
+private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<ScriptListUiState>(ScriptListUiState.Connecting) }
     var isCreating by remember { mutableStateOf(false) }
@@ -304,6 +306,7 @@ private fun ScriptsScreen(onBack: () -> Unit) {
     ScriptListScreen(
         state = uiState,
         onBack = onBack,
+        onOpenSettings = onOpenSettings,
         isCreating = isCreating,
         onCreateScript = { name, isPublic, script ->
             isCreating = true

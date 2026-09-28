@@ -18,13 +18,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.form.AppDropdown
+import com.peltoche.fyde.layout.AppNavigationLayout
+import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.account_section_title
 import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.language_label
 import com.peltoche.fyde.resources.language_section_title
+import com.peltoche.fyde.resources.log_out
 import com.peltoche.fyde.resources.server_section_title
 import com.peltoche.fyde.resources.server_url_label
 import com.peltoche.fyde.resources.settings_title
@@ -53,11 +59,13 @@ private enum class AppLanguage(val code: String, val displayName: String) {
 }
 
 /**
- * Opened from [DocumentListScreen]'s profile dropdown. Mostly read-only —
- * the server it's connected to (see `App.kt`'s `FYDE_SERVER_URL`) — except
- * for [currentLanguage], which [onLanguageChange] lets the user override via
+ * Opened from the sidebar's Settings destination. Mostly read-only — the
+ * server it's connected to (see `App.kt`'s `FYDE_SERVER_URL`) — except for
+ * [currentLanguage], which [onLanguageChange] lets the user override via
  * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
- * where that call and [languageError] actually live).
+ * where that call and [languageError] actually live), and [onLogout], which
+ * ends the session (formerly reachable from [DocumentListScreen]'s profile
+ * dropdown, now consolidated here).
  */
 @Composable
 fun SettingsScreen(
@@ -65,36 +73,64 @@ fun SettingsScreen(
     currentLanguage: String?,
     onLanguageChange: (String) -> Unit,
     onBack: () -> Unit,
+    onOpenScripts: () -> Unit = {},
+    onLogout: () -> Unit = {},
     languageError: String? = null,
     onDismissLanguageError: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(AppColors.background),
+    val windowSizeClass = LocalAppWindowSizeClass.current
+    // Same desktop-only persistent sidebar as DocumentListScreen/
+    // ScriptListScreen — see DocumentListScreen's isDesktop doc comment for
+    // why Compact/Medium stay top-bar-only. `onBack` already navigates to
+    // the documents list (see App.kt's Screen.Settings branch), so it
+    // doubles as the sidebar's "Documents" destination.
+    val isDesktop = windowSizeClass == AppWindowSizeClass.Expanded
+
+    AppNavigationLayout(
+        modifier = modifier,
+        windowSizeClass = windowSizeClass,
+        navigationItems = if (isDesktop) {
+            sidebarNavigationItems(current = SidebarDestination.Settings, onOpenDocuments = onBack, onOpenScripts = onOpenScripts)
+        } else {
+            emptyList()
+        },
+        header = if (isDesktop) { { SidebarHeader() } } else null,
+        footer = if (isDesktop) { { SidebarFooter(current = SidebarDestination.Settings, onOpenSettings = {}) } } else null,
     ) {
-        SettingsTopBar(onBack = onBack)
-        if (languageError != null) {
-            AppBanner(
-                message = languageError,
-                onDismiss = onDismissLanguageError,
-                dismissLabel = stringResource(Res.string.dismiss),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(AppColors.background),
+        ) {
+            SettingsTopBar(onBack = onBack)
+            if (languageError != null) {
+                AppBanner(
+                    message = languageError,
+                    onDismiss = onDismissLanguageError,
+                    dismissLabel = stringResource(Res.string.dismiss),
+                )
+            }
+            SectionTitle(stringResource(Res.string.server_section_title))
+            SettingsRow(label = stringResource(Res.string.server_url_label), value = serverUrl)
+            SectionTitle(stringResource(Res.string.language_section_title))
+            AppDropdown(
+                label = stringResource(Res.string.language_label),
+                options = AppLanguage.entries,
+                selectedOption = AppLanguage.fromCode(currentLanguage),
+                onOptionSelected = { onLanguageChange(it.code) },
+                optionLabel = AppLanguage::displayName,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
+            )
+            SectionTitle(stringResource(Res.string.account_section_title))
+            AppTextButton(
+                text = stringResource(Res.string.log_out),
+                onClick = onLogout,
+                modifier = Modifier.padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space1),
             )
         }
-        SectionTitle(stringResource(Res.string.server_section_title))
-        SettingsRow(label = stringResource(Res.string.server_url_label), value = serverUrl)
-        SectionTitle(stringResource(Res.string.language_section_title))
-        AppDropdown(
-            label = stringResource(Res.string.language_label),
-            options = AppLanguage.entries,
-            selectedOption = AppLanguage.fromCode(currentLanguage),
-            onOptionSelected = { onLanguageChange(it.code) },
-            optionLabel = AppLanguage::displayName,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
-        )
     }
 }
 
