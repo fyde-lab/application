@@ -1,5 +1,15 @@
 # Fyde Visual Design System — Proposal
 
+## Visual reference
+
+The UI must look like the reference screenshot below (`assets/design-reference.png`):
+a light, neutral-gray document search/management screen — left icon-label nav
+rail, a search bar with pill filter chips above a dense results list (file-type
+icon, title, breadcrumb path, tags, amount, date), and a right-hand detail
+panel showing extracted fields and a rendered document preview.
+
+![Fyde design reference](assets/design-reference.png)
+
 **Status: proposal, not implemented.** Nothing in this document exists in code yet;
 it defines tokens and rules only, no components (see the audit for what's
 already in code vs. `application/DESIGN.md`'s spec). This document is the
