@@ -48,7 +48,6 @@
     <string name="document_detail_source_category">Source</string>
     <string name="document_detail_source_subcategory">Sous-catégorie</string>
     <string name="document_detail_purpose">Objet</string>
-    <string name="document_detail_subjects">Sujets</string>
     <string name="document_detail_value_unset">—</string>
 
     <!-- Document list: desktop sidebar -->
@@ -57,8 +56,16 @@
     <string name="encryption_badge_title">Chiffrement de bout en bout</string>
     <string name="encryption_badge_description">Vos documents sont sécurisés</string>
     <string name="filter_type">Type</string>
+    <string name="filter_issuer">Émetteur</string>
     <string name="filter_period">Période</string>
+    <string name="filter_amount">Montant</string>
     <string name="filter_more">Plus de filtres</string>
+    <string name="search_results_count">%1$d résultats pour « %2$s »</string>
+    <string name="document_favorite">Favori</string>
+    <string name="document_download">Télécharger</string>
+    <string name="document_more_actions">"Plus d'actions"</string>
+    <string name="document_preview_title">Aperçu du document</string>
+    <string name="document_detail_keywords_title">Mots-clés</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>

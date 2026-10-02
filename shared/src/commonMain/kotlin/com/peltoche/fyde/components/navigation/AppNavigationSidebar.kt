@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppTypography
 
 /**
@@ -45,6 +46,11 @@ fun AppNavigationSidebar(
                     onClick = item.onClick,
                     icon = item.icon,
                     label = { Text(item.label, style = AppTypography.label) },
+                    // M3's own default is a full stadium pill — design-system.md's
+                    // Shape section is explicit that nothing but a circle is a
+                    // pill in this app, so the selected-row shape is overridden
+                    // to the same small geometric radius every other control uses.
+                    shape = AppRadius.sm,
                     colors = NavigationDrawerItemDefaults.colors(
                         selectedContainerColor = AppColors.selectionSurface,
                         selectedIconColor = AppColors.primary,

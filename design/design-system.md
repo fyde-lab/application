@@ -1,4 +1,4 @@
-# Fyde Visual Design System — Proposal
+# Fyde Visual Design System
 
 ## Visual reference
 
@@ -10,12 +10,18 @@ panel showing extracted fields and a rendered document preview.
 
 ![Fyde design reference](assets/design-reference.png)
 
-**Status: proposal, not implemented.** Nothing in this document exists in code yet;
-it defines tokens and rules only, no components (see the audit for what's
-already in code vs. `application/DESIGN.md`'s spec). This document is the
-next iteration of that spec, written against a new, more specific brief —
-see *Relationship to `DESIGN.md`* below before treating the two as agreeing
-with each other.
+**Status: largely implemented.** Tokens (color, type, shape, spacing,
+elevation) live under `shared/src/commonMain/kotlin/com/peltoche/fyde/theme/`,
+both bundled typefaces are in place (`shared/src/commonMain/composeResources/
+font/`, licenses in `shared/THIRD_PARTY_LICENSES.md` — the font-bundling open
+question below is resolved), and most components/screens this document
+describes exist under `shared/.../components/` and the top-level screen
+files (`DocumentListScreen.kt`, `AppSidebar.kt`, etc.). This document remains
+the source of truth for new work and for reconciling drift between the code
+and the reference screenshot, not a pre-implementation proposal only. This
+document is the next iteration of the earlier `application/DESIGN.md` spec,
+written against a new, more specific brief — see *Relationship to
+`DESIGN.md`* below before treating the two as agreeing with each other.
 
 ## Brief
 
@@ -216,6 +222,13 @@ circles.
 | `radius-lg` | 10px | Dialogs, sheets, popovers |
 | `radius-full` | circular | Avatars, status dots — nothing else |
 
+**Navigation list items** — `radius-sm`, not M3's own stadium-pill default
+for `NavigationDrawerItem`/`NavigationBarItem`. Stock M3 components default
+to a fully-rounded selected-state container; left unoverridden, that's a
+pill shape sneaking back in through a component this document didn't
+originally call out, so the shape parameter is set explicitly wherever one
+of these components is used.
+
 **Buttons** — `radius-md`, never a pill. Minimum height 48dp/pt (clears both
 Android's 48dp and iOS's 44pt touch-target minimums with one shared value —
 see Direction §5 on why platform minimums, not visual style, are allowed to
@@ -375,6 +388,56 @@ adding or changing a density tier, measure the natural height of the actual
 content first, or the new value will silently be a no-op exactly like the
 old ones were.
 
+### List toolbar
+
+A results count sits above the list itself: a document count (or, while a
+search query is active, "N results for "query""). An earlier iteration of
+this toolbar also drew a static "Sort by: Relevance" control and a
+list/grid view toggle, but both were purely decorative — there is no grid
+layout and results are always relevance-ordered — and a non-functional
+control that looks clickable reads as broken, not as restraint, once a user
+actually tries it. Removed rather than kept as inert chrome; re-add only
+once the underlying feature (a real sort order, a real grid layout) exists
+to back it. The filter chip row below still follows the "visible,
+non-functional placeholder" pattern — the difference is that chips read
+unambiguously as filters the data model doesn't support yet, not as a
+broken interactive control.
+
+The filter chip row itself covers Type, Issuer, Period, Amount, then a
+trailing "+ More filters" chip — four named facets plus an overflow,
+matching the reference layout's filter row. The document model has no
+issuer/amount fields yet, so, like Type/Period before them, Issuer and
+Amount are visible placeholders, not a working filter.
+
+### Detail panes
+
+A record detail pane (document detail today; any future equivalent) is
+three stacked sections, each full-bleed with `space-5` internal padding and
+separated by a `border` hairline divider:
+
+1. **Header** — leading type icon, name + metadata caption, trailing action
+   icons (favorite/download/more or equivalent) right-aligned on the same
+   row.
+2. **Information grid** — known fields as a 2-column grid, each cell a muted
+   `caption` label stacked above a `body` value, rather than one
+   label-left/value-right column per row — this fits roughly twice the
+   fields in the same vertical space, in keeping with density-is-a-feature.
+   A field that's naturally multi-valued (tags, subjects, keywords) does not
+   belong in this grid — it breaks the one-value-per-cell shape — and gets
+   its own section instead (next).
+3. **Keywords / tags** — a wrapped row of `AppBadge` pills under a section
+   heading, for any multi-valued field. Falls back to the standard "—"
+   unset value when there's nothing to show rather than an unexplained empty
+   section.
+
+A **selected row** in an adjacent list additionally gets a 3dp
+`primary`-colored accent bar on its leading edge, layered on top of the
+existing `selectionSurface` tint — the tint alone reads too weakly as "this
+is the item open in the detail pane," the same affordance list/mail
+master-detail UIs (Mail, Files) converge on. This is part of `AppListItem`
+itself, so it applies to every selectable list in the app, not just the
+document list.
+
 ### Section spacing
 
 Gap between major page sections (e.g. filter bar → list, list → pagination
@@ -401,12 +464,18 @@ against real tooling, not arbitrary web breakpoints.
   titles/metadata need while starving the detail pane; a fixed list-column
   width is what master-detail reference UIs (Mail, Files) converge on, and
   it's what any two-pane layout in this app should use, not just the
-  document list.
+  document list. Kept at `360dp` rather than Expanded's wider value (next)
+  because Medium's viewport tops out at 839dp, where a wider fixed column
+  would leave too little room for the detail pane at the low end.
 - **Expanded (≥ 840dp — desktop).** Master-detail persists; compact density
   for lists (more rows visible — see Layout § density); the 1280px list cap
   and 720px detail cap engage; hover states and tooltips become meaningful
   (pointer-only affordances); keyboard shortcuts surfaced in the UI where
-  relevant.
+  relevant. The list pane widens to a **fixed** `480dp` (still not a
+  proportion of window width, same rationale as Medium's `360dp`) — Expanded
+  always has width to spare, so the list column can show more of a title
+  and its metadata per row without squeezing the detail pane the way
+  Medium's narrower viewport would.
 
 **Visual consistency is not interaction uniformity.** "Consistent across
 Android, iOS, desktop" (the brief) means one shared color/type/shape/spacing
@@ -424,6 +493,6 @@ two separate axes; only the first is asked to be uniform.
 Flagged rather than resolved here, consistent with "do not implement yet":
 
 - Exact hex values above need contrast-ratio verification once locked, not just estimated.
-- Font files (Public Sans, IBM Plex Mono) need sourcing/licensing confirmation and per-platform bundling — same cross-platform-bundling work the audit already flagged as absent for the current system-default approach.
+- ~~Font files (Public Sans, IBM Plex Mono) need sourcing/licensing confirmation and per-platform bundling~~ — resolved: both are bundled as Compose resources (`shared/src/commonMain/composeResources/font/`), licensed per `shared/THIRD_PARTY_LICENSES.md`.
 - The audit's icon-system gap (hand-drawn `Canvas` glyphs, no Material Icons Extended dependency) is unresolved by this document — a separate decision, not a shape/color/type question.
 - A11y beyond contrast (dynamic type / text-scaling behavior across all three platforms) isn't covered here and should be its own pass once tokens are implemented.

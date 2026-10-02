@@ -1,14 +1,20 @@
 package com.peltoche.fyde.components.content
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppTypography
 
@@ -51,18 +57,32 @@ fun AppListItem(
     val textColor = if (enabled) AppColors.text else AppColors.textMuted
     val mutedColor = AppColors.textMuted
 
-    ListItem(
-        headlineContent = {
-            Text(title, style = AppTypography.bodyEmphasis, color = textColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        modifier = rowModifier,
-        supportingContent = supportingText?.let { { Text(it, style = supportingTextStyle, color = mutedColor) } },
-        leadingContent = leadingContent,
-        trailingContent = trailingContent,
-        colors = ListItemDefaults.colors(
-            containerColor = if (selected) AppColors.selectionSurface else AppColors.surface,
-            headlineColor = textColor,
-            supportingColor = mutedColor,
-        ),
-    )
+    Box(modifier = rowModifier) {
+        ListItem(
+            headlineContent = {
+                Text(title, style = AppTypography.bodyEmphasis, color = textColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            },
+            supportingContent = supportingText?.let { { Text(it, style = supportingTextStyle, color = mutedColor) } },
+            leadingContent = leadingContent,
+            trailingContent = trailingContent,
+            colors = ListItemDefaults.colors(
+                containerColor = if (selected) AppColors.selectionSurface else AppColors.surface,
+                headlineColor = textColor,
+                supportingColor = mutedColor,
+            ),
+        )
+        // A left accent bar on top of the selection tint — found via review of
+        // the reference layout that a flat tint alone reads weakly as "this
+        // row is the one open in the detail pane"; a 3dp primary-colored edge
+        // is the same affordance list/mail master-detail UIs converge on.
+        if (selected) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .fillMaxHeight()
+                    .width(3.dp)
+                    .background(AppColors.primary),
+            )
+        }
+    }
 }

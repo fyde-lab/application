@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.theme.AppColors
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Hand-drawn `Canvas` glyphs for the desktop sidebar and list rows, in the
@@ -84,25 +86,6 @@ fun GearGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
 }
 
 @Composable
-fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
-    Canvas(modifier = modifier) {
-        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-        val leftChevron = Path().apply {
-            moveTo(size.width * 0.38f, size.height * 0.18f)
-            lineTo(size.width * 0.06f, size.height * 0.5f)
-            lineTo(size.width * 0.38f, size.height * 0.82f)
-        }
-        drawPath(leftChevron, color = tint, style = stroke)
-        val rightChevron = Path().apply {
-            moveTo(size.width * 0.62f, size.height * 0.18f)
-            lineTo(size.width * 0.94f, size.height * 0.5f)
-            lineTo(size.width * 0.62f, size.height * 0.82f)
-        }
-        drawPath(rightChevron, color = tint, style = stroke)
-    }
-}
-
-@Composable
 fun ChevronRightGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
     Canvas(modifier = modifier) {
         val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
@@ -112,5 +95,61 @@ fun ChevronRightGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.tex
             lineTo(size.width * 0.3f, size.height)
         }
         drawPath(path, color = tint, style = stroke)
+    }
+}
+
+/** An outline five-point star — the document preview pane's "favorite" action. */
+@Composable
+fun StarGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.5.dp) {
+    Canvas(modifier = modifier) {
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val outerRadius = size.minDimension * 0.46f
+        val innerRadius = outerRadius * 0.42f
+        val path = Path()
+        for (i in 0 until 10) {
+            val angle = (Math.PI / 5 * i - Math.PI / 2).toFloat()
+            val r = if (i % 2 == 0) outerRadius else innerRadius
+            val point = Offset(cx + r * cos(angle), cy + r * sin(angle))
+            if (i == 0) path.moveTo(point.x, point.y) else path.lineTo(point.x, point.y)
+        }
+        path.close()
+        drawPath(path, color = tint, style = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round))
+    }
+}
+
+/** A download arrow over a tray line — the document preview pane's "download" action. */
+@Composable
+fun DownloadGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val cx = size.width / 2f
+        val arrow = Path().apply {
+            moveTo(cx, size.height * 0.08f)
+            lineTo(cx, size.height * 0.62f)
+            moveTo(size.width * 0.28f, size.height * 0.42f)
+            lineTo(cx, size.height * 0.68f)
+            lineTo(size.width * 0.72f, size.height * 0.42f)
+        }
+        drawPath(arrow, color = tint, style = stroke)
+        drawLine(
+            color = tint,
+            start = Offset(size.width * 0.14f, size.height * 0.88f),
+            end = Offset(size.width * 0.86f, size.height * 0.88f),
+            strokeWidth = stroke.width,
+            cap = StrokeCap.Round,
+        )
+    }
+}
+
+/** Three horizontal dots — a row/card's "more actions" overflow menu trigger. */
+@Composable
+fun MoreGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, dotRadius: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val r = dotRadius.toPx()
+        val y = size.height / 2f
+        listOf(size.width * 0.2f, size.width * 0.5f, size.width * 0.8f).forEach { x ->
+            drawCircle(color = tint, radius = r, center = Offset(x, y))
+        }
     }
 }

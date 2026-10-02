@@ -2,8 +2,10 @@ package com.peltoche.fyde
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
+import com.peltoche.fyde.components.action.AppIconButton
+import com.peltoche.fyde.components.content.AppBadge
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppEmptyState
@@ -62,16 +66,22 @@ import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.document_detail_created
+import com.peltoche.fyde.resources.document_detail_keywords_title
 import com.peltoche.fyde.resources.document_detail_purpose
 import com.peltoche.fyde.resources.document_detail_size
 import com.peltoche.fyde.resources.document_detail_source_category
 import com.peltoche.fyde.resources.document_detail_source_subcategory
-import com.peltoche.fyde.resources.document_detail_subjects
 import com.peltoche.fyde.resources.document_detail_type
 import com.peltoche.fyde.resources.document_detail_value_unset
 import com.peltoche.fyde.resources.document_details_title
+import com.peltoche.fyde.resources.document_download
+import com.peltoche.fyde.resources.document_favorite
+import com.peltoche.fyde.resources.document_more_actions
+import com.peltoche.fyde.resources.document_preview_title
 import com.peltoche.fyde.resources.documents_count
 import com.peltoche.fyde.resources.documents_title
+import com.peltoche.fyde.resources.filter_amount
+import com.peltoche.fyde.resources.filter_issuer
 import com.peltoche.fyde.resources.filter_more
 import com.peltoche.fyde.resources.filter_period
 import com.peltoche.fyde.resources.filter_type
@@ -80,6 +90,7 @@ import com.peltoche.fyde.resources.no_documents_match
 import com.peltoche.fyde.resources.no_documents_title
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.search_documents_placeholder
+import com.peltoche.fyde.resources.search_results_count
 import com.peltoche.fyde.resources.select_document_description
 import com.peltoche.fyde.resources.select_document_title
 import com.peltoche.fyde.resources.upload_document
@@ -210,90 +221,110 @@ private fun LoadedDocumentList(
                 state.banner?.let { message ->
                     AppBanner(message = message, onDismiss = state.onDismissBanner, dismissLabel = stringResource(Res.string.dismiss))
                 }
-                // Matches the space3 gap below the search field (before the
-                // filter row) so it doesn't sit flush under the top bar
-                // divider while having visible breathing room underneath.
-                Spacer(Modifier.height(AppSpacing.space3))
-                AppSearchField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = stringResource(Res.string.search_documents_placeholder),
-                    onClear = { searchQuery = "" },
-                    clearContentDescription = stringResource(Res.string.clear_search),
-                    leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
-                )
-
-                if (isDesktop) {
-                    Spacer(Modifier.height(AppSpacing.space3))
-                    FilterChipRow()
-                }
 
                 val documents = state.documents
-                val filteredCount = remember(documents, searchQuery) {
-                    documents?.count { it.name.contains(searchQuery, ignoreCase = true) } ?: 0
+                val filteredDocuments = remember(documents, searchQuery) {
+                    documents?.filter { it.name.contains(searchQuery, ignoreCase = true) } ?: emptyList()
                 }
 
-                if (isDesktop && documents != null) {
-                    Spacer(Modifier.height(AppSpacing.space4))
-                    Text(
-                        text = stringResource(Res.string.documents_count, filteredCount),
-                        style = AppTypography.caption,
-                        color = AppColors.textMuted,
-                    )
-                    Spacer(Modifier.height(AppSpacing.space2))
-                }
-                when {
-                    documents == null -> DocumentSkeletonList(modifier = Modifier.weight(1f))
+                // The search field, filter chips, and results toolbar are part
+                // of the *list* column, not full-width page chrome — found via
+                // review of the reference layout that putting them outside the
+                // two-pane split let the search bar stretch wider than the list
+                // it searches, while the detail pane only started below all of
+                // that instead of running alongside it from the top. Wrapping
+                // the whole left column (search → filters → results) inside
+                // [AppTwoPaneLayout]'s primary slot keeps its width pinned to
+                // the list column and lets the detail pane sit beside it, top
+                // to bottom, exactly like the reference's two columns.
+                AppTwoPaneLayout(
+                    modifier = Modifier.weight(1f),
+                    windowSizeClass = windowSizeClass,
+                    primaryPaneWidth = if (isDesktop) AppDimensions.twoPaneListWidthExpanded else AppDimensions.twoPaneListWidth,
+                    primary = {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            // Matches the space3 gap below the search field
+                            // (before the filter row) so it doesn't sit flush
+                            // under the top bar divider while having visible
+                            // breathing room underneath.
+                            Spacer(Modifier.height(AppSpacing.space3))
+                            AppSearchField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                placeholder = stringResource(Res.string.search_documents_placeholder),
+                                onClear = { searchQuery = "" },
+                                clearContentDescription = stringResource(Res.string.clear_search),
+                                leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
+                            )
 
-                    documents.isEmpty() && searchQuery.isBlank() -> AppEmptyState(
-                        modifier = Modifier.weight(1f),
-                        icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
-                        title = stringResource(Res.string.no_documents_title),
-                        description = stringResource(Res.string.no_documents_description),
-                    )
+                            if (isDesktop) {
+                                Spacer(Modifier.height(AppSpacing.space3))
+                                FilterChipRow()
+                            }
 
-                    else -> {
-                        val filtered = remember(documents, searchQuery) {
-                            documents.filter { it.name.contains(searchQuery, ignoreCase = true) }
-                        }
-                        if (filtered.isEmpty()) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth()
-                                    .padding(top = AppSpacing.space8, start = AppSpacing.space8, end = AppSpacing.space8),
-                                contentAlignment = Alignment.TopCenter,
-                            ) {
+                            if (isDesktop && documents != null) {
+                                Spacer(Modifier.height(AppSpacing.space4))
+                                // Sort-by and list/grid-view controls were
+                                // removed — they were non-functional
+                                // placeholders (no real sort order, no grid
+                                // layout) and read as broken affordances
+                                // rather than useful chrome. Just the count
+                                // remains; re-add once those features exist.
                                 Text(
-                                    text = stringResource(Res.string.no_documents_match, searchQuery),
-                                    style = AppTypography.body,
+                                    text = if (searchQuery.isBlank()) {
+                                        stringResource(Res.string.documents_count, filteredDocuments.size)
+                                    } else {
+                                        stringResource(Res.string.search_results_count, filteredDocuments.size, searchQuery)
+                                    },
+                                    style = AppTypography.caption,
                                     color = AppColors.textMuted,
-                                    textAlign = TextAlign.Center,
+                                )
+                                Spacer(Modifier.height(AppSpacing.space2))
+                            }
+
+                            when {
+                                documents == null -> DocumentSkeletonList(modifier = Modifier.weight(1f))
+
+                                documents.isEmpty() && searchQuery.isBlank() -> AppEmptyState(
+                                    modifier = Modifier.weight(1f),
+                                    icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                    title = stringResource(Res.string.no_documents_title),
+                                    description = stringResource(Res.string.no_documents_description),
+                                )
+
+                                filteredDocuments.isEmpty() -> Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .padding(top = AppSpacing.space8, start = AppSpacing.space8, end = AppSpacing.space8),
+                                    contentAlignment = Alignment.TopCenter,
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.no_documents_match, searchQuery),
+                                        style = AppTypography.body,
+                                        color = AppColors.textMuted,
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+
+                                else -> DocumentList(
+                                    documents = filteredDocuments,
+                                    selectedId = selectedDocument?.id,
+                                    rowMinHeight = rowMinHeightFor(windowSizeClass),
+                                    onClick = { document ->
+                                        if (windowSizeClass == AppWindowSizeClass.Compact) {
+                                            onOpenDocument(document)
+                                        } else {
+                                            selectedDocument = document
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
                                 )
                             }
-                        } else {
-                            AppTwoPaneLayout(
-                                modifier = Modifier.weight(1f),
-                                windowSizeClass = windowSizeClass,
-                                primary = {
-                                    DocumentList(
-                                        documents = filtered,
-                                        selectedId = selectedDocument?.id,
-                                        rowMinHeight = rowMinHeightFor(windowSizeClass),
-                                        onClick = { document ->
-                                            if (windowSizeClass == AppWindowSizeClass.Compact) {
-                                                onOpenDocument(document)
-                                            } else {
-                                                selectedDocument = document
-                                            }
-                                        },
-                                    )
-                                },
-                                secondary = { DocumentPreviewPane(document = selectedDocument) },
-                            )
                         }
-                    }
-                }
+                    },
+                    secondary = { DocumentPreviewPane(document = selectedDocument) },
+                )
             }
         }
     }
@@ -311,8 +342,9 @@ private fun DocumentList(
     selectedId: String?,
     rowMinHeight: Dp,
     onClick: (FydeDocument) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(top = AppSpacing.space2)) {
+    LazyColumn(modifier = modifier.fillMaxWidth(), contentPadding = PaddingValues(top = AppSpacing.space2)) {
         items(documents, key = { it.id }) { document ->
             AppListItem(
                 title = document.name,
@@ -366,25 +398,60 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
                     color = AppColors.textMuted,
                 )
             }
+            // Non-functional today, like the filter chips and sort control —
+            // visible affordances a document detail pane is expected to have,
+            // without fabricating upload/sharing behavior that doesn't exist.
+            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_favorite)) {
+                StarGlyph(modifier = Modifier.size(16.dp))
+            }
+            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_download)) {
+                DownloadGlyph(modifier = Modifier.size(16.dp))
+            }
+            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_more_actions)) {
+                MoreGlyph(modifier = Modifier.size(16.dp))
+            }
         }
         AppDivider()
         DocumentDetailsSection(document)
         AppDivider()
+        DocumentKeywordsSection(document)
+        AppDivider()
+        Text(
+            text = stringResource(Res.string.document_preview_title),
+            style = AppTypography.section,
+            color = AppColors.text,
+            modifier = Modifier.padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
+        )
         PdfViewer(pdfBytes = document.content, modifier = Modifier.fillMaxWidth().weight(1f))
     }
 }
 
 /**
  * The document's own known fields (type/size/created, plus the SDK's
- * classifier output — source/purpose/subjects, derived from the document's
- * transcript rather than OCR, see `../../sdk/src/domains/documents/parser`),
- * laid out as label/value rows above the preview. Name is deliberately not
- * repeated here — it's already the pane's header, immediately above.
+ * classifier output — source/purpose, derived from the document's transcript
+ * rather than OCR, see `../../sdk/src/domains/documents/parser`), laid out as
+ * a dense 2-column label/value grid (label above value) rather than one
+ * label-left/value-right column per row — matching the reference layout's
+ * "Informations extraites" panel, and fitting roughly twice as many fields
+ * in the same vertical space, consistent with the density-is-a-feature
+ * principle in `design/design-system.md`. Name is deliberately not repeated
+ * here — it's already the pane's header, immediately above. Subjects is
+ * shown separately as tag pills (see [DocumentKeywordsSection]), not as a
+ * grid cell — a comma-joined list of values doesn't fit this grid's
+ * one-value-per-cell shape.
  */
 @Composable
 private fun DocumentDetailsSection(document: FydeDocument) {
     val (typeLabel, _) = fileTypeVisualsFor(document)
     val unsetValue = stringResource(Res.string.document_detail_value_unset)
+    val fields = listOf(
+        stringResource(Res.string.document_detail_type) to typeLabel,
+        stringResource(Res.string.document_detail_size) to formatSize(document.size),
+        stringResource(Res.string.document_detail_created) to formatDate(document.createdAt),
+        stringResource(Res.string.document_detail_source_category) to (document.sourceCategory?.toLabel() ?: unsetValue),
+        stringResource(Res.string.document_detail_source_subcategory) to (document.sourceSubCategory?.toLabel() ?: unsetValue),
+        stringResource(Res.string.document_detail_purpose) to (document.purpose?.toLabel() ?: unsetValue),
+    )
     Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
         Text(
             text = stringResource(Res.string.document_details_title),
@@ -392,25 +459,15 @@ private fun DocumentDetailsSection(document: FydeDocument) {
             color = AppColors.text,
         )
         Spacer(Modifier.height(AppSpacing.space4))
-        DetailRow(stringResource(Res.string.document_detail_type), typeLabel)
-        DetailRow(stringResource(Res.string.document_detail_size), formatSize(document.size))
-        DetailRow(stringResource(Res.string.document_detail_created), formatDate(document.createdAt))
-        DetailRow(
-            stringResource(Res.string.document_detail_source_category),
-            document.sourceCategory?.toLabel() ?: unsetValue,
-        )
-        DetailRow(
-            stringResource(Res.string.document_detail_source_subcategory),
-            document.sourceSubCategory?.toLabel() ?: unsetValue,
-        )
-        DetailRow(
-            stringResource(Res.string.document_detail_purpose),
-            document.purpose?.toLabel() ?: unsetValue,
-        )
-        DetailRow(
-            stringResource(Res.string.document_detail_subjects),
-            document.subjects.takeIf { it.isNotEmpty() }?.joinToString(", ") ?: unsetValue,
-        )
+        fields.chunked(2).forEach { pair ->
+            Row(modifier = Modifier.fillMaxWidth()) {
+                pair.forEach { (label, value) ->
+                    DetailCell(label, value, modifier = Modifier.weight(1f))
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+            Spacer(Modifier.height(AppSpacing.space4))
+        }
     }
 }
 
@@ -418,23 +475,52 @@ private fun DocumentDetailsSection(document: FydeDocument) {
 private fun Enum<*>.toLabel(): String =
     name.split('_').joinToString(" ") { it.lowercase().replaceFirstChar(Char::uppercase) }
 
+/** One cell of [DocumentDetailsSection]'s grid: a muted caption label stacked above the value. */
 @Composable
-private fun DetailRow(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpacing.space2)) {
-        Text(
-            text = label,
-            style = AppTypography.caption,
-            color = AppColors.textMuted,
-            modifier = Modifier.width(120.dp),
-        )
+private fun DetailCell(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
+        Text(text = label, style = AppTypography.caption, color = AppColors.textMuted)
+        Spacer(Modifier.height(AppSpacing.space1))
         Text(
             text = value,
             style = AppTypography.body,
             color = AppColors.text,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
         )
+    }
+}
+
+/**
+ * The document's subjects, rendered as tag pills under a "Keywords" heading —
+ * the reference layout's "Mots-clés" section. Pulled out of
+ * [DocumentDetailsSection]'s grid because a multi-value field doesn't fit
+ * that grid's one-value-per-cell shape; a wrapped row of [AppBadge]s is the
+ * natural shape for a set of tags instead.
+ */
+@Composable
+private fun DocumentKeywordsSection(document: FydeDocument) {
+    Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
+        Text(
+            text = stringResource(Res.string.document_detail_keywords_title),
+            style = AppTypography.section,
+            color = AppColors.text,
+        )
+        Spacer(Modifier.height(AppSpacing.space3))
+        if (document.subjects.isEmpty()) {
+            Text(
+                text = stringResource(Res.string.document_detail_value_unset),
+                style = AppTypography.body,
+                color = AppColors.textMuted,
+            )
+        } else {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2),
+                verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
+            ) {
+                document.subjects.forEach { subject -> AppBadge(text = subject) }
+            }
+        }
     }
 }
 
@@ -490,22 +576,31 @@ private fun fileTypeVisualsFor(document: FydeDocument): Pair<String, Color> {
 }
 
 /**
- * Non-functional filter affordances (Type/Period/more) matching the desktop
- * reference layout's filter row — [FydeDocument] has no émetteur/montant
- * fields to filter on, so these are visible, disabled placeholders rather
- * than a fabricated filtering feature.
+ * Non-functional filter affordances (Type/Issuer/Period/Amount/more) matching
+ * the desktop reference layout's filter row — [FydeDocument] has no
+ * issuer/amount fields to filter on, so these are visible, disabled
+ * placeholders rather than a fabricated filtering feature.
  */
 @Composable
 private fun FilterChipRow() {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    // FlowRow, not Row: the primary (list) pane is a fixed 360dp wide, and
+    // five chips don't reliably fit on one line at that width — found via
+    // review that a plain Row let the trailing "+ More filters" chip
+    // overflow straight into the detail pane's divider/column instead of
+    // wrapping. Wrapping to a second line keeps every chip inside the list
+    // column no matter how the labels localize.
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
+    ) {
         FilterChip(stringResource(Res.string.filter_type))
-        Spacer(Modifier.width(AppSpacing.space3))
+        FilterChip(stringResource(Res.string.filter_issuer))
         FilterChip(stringResource(Res.string.filter_period))
-        Spacer(Modifier.width(AppSpacing.space3))
-        // No trailing chevron — unlike Type/Period this isn't a dropdown,
+        FilterChip(stringResource(Res.string.filter_amount))
+        // No trailing chevron — unlike the others this isn't a dropdown,
         // but it's still a clickable filter, so it keeps the same chip
         // container and full-contrast label rather than reading as inert
-        // caption text next to two chips that are actionable.
+        // caption text next to chips that are actionable.
         FilterChip(text = "+ ${stringResource(Res.string.filter_more)}", showChevron = false)
     }
 }

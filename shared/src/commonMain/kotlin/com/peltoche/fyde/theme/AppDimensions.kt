@@ -28,13 +28,26 @@ object AppDimensions {
     val maxWidthDetail: Dp = 720.dp
 
     /**
-     * `AppTwoPaneLayout`'s primary (list) pane at Medium/Expanded — fixed,
-     * not proportional. A percentage split (the original approach) made the
+     * `AppTwoPaneLayout`'s primary (list) pane at Medium — fixed, not
+     * proportional. A percentage split (the original approach) made the
      * list column balloon on wide monitors well past what titles/metadata
      * need, while starving the secondary pane. Matches the list-column width
-     * common reference master-detail UIs (Mail, Files) converge on.
+     * common reference master-detail UIs (Mail, Files) converge on. Kept
+     * narrower than [twoPaneListWidthExpanded] because Medium's viewport
+     * tops out at 839dp — a wider fixed list column here would leave the
+     * detail pane too little room at the low end of that range.
      */
     val twoPaneListWidth: Dp = 360.dp
+
+    /**
+     * `AppTwoPaneLayout`'s primary (list) pane at Expanded (>=840dp) —
+     * wider than Medium's [twoPaneListWidth]. Expanded always has width to
+     * spare, so the list column can show more of a document's title/metadata
+     * per row without squeezing the detail pane the way Medium's narrower
+     * viewport would. Still a fixed value, not a proportion of window width,
+     * for the same reason [twoPaneListWidth] is.
+     */
+    val twoPaneListWidthExpanded: Dp = 480.dp
 
     /** Elevation/Shape — hairline dividers and card edges. */
     val borderHairline: Dp = 1.dp
