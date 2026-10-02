@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,7 +67,11 @@ fun AppListItem(
             leadingContent = leadingContent,
             trailingContent = trailingContent,
             colors = ListItemDefaults.colors(
-                containerColor = if (selected) AppColors.selectionSurface else AppColors.surface,
+                // Transparent, not `AppColors.surface` — an unselected row sits
+                // directly on the page background (painted by the screen behind
+                // it), not on its own white "card" fill; only a selected row
+                // gets a real container color (`selectionSurface`).
+                containerColor = if (selected) AppColors.selectionSurface else Color.Transparent,
                 headlineColor = textColor,
                 supportingColor = mutedColor,
             ),

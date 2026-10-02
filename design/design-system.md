@@ -153,7 +153,7 @@ competing with it.
 | Role | Light | Dark | Usage |
 |---|---|---|---|
 | `background` | `#F5F4F1` | `#16140F` | App background — the "desk" the content sits on |
-| `surface` | `#FFFFFF` | `#1E1B16` | Cards, list rows, panels — the "paper" |
+| `surface` | `#FFFFFF` | `#1E1B16` | Cards, panels — the "paper" |
 | `surface-elevated` | `#FFFFFF` | `#282420` | Menus, dialogs, popovers — see Elevation for how light mode differentiates this from `surface` |
 | `border` | `#E3E0DA` | `#35302A` | Hairline dividers, card edges |
 | `border-strong` | `#8F8A7C` | `#7A7364` | Input field outlines, anywhere a border must read as interactive, not just structural |
@@ -310,8 +310,8 @@ Three mechanisms, used for three different jobs — never interchangeably:
 
 | Level | Treatment | Shadow | Usage |
 |---|---|---|---|
-| 0 | `background` | none | Page background |
-| 1 | `surface`, no border | none | Cards, list rows, panels |
+| 0 | `background`, transparent list rows | none | Page background, plain scannable list rows |
+| 1 | `surface`, no border | none | Cards, panels |
 | 2 | `surface`, `border` hairline | none | Adjacent equal-weight cards with no gap |
 | 3 | `surface-elevated` | `shadow-sm` | Dropdown menus, popovers, tooltips |
 | 4 | `surface-elevated` | `shadow-md` | Dialogs, sheets, toasts |
@@ -387,6 +387,22 @@ natural size, and Standard/Compact sit at/near it rather than below it. A
 adding or changing a density tier, measure the natural height of the actual
 content first, or the new value will silently be a no-op exactly like the
 old ones were.
+
+**A plain scannable list row has no container fill — it sits directly on
+`background`, not on its own `surface` card.** `AppListItem` originally
+painted every unselected row with `surface` (white in light mode), which
+reads as a stack of individual white cards on a gray page rather than one
+continuous list. Reserve `surface` for things that are actually cards or
+panels (see Elevation); a row in a plain list is transparent until
+`selected` gives it `selectionSurface`.
+
+**The list column's trailing edge gets the same margin as its leading
+edge.** Found via review: the list (primary) pane in a two-pane layout had
+`AppContentContainer`'s margin before it (next to the sidebar) but ran flush
+against the divider/detail pane on the other side, with no equivalent
+margin at all. The column's own content — search field, filter chips,
+results count, and the list — carries a matching trailing `space-5`
+padding so both edges read the same.
 
 ### List toolbar
 

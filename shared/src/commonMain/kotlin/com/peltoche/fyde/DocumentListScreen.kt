@@ -242,7 +242,13 @@ private fun LoadedDocumentList(
                     windowSizeClass = windowSizeClass,
                     primaryPaneWidth = if (isDesktop) AppDimensions.twoPaneListWidthExpanded else AppDimensions.twoPaneListWidth,
                     primary = {
-                        Column(modifier = Modifier.fillMaxSize()) {
+                        // Trailing padding matches AppContentContainer's own
+                        // leading margin (space5, 16dp) on the other side of
+                        // this column — found via review that the list column
+                        // had a visible gap before the sidebar on its left but
+                        // ran flush up against the divider/detail pane on its
+                        // right, an asymmetry nothing else in the screen has.
+                        Column(modifier = Modifier.fillMaxSize().padding(end = AppSpacing.space5)) {
                             // Matches the space3 gap below the search field
                             // (before the filter row) so it doesn't sit flush
                             // under the top bar divider while having visible
