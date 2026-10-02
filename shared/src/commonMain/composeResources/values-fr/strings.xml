@@ -2,12 +2,12 @@
 <resources>
     <!-- Shared / auth -->
     <string name="log_in">Se connecter</string>
-    <string name="sign_up">S\'inscrire</string>
-    <string name="username_label">Nom d\'utilisateur</string>
+    <string name="sign_up">"S'inscrire"</string>
+    <string name="username_label">"Nom d'utilisateur"</string>
     <string name="password_label">Mot de passe</string>
 
     <!-- Login screen -->
-    <string name="no_account_prompt">Vous n\'avez pas de compte ?</string>
+    <string name="no_account_prompt">"Vous n'avez pas de compte ?"</string>
     <string name="auth_error_login_failed">Échec de la connexion</string>
 
     <!-- Register screen -->
@@ -31,7 +31,7 @@
     <string name="no_documents_description">Les documents que vous importez apparaîtront ici.</string>
     <string name="no_documents_match">Aucun document ne correspond à « %1$s »</string>
     <string name="upload_document">Importer un document</string>
-    <string name="upload_failed">Échec de l\'import : %1$s</string>
+    <string name="upload_failed">"Échec de l'import : %1$s"</string>
     <string name="uploads_failed">%1$d import(s) sur %2$d ont échoué</string>
     <string name="settings">Paramètres</string>
     <string name="log_out">Se déconnecter</string>
@@ -45,6 +45,11 @@
     <string name="document_detail_type">Type</string>
     <string name="document_detail_size">Taille</string>
     <string name="document_detail_created">Créé le</string>
+    <string name="document_detail_source_category">Source</string>
+    <string name="document_detail_source_subcategory">Sous-catégorie</string>
+    <string name="document_detail_purpose">Objet</string>
+    <string name="document_detail_subjects">Sujets</string>
+    <string name="document_detail_value_unset">—</string>
 
     <!-- Document list: desktop sidebar -->
     <string name="sidebar_app_title">Mes documents</string>
@@ -55,35 +60,17 @@
     <string name="filter_period">Période</string>
     <string name="filter_more">Plus de filtres</string>
 
-    <!-- Scripts screen -->
-    <string name="scripts_menu_item">Scripts</string>
-    <string name="scripts_title">Scripts</string>
-    <string name="no_scripts_title">Aucun script activé</string>
-    <string name="no_scripts_description">Les scripts que vous créez sont activés automatiquement et apparaîtront ici.</string>
-    <string name="new_script">Nouveau script</string>
-    <string name="new_script_sheet_title">Nouveau script</string>
-    <string name="script_name_label">Nom</string>
-    <string name="script_code_label">Script</string>
-    <string name="script_public_label">Rendre public</string>
-    <string name="create">Créer</string>
-    <string name="cancel">Annuler</string>
-    <string name="create_script_failed">Impossible de créer le script : %1$s</string>
-    <string name="disable_script">Désactiver</string>
-    <string name="disable_script_failed">Impossible de désactiver le script : %1$s</string>
-    <string name="script_public_badge">Public</string>
-    <string name="script_private_badge">Privé</string>
-
     <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>
     <string name="server_section_title">Serveur</string>
     <string name="server_url_label">URL du serveur</string>
     <string name="language_section_title">Langue</string>
-    <string name="language_label">Langue de l\'application</string>
-    <string name="language_save_failed">Impossible d\'enregistrer la langue : %1$s</string>
+    <string name="language_label">"Langue de l'application"</string>
+    <string name="language_save_failed">"Impossible d'enregistrer la langue : %1$s"</string>
     <string name="account_section_title">Compte</string>
 
     <!-- PDF viewer -->
     <string name="back">Retour</string>
-    <string name="pdf_render_failed">Impossible d\'afficher ce PDF : %1$s</string>
-    <string name="pdf_preview_unavailable">L\'aperçu PDF n\'est pas encore disponible sur le Web.</string>
+    <string name="pdf_render_failed">"Impossible d'afficher ce PDF : %1$s"</string>
+    <string name="pdf_preview_unavailable">"L'aperçu PDF n'est pas encore disponible sur le Web."</string>
 </resources>

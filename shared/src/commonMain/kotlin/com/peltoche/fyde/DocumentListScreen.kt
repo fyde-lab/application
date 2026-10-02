@@ -62,8 +62,13 @@ import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.document_detail_created
+import com.peltoche.fyde.resources.document_detail_purpose
 import com.peltoche.fyde.resources.document_detail_size
+import com.peltoche.fyde.resources.document_detail_source_category
+import com.peltoche.fyde.resources.document_detail_source_subcategory
+import com.peltoche.fyde.resources.document_detail_subjects
 import com.peltoche.fyde.resources.document_detail_type
+import com.peltoche.fyde.resources.document_detail_value_unset
 import com.peltoche.fyde.resources.document_details_title
 import com.peltoche.fyde.resources.documents_count
 import com.peltoche.fyde.resources.documents_title
@@ -119,7 +124,6 @@ fun DocumentListScreen(
     isUploading: Boolean = false,
     onOpenDocument: (FydeDocument) -> Unit = {},
     onOpenSettings: () -> Unit = {},
-    onOpenScripts: () -> Unit = {},
 ) {
     when (state) {
         DocumentListUiState.Connecting -> AppLoading(
@@ -138,7 +142,7 @@ fun DocumentListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onOpenDocument, onOpenSettings, onOpenScripts)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onOpenDocument, onOpenSettings)
     }
 }
 
@@ -150,7 +154,6 @@ private fun LoadedDocumentList(
     isUploading: Boolean = false,
     onOpenDocument: (FydeDocument) -> Unit = {},
     onOpenSettings: () -> Unit = {},
-    onOpenScripts: () -> Unit = {},
 ) {
     var searchQuery by remember { mutableStateOf("") }
     // Which document is highlighted in the Medium/Expanded preview pane —
@@ -168,7 +171,7 @@ private fun LoadedDocumentList(
         modifier = modifier,
         windowSizeClass = windowSizeClass,
         navigationItems = if (isDesktop) {
-            sidebarNavigationItems(current = SidebarDestination.Documents, onOpenDocuments = {}, onOpenScripts = onOpenScripts)
+            sidebarNavigationItems(current = SidebarDestination.Documents, onOpenDocuments = {})
         } else {
             emptyList()
         },
@@ -372,16 +375,16 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
 }
 
 /**
- * The document's own known fields (type/size/created), laid out as
- * label/value rows above the preview — no OCR or extraction pipeline exists
- * (the server only ever sees ciphertext, see ../CLAUDE.md), so unlike a
- * document-intelligence product this section surfaces real document
- * metadata rather than fabricated extracted fields. Name is deliberately not
+ * The document's own known fields (type/size/created, plus the SDK's
+ * classifier output — source/purpose/subjects, derived from the document's
+ * transcript rather than OCR, see `../../sdk/src/domains/documents/parser`),
+ * laid out as label/value rows above the preview. Name is deliberately not
  * repeated here — it's already the pane's header, immediately above.
  */
 @Composable
 private fun DocumentDetailsSection(document: FydeDocument) {
     val (typeLabel, _) = fileTypeVisualsFor(document)
+    val unsetValue = stringResource(Res.string.document_detail_value_unset)
     Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
         Text(
             text = stringResource(Res.string.document_details_title),
@@ -392,8 +395,28 @@ private fun DocumentDetailsSection(document: FydeDocument) {
         DetailRow(stringResource(Res.string.document_detail_type), typeLabel)
         DetailRow(stringResource(Res.string.document_detail_size), formatSize(document.size))
         DetailRow(stringResource(Res.string.document_detail_created), formatDate(document.createdAt))
+        DetailRow(
+            stringResource(Res.string.document_detail_source_category),
+            document.sourceCategory?.toLabel() ?: unsetValue,
+        )
+        DetailRow(
+            stringResource(Res.string.document_detail_source_subcategory),
+            document.sourceSubCategory?.toLabel() ?: unsetValue,
+        )
+        DetailRow(
+            stringResource(Res.string.document_detail_purpose),
+            document.purpose?.toLabel() ?: unsetValue,
+        )
+        DetailRow(
+            stringResource(Res.string.document_detail_subjects),
+            document.subjects.takeIf { it.isNotEmpty() }?.joinToString(", ") ?: unsetValue,
+        )
     }
 }
+
+/** Title-cases an enum's constant name (e.g. `REAL_ESTATE` -> `Real Estate`) for display. */
+private fun Enum<*>.toLabel(): String =
+    name.split('_').joinToString(" ") { it.lowercase().replaceFirstChar(Char::uppercase) }
 
 @Composable
 private fun DetailRow(label: String, value: String) {

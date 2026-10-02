@@ -11,10 +11,69 @@ data class FydeDocument(
     val contentType: String,
     val createdAt: Long,
     val size: Long,
-    val checksum: String,
-    val transcript: String,
+    val sourceCategory: FydeSourceCategory?,
+    val sourceSubCategory: FydeSourceSubCategory?,
+    val subjects: List<String>,
+    val purpose: FydePurpose?,
     val content: ByteArray,
 )
+
+/**
+ * Who/what a document originated from, mirroring the SDK's
+ * `FfiSourceCategory`. `null` on [FydeDocument] means not yet classified.
+ */
+enum class FydeSourceCategory {
+    BANK,
+    INSURANCE,
+    RETAIL,
+    TELECOM,
+    ENERGY,
+    WATER,
+    HEALTH,
+    GOV,
+    ASSOCIATION,
+    EDUCATION,
+    EMPLOYER,
+    TRANSPORT,
+    GOODS,
+    ALIMENTATION,
+    BUILDING,
+    REAL_ESTATE,
+    WEB,
+    INDIVIDUAL,
+    SHOPPING,
+}
+
+/**
+ * A finer-grained classification within a [FydeSourceCategory], mirroring
+ * the SDK's `FfiSourceSubCategory`.
+ */
+enum class FydeSourceSubCategory {
+    CIVIL_REGISTRATION,
+    IMMIGRATION,
+    TRANSPORT,
+    FAMILY,
+    TAX,
+    HEALTH,
+    REAL_ESTATE,
+    MOBILE,
+    INTERNET,
+    CITIZEN,
+    SPORT,
+}
+
+/**
+ * What a document is for, mirroring the SDK's `FfiPurpose`.
+ */
+enum class FydePurpose {
+    ATTESTATION,
+    CONTRACT,
+    INVOICE,
+    REPORT,
+    DESCRIPTION,
+    EVALUATION,
+    EMPLOYMENT,
+}
 
 /**
  * The kind of write recorded by a [FydeChangelogEvent], mirroring the SDK's
@@ -37,22 +96,6 @@ data class FydeChangelogEvent(
     val eventType: FydeEventType,
     val documentId: String,
     val document: FydeDocument?,
-)
-
-/**
- * A user-authored script, mirroring the SDK's `FfiScript` without leaking
- * `:sdkBridge`'s generated bindings into `commonMain`. Unlike [FydeDocument],
- * [script] is plain text, not ciphertext — see `sdk/src/domains/scripts/
- * models.rs`'s doc comment for why.
- */
-data class FydeScript(
-    val id: String,
-    val name: String,
-    val isPublic: Boolean,
-    val icon: ByteArray,
-    val version: Long,
-    val script: String,
-    val lastUpdated: Long,
 )
 
 /**
@@ -140,33 +183,4 @@ expect object FydeSdk {
      * been called yet.
      */
     suspend fun getLanguage(): Result<String?>
-
-    /**
-     * Creates a new script owned by the authenticated user, at version 1.
-     * Mirrors [`crate::ScriptsService::create_script`]; fails if
-     * [initialize] hasn't been called yet.
-     */
-    suspend fun createScript(name: String, isPublic: Boolean, icon: ByteArray, script: String): Result<FydeScript>
-
-    /**
-     * Enables [scriptId] for the authenticated user, so it starts appearing
-     * in [listUserScripts]. Mirrors [`crate::ScriptsService::enable_script`];
-     * fails if [initialize] hasn't been called yet.
-     */
-    suspend fun enableScript(scriptId: String): Result<Unit>
-
-    /**
-     * Disables [scriptId] for the authenticated user, so it stops appearing
-     * in [listUserScripts]. Mirrors
-     * [`crate::ScriptsService::disable_script`]; fails if [initialize]
-     * hasn't been called yet.
-     */
-    suspend fun disableScript(scriptId: String): Result<Unit>
-
-    /**
-     * Lists the scripts currently enabled for the authenticated user.
-     * Mirrors [`crate::ScriptsService::list_user_scripts`]; fails if
-     * [initialize] hasn't been called yet.
-     */
-    suspend fun listUserScripts(): Result<List<FydeScript>>
 }

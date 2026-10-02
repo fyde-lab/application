@@ -7,20 +7,20 @@
     <string name="password_label">Password</string>
 
     <!-- Login screen -->
-    <string name="no_account_prompt">Don\'t have an account?</string>
+    <string name="no_account_prompt">"Don't have an account?"</string>
     <string name="auth_error_login_failed">Failed to log in</string>
 
     <!-- Register screen -->
     <string name="create_account_title">Create an account</string>
     <string name="confirm_password_label">Confirm password</string>
-    <string name="passwords_mismatch">Passwords don\'t match</string>
+    <string name="passwords_mismatch">"Passwords don't match"</string>
     <string name="has_account_prompt">Already have an account?</string>
     <string name="auth_error_register_failed">Failed to create account</string>
 
     <!-- Connection -->
     <string name="error_unknown">Unknown error</string>
     <string name="connecting_message">Connecting to fyde-sdk…</string>
-    <string name="connect_failed_title">Can\'t reach the server</string>
+    <string name="connect_failed_title">"Can't reach the server"</string>
     <string name="retry">Retry</string>
 
     <!-- Document list -->
@@ -45,6 +45,11 @@
     <string name="document_detail_type">Type</string>
     <string name="document_detail_size">Size</string>
     <string name="document_detail_created">Created</string>
+    <string name="document_detail_source_category">Source</string>
+    <string name="document_detail_source_subcategory">Source subtype</string>
+    <string name="document_detail_purpose">Purpose</string>
+    <string name="document_detail_subjects">Subjects</string>
+    <string name="document_detail_value_unset">—</string>
 
     <!-- Document list: desktop sidebar -->
     <string name="sidebar_app_title">My documents</string>
@@ -55,35 +60,17 @@
     <string name="filter_period">Period</string>
     <string name="filter_more">More filters</string>
 
-    <!-- Scripts screen -->
-    <string name="scripts_menu_item">Scripts</string>
-    <string name="scripts_title">Scripts</string>
-    <string name="no_scripts_title">No scripts enabled</string>
-    <string name="no_scripts_description">Scripts you create are enabled automatically and will show up here.</string>
-    <string name="new_script">New script</string>
-    <string name="new_script_sheet_title">New script</string>
-    <string name="script_name_label">Name</string>
-    <string name="script_code_label">Script</string>
-    <string name="script_public_label">Make public</string>
-    <string name="create">Create</string>
-    <string name="cancel">Cancel</string>
-    <string name="create_script_failed">Couldn\'t create script: %1$s</string>
-    <string name="disable_script">Disable</string>
-    <string name="disable_script_failed">Couldn\'t disable script: %1$s</string>
-    <string name="script_public_badge">Public</string>
-    <string name="script_private_badge">Private</string>
-
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>
     <string name="server_section_title">Server</string>
     <string name="server_url_label">Server URL</string>
     <string name="language_section_title">Language</string>
     <string name="language_label">App language</string>
-    <string name="language_save_failed">Couldn\'t save language: %1$s</string>
+    <string name="language_save_failed">"Couldn't save language: %1$s"</string>
     <string name="account_section_title">Account</string>
 
     <!-- PDF viewer -->
     <string name="back">Back</string>
-    <string name="pdf_render_failed">Couldn\'t render this PDF: %1$s</string>
-    <string name="pdf_preview_unavailable">PDF preview isn\'t available on Web yet.</string>
+    <string name="pdf_render_failed">"Couldn't render this PDF: %1$s"</string>
+    <string name="pdf_preview_unavailable">"PDF preview isn't available on Web yet."</string>
 </resources>

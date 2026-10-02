@@ -12,7 +12,9 @@ import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiEventType
 import uniffi.fyde_sdk.FfiLogLevel
-import uniffi.fyde_sdk.FfiScript
+import uniffi.fyde_sdk.FfiPurpose
+import uniffi.fyde_sdk.FfiSourceCategory
+import uniffi.fyde_sdk.FfiSourceSubCategory
 import uniffi.fyde_sdk.FfiStorage
 import uniffi.fyde_sdk.FydeClient
 import uniffi.fyde_sdk.LogListener
@@ -105,27 +107,52 @@ actual object FydeSdk {
         val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
         client.getLanguage()
     }
+}
 
-    actual suspend fun createScript(name: String, isPublic: Boolean, icon: ByteArray, script: String): Result<FydeScript> =
-        runCatching {
-            val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
-            client.createScript(name, isPublic, icon, script).toFydeScript()
-        }
+private fun FfiSourceCategory.toFydeSourceCategory() = when (this) {
+    FfiSourceCategory.BANK -> FydeSourceCategory.BANK
+    FfiSourceCategory.INSURANCE -> FydeSourceCategory.INSURANCE
+    FfiSourceCategory.RETAIL -> FydeSourceCategory.RETAIL
+    FfiSourceCategory.TELECOM -> FydeSourceCategory.TELECOM
+    FfiSourceCategory.ENERGY -> FydeSourceCategory.ENERGY
+    FfiSourceCategory.WATER -> FydeSourceCategory.WATER
+    FfiSourceCategory.HEALTH -> FydeSourceCategory.HEALTH
+    FfiSourceCategory.GOV -> FydeSourceCategory.GOV
+    FfiSourceCategory.ASSOCIATION -> FydeSourceCategory.ASSOCIATION
+    FfiSourceCategory.EDUCATION -> FydeSourceCategory.EDUCATION
+    FfiSourceCategory.EMPLOYER -> FydeSourceCategory.EMPLOYER
+    FfiSourceCategory.TRANSPORT -> FydeSourceCategory.TRANSPORT
+    FfiSourceCategory.GOODS -> FydeSourceCategory.GOODS
+    FfiSourceCategory.ALIMENTATION -> FydeSourceCategory.ALIMENTATION
+    FfiSourceCategory.BUILDING -> FydeSourceCategory.BUILDING
+    FfiSourceCategory.REAL_ESTATE -> FydeSourceCategory.REAL_ESTATE
+    FfiSourceCategory.WEB -> FydeSourceCategory.WEB
+    FfiSourceCategory.INDIVIDUAL -> FydeSourceCategory.INDIVIDUAL
+    FfiSourceCategory.SHOPPING -> FydeSourceCategory.SHOPPING
+}
 
-    actual suspend fun enableScript(scriptId: String): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
-        client.enableScript(scriptId)
-    }
+private fun FfiSourceSubCategory.toFydeSourceSubCategory() = when (this) {
+    FfiSourceSubCategory.CIVIL_REGISTRATION -> FydeSourceSubCategory.CIVIL_REGISTRATION
+    FfiSourceSubCategory.IMMIGRATION -> FydeSourceSubCategory.IMMIGRATION
+    FfiSourceSubCategory.TRANSPORT -> FydeSourceSubCategory.TRANSPORT
+    FfiSourceSubCategory.FAMILY -> FydeSourceSubCategory.FAMILY
+    FfiSourceSubCategory.TAX -> FydeSourceSubCategory.TAX
+    FfiSourceSubCategory.HEALTH -> FydeSourceSubCategory.HEALTH
+    FfiSourceSubCategory.REAL_ESTATE -> FydeSourceSubCategory.REAL_ESTATE
+    FfiSourceSubCategory.MOBILE -> FydeSourceSubCategory.MOBILE
+    FfiSourceSubCategory.INTERNET -> FydeSourceSubCategory.INTERNET
+    FfiSourceSubCategory.CITIZEN -> FydeSourceSubCategory.CITIZEN
+    FfiSourceSubCategory.SPORT -> FydeSourceSubCategory.SPORT
+}
 
-    actual suspend fun disableScript(scriptId: String): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
-        client.disableScript(scriptId)
-    }
-
-    actual suspend fun listUserScripts(): Result<List<FydeScript>> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
-        client.listUserScripts().map(FfiScript::toFydeScript)
-    }
+private fun FfiPurpose.toFydePurpose() = when (this) {
+    FfiPurpose.ATTESTATION -> FydePurpose.ATTESTATION
+    FfiPurpose.CONTRACT -> FydePurpose.CONTRACT
+    FfiPurpose.INVOICE -> FydePurpose.INVOICE
+    FfiPurpose.REPORT -> FydePurpose.REPORT
+    FfiPurpose.DESCRIPTION -> FydePurpose.DESCRIPTION
+    FfiPurpose.EVALUATION -> FydePurpose.EVALUATION
+    FfiPurpose.EMPLOYMENT -> FydePurpose.EMPLOYMENT
 }
 
 private fun FfiDocument.toFydeDocument() = FydeDocument(
@@ -134,19 +161,11 @@ private fun FfiDocument.toFydeDocument() = FydeDocument(
     contentType = metadata.contentType,
     createdAt = metadata.createdAt,
     size = metadata.size.toLong(),
-    checksum = metadata.checksum,
-    transcript = metadata.transcript,
+    sourceCategory = metadata.sourceCategory?.toFydeSourceCategory(),
+    sourceSubCategory = metadata.sourceSubCategory?.toFydeSourceSubCategory(),
+    subjects = metadata.subjects,
+    purpose = metadata.purpose?.toFydePurpose(),
     content = content,
-)
-
-private fun FfiScript.toFydeScript() = FydeScript(
-    id = id,
-    name = name,
-    isPublic = isPublic,
-    icon = icon,
-    version = version.toLong(),
-    script = script,
-    lastUpdated = lastUpdated,
 )
 
 private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
@@ -165,8 +184,10 @@ private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
                 contentType = eventMetadata.contentType,
                 createdAt = eventMetadata.createdAt,
                 size = eventMetadata.size.toLong(),
-                checksum = eventMetadata.checksum,
-                transcript = eventMetadata.transcript,
+                sourceCategory = eventMetadata.sourceCategory?.toFydeSourceCategory(),
+                sourceSubCategory = eventMetadata.sourceSubCategory?.toFydeSourceSubCategory(),
+                subjects = eventMetadata.subjects,
+                purpose = eventMetadata.purpose?.toFydePurpose(),
                 content = eventContent,
             )
         }
