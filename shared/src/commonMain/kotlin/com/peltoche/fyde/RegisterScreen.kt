@@ -93,15 +93,17 @@ fun RegisterScreen(
                 onValueChange = { confirmPassword = it },
                 label = stringResource(Res.string.confirm_password_label),
                 isPassword = true,
+                // Attached to the field it actually describes — via the
+                // same isError/errorText path AppTextField already exposes
+                // for exactly this — rather than a separate caption below
+                // the whole form with no accessible link to which field is
+                // wrong.
+                errorText = if (confirmPassword.isNotEmpty() && !passwordsMatch) {
+                    stringResource(Res.string.passwords_mismatch)
+                } else {
+                    null
+                },
             )
-            if (confirmPassword.isNotEmpty() && !passwordsMatch) {
-                Spacer(Modifier.height(AppSpacing.space3))
-                Text(
-                    text = stringResource(Res.string.passwords_mismatch),
-                    style = AppTypography.caption,
-                    color = AppColors.error,
-                )
-            }
             if (errorMessage != null) {
                 Spacer(Modifier.height(AppSpacing.space3))
                 Text(
