@@ -28,11 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppIconButton
@@ -350,9 +348,10 @@ private fun DocumentList(
 ) {
     LazyColumn(modifier = modifier.fillMaxWidth(), contentPadding = PaddingValues(top = AppSpacing.space2)) {
         items(documents, key = { it.id }) { document ->
+            val (typeLabel, _) = fileTypeVisualsFor(document)
             AppListItem(
                 title = document.name,
-                supportingText = "${formatSize(document.size)} · ${formatDate(document.createdAt)}",
+                supportingText = "$typeLabel · ${formatSize(document.size)} · ${formatDate(document.createdAt)}",
                 supportingTextStyle = AppTypography.data,
                 leadingContent = { FileTypeIcon(document) },
                 trailingContent = { ChevronRightGlyph(modifier = Modifier.size(12.dp)) },
@@ -377,6 +376,7 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
         return
     }
     Column(modifier = Modifier.fillMaxSize()) {
+        val (typeLabel, _) = fileTypeVisualsFor(document)
         Row(
             modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5),
             verticalAlignment = Alignment.CenterVertically,
@@ -397,7 +397,7 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
                 )
                 Spacer(Modifier.height(AppSpacing.space1))
                 Text(
-                    text = "${formatSize(document.size)} · ${formatDate(document.createdAt)}",
+                    text = "$typeLabel · ${formatSize(document.size)} · ${formatDate(document.createdAt)}",
                     style = AppTypography.data,
                     color = AppColors.textMuted,
                 )
@@ -535,39 +535,32 @@ private fun DocumentKeywordsSection(document: FydeDocument) {
 
 /**
  * A folded-corner file icon on a rounded, tinted chip, drawn without an icon
- * pack (see [DocumentGlyph]). The tint/label vary by file type, drawn only
- * from [fileTypeVisualsFor]'s palette — never from `success`/`warning`/
- * `error`, which mean "this succeeded" / "this needs caution" / "this
- * failed" everywhere else in the app (banners, badges, the encryption
- * trust badge). A spreadsheet or an image is neither a warning nor a
- * success, so file-type categorization must not borrow those tokens just
- * because they happen to be visually distinct colors.
+ * pack (see [DocumentGlyph]). The tint varies by file type, drawn only from
+ * [fileTypeVisualsFor]'s palette — never from `success`/`warning`/`error`,
+ * which mean "this succeeded" / "this needs caution" / "this failed"
+ * everywhere else in the app (banners, badges, the encryption trust badge).
+ * A spreadsheet or an image is neither a warning nor a success, so
+ * file-type categorization must not borrow those tokens just because they
+ * happen to be visually distinct colors.
+ *
+ * [fileTypeVisualsFor]'s short type label ("PDF", "XLS"...) is shown as
+ * text in the caller's own supporting-text line (see [DocumentList] and
+ * [DocumentPreviewPane]), not baked into this chip — a label small enough
+ * to fit inside a 44dp chip dropped below any platform's readable floor,
+ * and being `sp`-scaled meant it could grow past the chip's own bounds for
+ * anyone with larger system text settings on.
  */
 @Composable
 private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, size: Dp = 44.dp) {
-    val (label, tint) = fileTypeVisualsFor(document)
+    val (_, tint) = fileTypeVisualsFor(document)
     Box(
         modifier = modifier
             .size(size)
             .clip(AppRadius.md)
             .background(tint.copy(alpha = 0.14f)),
+        contentAlignment = Alignment.Center,
     ) {
-        DocumentGlyph(
-            tint = tint,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(20.dp)
-                .padding(bottom = 4.dp),
-        )
-        Text(
-            text = label,
-            color = tint,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 7.sp,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 6.dp),
-        )
+        DocumentGlyph(tint = tint, modifier = Modifier.size(20.dp))
     }
 }
 
