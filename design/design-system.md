@@ -91,10 +91,14 @@ identically on Android, iOS, desktop, and web.
   match for "professional, calm, trustworthy" — it carries no trend
   signature (it is not Inter, not a geometric grotesk) and won't date the
   way a fashionable display face would.
-- **Data & metadata — IBM Plex Mono.** Used narrowly, wherever digits must
-  align in a column: file sizes, dates, page counts, version/ID strings.
-  Tabular figures on by default. Signals "this number is exact" the way a
-  ledger or invoice does.
+- **Data & metadata — IBM Plex Mono.** Used narrowly, for a short metadata
+  line built around exact figures: file sizes, dates, page counts,
+  version/ID strings. Tabular figures on by default. Signals "this number
+  is exact" the way a ledger or invoice does. Scoped to the *line*, not to
+  individual digits in isolation — a `·` separator, a unit ("MB"), or a
+  short type code ("PDF") riding along inside that same line stays in the
+  Data role rather than splitting the line into mixed styles column
+  alignment doesn't actually need.
 
 No serif is introduced. The app never typesets long-form document *content*
 itself (PDFs render through each platform's native engine — see the audit,
@@ -114,7 +118,7 @@ open on body/caption (long-session reading comfort).
 | Body | 15 / 22sp | Regular | 0 | Standard copy, descriptions, dialog body |
 | Caption | 13 / 18sp | Regular | 0.1sp | Secondary/metadata text, helper text, timestamps |
 | Micro | 11 / 16sp | Medium | 0.3sp | Status labels, badges, overline text |
-| Data (mono) | 13 / 18sp | Regular | 0, tabular figures | Sizes, dates, page counts, IDs — anywhere digits must align |
+| Data (mono) | 13 / 18sp | Regular | 0, tabular figures | A metadata line built around exact figures — size, date, type code — set as one Data-role string, not split per digit |
 
 ### Weights
 
