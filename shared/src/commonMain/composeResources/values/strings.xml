@@ -30,6 +30,7 @@
     <string name="no_documents_title">No documents yet</string>
     <string name="no_documents_description">Documents you import will show up here.</string>
     <string name="no_documents_match">No documents match “%1$s”</string>
+    <string name="no_matches_title">No matches</string>
     <string name="upload_document">Upload document</string>
     <string name="upload_failed">Upload failed: %1$s</string>
     <string name="uploads_failed">%1$d of %2$d uploads failed</string>

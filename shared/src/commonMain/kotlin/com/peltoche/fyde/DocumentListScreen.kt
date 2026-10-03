@@ -31,7 +31,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -88,6 +87,7 @@ import com.peltoche.fyde.resources.filter_type
 import com.peltoche.fyde.resources.no_documents_description
 import com.peltoche.fyde.resources.no_documents_match
 import com.peltoche.fyde.resources.no_documents_title
+import com.peltoche.fyde.resources.no_matches_title
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.search_documents_placeholder
 import com.peltoche.fyde.resources.search_results_count
@@ -303,20 +303,14 @@ private fun LoadedDocumentList(
                                     description = stringResource(Res.string.no_documents_description),
                                 )
 
-                                filteredDocuments.isEmpty() -> Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxWidth()
-                                        .padding(top = AppSpacing.space8, start = AppSpacing.space8, end = AppSpacing.space8),
-                                    contentAlignment = Alignment.TopCenter,
-                                ) {
-                                    Text(
-                                        text = stringResource(Res.string.no_documents_match, searchQuery),
-                                        style = AppTypography.body,
-                                        color = AppColors.textMuted,
-                                        textAlign = TextAlign.Center,
-                                    )
-                                }
+                                filteredDocuments.isEmpty() -> AppEmptyState(
+                                    modifier = Modifier.weight(1f),
+                                    icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                    title = stringResource(Res.string.no_matches_title),
+                                    description = stringResource(Res.string.no_documents_match, searchQuery),
+                                    actionLabel = stringResource(Res.string.clear_search),
+                                    onAction = { searchQuery = "" },
+                                )
 
                                 else -> DocumentList(
                                     documents = filteredDocuments,
