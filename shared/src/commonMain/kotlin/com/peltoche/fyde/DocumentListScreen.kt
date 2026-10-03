@@ -93,6 +93,7 @@ import com.peltoche.fyde.resources.search_documents_placeholder
 import com.peltoche.fyde.resources.search_results_count
 import com.peltoche.fyde.resources.select_document_description
 import com.peltoche.fyde.resources.select_document_title
+import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.resources.upload_document
 import org.jetbrains.compose.resources.stringResource
 
@@ -190,6 +191,17 @@ private fun LoadedDocumentList(
         navigationFooter = if (isDesktop) { { SidebarFooter(current = SidebarDestination.Documents, onOpenSettings = onOpenSettings) } } else null,
         topBar = {
             AppTopBar(title = stringResource(Res.string.documents_title), windowSizeClass = windowSizeClass) {
+                // The persistent sidebar already gives Expanded a route to
+                // Settings (see SidebarFooter) — this is the only route for
+                // Compact/Medium, which have no sidebar at all. Without it,
+                // Settings (and the logout it hosts) was unreachable below
+                // desktop width.
+                if (!isDesktop) {
+                    AppIconButton(onClick = onOpenSettings, contentDescription = stringResource(Res.string.settings)) {
+                        GearGlyph(modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(Modifier.width(AppSpacing.space2))
+                }
                 AppButton(
                     text = stringResource(Res.string.upload_document),
                     onClick = onUpload,
