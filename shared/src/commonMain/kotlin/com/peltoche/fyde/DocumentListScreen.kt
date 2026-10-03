@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -544,11 +545,13 @@ private fun DocumentKeywordsSection(document: FydeDocument) {
 
 /**
  * A folded-corner file icon on a rounded, tinted chip, drawn without an icon
- * pack (see [DocumentGlyph]). The tint/label vary by file type — reusing the
- * design system's own semantic tokens (`primary`/`secondary`/`success`/
- * `warning`), not an arbitrary per-type rainbow — so a mixed document list
- * stays scannable-by-type while the palette stays within
- * design-system.md's "one disciplined accent" rule.
+ * pack (see [DocumentGlyph]). The tint/label vary by file type, drawn only
+ * from [fileTypeVisualsFor]'s palette — never from `success`/`warning`/
+ * `error`, which mean "this succeeded" / "this needs caution" / "this
+ * failed" everywhere else in the app (banners, badges, the encryption
+ * trust badge). A spreadsheet or an image is neither a warning nor a
+ * success, so file-type categorization must not borrow those tokens just
+ * because they happen to be visually distinct colors.
  */
 @Composable
 private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, size: Dp = 44.dp) {
@@ -578,17 +581,29 @@ private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, 
     }
 }
 
-/** Short type label + accent tint for [FileTypeIcon], derived from real [FydeDocument] fields only. */
+/**
+ * Short type label + accent tint for [FileTypeIcon], derived from real
+ * [FydeDocument] fields only. The tint draws exclusively from the app's two
+ * brand accents — `primary` and `secondary`, the latter already scoped by
+ * design-system.md's Color table to "folder/document-type accents" — plus
+ * two blends between them, so four file types stay visually distinct
+ * without reaching for a semantic-state color (see [FileTypeIcon]'s doc
+ * comment) or inventing a fifth hue the "one disciplined accent" rule
+ * doesn't allow for.
+ */
 @Composable
 private fun fileTypeVisualsFor(document: FydeDocument): Pair<String, Color> {
     val extension = document.name.substringAfterLast('.', "").uppercase().take(4)
     val type = document.contentType.lowercase()
+    val primary = AppColors.primary
+    val secondary = AppColors.secondary
     return when {
-        type.contains("pdf") -> "PDF" to AppColors.primary
+        type.contains("pdf") -> "PDF" to primary
         type.contains("spreadsheet") || type.contains("excel") || type.contains("csv") ->
-            extension.ifEmpty { "XLS" } to AppColors.success
-        type.startsWith("image/") -> extension.ifEmpty { "IMG" } to AppColors.warning
-        type.contains("word") || type.contains("document") -> extension.ifEmpty { "DOC" } to AppColors.secondary
+            extension.ifEmpty { "XLS" } to secondary
+        type.startsWith("image/") -> extension.ifEmpty { "IMG" } to lerp(primary, secondary, 0.5f)
+        type.contains("word") || type.contains("document") ->
+            extension.ifEmpty { "DOC" } to lerp(secondary, AppColors.text, 0.3f)
         else -> extension.ifEmpty { "FILE" } to AppColors.textMuted
     }
 }
