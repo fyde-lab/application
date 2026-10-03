@@ -618,7 +618,10 @@ private fun FilterChipRow() {
         AppChip(text = stringResource(Res.string.filter_period), enabled = false, showChevron = true)
         AppChip(text = stringResource(Res.string.filter_amount), enabled = false, showChevron = true)
         // No trailing chevron — unlike the others this isn't a dropdown.
-        AppChip(text = "+ ${stringResource(Res.string.filter_more)}", enabled = false)
+        // The leading "+" lives in the string resource itself (not
+        // concatenated here) so a translation controls the whole visible
+        // label, not just part of it.
+        AppChip(text = stringResource(Res.string.filter_more), enabled = false)
     }
 }
 

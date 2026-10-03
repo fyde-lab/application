@@ -60,7 +60,7 @@
     <string name="filter_issuer">Émetteur</string>
     <string name="filter_period">Période</string>
     <string name="filter_amount">Montant</string>
-    <string name="filter_more">Plus de filtres</string>
+    <string name="filter_more">+ Plus de filtres</string>
     <string name="search_results_count">%1$d résultats pour « %2$s »</string>
     <string name="document_favorite">Favori</string>
     <string name="document_download">Télécharger</string>

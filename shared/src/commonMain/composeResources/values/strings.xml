@@ -60,7 +60,7 @@
     <string name="filter_issuer">Issuer</string>
     <string name="filter_period">Period</string>
     <string name="filter_amount">Amount</string>
-    <string name="filter_more">More filters</string>
+    <string name="filter_more">+ More filters</string>
     <string name="search_results_count">%1$d results for “%2$s”</string>
     <string name="document_favorite">Favorite</string>
     <string name="document_download">Download</string>
