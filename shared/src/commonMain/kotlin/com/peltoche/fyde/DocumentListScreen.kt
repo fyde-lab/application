@@ -1,7 +1,6 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +37,7 @@ import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppIconButton
 import com.peltoche.fyde.components.content.AppBadge
+import com.peltoche.fyde.components.content.AppChip
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppEmptyState
@@ -613,43 +612,20 @@ private fun FilterChipRow() {
     // overflow straight into the detail pane's divider/column instead of
     // wrapping. Wrapping to a second line keeps every chip inside the list
     // column no matter how the labels localize.
+    // None of these has an onClick — there's no real filtering feature
+    // behind any of them yet, and AppChip(enabled = false) dims each one so
+    // the row reads as "not yet wired up" rather than looking like a
+    // working control a tap or click will silently do nothing on.
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
     ) {
-        FilterChip(stringResource(Res.string.filter_type))
-        FilterChip(stringResource(Res.string.filter_issuer))
-        FilterChip(stringResource(Res.string.filter_period))
-        FilterChip(stringResource(Res.string.filter_amount))
+        AppChip(text = stringResource(Res.string.filter_type), enabled = false, showChevron = true)
+        AppChip(text = stringResource(Res.string.filter_issuer), enabled = false, showChevron = true)
+        AppChip(text = stringResource(Res.string.filter_period), enabled = false, showChevron = true)
+        AppChip(text = stringResource(Res.string.filter_amount), enabled = false, showChevron = true)
         // No trailing chevron — unlike the others this isn't a dropdown.
-        FilterChip(text = "+ ${stringResource(Res.string.filter_more)}", showChevron = false)
-    }
-}
-
-/**
- * None of these chips has an `onClick` — there's no real filtering feature
- * behind any of them yet (see [FilterChipRow]'s doc comment). Styled at
- * `textMuted` throughout, not full `text` contrast, so the row reads as
- * "not yet wired up" rather than looking like a working control a tap or
- * click will silently do nothing on.
- */
-@Composable
-private fun FilterChip(text: String, showChevron: Boolean = true) {
-    Row(
-        modifier = Modifier
-            .clip(AppRadius.sm)
-            .border(AppDimensions.borderHairline, AppColors.border, AppRadius.sm)
-            .padding(horizontal = AppSpacing.space3, vertical = AppSpacing.space2),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(text, style = AppTypography.caption, color = AppColors.textMuted)
-        if (showChevron) {
-            Spacer(Modifier.width(AppSpacing.space1))
-            ChevronRightGlyph(
-                modifier = Modifier.size(10.dp).rotate(90f),
-                tint = AppColors.textMuted,
-            )
-        }
+        AppChip(text = "+ ${stringResource(Res.string.filter_more)}", enabled = false)
     }
 }
 
