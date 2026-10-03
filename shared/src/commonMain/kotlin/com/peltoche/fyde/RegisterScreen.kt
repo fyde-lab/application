@@ -31,6 +31,7 @@ import com.peltoche.fyde.resources.password_label
 import com.peltoche.fyde.resources.passwords_mismatch
 import com.peltoche.fyde.resources.sign_up
 import com.peltoche.fyde.resources.username_label
+import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppShapes
@@ -78,16 +79,16 @@ fun RegisterScreen(
                 color = AppColors.text,
             )
             Spacer(Modifier.height(AppSpacing.space7))
-            AuthTextField(value = username, onValueChange = { username = it }, label = stringResource(Res.string.username_label))
+            AppTextField(value = username, onValueChange = { username = it }, label = stringResource(Res.string.username_label))
             Spacer(Modifier.height(AppSpacing.space4))
-            AuthTextField(
+            AppTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = stringResource(Res.string.password_label),
                 isPassword = true,
             )
             Spacer(Modifier.height(AppSpacing.space4))
-            AuthTextField(
+            AppTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
                 label = stringResource(Res.string.confirm_password_label),

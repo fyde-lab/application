@@ -15,8 +15,10 @@ import com.peltoche.fyde.theme.AppShapes
 /**
  * The general-purpose bordered field — design-system.md § Shape/Inputs
  * calls for a bordered field, superseding the app's original underline
- * style (still used by the pre-existing `AuthTextField`, untouched here;
- * migrating its call sites is follow-up work, not this component).
+ * style. Used everywhere text input is needed, including [LoginScreen] and
+ * [RegisterScreen] (formerly their own underline-style `AuthTextField`,
+ * retired once nothing referenced it), so the app has one field language
+ * from first launch onward.
  *
  * No hardcoded copy: every user-visible string is a required parameter, so
  * callers always supply their own localized string.
