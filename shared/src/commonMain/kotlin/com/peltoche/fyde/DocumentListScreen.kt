@@ -417,17 +417,22 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
                     color = AppColors.textMuted,
                 )
             }
-            // Non-functional today, like the filter chips and sort control —
-            // visible affordances a document detail pane is expected to have,
-            // without fabricating upload/sharing behavior that doesn't exist.
-            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_favorite)) {
-                StarGlyph(modifier = Modifier.size(16.dp))
+            // Non-functional today, like the filter chips — visible
+            // affordances a document detail pane is expected to have,
+            // without fabricating upload/sharing behavior that doesn't
+            // exist. `enabled = false` (plus a dimmed glyph tint, since
+            // these draw their own color rather than reading
+            // AppIconButton's content color) so each reads as "not yet,"
+            // not as a button that silently does nothing when pressed.
+            val inertTint = AppColors.textMuted.copy(alpha = 0.5f)
+            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_favorite), enabled = false) {
+                StarGlyph(modifier = Modifier.size(16.dp), tint = inertTint)
             }
-            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_download)) {
-                DownloadGlyph(modifier = Modifier.size(16.dp))
+            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_download), enabled = false) {
+                DownloadGlyph(modifier = Modifier.size(16.dp), tint = inertTint)
             }
-            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_more_actions)) {
-                MoreGlyph(modifier = Modifier.size(16.dp))
+            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_more_actions), enabled = false) {
+                MoreGlyph(modifier = Modifier.size(16.dp), tint = inertTint)
             }
         }
         AppDivider()
@@ -630,14 +635,18 @@ private fun FilterChipRow() {
         FilterChip(stringResource(Res.string.filter_issuer))
         FilterChip(stringResource(Res.string.filter_period))
         FilterChip(stringResource(Res.string.filter_amount))
-        // No trailing chevron — unlike the others this isn't a dropdown,
-        // but it's still a clickable filter, so it keeps the same chip
-        // container and full-contrast label rather than reading as inert
-        // caption text next to chips that are actionable.
+        // No trailing chevron — unlike the others this isn't a dropdown.
         FilterChip(text = "+ ${stringResource(Res.string.filter_more)}", showChevron = false)
     }
 }
 
+/**
+ * None of these chips has an `onClick` — there's no real filtering feature
+ * behind any of them yet (see [FilterChipRow]'s doc comment). Styled at
+ * `textMuted` throughout, not full `text` contrast, so the row reads as
+ * "not yet wired up" rather than looking like a working control a tap or
+ * click will silently do nothing on.
+ */
 @Composable
 private fun FilterChip(text: String, showChevron: Boolean = true) {
     Row(
@@ -647,10 +656,7 @@ private fun FilterChip(text: String, showChevron: Boolean = true) {
             .padding(horizontal = AppSpacing.space3, vertical = AppSpacing.space2),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Label at full text contrast: these are interactive controls, not
-        // muted metadata — textMuted was reserved for the chevron only, to
-        // keep it visually secondary to the label.
-        Text(text, style = AppTypography.caption, color = AppColors.text)
+        Text(text, style = AppTypography.caption, color = AppColors.textMuted)
         if (showChevron) {
             Spacer(Modifier.width(AppSpacing.space1))
             ChevronRightGlyph(
