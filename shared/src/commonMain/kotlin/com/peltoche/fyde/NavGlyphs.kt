@@ -153,3 +153,58 @@ fun MoreGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
         }
     }
 }
+
+/**
+ * A plus sign — the upload-document action's leading icon. Previously a raw
+ * `"+"` character rendered in the platform's default font (the one place a
+ * system font leaked through); drawn here instead so every icon in the app,
+ * hand-drawn or not, comes from one visual system at one consistent weight.
+ */
+@Composable
+fun PlusGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.8.dp) {
+    Canvas(modifier = modifier) {
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        drawLine(color = tint, start = Offset(cx, size.height * 0.08f), end = Offset(cx, size.height * 0.92f), strokeWidth = stroke.width, cap = StrokeCap.Round)
+        drawLine(color = tint, start = Offset(size.width * 0.08f, cy), end = Offset(size.width * 0.92f, cy), strokeWidth = stroke.width, cap = StrokeCap.Round)
+    }
+}
+
+/**
+ * An "x" — a close/clear affordance, e.g. [com.peltoche.fyde.components.form.AppSearchField]'s
+ * clear button. Previously a raw `"×"` character; see [PlusGlyph]'s doc
+ * comment for why that's a problem this glyph fixes.
+ */
+@Composable
+fun CloseGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val inset = size.minDimension * 0.18f
+        drawLine(color = tint, start = Offset(inset, inset), end = Offset(size.width - inset, size.height - inset), strokeWidth = stroke.width, cap = StrokeCap.Round)
+        drawLine(color = tint, start = Offset(size.width - inset, inset), end = Offset(inset, size.height - inset), strokeWidth = stroke.width, cap = StrokeCap.Round)
+    }
+}
+
+/**
+ * An exclamation mark — the connect-failed error state's icon. Previously a
+ * raw `"!"` character; see [PlusGlyph]'s doc comment for why that's a
+ * problem this glyph fixes. Already sits inside [com.peltoche.fyde.components.feedback.AppErrorState]'s
+ * own tinted circle badge, so this draws only the mark itself, not a
+ * second circle around it.
+ */
+@Composable
+fun AlertGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.error, strokeWidth: Dp = 2.2.dp) {
+    Canvas(modifier = modifier) {
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val cx = size.width / 2f
+        drawLine(
+            color = tint,
+            start = Offset(cx, size.height * 0.04f),
+            end = Offset(cx, size.height * 0.62f),
+            strokeWidth = stroke.width,
+            cap = StrokeCap.Round,
+        )
+        drawCircle(color = tint, radius = stroke.width * 0.6f, center = Offset(cx, size.height * 0.88f))
+    }
+}

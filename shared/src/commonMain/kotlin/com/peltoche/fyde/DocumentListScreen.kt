@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -145,11 +144,7 @@ fun DocumentListScreen(
         )
         is DocumentListUiState.ConnectFailed -> AppErrorState(
             modifier = modifier,
-            icon = {
-                // "!" stands in for an icon glyph, not language — exempt from
-                // the Regular/Medium/SemiBold-only rule real text follows.
-                Text("!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = AppColors.error)
-            },
+            icon = { AlertGlyph(modifier = Modifier.size(32.dp)) },
             title = stringResource(Res.string.connect_failed_title),
             description = state.message,
             actionLabel = stringResource(Res.string.retry),
@@ -209,10 +204,7 @@ private fun LoadedDocumentList(
                     variant = AppButtonVariant.Filled,
                     enabled = state.serverReachable,
                     loading = isUploading,
-                    leadingIcon = {
-                        // "+" stands in for an icon glyph, not language.
-                        Text("+", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                    },
+                    leadingIcon = { PlusGlyph(modifier = Modifier.size(14.dp), tint = AppColors.onPrimary) },
                 )
             }
         },

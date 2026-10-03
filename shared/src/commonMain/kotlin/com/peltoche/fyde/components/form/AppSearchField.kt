@@ -1,11 +1,14 @@
 package com.peltoche.fyde.components.form
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.CloseGlyph
 import com.peltoche.fyde.components.action.AppIconButton
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppShapes
@@ -38,7 +41,7 @@ fun AppSearchField(
         trailingIcon = if (onClear != null && value.isNotEmpty() && clearContentDescription != null) {
             {
                 AppIconButton(onClick = onClear, contentDescription = clearContentDescription) {
-                    Text("×")
+                    CloseGlyph(modifier = Modifier.size(14.dp))
                 }
             }
         } else null,
