@@ -1,13 +1,17 @@
 package com.peltoche.fyde.components.action
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.appFocusRing
 
 /**
  * An icon-only button. The app has no bundled icon pack yet (see the design
@@ -28,10 +32,14 @@ fun AppIconButton(
     tint: Color = AppColors.textMuted,
     content: @Composable () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     IconButton(
         onClick = onClick,
-        modifier = modifier.semantics { this.contentDescription = contentDescription },
+        modifier = modifier
+            .appFocusRing(interactionSource, shape = AppRadius.full)
+            .semantics { this.contentDescription = contentDescription },
         enabled = enabled,
+        interactionSource = interactionSource,
         colors = IconButtonDefaults.iconButtonColors(
             contentColor = tint,
             disabledContentColor = AppColors.textMuted,

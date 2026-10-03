@@ -1,6 +1,7 @@
 package com.peltoche.fyde.components.action
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -15,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -23,6 +25,7 @@ import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
+import com.peltoche.fyde.theme.appFocusRing
 
 /** Emphasis level for [AppButton] — see design-system.md § Shape/Buttons. */
 enum class AppButtonVariant { Filled, Tonal, Outlined }
@@ -49,8 +52,10 @@ fun AppButton(
     leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     val isEnabled = enabled && !loading
+    val interactionSource = remember { MutableInteractionSource() }
     val buttonModifier = modifier
         .height(AppDimensions.touchTargetMin)
+        .appFocusRing(interactionSource, shape = AppShapes.button)
         .semantics { if (loading) stateDescription = "Loading" }
 
     val content: @Composable RowScope.() -> Unit = {
@@ -75,6 +80,7 @@ fun AppButton(
             modifier = buttonModifier,
             enabled = isEnabled,
             shape = AppShapes.button,
+            interactionSource = interactionSource,
             colors = ButtonDefaults.buttonColors(
                 containerColor = AppColors.primary,
                 contentColor = AppColors.onPrimary,
@@ -86,6 +92,7 @@ fun AppButton(
             modifier = buttonModifier,
             enabled = isEnabled,
             shape = AppShapes.button,
+            interactionSource = interactionSource,
             colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -97,6 +104,7 @@ fun AppButton(
             modifier = buttonModifier,
             enabled = isEnabled,
             shape = AppShapes.button,
+            interactionSource = interactionSource,
             border = BorderStroke(1.dp, if (isEnabled) AppColors.borderStrong else AppColors.border),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = AppColors.text),
             content = content,

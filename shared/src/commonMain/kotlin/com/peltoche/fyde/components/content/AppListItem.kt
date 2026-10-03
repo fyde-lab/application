@@ -1,6 +1,7 @@
 package com.peltoche.fyde.components.content
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
@@ -9,6 +10,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,7 +19,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppTypography
+import com.peltoche.fyde.theme.appFocusRing
 
 /**
  * Generalizes the icon/title/caption row already used for documents, but
@@ -50,8 +54,11 @@ fun AppListItem(
     enabled: Boolean = true,
     selected: Boolean = false,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     val rowModifier = if (onClick != null) {
-        modifier.selectable(selected = selected, enabled = enabled, onClick = onClick, role = Role.RadioButton)
+        modifier
+            .selectable(selected = selected, interactionSource = interactionSource, enabled = enabled, onClick = onClick, role = Role.RadioButton)
+            .appFocusRing(interactionSource, shape = AppRadius.none)
     } else {
         modifier
     }
