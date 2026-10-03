@@ -12,6 +12,8 @@ import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.form.AppDropdown
 import com.peltoche.fyde.components.navigation.AppTopBar
+import com.peltoche.fyde.layout.AppContentContainer
+import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppNavigationLayout
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
@@ -98,49 +100,69 @@ fun SettingsScreen(
                 onBack = onBack,
                 backContentDescription = stringResource(Res.string.back),
             )
-            if (languageError != null) {
-                AppBanner(
-                    message = languageError,
-                    onDismiss = onDismissLanguageError,
-                    dismissLabel = stringResource(Res.string.dismiss),
-                )
+            // Every other screen wraps its content in AppContentContainer,
+            // which enforces design-system.md's 720dp detail-view cap —
+            // this screen's rows and dropdown were composed directly
+            // against the full window width instead, so they stretched
+            // edge-to-edge on a wide desktop window.
+            AppContentContainer(
+                modifier = Modifier.fillMaxSize(),
+                width = AppContentWidth.Detail,
+                windowSizeClass = windowSizeClass,
+                sidebarAdjacent = isDesktop,
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    if (languageError != null) {
+                        AppBanner(
+                            message = languageError,
+                            onDismiss = onDismissLanguageError,
+                            dismissLabel = stringResource(Res.string.dismiss),
+                        )
+                    }
+                    SectionTitle(stringResource(Res.string.server_section_title))
+                    SettingsRow(label = stringResource(Res.string.server_url_label), value = serverUrl)
+                    SectionTitle(stringResource(Res.string.language_section_title))
+                    AppDropdown(
+                        label = stringResource(Res.string.language_label),
+                        options = AppLanguage.entries,
+                        selectedOption = AppLanguage.fromCode(currentLanguage),
+                        onOptionSelected = { onLanguageChange(it.code) },
+                        optionLabel = AppLanguage::displayName,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = AppSpacing.space3),
+                    )
+                    SectionTitle(stringResource(Res.string.account_section_title))
+                    AppTextButton(
+                        text = stringResource(Res.string.log_out),
+                        onClick = onLogout,
+                        modifier = Modifier.padding(vertical = AppSpacing.space1),
+                    )
+                }
             }
-            SectionTitle(stringResource(Res.string.server_section_title))
-            SettingsRow(label = stringResource(Res.string.server_url_label), value = serverUrl)
-            SectionTitle(stringResource(Res.string.language_section_title))
-            AppDropdown(
-                label = stringResource(Res.string.language_label),
-                options = AppLanguage.entries,
-                selectedOption = AppLanguage.fromCode(currentLanguage),
-                onOptionSelected = { onLanguageChange(it.code) },
-                optionLabel = AppLanguage::displayName,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
-            )
-            SectionTitle(stringResource(Res.string.account_section_title))
-            AppTextButton(
-                text = stringResource(Res.string.log_out),
-                onClick = onLogout,
-                modifier = Modifier.padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space1),
-            )
         }
     }
 }
 
+// Unlike DocumentListScreen's rows, these two have no leading icon/visual
+// weight of their own to balance against a margin, and now sit entirely
+// inside SettingsScreen's single AppContentContainer (see its call site) —
+// so they take only vertical padding and let the container supply the one
+// horizontal margin for the whole screen, rather than adding a second,
+// redundant one of their own.
 @Composable
 private fun SectionTitle(text: String) {
     Text(
         text = text,
         style = AppTypography.micro,
         color = AppColors.textMuted,
-        modifier = Modifier.padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
+        modifier = Modifier.padding(vertical = AppSpacing.space4),
     )
 }
 
 @Composable
 private fun SettingsRow(label: String, value: String) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpacing.space3)) {
         Text(
             text = label,
             style = AppTypography.caption,
