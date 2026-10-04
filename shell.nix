@@ -26,6 +26,7 @@ in
 pkgs.mkShell {
   packages = with pkgs; [
     rustToolchain
+    sccache
 
     # required by ../sdk's build.rs to compile ../api-protos/*.proto
     protobuf
@@ -44,7 +45,14 @@ pkgs.mkShell {
     fontconfig freetype
   ];
 
+  RUSTC_WRAPPER = "${pkgs.sccache}/bin/sccache";
+
   shellHook = ''
+    # direnv (`use nix`) caches the env from the nix-shell invocation that computed it,
+    # including the ephemeral TMPDIR nix-shell creates and deletes on exit. Later shells
+    # reusing that cached env point sccache at a TMPDIR that's already gone - pin it.
+    export TMPDIR="/tmp"
+
     export JAVA_HOME="${pkgs.jdk21}"
     export PATH="$JAVA_HOME/bin:$PATH"
     # Java AWT (used by Compose Desktop/Skiko) mishandles resize under
