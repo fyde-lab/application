@@ -85,6 +85,26 @@ fun GearGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
     }
 }
 
+/** Two angle brackets, `<` `>` — the sidebar's Scripts destination. */
+@Composable
+fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
+    Canvas(modifier = modifier) {
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val leftChevron = Path().apply {
+            moveTo(size.width * 0.38f, size.height * 0.18f)
+            lineTo(size.width * 0.06f, size.height * 0.5f)
+            lineTo(size.width * 0.38f, size.height * 0.82f)
+        }
+        drawPath(leftChevron, color = tint, style = stroke)
+        val rightChevron = Path().apply {
+            moveTo(size.width * 0.62f, size.height * 0.18f)
+            lineTo(size.width * 0.94f, size.height * 0.5f)
+            lineTo(size.width * 0.62f, size.height * 0.82f)
+        }
+        drawPath(rightChevron, color = tint, style = stroke)
+    }
+}
+
 @Composable
 fun ChevronRightGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
     Canvas(modifier = modifier) {

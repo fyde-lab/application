@@ -99,6 +99,22 @@ data class FydeChangelogEvent(
 )
 
 /**
+ * A user-authored script, mirroring the SDK's `FfiScript` without leaking
+ * `:sdkBridge`'s generated bindings into `commonMain`. Unlike [FydeDocument],
+ * [script] is plain text, not ciphertext — see `sdk/src/domains/scripts/
+ * models.rs`'s doc comment for why.
+ */
+data class FydeScript(
+    val id: String,
+    val name: String,
+    val isPublic: Boolean,
+    val icon: ByteArray,
+    val version: Long,
+    val script: String,
+    val lastUpdated: Long,
+)
+
+/**
  * Cross-platform entry point to `fyde-sdk` (`../../sdk`), the Rust client
  * library for talking to a fyde server. Implemented for Desktop (JVM),
  * Android and iOS via the UniFFI-generated bindings in `:sdkBridge`; not
@@ -183,4 +199,33 @@ expect object FydeSdk {
      * been called yet.
      */
     suspend fun getLanguage(): Result<String?>
+
+    /**
+     * Creates a new script owned by the authenticated user, at version 1.
+     * Mirrors [`crate::ScriptsService::create_script`]; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun createScript(name: String, isPublic: Boolean, icon: ByteArray, script: String): Result<FydeScript>
+
+    /**
+     * Enables [scriptId] for the authenticated user, so it starts appearing
+     * in [listUserScripts]. Mirrors [`crate::ScriptsService::enable_script`];
+     * fails if [initialize] hasn't been called yet.
+     */
+    suspend fun enableScript(scriptId: String): Result<Unit>
+
+    /**
+     * Disables [scriptId] for the authenticated user, so it stops appearing
+     * in [listUserScripts]. Mirrors
+     * [`crate::ScriptsService::disable_script`]; fails if [initialize]
+     * hasn't been called yet.
+     */
+    suspend fun disableScript(scriptId: String): Result<Unit>
+
+    /**
+     * Lists the scripts currently enabled for the authenticated user.
+     * Mirrors [`crate::ScriptsService::list_user_scripts`]; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun listUserScripts(): Result<List<FydeScript>>
 }

@@ -68,6 +68,24 @@
     <string name="document_preview_title">Document preview</string>
     <string name="document_detail_keywords_title">Keywords</string>
 
+    <!-- Scripts screen -->
+    <string name="scripts_menu_item">Scripts</string>
+    <string name="scripts_title">Scripts</string>
+    <string name="no_scripts_title">No scripts enabled</string>
+    <string name="no_scripts_description">Scripts you create are enabled automatically and will show up here.</string>
+    <string name="new_script">New script</string>
+    <string name="new_script_sheet_title">New script</string>
+    <string name="script_name_label">Name</string>
+    <string name="script_code_label">Script</string>
+    <string name="script_public_label">Make public</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="create_script_failed">"Couldn't create script: %1$s"</string>
+    <string name="disable_script">Disable</string>
+    <string name="disable_script_failed">"Couldn't disable script: %1$s"</string>
+    <string name="script_public_badge">Public</string>
+    <string name="script_private_badge">Private</string>
+
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>
     <string name="server_section_title">Server</string>
