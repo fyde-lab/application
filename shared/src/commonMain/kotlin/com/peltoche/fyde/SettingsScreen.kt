@@ -66,6 +66,7 @@ fun SettingsScreen(
     onLanguageChange: (String) -> Unit,
     onBack: () -> Unit,
     onOpenScripts: () -> Unit = {},
+    onOpenAddons: () -> Unit = {},
     onLogout: () -> Unit = {},
     languageError: String? = null,
     onDismissLanguageError: () -> Unit = {},
@@ -83,7 +84,7 @@ fun SettingsScreen(
         modifier = modifier,
         windowSizeClass = windowSizeClass,
         navigationItems = if (isDesktop) {
-            sidebarNavigationItems(current = SidebarDestination.Settings, onOpenDocuments = onBack, onOpenScripts = onOpenScripts)
+            sidebarNavigationItems(current = SidebarDestination.Settings, onOpenDocuments = onBack, onOpenScripts = onOpenScripts, onOpenAddons = onOpenAddons)
         } else {
             emptyList()
         },

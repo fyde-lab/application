@@ -22,6 +22,7 @@ import com.peltoche.fyde.components.navigation.AppNavigationItem
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.encryption_badge_description
 import com.peltoche.fyde.resources.encryption_badge_title
+import com.peltoche.fyde.resources.nav_addons
 import com.peltoche.fyde.resources.nav_search
 import com.peltoche.fyde.resources.scripts_menu_item
 import com.peltoche.fyde.resources.settings
@@ -35,19 +36,20 @@ import org.jetbrains.compose.resources.stringResource
 /**
  * The persistent Expanded-breakpoint sidebar's real destinations — shared by
  * every screen that shows it ([DocumentListScreen], [ScriptListScreen],
- * [SettingsScreen] via [SidebarFooter]) so navigating between them is
- * consistent rather than each screen building its own list. Used to also
- * carry several `enabled = false` placeholders (All documents, Categories,
- * Suppliers, Issuers, Dates, Favorites) that never linked anywhere real —
- * dropped rather than shipped as dead links.
+ * [AddonsScreen], [SettingsScreen] via [SidebarFooter]) so navigating
+ * between them is consistent rather than each screen building its own list.
+ * Used to also carry several `enabled = false` placeholders (All documents,
+ * Categories, Suppliers, Issuers, Dates, Favorites) that never linked
+ * anywhere real — dropped rather than shipped as dead links.
  */
-enum class SidebarDestination { Documents, Scripts, Settings }
+enum class SidebarDestination { Documents, Scripts, Addons, Settings }
 
 @Composable
 fun sidebarNavigationItems(
     current: SidebarDestination,
     onOpenDocuments: () -> Unit,
     onOpenScripts: () -> Unit,
+    onOpenAddons: () -> Unit,
 ): List<AppNavigationItem> = listOf(
     AppNavigationItem(
         label = stringResource(Res.string.nav_search),
@@ -67,6 +69,17 @@ fun sidebarNavigationItems(
         icon = {
             CodeGlyph(
                 tint = if (current == SidebarDestination.Scripts) AppColors.primary else AppColors.textMuted,
+                modifier = Modifier.size(20.dp),
+            )
+        },
+    ),
+    AppNavigationItem(
+        label = stringResource(Res.string.nav_addons),
+        selected = current == SidebarDestination.Addons,
+        onClick = onOpenAddons,
+        icon = {
+            PuzzleGlyph(
+                tint = if (current == SidebarDestination.Addons) AppColors.primary else AppColors.textMuted,
                 modifier = Modifier.size(20.dp),
             )
         },

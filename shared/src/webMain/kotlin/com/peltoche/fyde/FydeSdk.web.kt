@@ -37,4 +37,6 @@ actual object FydeSdk {
     actual suspend fun disableScript(scriptId: String): Result<Unit> = unsupported()
 
     actual suspend fun listUserScripts(): Result<List<FydeScript>> = unsupported()
+
+    actual suspend fun listPublicScripts(): Result<List<FydeScript>> = unsupported()
 }

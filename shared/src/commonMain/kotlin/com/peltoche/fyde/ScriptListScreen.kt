@@ -105,6 +105,7 @@ fun ScriptListScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    onOpenAddons: () -> Unit = {},
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
     isCreating: Boolean = false,
     onDisableScript: (FydeScript) -> Unit = {},
@@ -126,7 +127,7 @@ fun ScriptListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is ScriptListUiState.Loaded -> LoadedScriptList(state, modifier, onBack, onOpenSettings, onCreateScript, isCreating, onDisableScript)
+        is ScriptListUiState.Loaded -> LoadedScriptList(state, modifier, onBack, onOpenSettings, onOpenAddons, onCreateScript, isCreating, onDisableScript)
     }
 }
 
@@ -137,6 +138,7 @@ private fun LoadedScriptList(
     modifier: Modifier = Modifier,
     onBack: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    onOpenAddons: () -> Unit = {},
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
     isCreating: Boolean = false,
     onDisableScript: (FydeScript) -> Unit = {},
@@ -151,7 +153,7 @@ private fun LoadedScriptList(
         modifier = modifier,
         windowSizeClass = windowSizeClass,
         navigationItems = if (isDesktop) {
-            sidebarNavigationItems(current = SidebarDestination.Scripts, onOpenDocuments = onBack, onOpenScripts = {})
+            sidebarNavigationItems(current = SidebarDestination.Scripts, onOpenDocuments = onBack, onOpenScripts = {}, onOpenAddons = onOpenAddons)
         } else {
             emptyList()
         },
