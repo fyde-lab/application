@@ -17,7 +17,8 @@ let
   # sdkBridge cross-compiles ../sdk (fyde-sdk) for Android via the
   # ch.ubique.uniffi.plugin cargo integration; the JVM/Desktop/Wasm targets
   # only ever need the host target.
-  rustToolchain = pkgs.rust-bin.stable."1.97.1".default.override {
+  # ../sdk's wreq/wreq-util dependency requires rustc >=1.98 (see ../sdk/shell.nix).
+  rustToolchain = pkgs.rust-bin.stable."1.98.1".default.override {
     extensions = [ "rust-src" "clippy" "rustfmt" "rust-analyzer" ];
     targets = [ "x86_64-unknown-linux-gnu" ] ++ androidTargets;
   };
@@ -28,6 +29,14 @@ pkgs.mkShell {
 
     # required by ../sdk's build.rs to compile ../api-protos/*.proto
     protobuf
+
+    # ../sdk's wreq dependency vendors a patched BoringSSL (btls-sys) that
+    # needs these to build — see ../sdk/shell.nix.
+    cmake
+    perl
+    go
+    # Sets up LIBCLANG_PATH/BINDGEN_EXTRA_CLANG_ARGS correctly for bindgen.
+    rustPlatform.bindgenHook
 
     jdk21
     libglvnd libx11 libxext libxrender libxtst libxi libxrandr
