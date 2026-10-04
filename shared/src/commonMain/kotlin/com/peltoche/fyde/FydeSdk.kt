@@ -228,4 +228,12 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun listUserScripts(): Result<List<FydeScript>>
+
+    /**
+     * Lists every script marked public, regardless of who owns it or
+     * whether the authenticated user has it enabled. Mirrors
+     * [`crate::ScriptsService::list_public_scripts`]; fails if [initialize]
+     * hasn't been called yet.
+     */
+    suspend fun listPublicScripts(): Result<List<FydeScript>>
 }

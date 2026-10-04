@@ -105,6 +105,59 @@ fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
     }
 }
 
+/**
+ * A puzzle piece — the sidebar's Addons destination and the addon grid's
+ * per-card icon chip. One knob on the right edge and one socket on the
+ * bottom edge are enough to read as "puzzle piece" at nav-icon size without
+ * drawing all four, keeping it a single closed outline like every other
+ * glyph here rather than four small circular bumps.
+ */
+@Composable
+fun PuzzleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        val w = size.width
+        val h = size.height
+        val knobRadius = w * 0.14f
+        val path = Path().apply {
+            moveTo(w * 0.18f, h * 0.18f)
+            lineTo(w * 0.62f, h * 0.18f)
+            // Knob bulging outward on the right edge.
+            lineTo(w * 0.62f, h * 0.34f)
+            arcTo(
+                rect = androidx.compose.ui.geometry.Rect(
+                    w * 0.62f,
+                    h * 0.5f - knobRadius,
+                    w * 0.62f + knobRadius * 2f,
+                    h * 0.5f + knobRadius,
+                ),
+                startAngleDegrees = 180f,
+                sweepAngleDegrees = -180f,
+                forceMoveTo = false,
+            )
+            lineTo(w * 0.62f, h * 0.66f)
+            lineTo(w * 0.82f, h * 0.66f)
+            lineTo(w * 0.82f, h * 0.82f)
+            lineTo(w * 0.5f + knobRadius, h * 0.82f)
+            // Socket indenting inward on the bottom edge.
+            arcTo(
+                rect = androidx.compose.ui.geometry.Rect(
+                    w * 0.5f - knobRadius,
+                    h * 0.82f - knobRadius,
+                    w * 0.5f + knobRadius,
+                    h * 0.82f + knobRadius,
+                ),
+                startAngleDegrees = 0f,
+                sweepAngleDegrees = 180f,
+                forceMoveTo = false,
+            )
+            lineTo(w * 0.18f, h * 0.82f)
+            close()
+        }
+        drawPath(path, color = tint, style = stroke)
+    }
+}
+
 @Composable
 fun ChevronRightGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
     Canvas(modifier = modifier) {

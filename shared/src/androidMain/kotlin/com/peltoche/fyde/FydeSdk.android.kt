@@ -121,6 +121,11 @@ actual object FydeSdk {
         val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
         client.listUserScripts().map(FfiScript::toFydeScript)
     }
+
+    actual suspend fun listPublicScripts(): Result<List<FydeScript>> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.listPublicScripts().map(FfiScript::toFydeScript)
+    }
 }
 
 private fun FfiSourceCategory.toFydeSourceCategory() = when (this) {

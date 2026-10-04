@@ -134,6 +134,7 @@ fun DocumentListScreen(
     onOpenDocument: (FydeDocument) -> Unit = {},
     onOpenSettings: () -> Unit = {},
     onOpenScripts: () -> Unit = {},
+    onOpenAddons: () -> Unit = {},
 ) {
     when (state) {
         DocumentListUiState.Connecting -> AppLoading(
@@ -148,7 +149,7 @@ fun DocumentListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onOpenDocument, onOpenSettings, onOpenScripts)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onOpenDocument, onOpenSettings, onOpenScripts, onOpenAddons)
     }
 }
 
@@ -161,6 +162,7 @@ private fun LoadedDocumentList(
     onOpenDocument: (FydeDocument) -> Unit = {},
     onOpenSettings: () -> Unit = {},
     onOpenScripts: () -> Unit = {},
+    onOpenAddons: () -> Unit = {},
 ) {
     var searchQuery by remember { mutableStateOf("") }
     // Which document is highlighted in the Medium/Expanded preview pane —
@@ -178,7 +180,7 @@ private fun LoadedDocumentList(
         modifier = modifier,
         windowSizeClass = windowSizeClass,
         navigationItems = if (isDesktop) {
-            sidebarNavigationItems(current = SidebarDestination.Documents, onOpenDocuments = {}, onOpenScripts = onOpenScripts)
+            sidebarNavigationItems(current = SidebarDestination.Documents, onOpenDocuments = {}, onOpenScripts = onOpenScripts, onOpenAddons = onOpenAddons)
         } else {
             emptyList()
         },

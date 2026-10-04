@@ -3,6 +3,7 @@ package com.peltoche.fyde
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.addon_toggle_failed
 import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.create_script_failed
@@ -34,6 +35,7 @@ private sealed interface Screen {
     data class DocumentViewer(val document: FydeDocument) : Screen
     data object Settings : Screen
     data object Scripts : Screen
+    data object Addons : Screen
 }
 
 @Composable
@@ -119,6 +121,7 @@ fun App() {
                         onOpenDocument = { document -> screen = Screen.DocumentViewer(document) },
                         onOpenSettings = { screen = Screen.Settings },
                         onOpenScripts = { screen = Screen.Scripts },
+                        onOpenAddons = { screen = Screen.Addons },
                     )
                     is Screen.DocumentViewer -> PdfViewerScreen(
                         document = currentScreen.document,
@@ -127,6 +130,7 @@ fun App() {
                     Screen.Scripts -> ScriptsScreen(
                         onBack = { screen = Screen.Documents },
                         onOpenSettings = { screen = Screen.Settings },
+                        onOpenAddons = { screen = Screen.Addons },
                     )
                     Screen.Settings -> SettingsScreen(
                         serverUrl = FYDE_SERVER_URL,
@@ -142,9 +146,15 @@ fun App() {
                         },
                         onBack = { screen = Screen.Documents },
                         onOpenScripts = { screen = Screen.Scripts },
+                        onOpenAddons = { screen = Screen.Addons },
                         onLogout = { screen = Screen.Login },
                         languageError = languageError,
                         onDismissLanguageError = { languageError = null },
+                    )
+                    Screen.Addons -> AddonsScreenContainer(
+                        onOpenDocuments = { screen = Screen.Documents },
+                        onOpenScripts = { screen = Screen.Scripts },
+                        onOpenSettings = { screen = Screen.Settings },
                     )
                 }
             }
@@ -180,6 +190,7 @@ private fun DocumentsScreen(
     onOpenDocument: (FydeDocument) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenScripts: () -> Unit,
+    onOpenAddons: () -> Unit,
 ) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
@@ -267,6 +278,7 @@ private fun DocumentsScreen(
         onOpenDocument = onOpenDocument,
         onOpenSettings = onOpenSettings,
         onOpenScripts = onOpenScripts,
+        onOpenAddons = onOpenAddons,
     )
 }
 
@@ -279,7 +291,7 @@ private fun DocumentsScreen(
  * list, which is scoped to enabled scripts only.
  */
 @Composable
-private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit) {
+private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit, onOpenAddons: () -> Unit) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<ScriptListUiState>(ScriptListUiState.Connecting) }
     var isCreating by remember { mutableStateOf(false) }
@@ -307,6 +319,7 @@ private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit) {
         state = uiState,
         onBack = onBack,
         onOpenSettings = onOpenSettings,
+        onOpenAddons = onOpenAddons,
         isCreating = isCreating,
         onCreateScript = { name, isPublic, script ->
             isCreating = true
@@ -341,6 +354,79 @@ private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit) {
                             )
                         }
                     }
+            }
+        },
+    )
+}
+
+/**
+ * Owns the `fyde-sdk` scripts calls backing [AddonsScreen] — the
+ * installed-vs-available split shown there comes from combining
+ * [FydeSdk.listPublicScripts] with [FydeSdk.listUserScripts] (the enabled
+ * subset) rather than a single call, mirroring how [ScriptsScreen] owns the
+ * calls for [ScriptListScreen]. Unlike [DocumentsScreen], there's no
+ * changelog-style live subscription for scripts, so the listing is fetched
+ * once per screen open (plus [retryKey] bumps) rather than kept in sync by a
+ * background stream.
+ */
+@Composable
+private fun AddonsScreenContainer(
+    onOpenDocuments: () -> Unit,
+    onOpenScripts: () -> Unit,
+    onOpenSettings: () -> Unit,
+) {
+    var retryKey by remember { mutableStateOf(0) }
+    var uiState by remember { mutableStateOf<AddonsUiState>(AddonsUiState.Connecting) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(retryKey) {
+        uiState = AddonsUiState.Connecting
+
+        val initResult = FydeSdk.initialize(FYDE_SERVER_URL)
+        if (initResult.isFailure) {
+            uiState = AddonsUiState.ConnectFailed(
+                message = initResult.exceptionOrNull()?.message ?: getString(Res.string.error_unknown),
+                onRetry = { retryKey++ },
+            )
+            return@LaunchedEffect
+        }
+
+        uiState = AddonsUiState.Loaded(scripts = null)
+        val publicScripts = FydeSdk.listPublicScripts().getOrElse { emptyList() }
+        val enabledIds = FydeSdk.listUserScripts().getOrElse { emptyList() }.map { it.id }.toSet()
+        uiState = AddonsUiState.Loaded(scripts = publicScripts, enabledScriptIds = enabledIds)
+    }
+
+    AddonsScreen(
+        state = uiState,
+        onOpenDocuments = onOpenDocuments,
+        onOpenScripts = onOpenScripts,
+        onOpenSettings = onOpenSettings,
+        onToggle = toggle@{ script, enabled ->
+            val current = uiState as? AddonsUiState.Loaded
+            if (current == null || script.id in current.pendingScriptIds) return@toggle
+            uiState = current.copy(pendingScriptIds = current.pendingScriptIds + script.id)
+            scope.launch {
+                val result = if (enabled) FydeSdk.enableScript(script.id) else FydeSdk.disableScript(script.id)
+                val latest = uiState as? AddonsUiState.Loaded ?: return@launch
+                val error = result.exceptionOrNull()
+                uiState = if (error == null) {
+                    val updatedIds = if (enabled) latest.enabledScriptIds + script.id else latest.enabledScriptIds - script.id
+                    latest.copy(enabledScriptIds = updatedIds, pendingScriptIds = latest.pendingScriptIds - script.id)
+                } else {
+                    val message = getString(
+                        Res.string.addon_toggle_failed,
+                        script.name,
+                        error.message ?: getString(Res.string.error_unknown),
+                    )
+                    latest.copy(
+                        pendingScriptIds = latest.pendingScriptIds - script.id,
+                        banner = message,
+                        onDismissBanner = {
+                            (uiState as? AddonsUiState.Loaded)?.let { loaded -> uiState = loaded.copy(banner = null) }
+                        },
+                    )
+                }
             }
         },
     )
