@@ -36,6 +36,7 @@ pkgs.mkShell {
     cmake
     perl
     go
+    clang
     # Sets up LIBCLANG_PATH/BINDGEN_EXTRA_CLANG_ARGS correctly for bindgen.
     rustPlatform.bindgenHook
 
@@ -45,13 +46,15 @@ pkgs.mkShell {
     fontconfig freetype
   ];
 
-  RUSTC_WRAPPER = "${pkgs.sccache}/bin/sccache";
-
   shellHook = ''
     # direnv (`use nix`) caches the env from the nix-shell invocation that computed it,
     # including the ephemeral TMPDIR nix-shell creates and deletes on exit. Later shells
     # reusing that cached env point sccache at a TMPDIR that's already gone - pin it.
     export TMPDIR="/tmp"
+
+    export RUSTC_WRAPPER=${pkgs.sccache}/bin/sccache
+    export CC="${pkgs.sccache}/bin/sccache ${pkgs.clang}/bin/clang"
+    export CXX="${pkgs.sccache}/bin/sccache ${pkgs.clang}/bin/clang++"
 
     export JAVA_HOME="${pkgs.jdk21}"
     export PATH="$JAVA_HOME/bin:$PATH"
