@@ -101,10 +101,18 @@ actual object FydeSdk {
         client.getLanguage()
     }
 
-    actual suspend fun createScript(name: String, isPublic: Boolean, icon: ByteArray, script: String): Result<FydeScript> =
+    actual suspend fun createScript(
+        name: String,
+        isPublic: Boolean,
+        icon: ByteArray,
+        script: String,
+        description: String,
+        shortDescription: String,
+        logo: ByteArray,
+    ): Result<FydeScript> =
         runCatching {
             val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
-            client.createScript(name, isPublic, icon, script).toFydeScript()
+            client.createScript(name, isPublic, icon, script, description, shortDescription, logo).toFydeScript()
         }
 
     actual suspend fun enableScript(scriptId: String): Result<Unit> = runCatching {
@@ -177,8 +185,11 @@ private fun FfiPurpose.toFydePurpose() = when (this) {
 private fun FfiScript.toFydeScript() = FydeScript(
     id = id,
     name = name,
+    description = description,
+    shortDescription = shortDescription,
     isPublic = isPublic,
     icon = icon,
+    logo = logo,
     version = version.toLong(),
     script = script,
     lastUpdated = lastUpdated,

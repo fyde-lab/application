@@ -107,8 +107,11 @@ data class FydeChangelogEvent(
 data class FydeScript(
     val id: String,
     val name: String,
+    val description: String,
+    val shortDescription: String,
     val isPublic: Boolean,
     val icon: ByteArray,
+    val logo: ByteArray,
     val version: Long,
     val script: String,
     val lastUpdated: Long,
@@ -205,7 +208,15 @@ expect object FydeSdk {
      * Mirrors [`crate::ScriptsService::create_script`]; fails if
      * [initialize] hasn't been called yet.
      */
-    suspend fun createScript(name: String, isPublic: Boolean, icon: ByteArray, script: String): Result<FydeScript>
+    suspend fun createScript(
+        name: String,
+        isPublic: Boolean,
+        icon: ByteArray,
+        script: String,
+        description: String,
+        shortDescription: String,
+        logo: ByteArray,
+    ): Result<FydeScript>
 
     /**
      * Enables [scriptId] for the authenticated user, so it starts appearing
