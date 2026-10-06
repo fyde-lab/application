@@ -324,7 +324,15 @@ private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit, onOpen
         onCreateScript = { name, isPublic, script ->
             isCreating = true
             scope.launch {
-                FydeSdk.createScript(name = name, isPublic = isPublic, icon = ByteArray(0), script = script)
+                FydeSdk.createScript(
+                    name = name,
+                    isPublic = isPublic,
+                    icon = ByteArray(0),
+                    script = script,
+                    description = "",
+                    shortDescription = "",
+                    logo = ByteArray(0),
+                )
                     .mapCatching { created -> FydeSdk.enableScript(created.id).getOrThrow() }
                     .onSuccess { refreshScripts() }
                     .onFailure { error ->
