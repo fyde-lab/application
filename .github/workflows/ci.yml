@@ -69,8 +69,9 @@ jobs:
       # sdkBridge's cargo integration cross-compiles fyde-sdk with.
       - name: Install Android NDK ${{ env.NDK_VERSION }}
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager --install "ndk;${NDK_VERSION}"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install "ndk;${NDK_VERSION}"
 
       # shell.nix's shellHook hardcodes ANDROID_HOME/ANDROID_SDK_ROOT to
       # $HOME/Android/Sdk for local dev (see application/shell.nix), which
