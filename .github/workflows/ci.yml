@@ -42,6 +42,20 @@ jobs:
           repository: fyde-lab/api-protos
           path: api-protos
 
+      # sdk's Cargo.toml dev-dependencies path-reference ../server (only
+      # used by sdk's own tests/ to spin up a real server instead of
+      # mocking it - see sdk/Cargo.toml) - but Cargo resolves the full
+      # manifest, dev-dependencies included, even when only building the
+      # library target, and errors out if a declared path dependency isn't
+      # on disk. fyde-lab/server is private, so this needs a token with
+      # read access to it (the default GITHUB_TOKEN only covers this repo).
+      - name: Checkout server
+        uses: actions/checkout@v4
+        with:
+          repository: fyde-lab/server
+          path: server
+          token: ${{ secrets.SERVER_CHECKOUT_TOKEN }}
+
       # shell.nix is the single source of truth for the Rust toolchain,
       # protoc, and the native libs sdk's wreq/wry dependencies need to
       # build (see application/shell.nix) - reuse it here instead of
