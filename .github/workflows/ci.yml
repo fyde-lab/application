@@ -20,6 +20,22 @@ jobs:
     permissions:
       contents: read
     steps:
+      # The hosted runner's default image preinstalls toolchains (.NET,
+      # Haskell, Docker images, etc.) this build never uses, leaving too
+      # little free disk for Nix + the Android NDK + fyde-sdk's Rust build
+      # artifacts combined (see the "No space left on device" failure this
+      # step was added to fix). Keep the Android SDK, since we actually
+      # need it.
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       # shared/sdkBridge build fyde-sdk (../../sdk from this repo) via
       # UniFFI, and fyde-sdk itself builds against ../api-protos — see
       # ../CLAUDE.md and sdkBridge/build.gradle.kts. Check out all three
