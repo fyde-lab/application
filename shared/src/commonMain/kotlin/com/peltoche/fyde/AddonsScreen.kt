@@ -24,13 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.components.action.AppButton
+import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppSkeleton
-import com.peltoche.fyde.components.form.AppSwitch
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
@@ -48,6 +49,7 @@ import com.peltoche.fyde.resources.addons_empty_description
 import com.peltoche.fyde.resources.addons_empty_title
 import com.peltoche.fyde.resources.addons_installed_section
 import com.peltoche.fyde.resources.addons_title
+import com.peltoche.fyde.resources.addon_view_button
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
@@ -74,11 +76,12 @@ sealed interface AddonsUiState {
      * rather than a spinner), and non-null once loaded (possibly empty).
      * [enabledScriptIds] marks which of [scripts] the authenticated user
      * currently has installed — those are grouped into their own "Installed"
-     * section, ahead of every other public script. [pendingScriptIds]
-     * disables a card's switch while its enable/disable call is in flight,
-     * so a second tap can't race the first. [banner] surfaces a non-fatal
-     * problem (an enable/disable call failing) without discarding what's
-     * already loaded.
+     * section, ahead of every other public script. [pendingScriptIds] marks
+     * a script whose install/uninstall call (triggered from
+     * [AddonDetailScreen], opened via a card's "View" button) is in flight,
+     * so a second tap there can't race the first. [banner] surfaces a
+     * non-fatal problem (an install/uninstall call failing) without
+     * discarding what's already loaded.
      */
     data class Loaded(
         val scripts: List<FydeScript>?,
@@ -93,7 +96,7 @@ sealed interface AddonsUiState {
 fun AddonsScreen(
     state: AddonsUiState,
     modifier: Modifier = Modifier,
-    onToggle: (FydeScript, Boolean) -> Unit = { _, _ -> },
+    onView: (FydeScript) -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenScripts: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
@@ -111,7 +114,7 @@ fun AddonsScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is AddonsUiState.Loaded -> LoadedAddons(state, modifier, onToggle, onOpenDocuments, onOpenScripts, onOpenSettings)
+        is AddonsUiState.Loaded -> LoadedAddons(state, modifier, onView, onOpenDocuments, onOpenScripts, onOpenSettings)
     }
 }
 
@@ -119,7 +122,7 @@ fun AddonsScreen(
 private fun LoadedAddons(
     state: AddonsUiState.Loaded,
     modifier: Modifier = Modifier,
-    onToggle: (FydeScript, Boolean) -> Unit = { _, _ -> },
+    onView: (FydeScript) -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenScripts: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
@@ -172,8 +175,7 @@ private fun LoadedAddons(
                     else -> AddonsGrid(
                         scripts = scripts,
                         enabledScriptIds = state.enabledScriptIds,
-                        pendingScriptIds = state.pendingScriptIds,
-                        onToggle = onToggle,
+                        onView = onView,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -195,8 +197,7 @@ private fun LoadedAddons(
 private fun AddonsGrid(
     scripts: List<FydeScript>,
     enabledScriptIds: Set<String>,
-    pendingScriptIds: Set<String>,
-    onToggle: (FydeScript, Boolean) -> Unit,
+    onView: (FydeScript) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val installed = scripts.filter { it.id in enabledScriptIds }.sortedBy { it.name.lowercase() }
@@ -214,12 +215,7 @@ private fun AddonsGrid(
                 SectionHeader(stringResource(Res.string.addons_installed_section, installed.size))
             }
             items(installed, key = { it.id }) { script ->
-                AddonCard(
-                    script = script,
-                    isEnabled = true,
-                    isPending = script.id in pendingScriptIds,
-                    onToggle = { enabled -> onToggle(script, enabled) },
-                )
+                AddonCard(script = script, onView = { onView(script) })
             }
         }
         if (available.isNotEmpty()) {
@@ -227,12 +223,7 @@ private fun AddonsGrid(
                 SectionHeader(stringResource(Res.string.addons_available_section, available.size))
             }
             items(available, key = { it.id }) { script ->
-                AddonCard(
-                    script = script,
-                    isEnabled = false,
-                    isPending = script.id in pendingScriptIds,
-                    onToggle = { enabled -> onToggle(script, enabled) },
-                )
+                AddonCard(script = script, onView = { onView(script) })
             }
         }
     }
@@ -248,13 +239,11 @@ private fun SectionHeader(text: String) {
     )
 }
 
-/** One grid cell: icon chip, name + version, and the enable/disable switch. */
+/** One grid cell: icon chip, name + version, and a "View" button that opens [AddonDetailScreen]. */
 @Composable
 private fun AddonCard(
     script: FydeScript,
-    isEnabled: Boolean,
-    isPending: Boolean,
-    onToggle: (Boolean) -> Unit,
+    onView: () -> Unit,
 ) {
     AppCard(modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -276,7 +265,7 @@ private fun AddonCard(
                 )
             }
             Spacer(Modifier.width(AppSpacing.space3))
-            AppSwitch(checked = isEnabled, onCheckedChange = onToggle, enabled = !isPending)
+            AppButton(text = stringResource(Res.string.addon_view_button), onClick = onView, variant = AppButtonVariant.Outlined)
         }
     }
 }
@@ -285,9 +274,10 @@ private fun AddonCard(
  * A tinted chip with a drawn [PuzzleGlyph] — same shape as
  * [DocumentListScreen]'s `FileTypeIcon`, but every addon shares one tint
  * (there's no per-type palette to vary by here, unlike document types).
+ * Also used by [AddonDetailScreen].
  */
 @Composable
-private fun AddonIcon(modifier: Modifier = Modifier) {
+internal fun AddonIcon(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(44.dp)

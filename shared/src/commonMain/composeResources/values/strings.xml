@@ -95,6 +95,10 @@
     <string name="addons_empty_title">No add-ons yet</string>
     <string name="addons_empty_description">Public scripts shared by other users will show up here.</string>
     <string name="addon_toggle_failed">"Couldn't update “%1$s”: %2$s"</string>
+    <string name="addon_view_button">View</string>
+    <string name="addon_install_button">Install</string>
+    <string name="addon_uninstall_button">Uninstall</string>
+    <string name="addon_domains_section">Allowed domains</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>

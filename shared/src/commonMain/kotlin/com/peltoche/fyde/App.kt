@@ -385,6 +385,11 @@ private fun AddonsScreenContainer(
 ) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<AddonsUiState>(AddonsUiState.Connecting) }
+    // Which script's [AddonDetailScreen] is open, if any — a drill-down
+    // local to this container rather than a top-level Screen, since the
+    // detail view shares the same scripts/enabled/pending state this
+    // container already owns.
+    var viewedScriptId by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(retryKey) {
@@ -405,37 +410,53 @@ private fun AddonsScreenContainer(
         uiState = AddonsUiState.Loaded(scripts = publicScripts, enabledScriptIds = enabledIds)
     }
 
-    AddonsScreen(
-        state = uiState,
-        onOpenDocuments = onOpenDocuments,
-        onOpenScripts = onOpenScripts,
-        onOpenSettings = onOpenSettings,
-        onToggle = toggle@{ script, enabled ->
-            val current = uiState as? AddonsUiState.Loaded
-            if (current == null || script.id in current.pendingScriptIds) return@toggle
-            uiState = current.copy(pendingScriptIds = current.pendingScriptIds + script.id)
-            scope.launch {
-                val result = if (enabled) FydeSdk.enableScript(script.id) else FydeSdk.disableScript(script.id)
-                val latest = uiState as? AddonsUiState.Loaded ?: return@launch
-                val error = result.exceptionOrNull()
-                uiState = if (error == null) {
-                    val updatedIds = if (enabled) latest.enabledScriptIds + script.id else latest.enabledScriptIds - script.id
-                    latest.copy(enabledScriptIds = updatedIds, pendingScriptIds = latest.pendingScriptIds - script.id)
-                } else {
-                    val message = getString(
-                        Res.string.addon_toggle_failed,
-                        script.name,
-                        error.message ?: getString(Res.string.error_unknown),
-                    )
-                    latest.copy(
-                        pendingScriptIds = latest.pendingScriptIds - script.id,
-                        banner = message,
-                        onDismissBanner = {
-                            (uiState as? AddonsUiState.Loaded)?.let { loaded -> uiState = loaded.copy(banner = null) }
-                        },
-                    )
-                }
+    fun setInstalled(script: FydeScript, enabled: Boolean) {
+        val current = uiState as? AddonsUiState.Loaded
+        if (current == null || script.id in current.pendingScriptIds) return
+        uiState = current.copy(pendingScriptIds = current.pendingScriptIds + script.id)
+        scope.launch {
+            val result = if (enabled) FydeSdk.enableScript(script.id) else FydeSdk.disableScript(script.id)
+            val latest = uiState as? AddonsUiState.Loaded ?: return@launch
+            val error = result.exceptionOrNull()
+            uiState = if (error == null) {
+                val updatedIds = if (enabled) latest.enabledScriptIds + script.id else latest.enabledScriptIds - script.id
+                latest.copy(enabledScriptIds = updatedIds, pendingScriptIds = latest.pendingScriptIds - script.id)
+            } else {
+                val message = getString(
+                    Res.string.addon_toggle_failed,
+                    script.name,
+                    error.message ?: getString(Res.string.error_unknown),
+                )
+                latest.copy(
+                    pendingScriptIds = latest.pendingScriptIds - script.id,
+                    banner = message,
+                    onDismissBanner = {
+                        (uiState as? AddonsUiState.Loaded)?.let { loaded -> uiState = loaded.copy(banner = null) }
+                    },
+                )
             }
-        },
-    )
+        }
+    }
+
+    val loaded = uiState as? AddonsUiState.Loaded
+    val viewedScript = viewedScriptId?.let { id -> loaded?.scripts?.find { it.id == id } }
+
+    if (loaded != null && viewedScript != null) {
+        AddonDetailScreen(
+            script = viewedScript,
+            isInstalled = viewedScript.id in loaded.enabledScriptIds,
+            isPending = viewedScript.id in loaded.pendingScriptIds,
+            onBack = { viewedScriptId = null },
+            onInstall = { setInstalled(viewedScript, true) },
+            onUninstall = { setInstalled(viewedScript, false) },
+        )
+    } else {
+        AddonsScreen(
+            state = uiState,
+            onOpenDocuments = onOpenDocuments,
+            onOpenScripts = onOpenScripts,
+            onOpenSettings = onOpenSettings,
+            onView = { script -> viewedScriptId = script.id },
+        )
+    }
 }

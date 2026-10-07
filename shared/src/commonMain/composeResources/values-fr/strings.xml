@@ -95,6 +95,10 @@
     <string name="addons_empty_title">Aucune extension pour le moment</string>
     <string name="addons_empty_description">Les scripts publics partagés par d'autres utilisateurs apparaîtront ici.</string>
     <string name="addon_toggle_failed">"Impossible de mettre à jour « %1$s » : %2$s"</string>
+    <string name="addon_view_button">Voir</string>
+    <string name="addon_install_button">Installer</string>
+    <string name="addon_uninstall_button">Désinstaller</string>
+    <string name="addon_domains_section">Domaines autorisés</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>
