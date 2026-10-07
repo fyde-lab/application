@@ -331,7 +331,7 @@ private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit, onOpen
                     script = script,
                     description = "",
                     shortDescription = "",
-                    logo = ByteArray(0),
+                    allowedDomains = emptyList(),
                 )
                     .mapCatching { created -> FydeSdk.enableScript(created.id).getOrThrow() }
                     .onSuccess { refreshScripts() }

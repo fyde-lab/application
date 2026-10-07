@@ -111,7 +111,7 @@ data class FydeScript(
     val shortDescription: String,
     val isPublic: Boolean,
     val icon: ByteArray,
-    val logo: ByteArray,
+    val allowedDomains: List<String>,
     val version: Long,
     val script: String,
     val lastUpdated: Long,
@@ -215,7 +215,7 @@ expect object FydeSdk {
         script: String,
         description: String,
         shortDescription: String,
-        logo: ByteArray,
+        allowedDomains: List<String>,
     ): Result<FydeScript>
 
     /**

@@ -116,11 +116,11 @@ actual object FydeSdk {
         script: String,
         description: String,
         shortDescription: String,
-        logo: ByteArray,
+        allowedDomains: List<String>,
     ): Result<FydeScript> =
         runCatching {
             val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
-            client.createScript(name, isPublic, icon, script, description, shortDescription, logo).toFydeScript()
+            client.createScript(name, isPublic, icon, script, description, shortDescription, allowedDomains).toFydeScript()
         }
 
     actual suspend fun enableScript(scriptId: String): Result<Unit> = runCatching {
@@ -197,7 +197,7 @@ private fun FfiScript.toFydeScript() = FydeScript(
     shortDescription = shortDescription,
     isPublic = isPublic,
     icon = icon,
-    logo = logo,
+    allowedDomains = allowedDomains,
     version = version.toLong(),
     script = script,
     lastUpdated = lastUpdated,

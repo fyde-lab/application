@@ -40,6 +40,20 @@ pkgs.mkShell {
     # Sets up LIBCLANG_PATH/BINDGEN_EXTRA_CLANG_ARGS correctly for bindgen.
     rustPlatform.bindgenHook
 
+    # required (via pkg-config) to build ../sdk's wry/tao dependency, the real
+    # embedded webview behind fyde.browser — see ../sdk/shell.nix. sdkBridge
+    # compiles ../sdk from source for the uniffi bindings, so this shell needs
+    # the same system libraries sdk's own shell.nix provides.
+    pkg-config
+    webkitgtk_4_1
+    gtk3
+    dbus
+
+    # webkitgtk's HTTPS support goes through GIO's TLS backend, shipped by
+    # nixpkgs as the separate glib-networking module — see GIO_EXTRA_MODULES
+    # below and ../sdk/shell.nix's longer comment on this.
+    glib-networking
+
     jdk21
     libglvnd libx11 libxext libxrender libxtst libxi libxrandr
     libxcursor libxcomposite libxdamage libxfixes libxxf86vm
@@ -56,6 +70,11 @@ pkgs.mkShell {
     export SCCACHE_DIR="$HOME/.cache/sccache"
     export CC="${pkgs.sccache}/bin/sccache ${pkgs.clang}/bin/clang"
     export CXX="${pkgs.sccache}/bin/sccache ${pkgs.clang}/bin/clang++"
+
+    # See the `glib-networking` comment above - GIO only looks for TLS/proxy
+    # backend modules on this path, which nixpkgs never adds to a plain
+    # shell's environment on its own.
+    export GIO_EXTRA_MODULES="${pkgs.glib-networking}/lib/gio/modules''${GIO_EXTRA_MODULES:+:$GIO_EXTRA_MODULES}"
 
     export JAVA_HOME="${pkgs.jdk21}"
     export PATH="$JAVA_HOME/bin:$PATH"
