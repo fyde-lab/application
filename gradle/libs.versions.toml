@@ -18,7 +18,7 @@ kotlin-wrappers = "2026.9.1"
 kotlinx-coroutines = "1.11.0"
 material3 = "1.12.0-alpha03"
 pdfbox = "3.0.3"
-uniffiKotlinMultiplatform = "1.2.1"
+uniffiKotlinMultiplatform = "1.3.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

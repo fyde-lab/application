@@ -43,26 +43,30 @@ kotlin {
 cargo {
     packageDirectory = layout.projectDirectory.dir("../../sdk")
     ndkVersion = libs.versions.android.ndk.get()
+
+    // Without this, every separate Cargo invocation this plugin makes
+    // (buildLibraryForBindings's host build to extract uniffi metadata, the
+    // jvm/desktop target build, each Android ABI's NDK cross-compile) gets
+    // its own `target/` directory under ../../sdk, each independently
+    // rebuilding fyde-sdk's full native dependency graph (GTK/webkit2gtk/
+    // wry, pulled in by its webview-backed scraper support) - which is what
+    // exhausted CI runners' disk with "No space left on device" building
+    // libfyde_sdk.a. Pointing every invocation at one shared target
+    // directory lets them reuse each other's compiled dependency artifacts.
+    targetDirectory = rootProject.layout.projectDirectory.dir(".cargo-target")
 }
 
 uniffi {
-    // Pin bindgen to the same v1.2.1 tag as the `runtime`/`runtime-android`/
-    // `runtime-jvm` artifacts ch.ubique.uniffi.plugin 1.2.1 resolves (rather
-    // than floating on the bindgen repo's default branch, which is this
-    // plugin's own default). This doesn't fix the bug patched below - it's
-    // present at both v1.2.1 and HEAD - but it keeps the generated bindings'
-    // shape stable across CI runs instead of drifting with upstream
-    // commits, which `patchUniffiAsyncCallbacks` below depends on.
-    bindgenFromGitTag(
-        "https://github.com/UbiqueInnovation/uniffi-kotlin-multiplatform-bindings.git",
-        "v1.2.1",
-    )
+    // ch.ubique.uniffi.plugin >=1.3.0 already pins its default bindgen
+    // install to the plugin's own release tag (previously it floated on
+    // the bindgen repo's default branch), so no explicit bindgenFromGitTag
+    // override is needed here - see the plugin's Constants.kt.
     generateFromLibrary()
 }
 
 // fyde-sdk's FFI (../../sdk/src/ffi.rs) exports almost entirely async fns
 // (#[uniffi::export(async_runtime = "tokio")]), and every one of them fails
-// to compile with ch.ubique.uniffi.plugin 1.2.1 (confirmed also on the
+// to compile with ch.ubique.uniffi.plugin 1.3.1 (confirmed also on the
 // unreleased git HEAD, with no version mismatch involved - both jvmMain and
 // androidMain hit this identically):
 //
