@@ -58,7 +58,7 @@ fun AddonDetailScreen(
                 .padding(AppSpacing.space4),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                AddonIcon()
+                AddonIcon(icon = script.icon)
                 Spacer(Modifier.width(AppSpacing.space4))
                 Column {
                     Text(text = script.name, style = AppTypography.title, color = AppColors.text)
