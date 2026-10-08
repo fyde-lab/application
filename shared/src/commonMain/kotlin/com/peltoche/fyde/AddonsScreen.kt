@@ -17,11 +17,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
@@ -247,7 +250,7 @@ private fun AddonCard(
 ) {
     AppCard(modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            AddonIcon()
+            AddonIcon(icon = script.icon)
             Spacer(Modifier.width(AppSpacing.space4))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -271,13 +274,16 @@ private fun AddonCard(
 }
 
 /**
- * A tinted chip with a drawn [PuzzleGlyph] — same shape as
- * [DocumentListScreen]'s `FileTypeIcon`, but every addon shares one tint
- * (there's no per-type palette to vary by here, unlike document types).
- * Also used by [AddonDetailScreen].
+ * A tinted chip showing [icon] (the script's own PNG logo, see
+ * [FydeScript.icon]), decoded via [decodeIconBitmap]. Falls back to a drawn
+ * [PuzzleGlyph] — same shape as [DocumentListScreen]'s `FileTypeIcon`, every
+ * addon sharing one tint since there's no per-type palette to vary by here —
+ * when [icon] is empty or isn't valid image data. Also used by
+ * [AddonDetailScreen].
  */
 @Composable
-internal fun AddonIcon(modifier: Modifier = Modifier) {
+internal fun AddonIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modifier) {
+    val bitmap = remember(icon) { decodeIconBitmap(icon) }
     Box(
         modifier = modifier
             .size(44.dp)
@@ -285,7 +291,16 @@ internal fun AddonIcon(modifier: Modifier = Modifier) {
             .background(AppColors.primary.copy(alpha = 0.14f)),
         contentAlignment = Alignment.Center,
     ) {
-        PuzzleGlyph(tint = AppColors.primary, modifier = Modifier.size(20.dp))
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.size(44.dp).clip(AppRadius.md),
+            )
+        } else {
+            PuzzleGlyph(tint = AppColors.primary, modifier = Modifier.size(20.dp))
+        }
     }
 }
 
