@@ -30,6 +30,10 @@ pkgs.mkShell {
 
     # required by ../sdk's build.rs to compile ../api-protos/*.proto
     protobuf
+    # ../sdk's build.rs fetches its protos at build time via `buf export
+    # buf.build/fyde-lab/api` (the Buf Schema Registry), not by reading
+    # ../api-protos directly - see ../sdk/build.rs.
+    buf
 
     # ../sdk's wreq dependency vendors a patched BoringSSL (btls-sys) that
     # needs these to build — see ../sdk/shell.nix.

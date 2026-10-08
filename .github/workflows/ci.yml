@@ -36,11 +36,13 @@ jobs:
           docker-images: true
           swap-storage: true
 
-      # shared/sdkBridge build fyde-sdk (../../sdk from this repo) via
-      # UniFFI, and fyde-sdk itself builds against ../api-protos — see
-      # ../CLAUDE.md and sdkBridge/build.gradle.kts. Check out all three
-      # sibling repos under the same workspace root so the relative paths
-      # resolve exactly like the local dev layout.
+      # shared/sdkBridge builds fyde-sdk (../../sdk from this repo) via
+      # UniFFI - see ../CLAUDE.md and sdkBridge/build.gradle.kts. Check out
+      # sdk under the same workspace root as application so that relative
+      # path resolves exactly like the local dev layout. Note api-protos is
+      # NOT checked out here: sdk's build.rs fetches its protos at build
+      # time via `buf export buf.build/fyde-lab/api` (the Buf Schema
+      # Registry), not by reading a local ../api-protos checkout.
       - name: Checkout application
         uses: actions/checkout@v4
         with:
@@ -51,12 +53,6 @@ jobs:
         with:
           repository: fyde-lab/sdk
           path: sdk
-
-      - name: Checkout api-protos
-        uses: actions/checkout@v4
-        with:
-          repository: fyde-lab/api-protos
-          path: api-protos
 
       # sdk's Cargo.toml dev-dependencies path-reference ../server (only
       # used by sdk's own tests/ to spin up a real server instead of
