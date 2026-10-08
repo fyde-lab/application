@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.navigation.AppTopBar
@@ -58,7 +59,7 @@ fun AddonDetailScreen(
                 .padding(AppSpacing.space4),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                AddonIcon(icon = script.icon)
+                AddonIcon(icon = script.icon, size = 64.dp)
                 Spacer(Modifier.width(AppSpacing.space4))
                 Column {
                     Text(text = script.name, style = AppTypography.title, color = AppColors.text)

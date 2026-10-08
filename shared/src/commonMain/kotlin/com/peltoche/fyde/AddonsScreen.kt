@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
@@ -257,7 +258,7 @@ private fun AddonCard(
                     text = script.name,
                     style = AppTypography.bodyEmphasis,
                     color = AppColors.text,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(Modifier.height(AppSpacing.space1))
@@ -274,19 +275,33 @@ private fun AddonCard(
 }
 
 /**
+ * [icon]'s image content never fills [AddonIcon]'s full chip — publisher
+ * logos arrive in wildly inconsistent shapes/paddings (a flat-filled square,
+ * a circular mark on transparent, ...; see each scraper's `logo.png` under
+ * `scripts/scripts/` in the `scripts` repo), and filling the chip edge-to-edge
+ * let each one's own background show through (or not) at random, so chips
+ * looked inconsistently "framed" next to each other. Insetting every logo
+ * the same amount makes the chip's own tint read as a deliberate, uniform
+ * frame instead.
+ */
+private const val ICON_IMAGE_SCALE = 0.72f
+private const val ICON_GLYPH_SCALE = 0.45f
+
+/**
  * A tinted chip showing [icon] (the script's own PNG logo, see
  * [FydeScript.icon]), decoded via [decodeIconBitmap]. Falls back to a drawn
  * [PuzzleGlyph] — same shape as [DocumentListScreen]'s `FileTypeIcon`, every
  * addon sharing one tint since there's no per-type palette to vary by here —
- * when [icon] is empty or isn't valid image data. Also used by
- * [AddonDetailScreen].
+ * when [icon] is empty or isn't valid image data. [size] defaults to the
+ * grid card's compact chip; [AddonDetailScreen] passes a larger one for a
+ * stronger hero presence.
  */
 @Composable
-internal fun AddonIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modifier) {
+internal fun AddonIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modifier, size: Dp = 44.dp) {
     val bitmap = remember(icon) { decodeIconBitmap(icon) }
     Box(
         modifier = modifier
-            .size(44.dp)
+            .size(size)
             .clip(AppRadius.md)
             .background(AppColors.primary.copy(alpha = 0.14f)),
         contentAlignment = Alignment.Center,
@@ -296,10 +311,10 @@ internal fun AddonIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modi
                 bitmap = bitmap,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.size(44.dp).clip(AppRadius.md),
+                modifier = Modifier.size(size * ICON_IMAGE_SCALE).clip(AppRadius.sm),
             )
         } else {
-            PuzzleGlyph(tint = AppColors.primary, modifier = Modifier.size(20.dp))
+            PuzzleGlyph(tint = AppColors.primary, modifier = Modifier.size(size * ICON_GLYPH_SCALE))
         }
     }
 }
