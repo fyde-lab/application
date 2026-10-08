@@ -29,8 +29,15 @@ actual object FydeSdk {
 
     actual suspend fun getLanguage(): Result<String?> = unsupported()
 
-    actual suspend fun createScript(name: String, isPublic: Boolean, icon: ByteArray, script: String): Result<FydeScript> =
-        unsupported()
+    actual suspend fun createScript(
+        name: String,
+        isPublic: Boolean,
+        icon: ByteArray,
+        script: String,
+        description: String,
+        shortDescription: String,
+        allowedDomains: List<String>,
+    ): Result<FydeScript> = unsupported()
 
     actual suspend fun enableScript(scriptId: String): Result<Unit> = unsupported()
 

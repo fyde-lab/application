@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.theme.AppColors
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -181,7 +182,7 @@ fun StarGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
         val innerRadius = outerRadius * 0.42f
         val path = Path()
         for (i in 0 until 10) {
-            val angle = (Math.PI / 5 * i - Math.PI / 2).toFloat()
+            val angle = (PI / 5 * i - PI / 2).toFloat()
             val r = if (i % 2 == 0) outerRadius else innerRadius
             val point = Offset(cx + r * cos(angle), cy + r * sin(angle))
             if (i == 0) path.moveTo(point.x, point.y) else path.lineTo(point.x, point.y)
