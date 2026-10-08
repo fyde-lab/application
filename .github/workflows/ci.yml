@@ -77,15 +77,15 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Cache Cargo registry and sccache
-        uses: actions/cache@v4
+      # Caches sdk's Cargo registry/git deps and target dir, keyed off
+      # sdk/Cargo.lock; cache-directories adds sccache's own cache since
+      # rust-cache doesn't track it by default (see shell.nix's
+      # RUSTC_WRAPPER).
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cache/sccache
-          key: cargo-${{ runner.os }}-${{ hashFiles('sdk/Cargo.lock') }}
-          restore-keys: |
-            cargo-${{ runner.os }}-
+          workspaces: sdk
+          cache-directories: ~/.cache/sccache
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
