@@ -11,15 +11,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.feedback.AppBanner
+import com.peltoche.fyde.components.form.AppSwitch
+import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
@@ -30,6 +39,9 @@ import com.peltoche.fyde.resources.addon_about_section
 import com.peltoche.fyde.resources.addon_domains_installed
 import com.peltoche.fyde.resources.addon_domains_not_installed
 import com.peltoche.fyde.resources.addon_install_button
+import com.peltoche.fyde.resources.addon_parameter_invalid_number
+import com.peltoche.fyde.resources.addon_parameter_required
+import com.peltoche.fyde.resources.addon_parameters_section
 import com.peltoche.fyde.resources.addon_uninstall_button
 import com.peltoche.fyde.resources.addons_title
 import com.peltoche.fyde.resources.back
@@ -44,8 +56,10 @@ private val ActionButtonMinWidth = 160.dp
 
 /**
  * Drill-down detail view opened by clicking an [AddonsScreen] card: header
- * (icon, name, version line), the install/uninstall action with the domains
- * it grants access to right beside it, then the full description.
+ * (icon, name, version line), a form for the script's declared
+ * [FydeScript.parameters] while it isn't installed yet, the
+ * install/uninstall action with the domains it grants access to right
+ * beside it, then the full description.
  *
  * Composed in the same [TopLevelScaffold] as [AddonsScreen], with Add-ons
  * still selected, so navigation stays put; the top bar names the parent
@@ -76,6 +90,42 @@ fun AddonDetailScreen(
     onOpenSettings: () -> Unit = {},
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
+
+    // One text value per parameter (machine name -> entered value), keyed
+    // on script.id so switching to a different script's detail view starts
+    // from a blank form rather than carrying over the previous script's
+    // entries. Booleans are stored as "true"/"false" strings so a single
+    // map covers every parameter type.
+    val parameterValues = remember(script.id) { mutableStateMapOf<String, String>() }
+    // Required-but-empty errors only surface once the user has tried to
+    // install with the form incomplete — showing them up front, before any
+    // input, would make every parameter look like a validation failure the
+    // instant the screen opens.
+    var showRequiredErrors by remember(script.id) { mutableStateOf(false) }
+
+    val requiredError = stringResource(Res.string.addon_parameter_required)
+    val invalidNumberError = stringResource(Res.string.addon_parameter_invalid_number)
+
+    fun errorFor(parameter: FydeScriptParameter, value: String): String? = when {
+        value.isBlank() -> if (parameter.required && showRequiredErrors) requiredError else null
+        parameter.type == FydeScriptParameterType.NUMBER && value.toDoubleOrNull() == null -> invalidNumberError
+        else -> null
+    }
+
+    val parametersValid = script.parameters.all { (key, parameter) ->
+        val value = parameterValues[key].orEmpty()
+        val blank = value.isBlank()
+        (!blank || !parameter.required) &&
+            (parameter.type != FydeScriptParameterType.NUMBER || blank || value.toDoubleOrNull() != null)
+    }
+
+    fun attemptInstall() {
+        if (parametersValid) {
+            onInstall()
+        } else {
+            showRequiredErrors = true
+        }
+    }
 
     TopLevelScaffold(
         current = SidebarDestination.Addons,
@@ -119,11 +169,42 @@ fun AddonDetailScreen(
                     }
                 }
 
+                if (script.parameters.isNotEmpty() && !isInstalled) {
+                    SectionTitle(stringResource(Res.string.addon_parameters_section))
+                    script.parameters.entries.sortedBy { it.value.label }.forEach { (key, parameter) ->
+                        val value = parameterValues[key].orEmpty()
+                        if (parameter.type == FydeScriptParameterType.BOOLEAN) {
+                            AppSwitch(
+                                checked = value.toBooleanStrictOrNull() ?: false,
+                                onCheckedChange = { checked -> parameterValues[key] = checked.toString() },
+                                label = parameter.label,
+                                enabled = !isPending,
+                            )
+                        } else {
+                            AppTextField(
+                                value = value,
+                                onValueChange = { parameterValues[key] = it },
+                                label = parameter.label,
+                                placeholder = parameter.placeholder.ifBlank { null },
+                                errorText = errorFor(parameter, value),
+                                isPassword = parameter.secret,
+                                enabled = !isPending,
+                                keyboardOptions = if (parameter.type == FydeScriptParameterType.NUMBER) {
+                                    KeyboardOptions(keyboardType = KeyboardType.Number)
+                                } else {
+                                    KeyboardOptions.Default
+                                },
+                            )
+                        }
+                        Spacer(Modifier.height(AppSpacing.space3))
+                    }
+                }
+
                 Spacer(Modifier.height(AppSpacing.space6))
                 InstallAction(
                     isInstalled = isInstalled,
                     isPending = isPending,
-                    onInstall = onInstall,
+                    onInstall = ::attemptInstall,
                     onUninstall = onUninstall,
                     // Full width only where the column itself is phone-narrow.
                     modifier = if (windowSizeClass == AppWindowSizeClass.Compact) {

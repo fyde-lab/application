@@ -101,6 +101,9 @@
     <string name="addon_about_section">À propos</string>
     <string name="addon_domains_installed">Cette extension peut accéder à ces sites :</string>
     <string name="addon_domains_not_installed">"L'installation donne à cette extension l'accès à ces sites :"</string>
+    <string name="addon_parameters_section">Paramètres</string>
+    <string name="addon_parameter_required">Requis</string>
+    <string name="addon_parameter_invalid_number">Doit être un nombre</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>

@@ -99,6 +99,33 @@ data class FydeChangelogEvent(
 )
 
 /**
+ * What kind of value a [FydeScriptParameter] expects, mirroring the SDK's
+ * `FfiScriptParameterType`, so a form can render the right control (text
+ * field, number field, toggle) and coerce the entered value before sending
+ * it back to the script.
+ */
+enum class FydeScriptParameterType {
+    STRING,
+    NUMBER,
+    BOOLEAN,
+}
+
+/**
+ * A single configurable parameter a script declares it needs from the user
+ * (e.g. a login username, an API key) before it can run, mirroring the
+ * SDK's `FfiScriptParameter`. A script's full set of these is carried on
+ * [FydeScript.parameters], keyed by the parameter's machine name (e.g.
+ * "username", "password") as the script itself refers to it.
+ */
+data class FydeScriptParameter(
+    val label: String,
+    val placeholder: String,
+    val type: FydeScriptParameterType,
+    val required: Boolean,
+    val secret: Boolean,
+)
+
+/**
  * A user-authored script, mirroring the SDK's `FfiScript` without leaking
  * `:sdkBridge`'s generated bindings into `commonMain`. Unlike [FydeDocument],
  * [script] is plain text, not ciphertext — see `sdk/src/domains/scripts/
@@ -115,6 +142,7 @@ data class FydeScript(
     val version: Long,
     val script: String,
     val lastUpdated: Long,
+    val parameters: Map<String, FydeScriptParameter> = emptyMap(),
 )
 
 /**
@@ -216,6 +244,7 @@ expect object FydeSdk {
         description: String,
         shortDescription: String,
         allowedDomains: List<String>,
+        parameters: Map<String, FydeScriptParameter> = emptyMap(),
     ): Result<FydeScript>
 
     /**

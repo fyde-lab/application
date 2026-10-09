@@ -10,6 +10,9 @@ import uniffi.fyde_sdk.FfiEventType
 import uniffi.fyde_sdk.FfiLogLevel
 import uniffi.fyde_sdk.FfiPurpose
 import uniffi.fyde_sdk.FfiScript
+import uniffi.fyde_sdk.FfiScriptParameter
+import uniffi.fyde_sdk.FfiScriptParameterType
+import uniffi.fyde_sdk.FfiScriptType
 import uniffi.fyde_sdk.FfiSourceCategory
 import uniffi.fyde_sdk.FfiSourceSubCategory
 import uniffi.fyde_sdk.FfiStorage
@@ -109,10 +112,21 @@ actual object FydeSdk {
         description: String,
         shortDescription: String,
         allowedDomains: List<String>,
+        parameters: Map<String, FydeScriptParameter>,
     ): Result<FydeScript> =
         runCatching {
             val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
-            client.createScript(name, isPublic, icon, script, description, shortDescription, allowedDomains).toFydeScript()
+            client.createScript(
+                name,
+                isPublic,
+                icon,
+                script,
+                description,
+                shortDescription,
+                allowedDomains,
+                FfiScriptType.SCRAPER,
+                parameters.mapValues { (_, parameter) -> parameter.toFfiScriptParameter() },
+            ).toFydeScript()
         }
 
     actual suspend fun enableScript(scriptId: String): Result<Unit> = runCatching {
@@ -182,6 +196,34 @@ private fun FfiPurpose.toFydePurpose() = when (this) {
     FfiPurpose.EMPLOYMENT -> FydePurpose.EMPLOYMENT
 }
 
+private fun FfiScriptParameterType.toFydeScriptParameterType() = when (this) {
+    FfiScriptParameterType.STRING -> FydeScriptParameterType.STRING
+    FfiScriptParameterType.NUMBER -> FydeScriptParameterType.NUMBER
+    FfiScriptParameterType.BOOLEAN -> FydeScriptParameterType.BOOLEAN
+}
+
+private fun FydeScriptParameterType.toFfiScriptParameterType() = when (this) {
+    FydeScriptParameterType.STRING -> FfiScriptParameterType.STRING
+    FydeScriptParameterType.NUMBER -> FfiScriptParameterType.NUMBER
+    FydeScriptParameterType.BOOLEAN -> FfiScriptParameterType.BOOLEAN
+}
+
+private fun FfiScriptParameter.toFydeScriptParameter() = FydeScriptParameter(
+    label = label,
+    placeholder = placeholder,
+    type = parameterType.toFydeScriptParameterType(),
+    required = required,
+    secret = secret,
+)
+
+private fun FydeScriptParameter.toFfiScriptParameter() = FfiScriptParameter(
+    label = label,
+    placeholder = placeholder,
+    parameterType = type.toFfiScriptParameterType(),
+    required = required,
+    secret = secret,
+)
+
 private fun FfiScript.toFydeScript() = FydeScript(
     id = id,
     name = name,
@@ -193,6 +235,7 @@ private fun FfiScript.toFydeScript() = FydeScript(
     version = version.toLong(),
     script = script,
     lastUpdated = lastUpdated,
+    parameters = parameters.mapValues { (_, parameter) -> parameter.toFydeScriptParameter() },
 )
 
 private fun FfiDocument.toFydeDocument() = FydeDocument(

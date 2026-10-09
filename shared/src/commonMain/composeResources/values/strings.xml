@@ -101,6 +101,9 @@
     <string name="addon_about_section">About</string>
     <string name="addon_domains_installed">This add-on can access these sites:</string>
     <string name="addon_domains_not_installed">Installing gives this add-on access to these sites:</string>
+    <string name="addon_parameters_section">Parameters</string>
+    <string name="addon_parameter_required">Required</string>
+    <string name="addon_parameter_invalid_number">Must be a number</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>
