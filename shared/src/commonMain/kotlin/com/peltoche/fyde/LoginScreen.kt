@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,9 +27,10 @@ import com.peltoche.fyde.resources.password_label
 import com.peltoche.fyde.resources.sign_up
 import com.peltoche.fyde.resources.username_label
 import com.peltoche.fyde.components.form.AppTextField
+import com.peltoche.fyde.components.action.AppButton
+import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
-import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
@@ -88,16 +87,14 @@ fun LoginScreen(
                 )
             }
             Spacer(Modifier.height(AppSpacing.space6))
-            Button(
+            // AppButton, not a raw M3 Button: it carries the app's focus
+            // ring and 48dp height, like every other primary action.
+            AppButton(
+                text = stringResource(Res.string.log_in),
                 onClick = { onLogIn(username, password) },
                 enabled = username.isNotBlank() && password.isNotBlank(),
-                shape = AppShapes.button,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(AppDimensions.touchTargetMin),
-            ) {
-                Text(stringResource(Res.string.log_in))
-            }
+                modifier = Modifier.fillMaxWidth(),
+            )
             Spacer(Modifier.height(AppSpacing.space3))
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -109,9 +106,7 @@ fun LoginScreen(
                     style = AppTypography.caption,
                     color = AppColors.textMuted,
                 )
-                TextButton(onClick = onNavigateToRegister) {
-                    Text(stringResource(Res.string.sign_up))
-                }
+                AppTextButton(text = stringResource(Res.string.sign_up), onClick = onNavigateToRegister)
             }
         }
     }

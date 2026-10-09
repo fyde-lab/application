@@ -47,7 +47,6 @@ import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
-import com.peltoche.fyde.layout.AppScaffold
 import com.peltoche.fyde.layout.AppTwoPaneLayout
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
@@ -90,7 +89,6 @@ import com.peltoche.fyde.resources.search_documents_placeholder
 import com.peltoche.fyde.resources.search_results_count
 import com.peltoche.fyde.resources.select_document_description
 import com.peltoche.fyde.resources.select_document_title
-import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.resources.upload_document
 import org.jetbrains.compose.resources.stringResource
 
@@ -170,35 +168,20 @@ private fun LoadedDocumentList(
     // being hoisted to the caller (see AppTwoPaneLayout's doc comment).
     var selectedDocument by remember { mutableStateOf<FydeDocument?>(null) }
     val windowSizeClass = LocalAppWindowSizeClass.current
-    // The persistent sidebar is desktop-only chrome — Compact/Medium keep
-    // today's top-bar-only navigation unchanged, so this stays empty there
-    // rather than forcing AppNavigationLayout's bar/rail surfaces to adopt
-    // destinations they were never designed to show.
+    // Expanded-only list chrome (filter chips, results count) and the wider
+    // fixed list pane — navigation itself is present at every size, see
+    // TopLevelScaffold.
     val isDesktop = windowSizeClass == AppWindowSizeClass.Expanded
 
-    AppScaffold(
+    TopLevelScaffold(
+        current = SidebarDestination.Documents,
+        onOpenDocuments = {},
+        onOpenScripts = onOpenScripts,
+        onOpenAddons = onOpenAddons,
+        onOpenSettings = onOpenSettings,
         modifier = modifier,
-        windowSizeClass = windowSizeClass,
-        navigationItems = if (isDesktop) {
-            sidebarNavigationItems(current = SidebarDestination.Documents, onOpenDocuments = {}, onOpenScripts = onOpenScripts, onOpenAddons = onOpenAddons)
-        } else {
-            emptyList()
-        },
-        navigationHeader = if (isDesktop) { { SidebarHeader() } } else null,
-        navigationFooter = if (isDesktop) { { SidebarFooter(current = SidebarDestination.Documents, onOpenSettings = onOpenSettings) } } else null,
         topBar = {
             AppTopBar(title = stringResource(Res.string.documents_title), windowSizeClass = windowSizeClass) {
-                // The persistent sidebar already gives Expanded a route to
-                // Settings (see SidebarFooter) — this is the only route for
-                // Compact/Medium, which have no sidebar at all. Without it,
-                // Settings (and the logout it hosts) was unreachable below
-                // desktop width.
-                if (!isDesktop) {
-                    AppIconButton(onClick = onOpenSettings, contentDescription = stringResource(Res.string.settings)) {
-                        GearGlyph(modifier = Modifier.size(20.dp))
-                    }
-                    Spacer(Modifier.width(AppSpacing.space2))
-                }
                 AppButton(
                     text = stringResource(Res.string.upload_document),
                     onClick = onUpload,

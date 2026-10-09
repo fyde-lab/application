@@ -145,6 +145,13 @@ for identical content. Any title in a row meant to be scanned (a list item,
 not a detail-pane header) truncates with an ellipsis at one line — the full
 text is always available where the item is opened, so nothing is lost.
 
+This applies to grid cards too. Found via review: add-on cards were allowed
+2-line names to work around truncation, which made cards in the same grid
+row different heights. The real cause was a per-card "View" button eating
+the name's width; the fix was to make the whole card the click target and
+drop the button. A card's secondary text uses a fixed line count
+(`minLines` = `maxLines`) so every card in a row is the same height.
+
 ---
 
 ## Color
@@ -471,9 +478,22 @@ enough to separate without opening a marketing-page gulf between them.
 Breakpoints match Compose Multiplatform's own `WindowSizeClass` — implemented
 against real tooling, not arbitrary web breakpoints.
 
-- **Compact (< 600dp — phones).** Single-column, full-screen navigation
-  stack, one screen at a time (per the audit: no bottom nav until there are
-  3+ peer top-level destinations — still true here). Comfortable density.
+- **Compact (< 600dp — phones).** Single-column, one screen at a time,
+  with a bottom navigation bar for the top-level destinations (Search,
+  Scripts, Add-ons, Settings) — the audit's "no bottom nav until 3+ peer
+  top-level destinations" threshold is now met. Drill-downs (document
+  viewer, add-on detail) push over the content with a back chevron.
+  Comfortable density.
+
+**Every top-level destination is reachable at every breakpoint.** Found via
+review: navigation was desktop-only (the Expanded sidebar), so Scripts and
+Add-ons had no route at all below 840dp, and Add-ons became a dead end — no
+back, no nav — if the window shrank while it was open. Navigation is one
+adaptive surface — a bottom bar below Expanded, the sidebar at Expanded —
+never present at one breakpoint and absent at another. Medium uses the
+bottom bar rather than a rail: a rail costs ~80dp of width that Medium's
+fixed 360dp list + detail split can't spare. Peer destinations share one top-bar shape: title only, no
+back chevron — a back chevron belongs to drill-downs.
 - **Medium (600–839dp — tablets, small desktop windows).** Enough width for
   a **list + detail split view** to become viable — introduce master-detail
   here rather than waiting for expanded, since a document manager's core

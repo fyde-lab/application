@@ -1,7 +1,6 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -28,9 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppBadge
@@ -48,7 +45,6 @@ import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.components.overlay.AppBottomSheet
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
-import com.peltoche.fyde.layout.AppScaffold
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
@@ -57,7 +53,7 @@ import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.create
 import com.peltoche.fyde.resources.dismiss
-import com.peltoche.fyde.resources.disable_script
+import com.peltoche.fyde.resources.uninstall_script
 import com.peltoche.fyde.resources.new_script
 import com.peltoche.fyde.resources.new_script_sheet_title
 import com.peltoche.fyde.resources.no_scripts_description
@@ -90,7 +86,7 @@ sealed interface ScriptListUiState {
      * Connected. [scripts] is `null` while the first page is still being
      * fetched (rendered as a skeleton), and non-null once loaded (possibly
      * empty). [banner] surfaces a non-fatal problem (e.g. a failed create or
-     * disable) without discarding what's already loaded.
+     * uninstall) without discarding what's already loaded.
      */
     data class Loaded(
         val scripts: List<FydeScript>?,
@@ -103,12 +99,12 @@ sealed interface ScriptListUiState {
 fun ScriptListScreen(
     state: ScriptListUiState,
     modifier: Modifier = Modifier,
-    onBack: () -> Unit = {},
+    onOpenDocuments: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
     onOpenAddons: () -> Unit = {},
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
     isCreating: Boolean = false,
-    onDisableScript: (FydeScript) -> Unit = {},
+    onUninstallScript: (FydeScript) -> Unit = {},
 ) {
     when (state) {
         ScriptListUiState.Connecting -> AppLoading(
@@ -117,17 +113,13 @@ fun ScriptListScreen(
         )
         is ScriptListUiState.ConnectFailed -> AppErrorState(
             modifier = modifier,
-            icon = {
-                // "!" stands in for an icon glyph, not language — exempt from
-                // the Regular/Medium/SemiBold-only rule real text follows.
-                Text("!", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = AppColors.error)
-            },
+            icon = { AlertGlyph(modifier = Modifier.size(32.dp)) },
             title = stringResource(Res.string.connect_failed_title),
             description = state.message,
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is ScriptListUiState.Loaded -> LoadedScriptList(state, modifier, onBack, onOpenSettings, onOpenAddons, onCreateScript, isCreating, onDisableScript)
+        is ScriptListUiState.Loaded -> LoadedScriptList(state, modifier, onOpenDocuments, onOpenSettings, onOpenAddons, onCreateScript, isCreating, onUninstallScript)
     }
 }
 
@@ -136,31 +128,26 @@ fun ScriptListScreen(
 private fun LoadedScriptList(
     state: ScriptListUiState.Loaded,
     modifier: Modifier = Modifier,
-    onBack: () -> Unit = {},
+    onOpenDocuments: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
     onOpenAddons: () -> Unit = {},
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
     isCreating: Boolean = false,
-    onDisableScript: (FydeScript) -> Unit = {},
+    onUninstallScript: (FydeScript) -> Unit = {},
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
-    // Same desktop-only persistent sidebar as DocumentListScreen — see its
-    // isDesktop doc comment for why Compact/Medium stay top-bar-only.
     val isDesktop = windowSizeClass == AppWindowSizeClass.Expanded
     var showCreateSheet by remember { mutableStateOf(false) }
 
-    AppScaffold(
+    TopLevelScaffold(
+        current = SidebarDestination.Scripts,
+        onOpenDocuments = onOpenDocuments,
+        onOpenScripts = {},
+        onOpenAddons = onOpenAddons,
+        onOpenSettings = onOpenSettings,
         modifier = modifier,
-        windowSizeClass = windowSizeClass,
-        navigationItems = if (isDesktop) {
-            sidebarNavigationItems(current = SidebarDestination.Scripts, onOpenDocuments = onBack, onOpenScripts = {}, onOpenAddons = onOpenAddons)
-        } else {
-            emptyList()
-        },
-        navigationHeader = if (isDesktop) { { SidebarHeader() } } else null,
-        navigationFooter = if (isDesktop) { { SidebarFooter(current = SidebarDestination.Scripts, onOpenSettings = onOpenSettings) } } else null,
         topBar = {
-            AppTopBar(title = stringResource(Res.string.scripts_title), onBack = onBack, windowSizeClass = windowSizeClass) {
+            AppTopBar(title = stringResource(Res.string.scripts_title), windowSizeClass = windowSizeClass) {
                 AppTextButton(
                     text = stringResource(Res.string.new_script),
                     onClick = { showCreateSheet = true },
@@ -179,6 +166,7 @@ private fun LoadedScriptList(
                 .background(AppColors.background),
             width = AppContentWidth.List,
             windowSizeClass = windowSizeClass,
+            sidebarAdjacent = isDesktop,
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 state.banner?.let { message ->
@@ -191,7 +179,7 @@ private fun LoadedScriptList(
 
                     scripts.isEmpty() -> AppEmptyState(
                         modifier = Modifier.weight(1f),
-                        icon = { ScriptGlyph() },
+                        icon = { CodeGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                         title = stringResource(Res.string.no_scripts_title),
                         description = stringResource(Res.string.no_scripts_description),
                     )
@@ -199,7 +187,7 @@ private fun LoadedScriptList(
                     else -> ScriptList(
                         modifier = Modifier.weight(1f),
                         scripts = scripts,
-                        onDisableScript = onDisableScript,
+                        onUninstallScript = onUninstallScript,
                     )
                 }
             }
@@ -219,23 +207,32 @@ private fun LoadedScriptList(
     }
 }
 
+/**
+ * Every script the user has installed — their own and public add-ons alike,
+ * since `listUserScripts` doesn't distinguish them. Found via review: an
+ * installed add-on showed up here with a "</>" placeholder and a "Disable"
+ * button, and on the Add-ons screen with its real logo and "Uninstall" —
+ * the same object, two icons, two verbs. Rows now share [AddonIcon] and
+ * [scriptVersionLine] with the Add-ons screens, and the action is
+ * "Uninstall" in both places.
+ */
 @Composable
-private fun ScriptList(scripts: List<FydeScript>, onDisableScript: (FydeScript) -> Unit, modifier: Modifier = Modifier) {
+private fun ScriptList(scripts: List<FydeScript>, onUninstallScript: (FydeScript) -> Unit, modifier: Modifier = Modifier) {
     LazyColumn(modifier = modifier.fillMaxSize(), contentPadding = PaddingValues(top = AppSpacing.space2)) {
         items(scripts, key = { it.id }) { script ->
             AppListItem(
                 title = script.name,
-                supportingText = "v${script.version} · ${formatDate(script.lastUpdated)}",
+                supportingText = scriptVersionLine(script),
                 supportingTextStyle = AppTypography.data,
-                leadingContent = { ScriptGlyph(size = 20.dp) },
+                leadingContent = { AddonIcon(icon = script.icon, size = 40.dp) },
                 trailingContent = {
-                    Row {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         AppBadge(
                             text = stringResource(if (script.isPublic) Res.string.script_public_badge else Res.string.script_private_badge),
                             variant = if (script.isPublic) AppBadgeVariant.Primary else AppBadgeVariant.Neutral,
                         )
                         Spacer(Modifier.width(AppSpacing.space3))
-                        AppTextButton(text = stringResource(Res.string.disable_script), onClick = { onDisableScript(script) })
+                        AppTextButton(text = stringResource(Res.string.uninstall_script), onClick = { onUninstallScript(script) })
                     }
                 },
                 modifier = Modifier.heightIn(min = 64.dp),
@@ -300,26 +297,6 @@ private fun CreateScriptSheet(
             }
             Spacer(Modifier.height(AppSpacing.space5))
         }
-    }
-}
-
-/** A simple scroll/script glyph, drawn without an icon pack (see [DocumentGlyph]). */
-@Composable
-private fun ScriptGlyph(modifier: Modifier = Modifier, size: Dp = 40.dp) {
-    Box(
-        modifier = modifier
-            .size(size)
-            .clip(AppRadius.md)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            // "</>" stands in for an icon glyph, not language.
-            text = "</>",
-            style = AppTypography.caption,
-            fontWeight = FontWeight.SemiBold,
-            color = AppColors.primary,
-        )
     }
 }
 
