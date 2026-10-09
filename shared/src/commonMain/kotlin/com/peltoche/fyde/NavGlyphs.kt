@@ -106,8 +106,8 @@ fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
 }
 
 /**
- * A puzzle piece — the sidebar's Addons destination and the addon grid's
- * per-card icon chip. One knob on the right edge and one socket on the
+ * A puzzle piece — the sidebar's Addons destination and the fallback in an
+ * add-on's icon chip when it has no logo. One knob on the right edge and one socket on the
  * bottom edge are enough to read as "puzzle piece" at nav-icon size without
  * drawing all four, keeping it a single closed outline like every other
  * glyph here rather than four small circular bumps.
@@ -279,5 +279,24 @@ fun AlertGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.error, str
             cap = StrokeCap.Round,
         )
         drawCircle(color = tint, radius = stroke.width * 0.6f, center = Offset(cx, size.height * 0.88f))
+    }
+}
+
+/** A wireframe globe — an add-on's site-access (allowed domain) rows. */
+@Composable
+fun GlobeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
+    Canvas(modifier = modifier) {
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val radius = size.minDimension * 0.42f
+        val center = Offset(size.width / 2f, size.height / 2f)
+        drawCircle(color = tint, radius = radius, center = center, style = stroke)
+        // Meridian: a narrower ellipse sharing the circle's poles.
+        drawOval(
+            color = tint,
+            topLeft = Offset(center.x - radius * 0.45f, center.y - radius),
+            size = androidx.compose.ui.geometry.Size(radius * 0.9f, radius * 2f),
+            style = stroke,
+        )
+        drawLine(color = tint, start = Offset(center.x - radius, center.y), end = Offset(center.x + radius, center.y), strokeWidth = stroke.width, cap = StrokeCap.Round)
     }
 }

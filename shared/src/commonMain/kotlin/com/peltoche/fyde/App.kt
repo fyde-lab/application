@@ -13,7 +13,9 @@ import com.peltoche.fyde.resources.server_unreachable_description
 import com.peltoche.fyde.resources.uninstall_script_failed
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
+import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
+import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.theme.AppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -442,13 +444,17 @@ private fun AddonsScreenContainer(
     val loaded = uiState as? AddonsUiState.Loaded
     val viewedScript = viewedScriptId?.let { id -> loaded?.scripts?.find { it.id == id } }
 
-    if (loaded != null && viewedScript != null) {
+    // Compact has no room for AddonsScreen's detail pane, so a selection
+    // there is a full-screen drill-down instead; from Medium up the same
+    // selection just fills the pane beside the list, so resizing across the
+    // breakpoint keeps the same add-on open.
+    if (loaded != null && viewedScript != null && LocalAppWindowSizeClass.current == AppWindowSizeClass.Compact) {
         AddonDetailScreen(
             script = viewedScript,
             isInstalled = viewedScript.id in loaded.enabledScriptIds,
             isPending = viewedScript.id in loaded.pendingScriptIds,
             // A failure triggered from here is shown here; it's cleared on
-            // the way back so the grid doesn't re-announce one already seen.
+            // the way back so the list doesn't re-announce one already seen.
             banner = loaded.banner,
             onDismissBanner = loaded.onDismissBanner,
             onBack = {
@@ -464,10 +470,13 @@ private fun AddonsScreenContainer(
     } else {
         AddonsScreen(
             state = uiState,
+            selectedScriptId = viewedScriptId,
+            onSelect = { script -> viewedScriptId = script.id },
+            onInstall = { script -> setInstalled(script, true) },
+            onUninstall = { script -> setInstalled(script, false) },
             onOpenDocuments = onOpenDocuments,
             onOpenScripts = onOpenScripts,
             onOpenSettings = onOpenSettings,
-            onView = { script -> viewedScriptId = script.id },
         )
     }
 }

@@ -145,12 +145,13 @@ for identical content. Any title in a row meant to be scanned (a list item,
 not a detail-pane header) truncates with an ellipsis at one line — the full
 text is always available where the item is opened, so nothing is lost.
 
-This applies to grid cards too. Found via review: add-on cards were allowed
-2-line names to work around truncation, which made cards in the same grid
-row different heights. The real cause was a per-card "View" button eating
-the name's width; the fix was to make the whole card the click target and
-drop the button. A card's secondary text uses a fixed line count
-(`minLines` = `maxLines`) so every card in a row is the same height.
+The same goes for a row's supporting text: cap it (`AppListItem`'s
+`supportingTextMaxLines`) wherever it's free-form prose rather than a short
+metadata line. The add-on list caps each add-on's tagline at one line so a
+long one can't make its row taller than its neighbours. (The add-on list
+used to be a card grid; found via review that cards with uncapped names and
+a per-card button made cards in the same grid row different heights. It is
+now a list + detail pane like every other list screen — see *Detail panes*.)
 
 ---
 
@@ -438,8 +439,8 @@ Amount are visible placeholders, not a working filter.
 
 ### Detail panes
 
-A record detail pane (document detail today; any future equivalent) is
-three stacked sections, each full-bleed with `space-5` internal padding and
+A record detail pane (document detail, add-on detail; any future
+equivalent) is three stacked sections, each full-bleed with `space-5` internal padding and
 separated by a `border` hairline divider:
 
 1. **Header** — leading type icon, name + metadata caption, trailing action

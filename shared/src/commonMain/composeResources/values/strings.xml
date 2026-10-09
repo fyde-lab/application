@@ -101,6 +101,23 @@
     <string name="addon_about_section">About</string>
     <string name="addon_domains_installed">This add-on can access these sites:</string>
     <string name="addon_domains_not_installed">Installing gives this add-on access to these sites:</string>
+    <string name="addons_search_placeholder">Search add-ons</string>
+    <string name="addons_filter_all">All (%1$d)</string>
+    <string name="addons_no_match">No add-ons match “%1$s”</string>
+    <string name="addons_none_installed_title">No add-ons installed</string>
+    <string name="addons_none_installed_description">Browse the available add-ons to install one.</string>
+    <string name="addons_none_available_title">Everything is installed</string>
+    <string name="addons_none_available_description">"You've installed every add-on there is."</string>
+    <string name="addons_show_all">Show all add-ons</string>
+    <string name="addon_select_title">Select an add-on</string>
+    <string name="addon_select_description">Choose an add-on from the list to see what it does and which sites it can access.</string>
+    <string name="addon_installed_badge">Installed</string>
+    <string name="addon_details_section">Details</string>
+    <string name="addon_detail_version">Version</string>
+    <string name="addon_detail_updated">Last updated</string>
+    <string name="addon_detail_sites">Sites</string>
+    <string name="addon_site_access_section">Site access</string>
+    <string name="addon_no_domains">"This add-on doesn't access any website."</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>

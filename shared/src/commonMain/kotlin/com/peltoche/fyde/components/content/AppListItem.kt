@@ -48,6 +48,7 @@ fun AppListItem(
     modifier: Modifier = Modifier,
     supportingText: String? = null,
     supportingTextStyle: TextStyle = AppTypography.caption,
+    supportingTextMaxLines: Int = Int.MAX_VALUE,
     leadingContent: (@Composable () -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null,
     onClick: (() -> Unit)? = null,
@@ -70,7 +71,9 @@ fun AppListItem(
             headlineContent = {
                 Text(title, style = AppTypography.bodyEmphasis, color = textColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
             },
-            supportingContent = supportingText?.let { { Text(it, style = supportingTextStyle, color = mutedColor) } },
+            supportingContent = supportingText?.let {
+                { Text(it, style = supportingTextStyle, color = mutedColor, maxLines = supportingTextMaxLines, overflow = TextOverflow.Ellipsis) }
+            },
             leadingContent = leadingContent,
             trailingContent = trailingContent,
             colors = ListItemDefaults.colors(

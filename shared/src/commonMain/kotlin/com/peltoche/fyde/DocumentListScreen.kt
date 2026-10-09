@@ -319,7 +319,7 @@ private fun LoadedDocumentList(
     }
 }
 
-private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (windowSizeClass) {
+internal fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (windowSizeClass) {
     AppWindowSizeClass.Compact -> AppDimensions.rowHeightComfortable
     AppWindowSizeClass.Medium -> AppDimensions.rowHeightStandard
     AppWindowSizeClass.Expanded -> AppDimensions.rowHeightCompact
@@ -471,9 +471,9 @@ private fun DocumentDetailsSection(document: FydeDocument) {
 private fun Enum<*>.toLabel(): String =
     name.split('_').joinToString(" ") { it.lowercase().replaceFirstChar(Char::uppercase) }
 
-/** One cell of [DocumentDetailsSection]'s grid: a muted caption label stacked above the value. */
+/** One cell of a detail pane's label/value grid ([DocumentDetailsSection], the add-on detail's Details section): a muted caption label stacked above the value. */
 @Composable
-private fun DetailCell(label: String, value: String, modifier: Modifier = Modifier) {
+internal fun DetailCell(label: String, value: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(text = label, style = AppTypography.caption, color = AppColors.textMuted)
         Spacer(Modifier.height(AppSpacing.space1))

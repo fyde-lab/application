@@ -101,6 +101,23 @@
     <string name="addon_about_section">À propos</string>
     <string name="addon_domains_installed">Cette extension peut accéder à ces sites :</string>
     <string name="addon_domains_not_installed">"L'installation donne à cette extension l'accès à ces sites :"</string>
+    <string name="addons_search_placeholder">Rechercher des extensions</string>
+    <string name="addons_filter_all">Toutes (%1$d)</string>
+    <string name="addons_no_match">"Aucune extension ne correspond à « %1$s »"</string>
+    <string name="addons_none_installed_title">Aucune extension installée</string>
+    <string name="addons_none_installed_description">Parcourez les extensions disponibles pour en installer une.</string>
+    <string name="addons_none_available_title">Tout est installé</string>
+    <string name="addons_none_available_description">"Vous avez installé toutes les extensions existantes."</string>
+    <string name="addons_show_all">Afficher toutes les extensions</string>
+    <string name="addon_select_title">Sélectionnez une extension</string>
+    <string name="addon_select_description">"Choisissez une extension dans la liste pour voir ce qu'elle fait et à quels sites elle peut accéder."</string>
+    <string name="addon_installed_badge">Installée</string>
+    <string name="addon_details_section">Détails</string>
+    <string name="addon_detail_version">Version</string>
+    <string name="addon_detail_updated">Dernière mise à jour</string>
+    <string name="addon_detail_sites">Sites</string>
+    <string name="addon_site_access_section">Accès aux sites</string>
+    <string name="addon_no_domains">"Cette extension n'accède à aucun site."</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>

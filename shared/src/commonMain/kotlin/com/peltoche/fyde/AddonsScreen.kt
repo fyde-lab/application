@@ -6,54 +6,75 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.components.content.AppCard
+import com.peltoche.fyde.components.content.AppBadge
+import com.peltoche.fyde.components.content.AppBadgeVariant
+import com.peltoche.fyde.components.content.AppChip
+import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppListItem
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppSkeleton
+import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
+import com.peltoche.fyde.layout.AppTwoPaneLayout
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
-import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.addon_installed_badge
+import com.peltoche.fyde.resources.addon_select_description
+import com.peltoche.fyde.resources.addon_select_title
 import com.peltoche.fyde.resources.addons_available_section
 import com.peltoche.fyde.resources.addons_empty_description
 import com.peltoche.fyde.resources.addons_empty_title
+import com.peltoche.fyde.resources.addons_filter_all
 import com.peltoche.fyde.resources.addons_installed_section
+import com.peltoche.fyde.resources.addons_no_match
+import com.peltoche.fyde.resources.addons_none_available_description
+import com.peltoche.fyde.resources.addons_none_available_title
+import com.peltoche.fyde.resources.addons_none_installed_description
+import com.peltoche.fyde.resources.addons_none_installed_title
+import com.peltoche.fyde.resources.addons_search_placeholder
+import com.peltoche.fyde.resources.addons_show_all
 import com.peltoche.fyde.resources.addons_title
+import com.peltoche.fyde.resources.clear_search
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
+import com.peltoche.fyde.resources.no_matches_title
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.script_version
 import org.jetbrains.compose.resources.stringResource
@@ -74,17 +95,15 @@ sealed interface AddonsUiState {
 
     /**
      * Connected. [scripts] is `null` while the first page is still being
-     * fetched (known shape, unknown content — rendered as a skeleton grid
+     * fetched (known shape, unknown content — rendered as skeleton rows
      * rather than a spinner), and non-null once loaded (possibly empty).
      * [enabledScriptIds] marks which of [scripts] the authenticated user
-     * currently has installed — those are grouped into their own "Installed"
-     * section, ahead of every other public script. [pendingScriptIds] marks
-     * a script whose install/uninstall call (triggered from
-     * [AddonDetailScreen], opened by clicking a card) is in flight, so a
-     * second tap there can't race the first. [banner] surfaces a non-fatal
-     * problem (an install/uninstall call failing) without discarding what's
-     * already loaded — on whichever of the grid or [AddonDetailScreen] is
-     * showing.
+     * currently has installed — badged in the list, sorted ahead of every
+     * other public script, and what the Installed/Available filter splits
+     * on. [pendingScriptIds] marks a script whose install/uninstall call is
+     * in flight, so a second click can't race the first. [banner] surfaces a
+     * non-fatal problem (an install/uninstall call failing) without
+     * discarding what's already loaded.
      */
     data class Loaded(
         val scripts: List<FydeScript>?,
@@ -95,11 +114,35 @@ sealed interface AddonsUiState {
     ) : AddonsUiState
 }
 
+/**
+ * The Add-ons destination: a searchable, filterable list of public scripts
+ * beside a detail pane — the same master-detail shape as
+ * [DocumentListScreen], per design-system.md § Responsive behavior (a list
+ * + detail split from Medium up, one pane at a time on Compact).
+ *
+ * [selectedScriptId] is hoisted to the caller rather than kept local (unlike
+ * the document list's preview selection): on Compact the caller swaps this
+ * whole screen for the [AddonDetailScreen] drill-down instead, and keeping
+ * one selection for both means resizing the window across the breakpoint
+ * keeps the same add-on open rather than dropping it.
+ *
+ * Replaces an earlier card grid. Found via redesign review: cards showed
+ * only a name and a two-line blurb, so comparing add-ons or seeing what was
+ * installed meant opening each one; Installed/Available were two grid
+ * sections with no way to narrow to either; there was no search; and every
+ * install/uninstall meant a full-screen round trip away from the list. A
+ * dense list with an Installed badge, search, single-choice filter chips,
+ * and an in-place detail pane fixes all four at once, and matches the rest
+ * of the app's list screens instead of being the one grid.
+ */
 @Composable
 fun AddonsScreen(
     state: AddonsUiState,
     modifier: Modifier = Modifier,
-    onView: (FydeScript) -> Unit = {},
+    selectedScriptId: String? = null,
+    onSelect: (FydeScript) -> Unit = {},
+    onInstall: (FydeScript) -> Unit = {},
+    onUninstall: (FydeScript) -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenScripts: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
@@ -117,20 +160,40 @@ fun AddonsScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is AddonsUiState.Loaded -> LoadedAddons(state, modifier, onView, onOpenDocuments, onOpenScripts, onOpenSettings)
+        is AddonsUiState.Loaded -> LoadedAddons(
+            state = state,
+            modifier = modifier,
+            selectedScriptId = selectedScriptId,
+            onSelect = onSelect,
+            onInstall = onInstall,
+            onUninstall = onUninstall,
+            onOpenDocuments = onOpenDocuments,
+            onOpenScripts = onOpenScripts,
+            onOpenSettings = onOpenSettings,
+        )
     }
 }
+
+/** The list's single-choice facet — presentation-only, so it stays local like the search query. */
+private enum class AddonFilter { All, Installed, Available }
 
 @Composable
 private fun LoadedAddons(
     state: AddonsUiState.Loaded,
-    modifier: Modifier = Modifier,
-    onView: (FydeScript) -> Unit = {},
-    onOpenDocuments: () -> Unit = {},
-    onOpenScripts: () -> Unit = {},
-    onOpenSettings: () -> Unit = {},
+    modifier: Modifier,
+    selectedScriptId: String?,
+    onSelect: (FydeScript) -> Unit,
+    onInstall: (FydeScript) -> Unit,
+    onUninstall: (FydeScript) -> Unit,
+    onOpenDocuments: () -> Unit,
+    onOpenScripts: () -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+    var filter by remember { mutableStateOf(AddonFilter.All) }
     val windowSizeClass = LocalAppWindowSizeClass.current
+    val isCompact = windowSizeClass == AppWindowSizeClass.Compact
+    val isDesktop = windowSizeClass == AppWindowSizeClass.Expanded
 
     TopLevelScaffold(
         current = SidebarDestination.Addons,
@@ -148,7 +211,7 @@ private fun LoadedAddons(
                 .background(AppColors.background),
             width = AppContentWidth.List,
             windowSizeClass = windowSizeClass,
-            sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
+            sidebarAdjacent = isDesktop,
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 state.banner?.let { message ->
@@ -156,128 +219,225 @@ private fun LoadedAddons(
                 }
 
                 val scripts = state.scripts
-                when {
-                    scripts == null -> AddonsSkeletonGrid(modifier = Modifier.weight(1f))
-
-                    scripts.isEmpty() -> AppEmptyState(
-                        modifier = Modifier.weight(1f),
-                        icon = { PuzzleGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
-                        title = stringResource(Res.string.addons_empty_title),
-                        description = stringResource(Res.string.addons_empty_description),
-                    )
-
-                    else -> AddonsGrid(
-                        scripts = scripts,
-                        enabledScriptIds = state.enabledScriptIds,
-                        onView = onView,
-                        modifier = Modifier.weight(1f),
+                // Installed first, then by name — the server's own order
+                // (`list_public_scripts`, last-updated) isn't a useful
+                // browsing order for a list the user scans by name.
+                val sorted = remember(scripts, state.enabledScriptIds) {
+                    scripts.orEmpty().sortedWith(
+                        compareBy<FydeScript> { it.id !in state.enabledScriptIds }.thenBy { it.name.lowercase() },
                     )
                 }
+                val visible = remember(sorted, state.enabledScriptIds, filter, searchQuery) {
+                    sorted.filter { script ->
+                        val installed = script.id in state.enabledScriptIds
+                        val inFilter = when (filter) {
+                            AddonFilter.All -> true
+                            AddonFilter.Installed -> installed
+                            AddonFilter.Available -> !installed
+                        }
+                        inFilter && script.matches(searchQuery)
+                    }
+                }
+
+                AppTwoPaneLayout(
+                    modifier = Modifier.weight(1f),
+                    windowSizeClass = windowSizeClass,
+                    primaryPaneWidth = if (isDesktop) AppDimensions.twoPaneListWidthExpanded else AppDimensions.twoPaneListWidth,
+                    primary = {
+                        // Trailing padding mirrors the container's leading
+                        // margin so the list column doesn't run flush into
+                        // the divider (design-system.md § List spacing); on
+                        // Compact there's no divider, and the container's own
+                        // margin already covers both edges.
+                        Column(modifier = Modifier.fillMaxSize().padding(end = if (isCompact) 0.dp else AppSpacing.space5)) {
+                            Spacer(Modifier.height(AppSpacing.space3))
+                            AppSearchField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                placeholder = stringResource(Res.string.addons_search_placeholder),
+                                onClear = { searchQuery = "" },
+                                clearContentDescription = stringResource(Res.string.clear_search),
+                                leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
+                                enabled = !scripts.isNullOrEmpty(),
+                            )
+
+                            if (!scripts.isNullOrEmpty()) {
+                                Spacer(Modifier.height(AppSpacing.space3))
+                                val installedCount = scripts.count { it.id in state.enabledScriptIds }
+                                FilterRow(
+                                    current = filter,
+                                    allCount = scripts.size,
+                                    installedCount = installedCount,
+                                    availableCount = scripts.size - installedCount,
+                                    onSelect = { filter = it },
+                                )
+                            }
+                            Spacer(Modifier.height(AppSpacing.space2))
+
+                            when {
+                                scripts == null -> AddonSkeletonList(modifier = Modifier.weight(1f))
+
+                                scripts.isEmpty() -> AppEmptyState(
+                                    modifier = Modifier.weight(1f),
+                                    icon = { PuzzleGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                    title = stringResource(Res.string.addons_empty_title),
+                                    description = stringResource(Res.string.addons_empty_description),
+                                )
+
+                                visible.isEmpty() && searchQuery.isNotBlank() -> AppEmptyState(
+                                    modifier = Modifier.weight(1f),
+                                    icon = { SearchGlyph(modifier = Modifier.size(40.dp), strokeWidth = 2.dp) },
+                                    title = stringResource(Res.string.no_matches_title),
+                                    description = stringResource(Res.string.addons_no_match, searchQuery),
+                                    actionLabel = stringResource(Res.string.clear_search),
+                                    onAction = { searchQuery = "" },
+                                )
+
+                                visible.isEmpty() -> AppEmptyState(
+                                    modifier = Modifier.weight(1f),
+                                    icon = { PuzzleGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                    title = stringResource(
+                                        if (filter == AddonFilter.Installed) Res.string.addons_none_installed_title else Res.string.addons_none_available_title,
+                                    ),
+                                    description = stringResource(
+                                        if (filter == AddonFilter.Installed) {
+                                            Res.string.addons_none_installed_description
+                                        } else {
+                                            Res.string.addons_none_available_description
+                                        },
+                                    ),
+                                    actionLabel = stringResource(Res.string.addons_show_all),
+                                    onAction = { filter = AddonFilter.All },
+                                )
+
+                                else -> AddonList(
+                                    scripts = visible,
+                                    enabledScriptIds = state.enabledScriptIds,
+                                    // Compact never shows a selection: picking a
+                                    // row there opens the drill-down instead.
+                                    selectedScriptId = if (isCompact) null else selectedScriptId,
+                                    rowMinHeight = rowMinHeightFor(windowSizeClass),
+                                    onSelect = onSelect,
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                        }
+                    },
+                    secondary = {
+                        val selected = scripts?.find { it.id == selectedScriptId }
+                        if (selected == null) {
+                            AppEmptyState(
+                                icon = { PuzzleGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                title = stringResource(Res.string.addon_select_title),
+                                description = stringResource(Res.string.addon_select_description),
+                            )
+                        } else {
+                            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                                AddonDetailContent(
+                                    script = selected,
+                                    isInstalled = selected.id in state.enabledScriptIds,
+                                    isPending = selected.id in state.pendingScriptIds,
+                                    onInstall = { onInstall(selected) },
+                                    onUninstall = { onUninstall(selected) },
+                                    horizontalPadding = AppSpacing.space5,
+                                )
+                            }
+                        }
+                    },
+                )
             }
         }
     }
 }
 
-/** Minimum grid cell width — `GridCells.Adaptive` fits as many columns of at least this as the width allows. */
-private val AddonCellMinWidth = 220.dp
+/** Name, tagline, or long description — whatever the user might remember an add-on by. */
+private fun FydeScript.matches(query: String): Boolean {
+    if (query.isBlank()) return true
+    val needle = query.trim()
+    return name.contains(needle, ignoreCase = true) ||
+        shortDescription.contains(needle, ignoreCase = true) ||
+        description.contains(needle, ignoreCase = true)
+}
 
 /**
- * The installed/available split, each its own full-width section header
- * ahead of its cards — "Installed" always sorts first, satisfying "on top
- * the installed ones" without requiring a second scrollable region (one
- * [LazyVerticalGrid], two spans of items). A script's own [FydeScript.name]
- * breaks ties within each section, since the server gives no other ordering
- * signal (`list_public_scripts` orders by last-updated, which isn't a
- * useful browsing order for a grid the user scans by name).
+ * All / Installed / Available, each with its count, as single-choice
+ * [AppChip]s. Wraps (FlowRow) rather than overflowing: the list column is a
+ * fixed 360dp at Medium, and translated labels with counts can outgrow it.
  */
 @Composable
-private fun AddonsGrid(
+private fun FilterRow(
+    current: AddonFilter,
+    allCount: Int,
+    installedCount: Int,
+    availableCount: Int,
+    onSelect: (AddonFilter) -> Unit,
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
+    ) {
+        AppChip(
+            text = stringResource(Res.string.addons_filter_all, allCount),
+            selected = current == AddonFilter.All,
+            onClick = { onSelect(AddonFilter.All) },
+        )
+        AppChip(
+            text = stringResource(Res.string.addons_installed_section, installedCount),
+            selected = current == AddonFilter.Installed,
+            onClick = { onSelect(AddonFilter.Installed) },
+        )
+        AppChip(
+            text = stringResource(Res.string.addons_available_section, availableCount),
+            selected = current == AddonFilter.Available,
+            onClick = { onSelect(AddonFilter.Available) },
+        )
+    }
+}
+
+/**
+ * One row per add-on: logo, name, a one-line tagline, and an Installed badge
+ * when it applies. The tagline is capped at one line so every row is the
+ * same height (design-system.md § Typography: a scannable row's text never
+ * changes the row's height) — the full text is in the detail pane.
+ */
+@Composable
+private fun AddonList(
     scripts: List<FydeScript>,
     enabledScriptIds: Set<String>,
-    onView: (FydeScript) -> Unit,
+    selectedScriptId: String?,
+    rowMinHeight: Dp,
+    onSelect: (FydeScript) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val installed = scripts.filter { it.id in enabledScriptIds }.sortedBy { it.name.lowercase() }
-    val available = scripts.filter { it.id !in enabledScriptIds }.sortedBy { it.name.lowercase() }
-
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = AddonCellMinWidth),
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = AppSpacing.space7),
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-        verticalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-    ) {
-        if (installed.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                SectionTitle(stringResource(Res.string.addons_installed_section, installed.size))
-            }
-            items(installed, key = { it.id }) { script ->
-                AddonCard(script = script, onClick = { onView(script) })
-            }
-        }
-        if (available.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                SectionTitle(stringResource(Res.string.addons_available_section, available.size))
-            }
-            items(available, key = { it.id }) { script ->
-                AddonCard(script = script, onClick = { onView(script) })
-            }
-        }
-    }
-}
-
-/** Card summary lines — fixed, so every card in a grid row is the same height. */
-private const val CARD_SUMMARY_LINES = 2
-
-/**
- * One grid cell: icon chip, name, and a short summary. The whole card is
- * the click target that opens [AddonDetailScreen].
- *
- * Found via review: each card used to carry its own outlined "View" button,
- * which at desktop width left the name ~108dp (about 12 characters) beside
- * it — the real cause of the truncation a 2-line name was papering over.
- * Wrapping names to 2 lines broke design-system.md's one-line rule for
- * scannable titles and made cards in the same grid row different heights.
- * Without the button the name has the full width, stays on one line, and
- * the second line carries [FydeScript.shortDescription] (written for exactly
- * this) instead of a bare version number.
- */
-@Composable
-private fun AddonCard(
-    script: FydeScript,
-    onClick: () -> Unit,
-) {
-    AppCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
-        Row(verticalAlignment = Alignment.Top) {
-            AddonIcon(icon = script.icon)
-            Spacer(Modifier.width(AppSpacing.space4))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = script.name,
-                    style = AppTypography.bodyEmphasis,
-                    color = AppColors.text,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(AppSpacing.space1))
-                Text(
-                    text = script.shortDescription.ifBlank { script.description },
-                    style = AppTypography.caption,
-                    color = AppColors.textMuted,
-                    minLines = CARD_SUMMARY_LINES,
-                    maxLines = CARD_SUMMARY_LINES,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+    LazyColumn(modifier = modifier.fillMaxWidth(), contentPadding = PaddingValues(top = AppSpacing.space2, bottom = AppSpacing.space7)) {
+        items(scripts, key = { it.id }) { script ->
+            AppListItem(
+                title = script.name,
+                supportingText = script.shortDescription.ifBlank { script.description }.ifBlank { null },
+                supportingTextMaxLines = 1,
+                leadingContent = { AddonIcon(icon = script.icon, size = 40.dp) },
+                trailingContent = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (script.id in enabledScriptIds) {
+                            AppBadge(text = stringResource(Res.string.addon_installed_badge), variant = AppBadgeVariant.Success)
+                            Spacer(Modifier.width(AppSpacing.space3))
+                        }
+                        ChevronRightGlyph(modifier = Modifier.size(12.dp))
+                    }
+                },
+                selected = script.id == selectedScriptId,
+                onClick = { onSelect(script) },
+                modifier = Modifier.heightIn(min = rowMinHeight),
+            )
+            AppDivider()
         }
     }
 }
 
 /**
- * A script's version and last-update date as one Data-role line — shared by
- * [AddonDetailScreen] and [ScriptListScreen]'s rows. Found via review: the
- * two screens showed the same fact as "Version 3" (Caption) and a hardcoded,
- * unlocalized "v3 · date" (Data).
+ * A script's version and last-update date as one Data-role line, for
+ * [ScriptListScreen]'s rows — localized via [Res.string.script_version], the
+ * same "v3" label [AddonDetailContent]'s Version cell uses.
  */
 @Composable
 internal fun scriptVersionLine(script: FydeScript): String =
@@ -299,8 +459,8 @@ private const val ICON_GLYPH_SCALE = 0.45f
  * A neutral chip showing [icon] (the script's own PNG logo, see
  * [FydeScript.icon]), decoded via [decodeIconBitmap]. Falls back to a drawn
  * [PuzzleGlyph] when [icon] is empty or isn't valid image data. [size]
- * defaults to the grid card's compact chip; [AddonDetailScreen] passes a
- * larger one for a stronger hero presence, [ScriptListScreen] a row-sized one.
+ * defaults to a compact chip; the add-on list and [ScriptListScreen] pass a
+ * row-sized one, [AddonDetailContent] a larger one for its header.
  *
  * Neutral (page background + hairline border), not tinted with `primary`.
  * Found via review: third-party brand marks (red, blue, purple) on a teal
@@ -331,32 +491,24 @@ internal fun AddonIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modi
     }
 }
 
+/** Same anatomy as [AddonList]'s rows — icon, name line, tagline line — so loading doesn't shift the layout. */
 @Composable
-private fun AddonsSkeletonGrid(modifier: Modifier = Modifier) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = AddonCellMinWidth),
-        modifier = modifier.fillMaxSize(),
-        // Top padding stands in for the section header the loaded grid opens with.
-        contentPadding = PaddingValues(top = AppSpacing.space7, bottom = AppSpacing.space7),
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-        verticalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-    ) {
-        items(6) { SkeletonCard() }
-    }
-}
-
-/** Same anatomy as [AddonCard] — icon, one name line, two summary lines — so loading doesn't shift the layout. */
-@Composable
-private fun SkeletonCard() {
-    AppCard(modifier = Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.Top) {
-            AppSkeleton(modifier = Modifier.size(44.dp), shape = AppRadius.md)
-            Spacer(Modifier.width(AppSpacing.space4))
-            Column(modifier = Modifier.weight(1f)) {
-                AppSkeleton(modifier = Modifier.padding(vertical = 4.dp).size(width = 120.dp, height = 14.dp))
-                Spacer(Modifier.height(AppSpacing.space1))
-                AppSkeleton(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth().height(10.dp))
-                AppSkeleton(modifier = Modifier.padding(vertical = 4.dp).fillMaxWidth(0.6f).height(10.dp))
+private fun AddonSkeletonList(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth().padding(top = AppSpacing.space2)) {
+        repeat(6) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AppSkeleton(modifier = Modifier.size(40.dp), shape = AppRadius.md)
+                Spacer(Modifier.width(AppSpacing.space4))
+                Column {
+                    AppSkeleton(modifier = Modifier.size(width = 140.dp, height = 14.dp))
+                    Spacer(Modifier.height(AppSpacing.space2))
+                    AppSkeleton(modifier = Modifier.size(width = 200.dp, height = 10.dp))
+                }
             }
         }
     }
