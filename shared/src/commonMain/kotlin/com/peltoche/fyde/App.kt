@@ -7,9 +7,10 @@ import com.peltoche.fyde.resources.addon_toggle_failed
 import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.create_script_failed
-import com.peltoche.fyde.resources.disable_script_failed
 import com.peltoche.fyde.resources.error_unknown
 import com.peltoche.fyde.resources.language_save_failed
+import com.peltoche.fyde.resources.server_unreachable_description
+import com.peltoche.fyde.resources.uninstall_script_failed
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
@@ -128,7 +129,7 @@ fun App() {
                         onBack = { screen = Screen.Documents },
                     )
                     Screen.Scripts -> ScriptsScreen(
-                        onBack = { screen = Screen.Documents },
+                        onOpenDocuments = { screen = Screen.Documents },
                         onOpenSettings = { screen = Screen.Settings },
                         onOpenAddons = { screen = Screen.Addons },
                     )
@@ -144,7 +145,7 @@ fun App() {
                                     .onFailure { languageError = getString(Res.string.language_save_failed, it.message ?: getString(Res.string.error_unknown)) }
                             }
                         },
-                        onBack = { screen = Screen.Documents },
+                        onOpenDocuments = { screen = Screen.Documents },
                         onOpenScripts = { screen = Screen.Scripts },
                         onOpenAddons = { screen = Screen.Addons },
                         onLogout = { screen = Screen.Login },
@@ -291,7 +292,7 @@ private fun DocumentsScreen(
  * list, which is scoped to enabled scripts only.
  */
 @Composable
-private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit, onOpenAddons: () -> Unit) {
+private fun ScriptsScreen(onOpenDocuments: () -> Unit, onOpenSettings: () -> Unit, onOpenAddons: () -> Unit) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<ScriptListUiState>(ScriptListUiState.Connecting) }
     var isCreating by remember { mutableStateOf(false) }
@@ -306,7 +307,7 @@ private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit, onOpen
         uiState = ScriptListUiState.Connecting
         if (!FydeSdk.isServerReachable().getOrDefault(false)) {
             uiState = ScriptListUiState.ConnectFailed(
-                message = getString(Res.string.error_unknown),
+                message = getString(Res.string.server_unreachable_description),
                 onRetry = { retryKey++ },
             )
             return@LaunchedEffect
@@ -317,7 +318,7 @@ private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit, onOpen
 
     ScriptListScreen(
         state = uiState,
-        onBack = onBack,
+        onOpenDocuments = onOpenDocuments,
         onOpenSettings = onOpenSettings,
         onOpenAddons = onOpenAddons,
         isCreating = isCreating,
@@ -348,14 +349,14 @@ private fun ScriptsScreen(onBack: () -> Unit, onOpenSettings: () -> Unit, onOpen
                 isCreating = false
             }
         },
-        onDisableScript = { script ->
+        onUninstallScript = { script ->
             scope.launch {
                 FydeSdk.disableScript(script.id)
                     .onSuccess { refreshScripts() }
                     .onFailure { error ->
                         val current = uiState as? ScriptListUiState.Loaded
                         if (current != null) {
-                            val message = getString(Res.string.disable_script_failed, error.message ?: getString(Res.string.error_unknown))
+                            val message = getString(Res.string.uninstall_script_failed, error.message ?: getString(Res.string.error_unknown))
                             uiState = current.copy(
                                 banner = message,
                                 onDismissBanner = { (uiState as? ScriptListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) } },
@@ -446,9 +447,19 @@ private fun AddonsScreenContainer(
             script = viewedScript,
             isInstalled = viewedScript.id in loaded.enabledScriptIds,
             isPending = viewedScript.id in loaded.pendingScriptIds,
-            onBack = { viewedScriptId = null },
+            // A failure triggered from here is shown here; it's cleared on
+            // the way back so the grid doesn't re-announce one already seen.
+            banner = loaded.banner,
+            onDismissBanner = loaded.onDismissBanner,
+            onBack = {
+                viewedScriptId = null
+                (uiState as? AddonsUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
+            },
             onInstall = { setInstalled(viewedScript, true) },
             onUninstall = { setInstalled(viewedScript, false) },
+            onOpenDocuments = onOpenDocuments,
+            onOpenScripts = onOpenScripts,
+            onOpenSettings = onOpenSettings,
         )
     } else {
         AddonsScreen(

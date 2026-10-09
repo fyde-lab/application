@@ -22,6 +22,7 @@
     <string name="connecting_message">Connexion à fyde-sdk…</string>
     <string name="connect_failed_title">Impossible de joindre le serveur</string>
     <string name="retry">Réessayer</string>
+    <string name="server_unreachable_description">Vérifiez que le serveur Fyde est démarré et joignable, puis réessayez.</string>
 
     <!-- Document list -->
     <string name="documents_title">Documents</string>
@@ -71,8 +72,8 @@
     <!-- Scripts screen -->
     <string name="scripts_menu_item">Scripts</string>
     <string name="scripts_title">Scripts</string>
-    <string name="no_scripts_title">Aucun script activé</string>
-    <string name="no_scripts_description">Les scripts que vous créez sont activés automatiquement et apparaîtront ici.</string>
+    <string name="no_scripts_title">Aucun script installé</string>
+    <string name="no_scripts_description">Les scripts que vous créez sont installés automatiquement et apparaîtront ici.</string>
     <string name="new_script">Nouveau script</string>
     <string name="new_script_sheet_title">Nouveau script</string>
     <string name="script_name_label">Nom</string>
@@ -81,8 +82,9 @@
     <string name="create">Créer</string>
     <string name="cancel">Annuler</string>
     <string name="create_script_failed">"Impossible de créer le script : %1$s"</string>
-    <string name="disable_script">Désactiver</string>
-    <string name="disable_script_failed">"Impossible de désactiver le script : %1$s"</string>
+    <string name="uninstall_script">Désinstaller</string>
+    <string name="uninstall_script_failed">"Impossible de désinstaller le script : %1$s"</string>
+    <string name="script_version">v%1$d</string>
     <string name="script_public_badge">Public</string>
     <string name="script_private_badge">Privé</string>
 
@@ -91,14 +93,14 @@
     <string name="addons_title">Extensions</string>
     <string name="addons_installed_section">Installées (%1$d)</string>
     <string name="addons_available_section">Disponibles (%1$d)</string>
-    <string name="addon_version">Version %1$d</string>
     <string name="addons_empty_title">Aucune extension pour le moment</string>
     <string name="addons_empty_description">Les scripts publics partagés par d'autres utilisateurs apparaîtront ici.</string>
     <string name="addon_toggle_failed">"Impossible de mettre à jour « %1$s » : %2$s"</string>
-    <string name="addon_view_button">Voir</string>
     <string name="addon_install_button">Installer</string>
     <string name="addon_uninstall_button">Désinstaller</string>
-    <string name="addon_domains_section">Domaines autorisés</string>
+    <string name="addon_about_section">À propos</string>
+    <string name="addon_domains_installed">Cette extension peut accéder à ces sites :</string>
+    <string name="addon_domains_not_installed">"L'installation donne à cette extension l'accès à ces sites :"</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>

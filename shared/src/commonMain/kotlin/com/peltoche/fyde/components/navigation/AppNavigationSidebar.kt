@@ -34,34 +34,44 @@ fun AppNavigationSidebar(
     PermanentDrawerSheet(modifier = modifier, drawerContainerColor = AppColors.surfaceElevated) {
         header?.invoke(this)
         Column(modifier = Modifier.weight(1f)) {
-            items.forEach { item ->
-                // NavigationDrawerItem (unlike NavigationBarItem/NavigationRailItem)
-                // has no `enabled` param or disabled color slots in this M3
-                // version — [AppNavigationItem.enabled] is expressed here as a
-                // dimmed unselected tint instead, since onClick is already a
-                // no-op for any item the caller marks disabled.
-                val unselectedTint = if (item.enabled) AppColors.textMuted else AppColors.textMuted.copy(alpha = 0.5f)
-                NavigationDrawerItem(
-                    selected = item.selected,
-                    onClick = item.onClick,
-                    icon = item.icon,
-                    label = { Text(item.label, style = AppTypography.label) },
-                    // M3's own default is a full stadium pill — design-system.md's
-                    // Shape section is explicit that nothing but a circle is a
-                    // pill in this app, so the selected-row shape is overridden
-                    // to the same small geometric radius every other control uses.
-                    shape = AppRadius.sm,
-                    colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = AppColors.selectionSurface,
-                        selectedIconColor = AppColors.primary,
-                        selectedTextColor = AppColors.primary,
-                        unselectedIconColor = unselectedTint,
-                        unselectedTextColor = unselectedTint,
-                    ),
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-                )
-            }
+            items.forEach { item -> AppNavigationSidebarItem(item) }
         }
         footer?.invoke(this)
     }
+}
+
+/**
+ * One [AppNavigationSidebar] row. Public so a destination composed outside
+ * [AppNavigationSidebar]'s own item list (e.g. Settings, pinned in its
+ * `footer`) still renders identically to the others: same height, shape,
+ * selected fill and text color, rather than a hand-rolled lookalike that
+ * drifts from them.
+ */
+@Composable
+fun AppNavigationSidebarItem(item: AppNavigationItem, modifier: Modifier = Modifier) {
+    // NavigationDrawerItem (unlike NavigationBarItem/NavigationRailItem)
+    // has no `enabled` param or disabled color slots in this M3
+    // version — [AppNavigationItem.enabled] is expressed here as a
+    // dimmed unselected tint instead, since onClick is already a
+    // no-op for any item the caller marks disabled.
+    val unselectedTint = if (item.enabled) AppColors.textMuted else AppColors.textMuted.copy(alpha = 0.5f)
+    NavigationDrawerItem(
+        selected = item.selected,
+        onClick = item.onClick,
+        icon = item.icon,
+        label = { Text(item.label, style = AppTypography.label) },
+        // M3's own default is a full stadium pill — design-system.md's
+        // Shape section is explicit that nothing but a circle is a
+        // pill in this app, so the selected-row shape is overridden
+        // to the same small geometric radius every other control uses.
+        shape = AppRadius.sm,
+        colors = NavigationDrawerItemDefaults.colors(
+            selectedContainerColor = AppColors.selectionSurface,
+            selectedIconColor = AppColors.primary,
+            selectedTextColor = AppColors.primary,
+            unselectedIconColor = unselectedTint,
+            unselectedTextColor = unselectedTint,
+        ),
+        modifier = modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+    )
 }

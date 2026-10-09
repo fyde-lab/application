@@ -1,6 +1,8 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,12 +16,10 @@ import com.peltoche.fyde.components.form.AppDropdown
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
-import com.peltoche.fyde.layout.AppNavigationLayout
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.account_section_title
-import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.language_label
 import com.peltoche.fyde.resources.language_section_title
@@ -51,20 +51,26 @@ private enum class AppLanguage(val code: String, val displayName: String) {
 }
 
 /**
- * Opened from the sidebar's Settings destination. Mostly read-only — the
- * server it's connected to (see `App.kt`'s `FYDE_SERVER_URL`) — except for
+ * The Settings destination (sidebar footer on desktop, a regular nav item
+ * below that — see [TopLevelScaffold]). Mostly read-only — the server it's
+ * connected to (see `App.kt`'s `FYDE_SERVER_URL`) — except for
  * [currentLanguage], which [onLanguageChange] lets the user override via
  * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
  * where that call and [languageError] actually live), and [onLogout], which
- * ends the session (formerly reachable from [DocumentListScreen]'s profile
- * dropdown, now consolidated here).
+ * ends the session.
+ *
+ * A peer of the other top-level destinations, so its top bar matches theirs:
+ * title only, no back chevron. Found via review: it used to carry a back
+ * button (redundant beside the sidebar, and one that shrank the title from
+ * Title to Section size, so moving between peer destinations made the
+ * heading jump).
  */
 @Composable
 fun SettingsScreen(
     serverUrl: String,
     currentLanguage: String?,
     onLanguageChange: (String) -> Unit,
-    onBack: () -> Unit,
+    onOpenDocuments: () -> Unit,
     onOpenScripts: () -> Unit = {},
     onOpenAddons: () -> Unit = {},
     onLogout: () -> Unit = {},
@@ -73,91 +79,73 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
-    // Same desktop-only persistent sidebar as DocumentListScreen/
-    // ScriptListScreen — see DocumentListScreen's isDesktop doc comment for
-    // why Compact/Medium stay top-bar-only. `onBack` already navigates to
-    // the documents list (see App.kt's Screen.Settings branch), so it
-    // doubles as the sidebar's "Documents" destination.
-    val isDesktop = windowSizeClass == AppWindowSizeClass.Expanded
 
-    AppNavigationLayout(
+    TopLevelScaffold(
+        current = SidebarDestination.Settings,
+        onOpenDocuments = onOpenDocuments,
+        onOpenScripts = onOpenScripts,
+        onOpenAddons = onOpenAddons,
+        onOpenSettings = {},
         modifier = modifier,
-        windowSizeClass = windowSizeClass,
-        navigationItems = if (isDesktop) {
-            sidebarNavigationItems(current = SidebarDestination.Settings, onOpenDocuments = onBack, onOpenScripts = onOpenScripts, onOpenAddons = onOpenAddons)
-        } else {
-            emptyList()
-        },
-        header = if (isDesktop) { { SidebarHeader() } } else null,
-        footer = if (isDesktop) { { SidebarFooter(current = SidebarDestination.Settings, onOpenSettings = {}) } } else null,
-    ) {
-        Column(
+        topBar = { AppTopBar(title = stringResource(Res.string.settings_title), windowSizeClass = windowSizeClass) },
+    ) { contentPadding ->
+        AppContentContainer(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(contentPadding)
                 .background(AppColors.background),
+            width = AppContentWidth.Detail,
+            windowSizeClass = windowSizeClass,
+            sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
         ) {
-            AppTopBar(
-                title = stringResource(Res.string.settings_title),
-                onBack = onBack,
-                backContentDescription = stringResource(Res.string.back),
-            )
-            // Every other screen wraps its content in AppContentContainer,
-            // which enforces design-system.md's 720dp detail-view cap —
-            // this screen's rows and dropdown were composed directly
-            // against the full window width instead, so they stretched
-            // edge-to-edge on a wide desktop window.
-            AppContentContainer(
-                modifier = Modifier.fillMaxSize(),
-                width = AppContentWidth.Detail,
-                windowSizeClass = windowSizeClass,
-                sidebarAdjacent = isDesktop,
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    if (languageError != null) {
-                        AppBanner(
-                            message = languageError,
-                            onDismiss = onDismissLanguageError,
-                            dismissLabel = stringResource(Res.string.dismiss),
-                        )
-                    }
-                    SectionTitle(stringResource(Res.string.server_section_title))
-                    SettingsRow(label = stringResource(Res.string.server_url_label), value = serverUrl)
-                    SectionTitle(stringResource(Res.string.language_section_title))
-                    AppDropdown(
-                        label = stringResource(Res.string.language_label),
-                        options = AppLanguage.entries,
-                        selectedOption = AppLanguage.fromCode(currentLanguage),
-                        onOptionSelected = { onLanguageChange(it.code) },
-                        optionLabel = AppLanguage::displayName,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = AppSpacing.space3),
-                    )
-                    SectionTitle(stringResource(Res.string.account_section_title))
-                    AppTextButton(
-                        text = stringResource(Res.string.log_out),
-                        onClick = onLogout,
-                        modifier = Modifier.padding(vertical = AppSpacing.space1),
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                if (languageError != null) {
+                    AppBanner(
+                        message = languageError,
+                        onDismiss = onDismissLanguageError,
+                        dismissLabel = stringResource(Res.string.dismiss),
                     )
                 }
+                SectionTitle(stringResource(Res.string.server_section_title))
+                SettingsRow(label = stringResource(Res.string.server_url_label), value = serverUrl)
+                SectionTitle(stringResource(Res.string.language_section_title))
+                AppDropdown(
+                    label = stringResource(Res.string.language_label),
+                    options = AppLanguage.entries,
+                    selectedOption = AppLanguage.fromCode(currentLanguage),
+                    onOptionSelected = { onLanguageChange(it.code) },
+                    optionLabel = AppLanguage::displayName,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = AppSpacing.space3),
+                )
+                SectionTitle(stringResource(Res.string.account_section_title))
+                AppTextButton(
+                    text = stringResource(Res.string.log_out),
+                    onClick = onLogout,
+                    modifier = Modifier.padding(vertical = AppSpacing.space1),
+                )
             }
         }
     }
 }
 
 // Unlike DocumentListScreen's rows, these two have no leading icon/visual
-// weight of their own to balance against a margin, and now sit entirely
-// inside SettingsScreen's single AppContentContainer (see its call site) —
-// so they take only vertical padding and let the container supply the one
-// horizontal margin for the whole screen, rather than adding a second,
-// redundant one of their own.
+// weight of their own to balance against a margin, and sit entirely inside
+// SettingsScreen's single AppContentContainer — so they take only vertical
+// padding and let the container supply the one horizontal margin for the
+// whole screen, rather than adding a second, redundant one of their own.
+//
+// Section role (not Micro): design-system.md's Section role is for
+// group/section headers, matching the document detail pane's headings and
+// the reference layout's "Informations extraites"/"Mots-clés".
 @Composable
-private fun SectionTitle(text: String) {
+internal fun SectionTitle(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        style = AppTypography.micro,
-        color = AppColors.textMuted,
-        modifier = Modifier.padding(vertical = AppSpacing.space4),
+        style = AppTypography.section,
+        color = AppColors.text,
+        modifier = modifier.padding(top = AppSpacing.space7, bottom = AppSpacing.space3),
     )
 }
 

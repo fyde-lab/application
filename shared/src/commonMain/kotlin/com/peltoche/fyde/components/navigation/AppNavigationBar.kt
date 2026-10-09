@@ -25,10 +25,9 @@ data class AppNavigationItem(
 )
 
 /**
- * Bottom navigation for the compact breakpoint. design-system.md is explicit
- * that this has no current use — no screen has 3+ peer top-level
- * destinations yet — so this exists as a ready primitive, not something
- * wired into navigation today.
+ * Bottom navigation for the compact breakpoint — the app's top-level
+ * destinations (Search, Scripts, Add-ons, Settings) below 600dp, via
+ * `TopLevelScaffold`.
  */
 @Composable
 fun AppNavigationBar(items: List<AppNavigationItem>, modifier: Modifier = Modifier) {
