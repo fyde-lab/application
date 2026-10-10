@@ -3,11 +3,13 @@ package com.peltoche.fyde.components.form
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.peltoche.fyde.theme.AppColors
@@ -22,7 +24,9 @@ import com.peltoche.fyde.theme.AppShapes
  * from first launch onward.
  *
  * No hardcoded copy: every user-visible string is a required parameter, so
- * callers always supply their own localized string.
+ * callers always supply their own localized string. [textStyle] overrides
+ * the entered text's style only (not the label's) — e.g. the Data role for
+ * a field holding code, where a proportional face misaligns it.
  */
 @Composable
 fun AppTextField(
@@ -40,6 +44,7 @@ fun AppTextField(
     trailingIcon: (@Composable () -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    textStyle: TextStyle? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -56,6 +61,7 @@ fun AppTextField(
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
+        textStyle = textStyle ?: LocalTextStyle.current,
         shape = AppShapes.input,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = AppColors.primary,

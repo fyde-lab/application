@@ -12,7 +12,8 @@ import com.peltoche.fyde.theme.AppTypography
 /**
  * A confirm/cancel prompt. No hardcoded copy: [confirmLabel] is required,
  * [text]/[dismissLabel] are opt-in but still caller-supplied strings, never
- * defaulted to English.
+ * defaulted to English. [destructive] marks the confirm action as one that
+ * can't be undone (uninstalling, logging out), see [AppTextButton].
  */
 @Composable
 fun AppDialog(
@@ -24,13 +25,14 @@ fun AppDialog(
     text: String? = null,
     dismissLabel: String? = null,
     onDismiss: (() -> Unit)? = null,
+    destructive: Boolean = false,
 ) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
         title = { Text(title, style = AppTypography.section, color = AppColors.text) },
         text = text?.let { { Text(it, style = AppTypography.body, color = AppColors.textMuted) } },
-        confirmButton = { AppTextButton(text = confirmLabel, onClick = onConfirm) },
+        confirmButton = { AppTextButton(text = confirmLabel, onClick = onConfirm, destructive = destructive) },
         dismissButton = if (dismissLabel != null && onDismiss != null) {
             { AppTextButton(text = dismissLabel, onClick = onDismiss) }
         } else {

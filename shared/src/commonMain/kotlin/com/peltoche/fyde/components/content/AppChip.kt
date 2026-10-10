@@ -1,17 +1,23 @@
 package com.peltoche.fyde.components.content
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.ChevronRightGlyph
 import com.peltoche.fyde.theme.AppColors
@@ -19,21 +25,23 @@ import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
+import com.peltoche.fyde.theme.appFocusRing
 
 /**
  * A small bordered filter/facet chip — [AppBadge]'s interactive sibling:
  * where a badge is a static status label, a chip represents a facet a user
- * can act on. [enabled] controls contrast only, not clickability — this
- * component has no `onClick` of its own (not every chip use is a dropdown
- * trigger), so a caller wires its own tap/click handling and passes
- * `enabled = false` for a facet the current data model doesn't support
- * filtering on yet, matching the dimmed-rather-than-full-contrast treatment
- * the rest of the app already uses for a visible-but-not-wired-up control
- * (see [com.peltoche.fyde.components.navigation.AppNavigationItem.enabled]).
+ * can act on. With [onClick] it's a real control: focus ring, and a hit
+ * area grown to the 48dp touch-target minimum around its compact visual (see
+ * design-system.md § Shape, "Touch target minimum is a rule about tap
+ * area"). [selected] marks a facet currently narrowing the results —
+ * `primary` outline over the `selectionSurface` wash, the same pairing a
+ * selected list row uses.
  *
- * Promoted out of `DocumentListScreen`'s private `FilterChip`, which had
- * drifted from every other interactive primitive in the app by living
- * outside `components/` instead of alongside [AppBadge].
+ * [enabled] dims the chip and ignores clicks. Found via review: chips used
+ * to be drawn with no click handling at all, as permanently disabled
+ * placeholders for filters the data model didn't support — five inert
+ * controls on the main screen. Only chips backed by a real filter are shown
+ * now.
  */
 @Composable
 fun AppChip(
@@ -41,12 +49,29 @@ fun AppChip(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     showChevron: Boolean = false,
+    selected: Boolean = false,
+    onClick: (() -> Unit)? = null,
 ) {
-    val contentColor = if (enabled) AppColors.text else AppColors.textMuted
+    val contentColor = when {
+        !enabled -> AppColors.textMuted
+        selected -> AppColors.primary
+        else -> AppColors.text
+    }
+    val interactionSource = remember { MutableInteractionSource() }
+    val clickableModifier = if (onClick != null) {
+        Modifier
+            .minimumInteractiveComponentSize()
+            .appFocusRing(interactionSource, shape = AppRadius.sm)
+            .clip(AppRadius.sm)
+            .clickable(interactionSource = interactionSource, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
+    } else {
+        Modifier.clip(AppRadius.sm)
+    }
     Row(
         modifier = modifier
-            .clip(AppRadius.sm)
-            .border(AppDimensions.borderHairline, AppColors.border, AppRadius.sm)
+            .then(clickableModifier)
+            .background(if (selected) AppColors.selectionSurface else AppColors.background)
+            .border(AppDimensions.borderHairline, if (selected) AppColors.primary else AppColors.border, AppRadius.sm)
             .padding(horizontal = AppSpacing.space3, vertical = AppSpacing.space2),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -55,7 +80,7 @@ fun AppChip(
             Spacer(Modifier.width(AppSpacing.space1))
             ChevronRightGlyph(
                 modifier = Modifier.size(10.dp).rotate(90f),
-                tint = AppColors.textMuted,
+                tint = if (selected) AppColors.primary else AppColors.textMuted,
             )
         }
     }

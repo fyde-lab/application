@@ -14,20 +14,39 @@ import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 
+/** How serious an [AppBanner]'s condition is. */
+enum class AppBannerSeverity {
+    /** Something failed (an upload, an install) — the default. */
+    Error,
+
+    /** Nothing failed, but something is degraded until it recovers on its own (the server being unreachable). */
+    Warning,
+}
+
 /**
- * A persistent, dismissible problem banner pinned above content — for an
- * ongoing condition (a dropped sync stream, a failed background upload),
- * not a one-off transient toast (see [AppSnackbarHost] for that). Every
- * current use is error-class, so this doesn't take a severity variant yet —
- * add one if a non-error use case actually shows up, rather than guessing
- * at the values now.
+ * A persistent problem banner pinned above content — for an ongoing
+ * condition (a dropped sync stream, a failed background upload, being
+ * offline), not a one-off transient toast (see [AppSnackbarHost] for that).
+ * Dismissible when [onDismiss] is given; a condition that clears on its own
+ * (like being offline) omits it and simply stops showing the banner.
  */
 @Composable
-fun AppBanner(message: String, modifier: Modifier = Modifier, onDismiss: (() -> Unit)? = null, dismissLabel: String? = null) {
+fun AppBanner(
+    message: String,
+    modifier: Modifier = Modifier,
+    onDismiss: (() -> Unit)? = null,
+    dismissLabel: String? = null,
+    severity: AppBannerSeverity = AppBannerSeverity.Error,
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.errorContainer)
+            .background(
+                when (severity) {
+                    AppBannerSeverity.Error -> MaterialTheme.colorScheme.errorContainer
+                    AppBannerSeverity.Warning -> AppColors.warning.copy(alpha = 0.14f)
+                },
+            )
             .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
         verticalAlignment = Alignment.CenterVertically,
     ) {
