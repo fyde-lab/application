@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Shared / auth -->
     <string name="log_in">Log in</string>
     <string name="sign_up">Sign up</string>
     <string name="username_label">Username</string>
     <string name="password_label">Password</string>
-
-    <!-- Login screen -->
-    <string name="no_account_prompt">"Don't have an account?"</string>
+    <string name="no_account_prompt">Don’t have an account?</string>
     <string name="auth_error_login_failed">Failed to log in</string>
-
-    <!-- Register screen -->
     <string name="create_account_title">Create an account</string>
     <string name="confirm_password_label">Confirm password</string>
-    <string name="passwords_mismatch">"Passwords don't match"</string>
+    <string name="passwords_mismatch">Passwords don’t match</string>
     <string name="has_account_prompt">Already have an account?</string>
     <string name="auth_error_register_failed">Failed to create account</string>
-
-    <!-- Connection -->
     <string name="error_unknown">Unknown error</string>
-    <string name="connecting_message">Connecting to fyde-sdk…</string>
-    <string name="connect_failed_title">"Can't reach the server"</string>
+    <string name="connecting_message">Connecting…</string>
+    <string name="connect_failed_title">Can’t reach the server</string>
     <string name="retry">Retry</string>
     <string name="server_unreachable_description">Check that the Fyde server is running and reachable, then try again.</string>
-
-    <!-- Document list -->
     <string name="documents_title">Documents</string>
     <string name="search_documents_placeholder">Search documents</string>
     <string name="dismiss">Dismiss</string>
@@ -40,9 +31,13 @@
     <string name="clear_search">Clear search</string>
     <string name="select_document_title">Select a document</string>
     <string name="select_document_description">Choose a document from the list to preview it here.</string>
-    <string name="documents_count">%1$d document(s)</string>
-
-    <!-- Document preview pane: details section -->
+    <string name="filter_type">Type</string>
+    <string name="filter_period">Period</string>
+    <string name="filter_type_pdf">PDF</string>
+    <string name="filter_type_image">Images</string>
+    <string name="filter_type_spreadsheet">Spreadsheets</string>
+    <string name="filter_type_text">Text documents</string>
+    <string name="filter_type_other">Other</string>
     <string name="document_details_title">Details</string>
     <string name="document_detail_type">Type</string>
     <string name="document_detail_size">Size</string>
@@ -51,29 +46,68 @@
     <string name="document_detail_source_subcategory">Source subtype</string>
     <string name="document_detail_purpose">Purpose</string>
     <string name="document_detail_value_unset">—</string>
-
-    <!-- Document list: desktop sidebar -->
-    <string name="sidebar_app_title">My documents</string>
-    <string name="nav_search">Search</string>
-    <string name="encryption_badge_title">End-to-end encryption</string>
-    <string name="encryption_badge_description">Your documents are secured</string>
-    <string name="filter_type">Type</string>
-    <string name="filter_issuer">Issuer</string>
-    <string name="filter_period">Period</string>
-    <string name="filter_amount">Amount</string>
-    <string name="filter_more">+ More filters</string>
-    <string name="search_results_count">%1$d results for “%2$s”</string>
-    <string name="document_favorite">Favorite</string>
     <string name="document_download">Download</string>
-    <string name="document_more_actions">More actions</string>
     <string name="document_preview_title">Document preview</string>
     <string name="document_detail_keywords_title">Keywords</string>
-
-    <!-- Scripts screen -->
-    <string name="scripts_menu_item">Scripts</string>
-    <string name="scripts_title">Scripts</string>
-    <string name="no_scripts_title">No scripts installed</string>
-    <string name="no_scripts_description">Scripts you create are installed automatically and will show up here.</string>
+    <string name="pdf_preview_unavailable">PDF preview isn’t available on Web yet.</string>
+    <string name="sidebar_app_title">Fyde</string>
+    <string name="encryption_badge_title">End-to-end encryption</string>
+    <string name="encryption_badge_description">Your documents are secured</string>
+    <string name="size_bytes">%1$s B</string>
+    <string name="size_kilobytes">%1$s KB</string>
+    <string name="size_megabytes">%1$s MB</string>
+    <string name="size_gigabytes">%1$s GB</string>
+    <string name="decimal_separator">.</string>
+    <string name="date_format">%2$s %1$d, %3$d</string>
+    <string name="month_1">Jan</string>
+    <string name="month_2">Feb</string>
+    <string name="month_3">Mar</string>
+    <string name="month_4">Apr</string>
+    <string name="month_5">May</string>
+    <string name="month_6">Jun</string>
+    <string name="month_7">Jul</string>
+    <string name="month_8">Aug</string>
+    <string name="month_9">Sep</string>
+    <string name="month_10">Oct</string>
+    <string name="month_11">Nov</string>
+    <string name="month_12">Dec</string>
+    <string name="source_category_bank">Bank</string>
+    <string name="source_category_insurance">Insurance</string>
+    <string name="source_category_retail">Retail</string>
+    <string name="source_category_telecom">Telecom</string>
+    <string name="source_category_energy">Energy</string>
+    <string name="source_category_water">Water</string>
+    <string name="source_category_health">Health</string>
+    <string name="source_category_gov">Government</string>
+    <string name="source_category_association">Association</string>
+    <string name="source_category_education">Education</string>
+    <string name="source_category_employer">Employer</string>
+    <string name="source_category_transport">Transport</string>
+    <string name="source_category_goods">Goods</string>
+    <string name="source_category_alimentation">Food</string>
+    <string name="source_category_building">Building</string>
+    <string name="source_category_real_estate">Real estate</string>
+    <string name="source_category_web">Web</string>
+    <string name="source_category_individual">Individual</string>
+    <string name="source_category_shopping">Shopping</string>
+    <string name="source_subcategory_civil_registration">Civil registration</string>
+    <string name="source_subcategory_immigration">Immigration</string>
+    <string name="source_subcategory_transport">Transport</string>
+    <string name="source_subcategory_family">Family</string>
+    <string name="source_subcategory_tax">Tax</string>
+    <string name="source_subcategory_health">Health</string>
+    <string name="source_subcategory_real_estate">Real estate</string>
+    <string name="source_subcategory_mobile">Mobile</string>
+    <string name="source_subcategory_internet">Internet</string>
+    <string name="source_subcategory_citizen">Citizenship</string>
+    <string name="source_subcategory_sport">Sport</string>
+    <string name="purpose_attestation">Certificate</string>
+    <string name="purpose_contract">Contract</string>
+    <string name="purpose_invoice">Invoice</string>
+    <string name="purpose_report">Report</string>
+    <string name="purpose_description">Description</string>
+    <string name="purpose_evaluation">Evaluation</string>
+    <string name="purpose_employment">Employment</string>
     <string name="new_script">New script</string>
     <string name="new_script_sheet_title">New script</string>
     <string name="script_name_label">Name</string>
@@ -81,21 +115,16 @@
     <string name="script_public_label">Make public</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
-    <string name="create_script_failed">"Couldn't create script: %1$s"</string>
-    <string name="uninstall_script">Uninstall</string>
-    <string name="uninstall_script_failed">"Couldn't uninstall script: %1$s"</string>
+    <string name="create_script_failed">Couldn’t create script: %1$s</string>
     <string name="script_version">v%1$d</string>
-    <string name="script_public_badge">Public</string>
     <string name="script_private_badge">Private</string>
-
-    <!-- Addons screen -->
     <string name="nav_addons">Add-ons</string>
     <string name="addons_title">Add-ons</string>
     <string name="addons_installed_section">Installed (%1$d)</string>
     <string name="addons_available_section">Available (%1$d)</string>
     <string name="addons_empty_title">No add-ons yet</string>
-    <string name="addons_empty_description">Public scripts shared by other users will show up here.</string>
-    <string name="addon_toggle_failed">"Couldn't update “%1$s”: %2$s"</string>
+    <string name="addons_empty_description">Public add-ons, and scripts you create, will show up here.</string>
+    <string name="addon_toggle_failed">Couldn’t update “%1$s”: %2$s</string>
     <string name="addon_install_button">Install</string>
     <string name="addon_uninstall_button">Uninstall</string>
     <string name="addon_about_section">About</string>
@@ -104,18 +133,28 @@
     <string name="addon_parameters_section">Parameters</string>
     <string name="addon_parameter_required">Required</string>
     <string name="addon_parameter_invalid_number">Must be a number</string>
-
-    <!-- Settings screen -->
     <string name="settings_title">Settings</string>
     <string name="server_section_title">Server</string>
     <string name="server_url_label">Server URL</string>
     <string name="language_section_title">Language</string>
     <string name="language_label">App language</string>
-    <string name="language_save_failed">"Couldn't save language: %1$s"</string>
+    <string name="language_save_failed">Couldn’t save language: %1$s</string>
     <string name="account_section_title">Account</string>
-
-    <!-- PDF viewer -->
     <string name="back">Back</string>
-    <string name="pdf_render_failed">"Couldn't render this PDF: %1$s"</string>
-    <string name="pdf_preview_unavailable">"PDF preview isn't available on Web yet."</string>
+    <string name="documents_count">%1$d document(s)</string>
+    <string name="nav_search">Search</string>
+    <string name="filter_issuer">Issuer</string>
+    <string name="filter_amount">Amount</string>
+    <string name="filter_more">+ More filters</string>
+    <string name="search_results_count">%1$d results for “%2$s”</string>
+    <string name="document_favorite">Favorite</string>
+    <string name="document_more_actions">More actions</string>
+    <string name="scripts_menu_item">Scripts</string>
+    <string name="scripts_title">Scripts</string>
+    <string name="no_scripts_title">No scripts installed</string>
+    <string name="no_scripts_description">Scripts you create are installed automatically and will show up here.</string>
+    <string name="uninstall_script">Uninstall</string>
+    <string name="uninstall_script_failed">Couldn’t uninstall script: %1$s</string>
+    <string name="script_public_badge">Public</string>
+    <string name="pdf_render_failed">Couldn’t render this PDF: %1$s</string>
 </resources>

@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Shared / auth -->
     <string name="log_in">Se connecter</string>
-    <string name="sign_up">"S'inscrire"</string>
-    <string name="username_label">"Nom d'utilisateur"</string>
+    <string name="sign_up">S’inscrire</string>
+    <string name="username_label">Nom d’utilisateur</string>
     <string name="password_label">Mot de passe</string>
-
-    <!-- Login screen -->
-    <string name="no_account_prompt">"Vous n'avez pas de compte ?"</string>
+    <string name="no_account_prompt">Vous n’avez pas de compte ?</string>
     <string name="auth_error_login_failed">Échec de la connexion</string>
-
-    <!-- Register screen -->
     <string name="create_account_title">Créer un compte</string>
     <string name="confirm_password_label">Confirmer le mot de passe</string>
     <string name="passwords_mismatch">Les mots de passe ne correspondent pas</string>
     <string name="has_account_prompt">Vous avez déjà un compte ?</string>
     <string name="auth_error_register_failed">Échec de la création du compte</string>
-
-    <!-- Connection -->
     <string name="error_unknown">Erreur inconnue</string>
-    <string name="connecting_message">Connexion à fyde-sdk…</string>
+    <string name="connecting_message">Connexion…</string>
     <string name="connect_failed_title">Impossible de joindre le serveur</string>
     <string name="retry">Réessayer</string>
     <string name="server_unreachable_description">Vérifiez que le serveur Fyde est démarré et joignable, puis réessayez.</string>
-
-    <!-- Document list -->
     <string name="documents_title">Documents</string>
     <string name="search_documents_placeholder">Rechercher des documents</string>
     <string name="dismiss">Fermer</string>
@@ -33,16 +24,20 @@
     <string name="no_documents_match">Aucun document ne correspond à « %1$s »</string>
     <string name="no_matches_title">Aucun résultat</string>
     <string name="upload_document">Importer un document</string>
-    <string name="upload_failed">"Échec de l'import : %1$s"</string>
+    <string name="upload_failed">Échec de l’import : %1$s</string>
     <string name="uploads_failed">%1$d import(s) sur %2$d ont échoué</string>
     <string name="settings">Paramètres</string>
     <string name="log_out">Se déconnecter</string>
     <string name="clear_search">Effacer la recherche</string>
     <string name="select_document_title">Sélectionnez un document</string>
     <string name="select_document_description">Choisissez un document dans la liste pour le prévisualiser ici.</string>
-    <string name="documents_count">%1$d document(s)</string>
-
-    <!-- Document preview pane: details section -->
+    <string name="filter_type">Type</string>
+    <string name="filter_period">Période</string>
+    <string name="filter_type_pdf">PDF</string>
+    <string name="filter_type_image">Images</string>
+    <string name="filter_type_spreadsheet">Tableurs</string>
+    <string name="filter_type_text">Documents texte</string>
+    <string name="filter_type_other">Autres</string>
     <string name="document_details_title">Détails</string>
     <string name="document_detail_type">Type</string>
     <string name="document_detail_size">Taille</string>
@@ -51,29 +46,68 @@
     <string name="document_detail_source_subcategory">Sous-catégorie</string>
     <string name="document_detail_purpose">Objet</string>
     <string name="document_detail_value_unset">—</string>
-
-    <!-- Document list: desktop sidebar -->
-    <string name="sidebar_app_title">Mes documents</string>
-    <string name="nav_search">Rechercher</string>
-    <string name="encryption_badge_title">Chiffrement de bout en bout</string>
-    <string name="encryption_badge_description">Vos documents sont sécurisés</string>
-    <string name="filter_type">Type</string>
-    <string name="filter_issuer">Émetteur</string>
-    <string name="filter_period">Période</string>
-    <string name="filter_amount">Montant</string>
-    <string name="filter_more">+ Plus de filtres</string>
-    <string name="search_results_count">%1$d résultats pour « %2$s »</string>
-    <string name="document_favorite">Favori</string>
     <string name="document_download">Télécharger</string>
-    <string name="document_more_actions">"Plus d'actions"</string>
     <string name="document_preview_title">Aperçu du document</string>
     <string name="document_detail_keywords_title">Mots-clés</string>
-
-    <!-- Scripts screen -->
-    <string name="scripts_menu_item">Scripts</string>
-    <string name="scripts_title">Scripts</string>
-    <string name="no_scripts_title">Aucun script installé</string>
-    <string name="no_scripts_description">Les scripts que vous créez sont installés automatiquement et apparaîtront ici.</string>
+    <string name="pdf_preview_unavailable">L’aperçu PDF n’est pas encore disponible sur le Web.</string>
+    <string name="sidebar_app_title">Fyde</string>
+    <string name="encryption_badge_title">Chiffrement de bout en bout</string>
+    <string name="encryption_badge_description">Vos documents sont sécurisés</string>
+    <string name="size_bytes">%1$s o</string>
+    <string name="size_kilobytes">%1$s Ko</string>
+    <string name="size_megabytes">%1$s Mo</string>
+    <string name="size_gigabytes">%1$s Go</string>
+    <string name="decimal_separator">,</string>
+    <string name="date_format">%1$d %2$s %3$d</string>
+    <string name="month_1">janv.</string>
+    <string name="month_2">févr.</string>
+    <string name="month_3">mars</string>
+    <string name="month_4">avr.</string>
+    <string name="month_5">mai</string>
+    <string name="month_6">juin</string>
+    <string name="month_7">juil.</string>
+    <string name="month_8">août</string>
+    <string name="month_9">sept.</string>
+    <string name="month_10">oct.</string>
+    <string name="month_11">nov.</string>
+    <string name="month_12">déc.</string>
+    <string name="source_category_bank">Banque</string>
+    <string name="source_category_insurance">Assurance</string>
+    <string name="source_category_retail">Commerce</string>
+    <string name="source_category_telecom">Télécoms</string>
+    <string name="source_category_energy">Énergie</string>
+    <string name="source_category_water">Eau</string>
+    <string name="source_category_health">Santé</string>
+    <string name="source_category_gov">Administration</string>
+    <string name="source_category_association">Association</string>
+    <string name="source_category_education">Éducation</string>
+    <string name="source_category_employer">Employeur</string>
+    <string name="source_category_transport">Transport</string>
+    <string name="source_category_goods">Biens</string>
+    <string name="source_category_alimentation">Alimentation</string>
+    <string name="source_category_building">Bâtiment</string>
+    <string name="source_category_real_estate">Immobilier</string>
+    <string name="source_category_web">Web</string>
+    <string name="source_category_individual">Particulier</string>
+    <string name="source_category_shopping">Achats</string>
+    <string name="source_subcategory_civil_registration">État civil</string>
+    <string name="source_subcategory_immigration">Immigration</string>
+    <string name="source_subcategory_transport">Transport</string>
+    <string name="source_subcategory_family">Famille</string>
+    <string name="source_subcategory_tax">Impôts</string>
+    <string name="source_subcategory_health">Santé</string>
+    <string name="source_subcategory_real_estate">Immobilier</string>
+    <string name="source_subcategory_mobile">Mobile</string>
+    <string name="source_subcategory_internet">Internet</string>
+    <string name="source_subcategory_citizen">Citoyenneté</string>
+    <string name="source_subcategory_sport">Sport</string>
+    <string name="purpose_attestation">Attestation</string>
+    <string name="purpose_contract">Contrat</string>
+    <string name="purpose_invoice">Facture</string>
+    <string name="purpose_report">Rapport</string>
+    <string name="purpose_description">Description</string>
+    <string name="purpose_evaluation">Évaluation</string>
+    <string name="purpose_employment">Emploi</string>
     <string name="new_script">Nouveau script</string>
     <string name="new_script_sheet_title">Nouveau script</string>
     <string name="script_name_label">Nom</string>
@@ -81,41 +115,46 @@
     <string name="script_public_label">Rendre public</string>
     <string name="create">Créer</string>
     <string name="cancel">Annuler</string>
-    <string name="create_script_failed">"Impossible de créer le script : %1$s"</string>
-    <string name="uninstall_script">Désinstaller</string>
-    <string name="uninstall_script_failed">"Impossible de désinstaller le script : %1$s"</string>
+    <string name="create_script_failed">Impossible de créer le script : %1$s</string>
     <string name="script_version">v%1$d</string>
-    <string name="script_public_badge">Public</string>
     <string name="script_private_badge">Privé</string>
-
-    <!-- Addons screen -->
     <string name="nav_addons">Extensions</string>
     <string name="addons_title">Extensions</string>
     <string name="addons_installed_section">Installées (%1$d)</string>
     <string name="addons_available_section">Disponibles (%1$d)</string>
     <string name="addons_empty_title">Aucune extension pour le moment</string>
-    <string name="addons_empty_description">Les scripts publics partagés par d'autres utilisateurs apparaîtront ici.</string>
-    <string name="addon_toggle_failed">"Impossible de mettre à jour « %1$s » : %2$s"</string>
+    <string name="addons_empty_description">Les extensions publiques, et les scripts que vous créez, apparaîtront ici.</string>
+    <string name="addon_toggle_failed">Impossible de mettre à jour « %1$s » : %2$s</string>
     <string name="addon_install_button">Installer</string>
     <string name="addon_uninstall_button">Désinstaller</string>
     <string name="addon_about_section">À propos</string>
     <string name="addon_domains_installed">Cette extension peut accéder à ces sites :</string>
-    <string name="addon_domains_not_installed">"L'installation donne à cette extension l'accès à ces sites :"</string>
+    <string name="addon_domains_not_installed">L’installation donne à cette extension l’accès à ces sites :</string>
     <string name="addon_parameters_section">Paramètres</string>
     <string name="addon_parameter_required">Requis</string>
     <string name="addon_parameter_invalid_number">Doit être un nombre</string>
-
-    <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>
     <string name="server_section_title">Serveur</string>
     <string name="server_url_label">URL du serveur</string>
     <string name="language_section_title">Langue</string>
-    <string name="language_label">"Langue de l'application"</string>
-    <string name="language_save_failed">"Impossible d'enregistrer la langue : %1$s"</string>
+    <string name="language_label">Langue de l’application</string>
+    <string name="language_save_failed">Impossible d’enregistrer la langue : %1$s</string>
     <string name="account_section_title">Compte</string>
-
-    <!-- PDF viewer -->
     <string name="back">Retour</string>
-    <string name="pdf_render_failed">"Impossible d'afficher ce PDF : %1$s"</string>
-    <string name="pdf_preview_unavailable">"L'aperçu PDF n'est pas encore disponible sur le Web."</string>
+    <string name="documents_count">%1$d document(s)</string>
+    <string name="nav_search">Rechercher</string>
+    <string name="filter_issuer">Émetteur</string>
+    <string name="filter_amount">Montant</string>
+    <string name="filter_more">+ Plus de filtres</string>
+    <string name="search_results_count">%1$d résultats pour « %2$s »</string>
+    <string name="document_favorite">Favori</string>
+    <string name="document_more_actions">Plus d’actions</string>
+    <string name="scripts_menu_item">Scripts</string>
+    <string name="scripts_title">Scripts</string>
+    <string name="no_scripts_title">Aucun script installé</string>
+    <string name="no_scripts_description">Les scripts que vous créez sont installés automatiquement et apparaîtront ici.</string>
+    <string name="uninstall_script">Désinstaller</string>
+    <string name="uninstall_script_failed">Impossible de désinstaller le script : %1$s</string>
+    <string name="script_public_badge">Public</string>
+    <string name="pdf_render_failed">Impossible d’afficher ce PDF : %1$s</string>
 </resources>
