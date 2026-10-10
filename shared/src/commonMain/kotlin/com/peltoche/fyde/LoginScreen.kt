@@ -52,12 +52,13 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     modifier: Modifier = Modifier,
     errorMessage: String? = null,
+    isSubmitting: Boolean = false,
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val usernameFocus = remember { FocusRequester() }
 
-    val canSubmit = username.isNotBlank() && password.isNotBlank()
+    val canSubmit = !isSubmitting && username.isNotBlank() && password.isNotBlank()
     val submit = { if (canSubmit) onLogIn(username, password) }
 
     // Land the cursor in the first field on arrival, so the form can be
@@ -88,6 +89,7 @@ fun LoginScreen(
             // next field, then submits from the last one — but only once
             // the form is complete, same as the button's `enabled` state.
             AppTextField(
+                enabled = !isSubmitting,
                 value = username,
                 onValueChange = { username = it },
                 label = stringResource(Res.string.username_label),
@@ -96,6 +98,7 @@ fun LoginScreen(
             )
             Spacer(Modifier.height(AppSpacing.space4))
             AppTextField(
+                enabled = !isSubmitting,
                 value = password,
                 onValueChange = { password = it },
                 label = stringResource(Res.string.password_label),
@@ -118,6 +121,7 @@ fun LoginScreen(
                 text = stringResource(Res.string.log_in),
                 onClick = submit,
                 enabled = canSubmit,
+                loading = isSubmitting,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(AppSpacing.space3))
@@ -131,7 +135,7 @@ fun LoginScreen(
                     style = AppTypography.caption,
                     color = AppColors.textMuted,
                 )
-                AppTextButton(text = stringResource(Res.string.sign_up), onClick = onNavigateToRegister)
+                AppTextButton(text = stringResource(Res.string.sign_up), onClick = onNavigateToRegister, enabled = !isSubmitting)
             }
         }
     }

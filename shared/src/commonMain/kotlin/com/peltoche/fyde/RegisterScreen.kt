@@ -33,6 +33,7 @@ import com.peltoche.fyde.resources.has_account_prompt
 import com.peltoche.fyde.resources.log_in
 import com.peltoche.fyde.resources.password_label
 import com.peltoche.fyde.resources.passwords_mismatch
+import com.peltoche.fyde.resources.register_password_warning
 import com.peltoche.fyde.resources.sign_up
 import com.peltoche.fyde.resources.username_label
 import com.peltoche.fyde.components.form.AppTextField
@@ -56,6 +57,7 @@ fun RegisterScreen(
     onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier,
     errorMessage: String? = null,
+    isSubmitting: Boolean = false,
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -63,7 +65,7 @@ fun RegisterScreen(
     var confirmPassword by remember { mutableStateOf("") }
 
     val passwordsMatch = password == confirmPassword
-    val canSubmit = username.isNotBlank() && password.isNotBlank() && passwordsMatch
+    val canSubmit = !isSubmitting && username.isNotBlank() && password.isNotBlank() && passwordsMatch
     val submit = { if (canSubmit) onRegister(username, password) }
 
     // Land the cursor in the first field on arrival, so the form can be
@@ -89,11 +91,21 @@ fun RegisterScreen(
                 style = AppTypography.title,
                 color = AppColors.text,
             )
+            Spacer(Modifier.height(AppSpacing.space3))
+            // Said before the password is chosen, not after: fyde's
+            // end-to-end encryption means no one, Fyde included, can reset
+            // it, so a forgotten password loses every document for good.
+            Text(
+                text = stringResource(Res.string.register_password_warning),
+                style = AppTypography.caption,
+                color = AppColors.textMuted,
+            )
             Spacer(Modifier.height(AppSpacing.space7))
             // Enter (or the soft keyboard's action key) moves on to the
             // next field, then submits from the last one — but only once
             // the form is complete, same as the button's `enabled` state.
             AppTextField(
+                enabled = !isSubmitting,
                 value = username,
                 onValueChange = { username = it },
                 label = stringResource(Res.string.username_label),
@@ -102,6 +114,7 @@ fun RegisterScreen(
             )
             Spacer(Modifier.height(AppSpacing.space4))
             AppTextField(
+                enabled = !isSubmitting,
                 value = password,
                 onValueChange = { password = it },
                 label = stringResource(Res.string.password_label),
@@ -110,6 +123,7 @@ fun RegisterScreen(
             )
             Spacer(Modifier.height(AppSpacing.space4))
             AppTextField(
+                enabled = !isSubmitting,
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
                 label = stringResource(Res.string.confirm_password_label),
@@ -142,6 +156,7 @@ fun RegisterScreen(
                 text = stringResource(Res.string.sign_up),
                 onClick = submit,
                 enabled = canSubmit,
+                loading = isSubmitting,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(AppSpacing.space3))
@@ -155,7 +170,7 @@ fun RegisterScreen(
                     style = AppTypography.caption,
                     color = AppColors.textMuted,
                 )
-                AppTextButton(text = stringResource(Res.string.log_in), onClick = onNavigateToLogin)
+                AppTextButton(text = stringResource(Res.string.log_in), onClick = onNavigateToLogin, enabled = !isSubmitting)
             }
         }
     }

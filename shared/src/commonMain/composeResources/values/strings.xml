@@ -1,43 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Shared / auth -->
     <string name="log_in">Log in</string>
     <string name="sign_up">Sign up</string>
     <string name="username_label">Username</string>
     <string name="password_label">Password</string>
+
+    <!-- Login screen -->
     <string name="no_account_prompt">Don’t have an account?</string>
     <string name="auth_error_login_failed">Failed to log in</string>
+
+    <!-- Register screen -->
     <string name="create_account_title">Create an account</string>
     <string name="confirm_password_label">Confirm password</string>
     <string name="passwords_mismatch">Passwords don’t match</string>
     <string name="has_account_prompt">Already have an account?</string>
     <string name="auth_error_register_failed">Failed to create account</string>
+    <string name="register_password_warning">Your password is the only key to your documents. Fyde can’t reset it: if you forget it, your documents can’t be recovered.</string>
+
+    <!-- Connection -->
     <string name="error_unknown">Unknown error</string>
     <string name="connecting_message">Connecting…</string>
     <string name="connect_failed_title">Can’t reach the server</string>
     <string name="retry">Retry</string>
     <string name="server_unreachable_description">Check that the Fyde server is running and reachable, then try again.</string>
+    <string name="offline_banner">Offline: the server can’t be reached. Uploading is paused until it’s back.</string>
+
+    <!-- Document list -->
     <string name="documents_title">Documents</string>
     <string name="search_documents_placeholder">Search documents</string>
     <string name="dismiss">Dismiss</string>
     <string name="no_documents_title">No documents yet</string>
     <string name="no_documents_description">Documents you import will show up here.</string>
     <string name="no_documents_match">No documents match “%1$s”</string>
+    <string name="no_documents_match_filters">No documents match the current filters.</string>
     <string name="no_matches_title">No matches</string>
+    <string name="clear_filters">Clear filters</string>
     <string name="upload_document">Upload document</string>
     <string name="upload_failed">Upload failed: %1$s</string>
     <string name="uploads_failed">%1$d of %2$d uploads failed</string>
+    <plurals name="uploads_succeeded">
+        <item quantity="one">Uploaded %1$d document</item>
+        <item quantity="other">Uploaded %1$d documents</item>
+    </plurals>
     <string name="settings">Settings</string>
     <string name="log_out">Log out</string>
     <string name="clear_search">Clear search</string>
     <string name="select_document_title">Select a document</string>
     <string name="select_document_description">Choose a document from the list to preview it here.</string>
+    <plurals name="documents_count">
+        <item quantity="one">%1$d document</item>
+        <item quantity="other">%1$d documents</item>
+    </plurals>
+    <plurals name="search_results_count">
+        <item quantity="one">%1$d result for “%2$s”</item>
+        <item quantity="other">%1$d results for “%2$s”</item>
+    </plurals>
+
+    <!-- Document filters -->
     <string name="filter_type">Type</string>
     <string name="filter_period">Period</string>
+    <string name="filter_type_all">All types</string>
     <string name="filter_type_pdf">PDF</string>
     <string name="filter_type_image">Images</string>
     <string name="filter_type_spreadsheet">Spreadsheets</string>
     <string name="filter_type_text">Text documents</string>
     <string name="filter_type_other">Other</string>
+    <string name="filter_period_any">Any time</string>
+    <string name="filter_period_30_days">Last 30 days</string>
+    <string name="filter_period_this_year">This year</string>
+    <string name="filter_period_last_year">Last year</string>
+
+    <!-- Document detail -->
     <string name="document_details_title">Details</string>
     <string name="document_detail_type">Type</string>
     <string name="document_detail_size">Size</string>
@@ -47,20 +81,29 @@
     <string name="document_detail_purpose">Purpose</string>
     <string name="document_detail_value_unset">—</string>
     <string name="document_download">Download</string>
+    <string name="document_saved">Saved “%1$s”</string>
+    <string name="document_save_failed">Couldn’t save “%1$s”</string>
     <string name="document_preview_title">Document preview</string>
     <string name="document_detail_keywords_title">Keywords</string>
     <string name="preview_unavailable_title">No preview available</string>
+    <string name="preview_unavailable_description">%1$s files can’t be previewed here. Download the file to open it.</string>
     <string name="pdf_render_failed_title">Couldn’t display this PDF</string>
     <string name="pdf_render_failed_description">The file may be damaged. Download it to open it in another app.</string>
     <string name="pdf_preview_unavailable">PDF preview isn’t available on Web yet.</string>
+
+    <!-- Navigation -->
     <string name="sidebar_app_title">Fyde</string>
+    <string name="nav_documents">Documents</string>
     <string name="encryption_badge_title">End-to-end encryption</string>
     <string name="encryption_badge_description">Your documents are secured</string>
+
+    <!-- File sizes and dates. %1$s is an already-formatted number. -->
     <string name="size_bytes">%1$s B</string>
     <string name="size_kilobytes">%1$s KB</string>
     <string name="size_megabytes">%1$s MB</string>
     <string name="size_gigabytes">%1$s GB</string>
     <string name="decimal_separator">.</string>
+    <!-- %1$d day, %2$s month abbreviation, %3$d year -->
     <string name="date_format">%2$s %1$d, %3$d</string>
     <string name="month_1">Jan</string>
     <string name="month_2">Feb</string>
@@ -74,6 +117,8 @@
     <string name="month_10">Oct</string>
     <string name="month_11">Nov</string>
     <string name="month_12">Dec</string>
+
+    <!-- Document classification labels -->
     <string name="source_category_bank">Bank</string>
     <string name="source_category_insurance">Insurance</string>
     <string name="source_category_retail">Retail</string>
@@ -111,16 +156,24 @@
     <string name="purpose_description">Description</string>
     <string name="purpose_evaluation">Evaluation</string>
     <string name="purpose_employment">Employment</string>
+
+    <!-- New script sheet (Add-ons) -->
     <string name="new_script">New script</string>
     <string name="new_script_sheet_title">New script</string>
     <string name="script_name_label">Name</string>
     <string name="script_code_label">Script</string>
+    <string name="script_domains_label">Allowed sites</string>
+    <string name="script_domains_supporting">One domain per line, e.g. example.com. The script can’t reach any other site.</string>
+    <string name="script_domains_empty_warning">Without allowed sites, this script can’t make any network request.</string>
     <string name="script_public_label">Make public</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
     <string name="create_script_failed">Couldn’t create script: %1$s</string>
+    <string name="script_created">Created “%1$s”</string>
     <string name="script_version">v%1$d</string>
     <string name="script_private_badge">Private</string>
+
+    <!-- Addons screen -->
     <string name="nav_addons">Add-ons</string>
     <string name="addons_title">Add-ons</string>
     <string name="addons_installed_section">Installed (%1$d)</string>
@@ -130,12 +183,20 @@
     <string name="addon_toggle_failed">Couldn’t update “%1$s”: %2$s</string>
     <string name="addon_install_button">Install</string>
     <string name="addon_uninstall_button">Uninstall</string>
+    <string name="addon_save_button">Save changes</string>
+    <string name="addon_installed">Installed “%1$s”</string>
+    <string name="addon_uninstalled">Uninstalled “%1$s”</string>
+    <string name="addon_updated">Saved settings for “%1$s”</string>
+    <string name="addon_uninstall_confirm_title">Uninstall “%1$s”?</string>
+    <string name="addon_uninstall_confirm_text">Documents it already imported stay in Fyde.</string>
     <string name="addon_about_section">About</string>
     <string name="addon_domains_installed">This add-on can access these sites:</string>
     <string name="addon_domains_not_installed">Installing gives this add-on access to these sites:</string>
     <string name="addon_parameters_section">Parameters</string>
     <string name="addon_parameter_required">Required</string>
     <string name="addon_parameter_invalid_number">Must be a number</string>
+
+    <!-- Settings screen -->
     <string name="settings_title">Settings</string>
     <string name="server_section_title">Server</string>
     <string name="server_url_label">Server URL</string>
@@ -143,20 +204,10 @@
     <string name="language_label">App language</string>
     <string name="language_save_failed">Couldn’t save language: %1$s</string>
     <string name="account_section_title">Account</string>
+    <string name="log_out_confirm_title">Log out?</string>
+    <string name="log_out_confirm_text">This removes your documents and keys from this device. They stay safe in your account: log in again to get them back.</string>
+    <string name="log_out_failed">Couldn’t log out: %1$s</string>
+
+    <!-- Drill-downs -->
     <string name="back">Back</string>
-    <string name="documents_count">%1$d document(s)</string>
-    <string name="nav_search">Search</string>
-    <string name="filter_issuer">Issuer</string>
-    <string name="filter_amount">Amount</string>
-    <string name="filter_more">+ More filters</string>
-    <string name="search_results_count">%1$d results for “%2$s”</string>
-    <string name="document_favorite">Favorite</string>
-    <string name="document_more_actions">More actions</string>
-    <string name="scripts_menu_item">Scripts</string>
-    <string name="scripts_title">Scripts</string>
-    <string name="no_scripts_title">No scripts installed</string>
-    <string name="no_scripts_description">Scripts you create are installed automatically and will show up here.</string>
-    <string name="uninstall_script">Uninstall</string>
-    <string name="uninstall_script_failed">Couldn’t uninstall script: %1$s</string>
-    <string name="script_public_badge">Public</string>
 </resources>

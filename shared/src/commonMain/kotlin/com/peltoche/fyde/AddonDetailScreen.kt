@@ -1,6 +1,7 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +32,7 @@ import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.form.AppSwitch
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppTopBar
+import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppWindowSizeClass
@@ -42,37 +45,38 @@ import com.peltoche.fyde.resources.addon_install_button
 import com.peltoche.fyde.resources.addon_parameter_invalid_number
 import com.peltoche.fyde.resources.addon_parameter_required
 import com.peltoche.fyde.resources.addon_parameters_section
+import com.peltoche.fyde.resources.addon_save_button
 import com.peltoche.fyde.resources.addon_uninstall_button
+import com.peltoche.fyde.resources.addon_uninstall_confirm_text
+import com.peltoche.fyde.resources.addon_uninstall_confirm_title
 import com.peltoche.fyde.resources.addons_title
 import com.peltoche.fyde.resources.back
+import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
 
-/** Keeps the install/uninstall button a deliberate target, not a word-sized one, when it isn't full width. */
+/** Keeps an action button a deliberate target, not a word-sized one, when it isn't full width. */
 private val ActionButtonMinWidth = 160.dp
 
 /**
  * Drill-down detail view opened by clicking an [AddonsScreen] card: header
  * (icon, name, version line), a form for the script's declared
- * [FydeScript.parameters] while it isn't installed yet, the
- * install/uninstall action with the domains it grants access to right
- * beside it, then the full description.
+ * [FydeScript.parameters], the sites it may access, the install/save/
+ * uninstall actions, then the full description.
  *
- * Composed in the same [TopLevelScaffold] as [AddonsScreen], with Add-ons
- * still selected, so navigation stays put; the top bar names the parent
- * ("Add-ons") with a back chevron, and the add-on's own name appears once,
- * in the header. Found via review — this screen used to:
- * - drop the sidebar entirely and skip `AppContentContainer`, so on desktop
- *   the description ran edge-to-edge and the full-width button stretched
- *   across the whole window;
- * - pin the action to the bottom of a non-scrolling column, so a long
- *   description pushed it off-screen with no way to reach it;
- * - not render [banner], so an install/uninstall failure triggered from
- *   here was silent (the spinner just stopped);
- * - repeat the name in both the top bar and the header.
+ * Found via review, this screen used to:
+ * - put the "this add-on can access these sites" disclosure *below* the
+ *   Install button, so it was read after agreeing to it;
+ * - drop the parameter form once installed, so credentials could only be
+ *   changed by uninstalling and installing again — now the form stays,
+ *   pre-filled from [installedParameters], and Save changes reinstalls with
+ *   the new values (an installation is keyed by script, so this replaces
+ *   the previous one);
+ * - sort parameters alphabetically by label (see [orderedParameters]);
+ * - uninstall on a single tap, with no confirmation.
  */
 @Composable
 fun AddonDetailScreen(
@@ -83,25 +87,34 @@ fun AddonDetailScreen(
     onInstall: (parameters: Map<String, FydeScriptParameterValue>) -> Unit,
     onUninstall: () -> Unit,
     modifier: Modifier = Modifier,
+    installedParameters: Map<String, FydeScriptParameterValue>? = null,
     banner: String? = null,
     onDismissBanner: () -> Unit = {},
     onOpenDocuments: () -> Unit = {},
-    onOpenScripts: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
 
     // One text value per parameter (machine name -> entered value), keyed
     // on script.id so switching to a different script's detail view starts
-    // from a blank form rather than carrying over the previous script's
-    // entries. Booleans are stored as "true"/"false" strings so a single
-    // map covers every parameter type.
+    // from its own values rather than carrying over the previous script's.
+    // Booleans are stored as "true"/"false" strings so a single map covers
+    // every parameter type.
     val parameterValues = remember(script.id) { mutableStateMapOf<String, String>() }
+    // Pre-fills the form with the values the script is installed with, once
+    // they're known — and again after a save, so the form matches them.
+    LaunchedEffect(script.id, installedParameters) {
+        if (installedParameters != null) {
+            parameterValues.clear()
+            parameterValues.putAll(formValues(installedParameters))
+        }
+    }
     // Required-but-empty errors only surface once the user has tried to
-    // install with the form incomplete — showing them up front, before any
-    // input, would make every parameter look like a validation failure the
-    // instant the screen opens.
+    // submit with the form incomplete — showing them up front would make
+    // every parameter look like a validation failure the instant the screen
+    // opens.
     var showRequiredErrors by remember(script.id) { mutableStateOf(false) }
+    var confirmingUninstall by remember(script.id) { mutableStateOf(false) }
 
     val requiredError = stringResource(Res.string.addon_parameter_required)
     val invalidNumberError = stringResource(Res.string.addon_parameter_invalid_number)
@@ -118,19 +131,16 @@ fun AddonDetailScreen(
         (!blank || !parameter.required) &&
             (parameter.type != FydeScriptParameterType.NUMBER || blank || value.toFiniteDoubleOrNull() != null)
     }
+    val enteredValues = if (parametersValid) typedParameterValues(script.parameters, parameterValues) else null
+    val hasChanges = enteredValues != null && enteredValues != installedParameters
 
-    fun attemptInstall() {
-        if (parametersValid) {
-            onInstall(typedParameterValues(script.parameters, parameterValues))
-        } else {
-            showRequiredErrors = true
-        }
+    fun submit() {
+        if (enteredValues != null) onInstall(enteredValues) else showRequiredErrors = true
     }
 
     TopLevelScaffold(
         current = SidebarDestination.Addons,
         onOpenDocuments = onOpenDocuments,
-        onOpenScripts = onOpenScripts,
         // Re-selecting Add-ons from its own drill-down returns to the grid.
         onOpenAddons = onBack,
         onOpenSettings = onOpenSettings,
@@ -169,9 +179,9 @@ fun AddonDetailScreen(
                     }
                 }
 
-                if (script.parameters.isNotEmpty() && !isInstalled) {
+                if (script.parameters.isNotEmpty()) {
                     SectionTitle(stringResource(Res.string.addon_parameters_section))
-                    script.parameters.entries.sortedBy { it.value.label }.forEach { (key, parameter) ->
+                    orderedParameters(script.parameters).forEach { (key, parameter) ->
                         val value = parameterValues[key].orEmpty()
                         if (parameter.type == FydeScriptParameterType.BOOLEAN) {
                             AppSwitch(
@@ -200,23 +210,52 @@ fun AddonDetailScreen(
                     }
                 }
 
-                Spacer(Modifier.height(AppSpacing.space6))
-                InstallAction(
-                    isInstalled = isInstalled,
-                    isPending = isPending,
-                    onInstall = ::attemptInstall,
-                    onUninstall = onUninstall,
-                    // Full width only where the column itself is phone-narrow.
-                    modifier = if (windowSizeClass == AppWindowSizeClass.Compact) {
-                        Modifier.fillMaxWidth()
-                    } else {
-                        Modifier.widthIn(min = ActionButtonMinWidth)
-                    },
-                )
-
+                // A permission disclosure, so it comes before the action it
+                // applies to, never after.
                 if (script.allowedDomains.isNotEmpty()) {
                     Spacer(Modifier.height(AppSpacing.space5))
                     AllowedDomains(domains = script.allowedDomains, isInstalled = isInstalled)
+                }
+
+                Spacer(Modifier.height(AppSpacing.space6))
+                // Full width only where the column itself is phone-narrow.
+                val buttonModifier = if (windowSizeClass == AppWindowSizeClass.Compact) {
+                    Modifier.fillMaxWidth()
+                } else {
+                    Modifier.widthIn(min = ActionButtonMinWidth)
+                }
+                if (isInstalled) {
+                    val actions: @Composable (Modifier) -> Unit = { itemModifier ->
+                        if (script.parameters.isNotEmpty()) {
+                            AppButton(
+                                text = stringResource(Res.string.addon_save_button),
+                                onClick = ::submit,
+                                enabled = hasChanges || !parametersValid,
+                                loading = isPending,
+                                modifier = itemModifier,
+                            )
+                        }
+                        AppButton(
+                            text = stringResource(Res.string.addon_uninstall_button),
+                            onClick = { confirmingUninstall = true },
+                            variant = AppButtonVariant.Outlined,
+                            enabled = !isPending,
+                            modifier = itemModifier,
+                        )
+                    }
+                    if (windowSizeClass == AppWindowSizeClass.Compact) {
+                        Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) { actions(buttonModifier) }
+                    } else {
+                        Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) { actions(buttonModifier) }
+                    }
+                } else {
+                    AppButton(
+                        text = stringResource(Res.string.addon_install_button),
+                        onClick = ::submit,
+                        enabled = !isPending,
+                        loading = isPending,
+                        modifier = buttonModifier,
+                    )
                 }
 
                 if (script.description.isNotBlank()) {
@@ -228,41 +267,27 @@ fun AddonDetailScreen(
             }
         }
     }
-}
 
-@Composable
-private fun InstallAction(
-    isInstalled: Boolean,
-    isPending: Boolean,
-    onInstall: () -> Unit,
-    onUninstall: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    if (isInstalled) {
-        AppButton(
-            text = stringResource(Res.string.addon_uninstall_button),
-            onClick = onUninstall,
-            variant = AppButtonVariant.Outlined,
-            enabled = !isPending,
-            loading = isPending,
-            modifier = modifier,
-        )
-    } else {
-        AppButton(
-            text = stringResource(Res.string.addon_install_button),
-            onClick = onInstall,
-            variant = AppButtonVariant.Filled,
-            enabled = !isPending,
-            loading = isPending,
-            modifier = modifier,
+    if (confirmingUninstall) {
+        AppDialog(
+            onDismissRequest = { confirmingUninstall = false },
+            title = stringResource(Res.string.addon_uninstall_confirm_title, script.name),
+            text = stringResource(Res.string.addon_uninstall_confirm_text),
+            confirmLabel = stringResource(Res.string.addon_uninstall_button),
+            onConfirm = {
+                confirmingUninstall = false
+                onUninstall()
+            },
+            dismissLabel = stringResource(Res.string.cancel),
+            onDismiss = { confirmingUninstall = false },
+            destructive = true,
         )
     }
 }
 
 /**
- * The domains this add-on's script may reach — a permission disclosure, so
- * it sits directly under the install action and says what it means, rather
- * than trailing the description as an unexplained "Allowed domains" list.
+ * The domains this add-on's script may reach — a permission disclosure,
+ * worded for whether installing grants it or it's already granted.
  * Hostnames are exact identifiers, so they're set in the Data role.
  */
 @Composable
@@ -284,6 +309,34 @@ private fun AllowedDomains(domains: List<String>, isInstalled: Boolean) {
         }
     }
 }
+
+/**
+ * The order a script's parameters are asked in: required before optional,
+ * plain before secret (so a username comes before its password), then by
+ * label. The order the script's author declared them in would be better
+ * still, but it doesn't survive the trip here — parameters cross fyde-sdk's
+ * FFI as a hash map, which has no order — so this is the most useful order
+ * available from the fields themselves.
+ */
+internal fun orderedParameters(parameters: Map<String, FydeScriptParameter>): List<Map.Entry<String, FydeScriptParameter>> =
+    parameters.entries.sortedWith(
+        compareByDescending<Map.Entry<String, FydeScriptParameter>> { it.value.required }
+            .thenBy { it.value.secret }
+            .thenBy { it.value.label.lowercase() },
+    )
+
+/** The inverse of [typedParameterValues]: each installed value as the text its form field holds. */
+internal fun formValues(values: Map<String, FydeScriptParameterValue>): Map<String, String> =
+    values.mapValues { (_, value) ->
+        when (value) {
+            is FydeScriptParameterValue.Text -> value.value
+            is FydeScriptParameterValue.Bool -> value.value.toString()
+            is FydeScriptParameterValue.Number -> {
+                val asLong = value.value.toLong()
+                if (asLong.toDouble() == value.value) asLong.toString() else value.value.toString()
+            }
+        }
+    }
 
 /** Like [String.toDoubleOrNull], but also rejects `NaN`/`Infinity`, which JSON can't carry. */
 private fun String.toFiniteDoubleOrNull(): Double? = toDoubleOrNull()?.takeIf { it.isFinite() }

@@ -1,5 +1,6 @@
 package com.peltoche.fyde
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,8 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -37,12 +43,13 @@ import com.peltoche.fyde.components.action.AppIconButton
 import com.peltoche.fyde.components.content.AppBadge
 import com.peltoche.fyde.components.content.AppChip
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppListItem
 import com.peltoche.fyde.components.feedback.AppBanner
+import com.peltoche.fyde.components.feedback.AppBannerSeverity
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppSkeleton
-import com.peltoche.fyde.components.content.AppListItem
 import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.layout.AppContentContainer
@@ -50,12 +57,9 @@ import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppTwoPaneLayout
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
-import com.peltoche.fyde.theme.AppColors
-import com.peltoche.fyde.theme.AppDimensions
-import com.peltoche.fyde.theme.AppRadius
-import com.peltoche.fyde.theme.AppSpacing
-import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.back
+import com.peltoche.fyde.resources.clear_filters
 import com.peltoche.fyde.resources.clear_search
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
@@ -70,26 +74,39 @@ import com.peltoche.fyde.resources.document_detail_type
 import com.peltoche.fyde.resources.document_detail_value_unset
 import com.peltoche.fyde.resources.document_details_title
 import com.peltoche.fyde.resources.document_download
-import com.peltoche.fyde.resources.document_favorite
-import com.peltoche.fyde.resources.document_more_actions
 import com.peltoche.fyde.resources.document_preview_title
 import com.peltoche.fyde.resources.documents_count
 import com.peltoche.fyde.resources.documents_title
-import com.peltoche.fyde.resources.filter_amount
-import com.peltoche.fyde.resources.filter_issuer
-import com.peltoche.fyde.resources.filter_more
 import com.peltoche.fyde.resources.filter_period
+import com.peltoche.fyde.resources.filter_period_30_days
+import com.peltoche.fyde.resources.filter_period_any
+import com.peltoche.fyde.resources.filter_period_last_year
+import com.peltoche.fyde.resources.filter_period_this_year
 import com.peltoche.fyde.resources.filter_type
+import com.peltoche.fyde.resources.filter_type_all
 import com.peltoche.fyde.resources.no_documents_description
 import com.peltoche.fyde.resources.no_documents_match
+import com.peltoche.fyde.resources.no_documents_match_filters
 import com.peltoche.fyde.resources.no_documents_title
 import com.peltoche.fyde.resources.no_matches_title
+import com.peltoche.fyde.resources.offline_banner
+import com.peltoche.fyde.resources.preview_unavailable_description
+import com.peltoche.fyde.resources.preview_unavailable_title
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.search_documents_placeholder
 import com.peltoche.fyde.resources.search_results_count
 import com.peltoche.fyde.resources.select_document_description
 import com.peltoche.fyde.resources.select_document_title
 import com.peltoche.fyde.resources.upload_document
+import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.AppSpacing
+import com.peltoche.fyde.theme.AppTypography
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -108,12 +125,12 @@ sealed interface DocumentListUiState {
     /**
      * Connected. [documents] is `null` while the first page is still being
      * fetched (known shape, unknown content — rendered as a skeleton rather
-     * than a spinner), and non-null once loaded (possibly empty).
-     * [banner] surfaces a non-fatal problem (e.g. the changelog stream
-     * dropping) without discarding what's already loaded. [serverReachable]
-     * mirrors `fyde-sdk`'s own `is_server_reachable` check, polled
-     * periodically by the caller — the upload button reflects it by
-     * disabling itself whenever the server isn't currently reachable.
+     * than a spinner), and non-null once loaded (possibly empty), newest
+     * first. [banner] surfaces a non-fatal problem (e.g. a failed upload)
+     * without discarding what's already loaded. [serverReachable] mirrors
+     * `fyde-sdk`'s own `is_server_reachable` check, polled periodically by
+     * the caller — while it's false an offline banner explains why the
+     * upload button is disabled.
      */
     data class Loaded(
         val documents: List<FydeDocument>?,
@@ -123,15 +140,33 @@ sealed interface DocumentListUiState {
     ) : DocumentListUiState
 }
 
+/** The Period filter's choices, each matching on a document's creation date. */
+private enum class PeriodFilter(val label: StringResource) {
+    ANY(Res.string.filter_period_any),
+    LAST_30_DAYS(Res.string.filter_period_30_days),
+    THIS_YEAR(Res.string.filter_period_this_year),
+    LAST_YEAR(Res.string.filter_period_last_year),
+    ;
+
+    fun matches(createdAt: Long, now: Long): Boolean = when (this) {
+        ANY -> true
+        LAST_30_DAYS -> createdAt >= now - 30L * 86_400L
+        THIS_YEAR -> civilDate(createdAt).year == civilDate(now).year
+        LAST_YEAR -> civilDate(createdAt).year == civilDate(now).year - 1
+    }
+}
+
+@OptIn(ExperimentalTime::class)
+private fun nowEpochSeconds(): Long = Clock.System.now().epochSeconds
+
 @Composable
 fun DocumentListScreen(
     state: DocumentListUiState,
     modifier: Modifier = Modifier,
     onUpload: () -> Unit = {},
     isUploading: Boolean = false,
-    onOpenDocument: (FydeDocument) -> Unit = {},
+    onDownload: (FydeDocument) -> Unit = {},
     onOpenSettings: () -> Unit = {},
-    onOpenScripts: () -> Unit = {},
     onOpenAddons: () -> Unit = {},
 ) {
     when (state) {
@@ -147,36 +182,70 @@ fun DocumentListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onOpenDocument, onOpenSettings, onOpenScripts, onOpenAddons)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onDownload, onOpenSettings, onOpenAddons)
     }
 }
 
 @Composable
 private fun LoadedDocumentList(
     state: DocumentListUiState.Loaded,
-    modifier: Modifier = Modifier,
-    onUpload: () -> Unit = {},
-    isUploading: Boolean = false,
-    onOpenDocument: (FydeDocument) -> Unit = {},
-    onOpenSettings: () -> Unit = {},
-    onOpenScripts: () -> Unit = {},
-    onOpenAddons: () -> Unit = {},
+    modifier: Modifier,
+    onUpload: () -> Unit,
+    isUploading: Boolean,
+    onDownload: (FydeDocument) -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenAddons: () -> Unit,
 ) {
+    // All of this is presentation-only, so it stays local rather than being
+    // hoisted to the caller — and it all lives *above* the Compact
+    // list/detail switch below, so opening a document on a phone and coming
+    // back keeps the query, the filters and the scroll position. Found via
+    // review: the phone viewer used to be a separate top-level screen that
+    // tore all of it down (and reconnected) on every back.
     var searchQuery by remember { mutableStateOf("") }
-    // Which document is highlighted in the Medium/Expanded preview pane —
-    // presentation-only, like searchQuery, so it stays local rather than
-    // being hoisted to the caller (see AppTwoPaneLayout's doc comment).
-    var selectedDocument by remember { mutableStateOf<FydeDocument?>(null) }
+    var typeFilter by remember { mutableStateOf<DocumentKind?>(null) }
+    var periodFilter by remember { mutableStateOf(PeriodFilter.ANY) }
+    // The id, not the document: the list is re-fetched on every changelog
+    // event, and the open document should follow its fresh copy.
+    var selectedId by remember { mutableStateOf<String?>(null) }
+    val listState = rememberLazyListState()
     val windowSizeClass = LocalAppWindowSizeClass.current
-    // Expanded-only list chrome (filter chips, results count) and the wider
-    // fixed list pane — navigation itself is present at every size, see
-    // TopLevelScaffold.
     val isDesktop = windowSizeClass == AppWindowSizeClass.Expanded
+
+    val documents = state.documents
+    val selectedDocument = selectedId?.let { id -> documents?.find { it.id == id } }
+
+    if (windowSizeClass == AppWindowSizeClass.Compact && selectedDocument != null) {
+        CompactDocumentDetail(
+            document = selectedDocument,
+            onBack = { selectedId = null },
+            onDownload = { onDownload(selectedDocument) },
+            onOpenAddons = onOpenAddons,
+            onOpenSettings = onOpenSettings,
+        )
+        return
+    }
+
+    val labels = rememberClassificationLabels()
+    val now = remember(documents) { nowEpochSeconds() }
+    val visibleDocuments = remember(documents, searchQuery, typeFilter, periodFilter, labels) {
+        documents.orEmpty().filter { document ->
+            (typeFilter == null || document.kind == typeFilter) &&
+                periodFilter.matches(document.createdAt, now) &&
+                document.matchesQuery(searchQuery, labels)
+        }
+    }
+    val filtersActive = typeFilter != null || periodFilter != PeriodFilter.ANY
+    val clearAll = {
+        searchQuery = ""
+        typeFilter = null
+        periodFilter = PeriodFilter.ANY
+    }
 
     TopLevelScaffold(
         current = SidebarDestination.Documents,
-        onOpenDocuments = {},
-        onOpenScripts = onOpenScripts,
+        // Re-selecting Documents closes an open document, like a drill-down's back.
+        onOpenDocuments = { selectedId = null },
         onOpenAddons = onOpenAddons,
         onOpenSettings = onOpenSettings,
         modifier = modifier,
@@ -207,41 +276,29 @@ private fun LoadedDocumentList(
             sidebarAdjacent = isDesktop,
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
+                // Says why Upload is disabled, rather than leaving a greyed
+                // button to explain itself. Not dismissible: it clears on its
+                // own as soon as the server answers again.
+                if (!state.serverReachable) {
+                    AppBanner(message = stringResource(Res.string.offline_banner), severity = AppBannerSeverity.Warning)
+                }
                 state.banner?.let { message ->
                     AppBanner(message = message, onDismiss = state.onDismissBanner, dismissLabel = stringResource(Res.string.dismiss))
                 }
 
-                val documents = state.documents
-                val filteredDocuments = remember(documents, searchQuery) {
-                    documents?.filter { it.name.contains(searchQuery, ignoreCase = true) } ?: emptyList()
-                }
-
                 // The search field, filter chips, and results toolbar are part
-                // of the *list* column, not full-width page chrome — found via
-                // review of the reference layout that putting them outside the
-                // two-pane split let the search bar stretch wider than the list
-                // it searches, while the detail pane only started below all of
-                // that instead of running alongside it from the top. Wrapping
-                // the whole left column (search → filters → results) inside
-                // [AppTwoPaneLayout]'s primary slot keeps its width pinned to
-                // the list column and lets the detail pane sit beside it, top
-                // to bottom, exactly like the reference's two columns.
+                // of the *list* column, not full-width page chrome, so the
+                // detail pane runs alongside them from the top, exactly like
+                // the reference layout's two columns.
                 AppTwoPaneLayout(
                     modifier = Modifier.weight(1f),
                     windowSizeClass = windowSizeClass,
                     primaryPaneWidth = if (isDesktop) AppDimensions.twoPaneListWidthExpanded else AppDimensions.twoPaneListWidth,
                     primary = {
                         // Trailing padding matches AppContentContainer's own
-                        // leading margin (space5, 16dp) on the other side of
-                        // this column — found via review that the list column
-                        // had a visible gap before the sidebar on its left but
-                        // ran flush up against the divider/detail pane on its
-                        // right, an asymmetry nothing else in the screen has.
+                        // leading margin on the other side of this column, so
+                        // the list doesn't run flush against the detail pane.
                         Column(modifier = Modifier.fillMaxSize().padding(end = AppSpacing.space5)) {
-                            // Matches the space3 gap below the search field
-                            // (before the filter row) so it doesn't sit flush
-                            // under the top bar divider while having visible
-                            // breathing room underneath.
                             Spacer(Modifier.height(AppSpacing.space3))
                             AppSearchField(
                                 value = searchQuery,
@@ -252,24 +309,21 @@ private fun LoadedDocumentList(
                                 leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
                             )
 
-                            if (isDesktop) {
-                                Spacer(Modifier.height(AppSpacing.space3))
-                                FilterChipRow()
-                            }
-
-                            if (isDesktop && documents != null) {
-                                Spacer(Modifier.height(AppSpacing.space4))
-                                // Sort-by and list/grid-view controls were
-                                // removed — they were non-functional
-                                // placeholders (no real sort order, no grid
-                                // layout) and read as broken affordances
-                                // rather than useful chrome. Just the count
-                                // remains; re-add once those features exist.
+                            if (!documents.isNullOrEmpty()) {
+                                Spacer(Modifier.height(AppSpacing.space2))
+                                FilterChipRow(
+                                    availableKinds = remember(documents) { documents.map { it.kind }.distinct().sorted() },
+                                    typeFilter = typeFilter,
+                                    onTypeFilterChange = { typeFilter = it },
+                                    periodFilter = periodFilter,
+                                    onPeriodFilterChange = { periodFilter = it },
+                                )
+                                Spacer(Modifier.height(AppSpacing.space2))
                                 Text(
                                     text = if (searchQuery.isBlank()) {
-                                        stringResource(Res.string.documents_count, filteredDocuments.size)
+                                        pluralStringResource(Res.plurals.documents_count, visibleDocuments.size, visibleDocuments.size)
                                     } else {
-                                        stringResource(Res.string.search_results_count, filteredDocuments.size, searchQuery)
+                                        pluralStringResource(Res.plurals.search_results_count, visibleDocuments.size, visibleDocuments.size, searchQuery)
                                     },
                                     style = AppTypography.caption,
                                     color = AppColors.textMuted,
@@ -280,43 +334,121 @@ private fun LoadedDocumentList(
                             when {
                                 documents == null -> DocumentSkeletonList(modifier = Modifier.weight(1f))
 
-                                documents.isEmpty() && searchQuery.isBlank() -> AppEmptyState(
+                                documents.isEmpty() -> AppEmptyState(
                                     modifier = Modifier.weight(1f),
                                     icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                                     title = stringResource(Res.string.no_documents_title),
                                     description = stringResource(Res.string.no_documents_description),
                                 )
 
-                                filteredDocuments.isEmpty() -> AppEmptyState(
+                                visibleDocuments.isEmpty() -> AppEmptyState(
                                     modifier = Modifier.weight(1f),
                                     icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                                     title = stringResource(Res.string.no_matches_title),
-                                    description = stringResource(Res.string.no_documents_match, searchQuery),
-                                    actionLabel = stringResource(Res.string.clear_search),
-                                    onAction = { searchQuery = "" },
+                                    description = if (searchQuery.isNotBlank()) {
+                                        stringResource(Res.string.no_documents_match, searchQuery)
+                                    } else {
+                                        stringResource(Res.string.no_documents_match_filters)
+                                    },
+                                    actionLabel = stringResource(
+                                        if (filtersActive) Res.string.clear_filters else Res.string.clear_search,
+                                    ),
+                                    onAction = clearAll,
                                 )
 
                                 else -> DocumentList(
-                                    documents = filteredDocuments,
-                                    selectedId = selectedDocument?.id,
+                                    documents = visibleDocuments,
+                                    listState = listState,
+                                    selectedId = selectedId,
                                     rowMinHeight = rowMinHeightFor(windowSizeClass),
-                                    onClick = { document ->
-                                        if (windowSizeClass == AppWindowSizeClass.Compact) {
-                                            onOpenDocument(document)
-                                        } else {
-                                            selectedDocument = document
-                                        }
-                                    },
+                                    onClick = { document -> selectedId = document.id },
                                     modifier = Modifier.weight(1f),
                                 )
                             }
                         }
                     },
-                    secondary = { DocumentPreviewPane(document = selectedDocument) },
+                    secondary = {
+                        if (selectedDocument == null) {
+                            AppEmptyState(
+                                title = stringResource(Res.string.select_document_title),
+                                description = stringResource(Res.string.select_document_description),
+                                icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                            )
+                        } else {
+                            DocumentDetailPane(document = selectedDocument, onDownload = { onDownload(selectedDocument) })
+                        }
+                    },
                 )
             }
         }
     }
+}
+
+/**
+ * Compact (phone) document detail: the same [DocumentDetailPane] the wider
+ * layouts show beside the list, pushed over it with a back chevron, inside
+ * the same navigation shell. Rendered by [LoadedDocumentList] itself rather
+ * than as a separate top-level screen, so the list's state survives it.
+ */
+@Composable
+private fun CompactDocumentDetail(
+    document: FydeDocument,
+    onBack: () -> Unit,
+    onDownload: () -> Unit,
+    onOpenAddons: () -> Unit,
+    onOpenSettings: () -> Unit,
+) {
+    TopLevelScaffold(
+        current = SidebarDestination.Documents,
+        onOpenDocuments = onBack,
+        onOpenAddons = onOpenAddons,
+        onOpenSettings = onOpenSettings,
+        topBar = {
+            AppTopBar(
+                title = stringResource(Res.string.documents_title),
+                onBack = onBack,
+                backContentDescription = stringResource(Res.string.back),
+            )
+        },
+    ) { contentPadding ->
+        DocumentDetailPane(
+            document = document,
+            onDownload = onDownload,
+            scrollable = true,
+            modifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background),
+        )
+    }
+}
+
+/** The localized label of every classification value, looked up once per composition for [matchesQuery]. */
+private data class ClassificationLabels(
+    val categories: Map<FydeSourceCategory, String>,
+    val subCategories: Map<FydeSourceSubCategory, String>,
+    val purposes: Map<FydePurpose, String>,
+)
+
+@Composable
+private fun rememberClassificationLabels(): ClassificationLabels = ClassificationLabels(
+    categories = FydeSourceCategory.entries.associateWith { it.label() },
+    subCategories = FydeSourceSubCategory.entries.associateWith { it.label() },
+    purposes = FydePurpose.entries.associateWith { it.label() },
+)
+
+/**
+ * Whether [query] appears in the document's name, keywords, or (in the UI's
+ * language) classification — found via review that search only matched the
+ * file name, so "invoice" never found a document classified as one.
+ */
+private fun FydeDocument.matchesQuery(query: String, labels: ClassificationLabels): Boolean {
+    if (query.isBlank()) return true
+    val haystack = buildList {
+        add(name)
+        addAll(subjects)
+        sourceCategory?.let { add(labels.categories.getValue(it)) }
+        sourceSubCategory?.let { add(labels.subCategories.getValue(it)) }
+        purpose?.let { add(labels.purposes.getValue(it)) }
+    }
+    return haystack.any { it.contains(query.trim(), ignoreCase = true) }
 }
 
 private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (windowSizeClass) {
@@ -325,21 +457,35 @@ private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (win
     AppWindowSizeClass.Expanded -> AppDimensions.rowHeightCompact
 }
 
+/**
+ * A row's supporting line: what the document *is* — its purpose and source
+ * ("Invoice · Telecom") — when the SDK's classifier has said, falling back to
+ * its file type and size, then its date either way. Found via review that
+ * rows only ever showed type/size/date, while the classification that tells
+ * documents apart (the reference layout's tags and issuer) sat unused in the
+ * detail pane.
+ */
+@Composable
+private fun rowSummary(document: FydeDocument): String {
+    val classification = listOfNotNull(document.purpose?.label(), document.sourceCategory?.label())
+    val description = classification.ifEmpty { listOf(document.typeCode, localizedSize(document.size)) }
+    return (description + localizedDate(document.createdAt)).joinToString(" · ")
+}
+
 @Composable
 private fun DocumentList(
     documents: List<FydeDocument>,
+    listState: LazyListState,
     selectedId: String?,
     rowMinHeight: Dp,
     onClick: (FydeDocument) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier = modifier.fillMaxWidth(), contentPadding = PaddingValues(top = AppSpacing.space2)) {
+    LazyColumn(state = listState, modifier = modifier.fillMaxWidth(), contentPadding = PaddingValues(top = AppSpacing.space2)) {
         items(documents, key = { it.id }) { document ->
-            val (typeLabel, _) = fileTypeVisualsFor(document)
             AppListItem(
                 title = document.name,
-                supportingText = "$typeLabel · ${formatSize(document.size)} · ${formatDate(document.createdAt)}",
-                supportingTextStyle = AppTypography.data,
+                supportingText = rowSummary(document),
                 leadingContent = { FileTypeIcon(document) },
                 trailingContent = { ChevronRightGlyph(modifier = Modifier.size(12.dp)) },
                 selected = document.id == selectedId,
@@ -351,19 +497,21 @@ private fun DocumentList(
     }
 }
 
-/** The Medium/Expanded secondary pane: the selected document's real preview, or a prompt to pick one. */
+/**
+ * A record detail pane (design-system.md § Detail panes): header with the
+ * type icon, name, metadata and actions, then the details grid, keywords,
+ * and the document's own preview. [scrollable] (Compact) scrolls the whole
+ * pane with the preview at a fixed height, since a phone has no room left
+ * for a preview that only gets what the sections above leave over.
+ */
 @Composable
-private fun DocumentPreviewPane(document: FydeDocument?) {
-    if (document == null) {
-        AppEmptyState(
-            title = stringResource(Res.string.select_document_title),
-            description = stringResource(Res.string.select_document_description),
-            icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
-        )
-        return
-    }
-    Column(modifier = Modifier.fillMaxSize()) {
-        val (typeLabel, _) = fileTypeVisualsFor(document)
+private fun DocumentDetailPane(
+    document: FydeDocument,
+    onDownload: () -> Unit,
+    modifier: Modifier = Modifier,
+    scrollable: Boolean = false,
+) {
+    Column(modifier = if (scrollable) modifier.verticalScroll(rememberScrollState()) else modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5),
             verticalAlignment = Alignment.CenterVertically,
@@ -371,10 +519,9 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
             FileTypeIcon(document, size = 40.dp)
             Spacer(Modifier.width(AppSpacing.space4))
             Column(modifier = Modifier.weight(1f)) {
-                // Unlike the list row (AppListItem, always 1 line — a list is
-                // scanned), this is the one place the full name matters more
-                // than row-height consistency, so it gets 2 lines before
-                // falling back to ellipsis.
+                // Unlike the list row (always 1 line — a list is scanned),
+                // this is the one place the full name matters more than
+                // row-height consistency, so it gets 2 lines first.
                 Text(
                     text = document.name,
                     style = AppTypography.bodyEmphasis,
@@ -384,27 +531,16 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
                 )
                 Spacer(Modifier.height(AppSpacing.space1))
                 Text(
-                    text = "$typeLabel · ${formatSize(document.size)} · ${formatDate(document.createdAt)}",
+                    text = "${document.typeCode} · ${localizedSize(document.size)} · ${localizedDate(document.createdAt)}",
                     style = AppTypography.data,
                     color = AppColors.textMuted,
                 )
             }
-            // Non-functional today, like the filter chips — visible
-            // affordances a document detail pane is expected to have,
-            // without fabricating upload/sharing behavior that doesn't
-            // exist. `enabled = false` (plus a dimmed glyph tint, since
-            // these draw their own color rather than reading
-            // AppIconButton's content color) so each reads as "not yet,"
-            // not as a button that silently does nothing when pressed.
-            val inertTint = AppColors.textMuted.copy(alpha = 0.5f)
-            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_favorite), enabled = false) {
-                StarGlyph(modifier = Modifier.size(16.dp), tint = inertTint)
-            }
-            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_download), enabled = false) {
-                DownloadGlyph(modifier = Modifier.size(16.dp), tint = inertTint)
-            }
-            AppIconButton(onClick = {}, contentDescription = stringResource(Res.string.document_more_actions), enabled = false) {
-                MoreGlyph(modifier = Modifier.size(16.dp), tint = inertTint)
+            // Only actions that work. Favorite and "more" used to sit here
+            // as permanently disabled icons with nothing behind them;
+            // they're gone until those features exist.
+            AppIconButton(onClick = onDownload, contentDescription = stringResource(Res.string.document_download)) {
+                DownloadGlyph(modifier = Modifier.size(16.dp), tint = AppColors.text)
             }
         }
         AppDivider()
@@ -418,35 +554,66 @@ private fun DocumentPreviewPane(document: FydeDocument?) {
             color = AppColors.text,
             modifier = Modifier.padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
         )
-        PdfViewer(pdfBytes = document.content, modifier = Modifier.fillMaxWidth().weight(1f))
+        DocumentPreview(
+            document = document,
+            modifier = if (scrollable) Modifier.fillMaxWidth().height(560.dp) else Modifier.fillMaxWidth().weight(1f),
+        )
     }
 }
 
 /**
+ * The document's content, previewed the way its [DocumentKind] allows: PDFs
+ * through [PdfViewer], images decoded and drawn, anything else a plain "no
+ * preview" state pointing at Download. Found via review: every document went
+ * through the PDF engine, so an image or a spreadsheet showed a red engine
+ * error instead.
+ */
+@Composable
+private fun DocumentPreview(document: FydeDocument, modifier: Modifier = Modifier) {
+    when (document.kind) {
+        DocumentKind.PDF -> PdfViewer(pdfBytes = document.content, modifier = modifier)
+        DocumentKind.IMAGE -> {
+            val image = remember(document.id, document.content) { decodeIconBitmap(document.content) }
+            if (image != null) {
+                Box(modifier = modifier.padding(horizontal = AppSpacing.space5), contentAlignment = Alignment.TopCenter) {
+                    Image(bitmap = image, contentDescription = document.name, contentScale = ContentScale.Fit)
+                }
+            } else {
+                PreviewUnavailable(document, modifier)
+            }
+        }
+        else -> PreviewUnavailable(document, modifier)
+    }
+}
+
+@Composable
+private fun PreviewUnavailable(document: FydeDocument, modifier: Modifier = Modifier) {
+    AppEmptyState(
+        modifier = modifier,
+        icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+        title = stringResource(Res.string.preview_unavailable_title),
+        description = stringResource(Res.string.preview_unavailable_description, document.typeCode),
+    )
+}
+
+/**
  * The document's own known fields (type/size/created, plus the SDK's
- * classifier output — source/purpose, derived from the document's transcript
- * rather than OCR, see `../../sdk/src/domains/documents/parser`), laid out as
- * a dense 2-column label/value grid (label above value) rather than one
- * label-left/value-right column per row — matching the reference layout's
- * "Informations extraites" panel, and fitting roughly twice as many fields
- * in the same vertical space, consistent with the density-is-a-feature
- * principle in `design/design-system.md`. Name is deliberately not repeated
- * here — it's already the pane's header, immediately above. Subjects is
- * shown separately as tag pills (see [DocumentKeywordsSection]), not as a
- * grid cell — a comma-joined list of values doesn't fit this grid's
- * one-value-per-cell shape.
+ * classifier output — source/purpose), laid out as a dense 2-column
+ * label/value grid (label above value), matching the reference layout's
+ * "Informations extraites" panel. Name is deliberately not repeated here —
+ * it's already the pane's header. Subjects are shown separately as tag
+ * pills (see [DocumentKeywordsSection]).
  */
 @Composable
 private fun DocumentDetailsSection(document: FydeDocument) {
-    val (typeLabel, _) = fileTypeVisualsFor(document)
     val unsetValue = stringResource(Res.string.document_detail_value_unset)
     val fields = listOf(
-        stringResource(Res.string.document_detail_type) to typeLabel,
-        stringResource(Res.string.document_detail_size) to formatSize(document.size),
-        stringResource(Res.string.document_detail_created) to formatDate(document.createdAt),
-        stringResource(Res.string.document_detail_source_category) to (document.sourceCategory?.toLabel() ?: unsetValue),
-        stringResource(Res.string.document_detail_source_subcategory) to (document.sourceSubCategory?.toLabel() ?: unsetValue),
-        stringResource(Res.string.document_detail_purpose) to (document.purpose?.toLabel() ?: unsetValue),
+        stringResource(Res.string.document_detail_type) to document.typeCode,
+        stringResource(Res.string.document_detail_size) to localizedSize(document.size),
+        stringResource(Res.string.document_detail_created) to localizedDate(document.createdAt),
+        stringResource(Res.string.document_detail_source_category) to (document.sourceCategory?.label() ?: unsetValue),
+        stringResource(Res.string.document_detail_source_subcategory) to (document.sourceSubCategory?.label() ?: unsetValue),
+        stringResource(Res.string.document_detail_purpose) to (document.purpose?.label() ?: unsetValue),
     )
     Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
         Text(
@@ -467,10 +634,6 @@ private fun DocumentDetailsSection(document: FydeDocument) {
     }
 }
 
-/** Title-cases an enum's constant name (e.g. `REAL_ESTATE` -> `Real Estate`) for display. */
-private fun Enum<*>.toLabel(): String =
-    name.split('_').joinToString(" ") { it.lowercase().replaceFirstChar(Char::uppercase) }
-
 /** One cell of [DocumentDetailsSection]'s grid: a muted caption label stacked above the value. */
 @Composable
 private fun DetailCell(label: String, value: String, modifier: Modifier = Modifier) {
@@ -489,10 +652,7 @@ private fun DetailCell(label: String, value: String, modifier: Modifier = Modifi
 
 /**
  * The document's subjects, rendered as tag pills under a "Keywords" heading —
- * the reference layout's "Mots-clés" section. Pulled out of
- * [DocumentDetailsSection]'s grid because a multi-value field doesn't fit
- * that grid's one-value-per-cell shape; a wrapped row of [AppBadge]s is the
- * natural shape for a set of tags instead.
+ * the reference layout's "Mots-clés" section.
  */
 @Composable
 private fun DocumentKeywordsSection(document: FydeDocument) {
@@ -522,24 +682,14 @@ private fun DocumentKeywordsSection(document: FydeDocument) {
 
 /**
  * A folded-corner file icon on a rounded, tinted chip, drawn without an icon
- * pack (see [DocumentGlyph]). The tint varies by file type, drawn only from
- * [fileTypeVisualsFor]'s palette — never from `success`/`warning`/`error`,
- * which mean "this succeeded" / "this needs caution" / "this failed"
- * everywhere else in the app (banners, badges, the encryption trust badge).
- * A spreadsheet or an image is neither a warning nor a success, so
- * file-type categorization must not borrow those tokens just because they
- * happen to be visually distinct colors.
- *
- * [fileTypeVisualsFor]'s short type label ("PDF", "XLS"...) is shown as
- * text in the caller's own supporting-text line (see [DocumentList] and
- * [DocumentPreviewPane]), not baked into this chip — a label small enough
- * to fit inside a 44dp chip dropped below any platform's readable floor,
- * and being `sp`-scaled meant it could grow past the chip's own bounds for
- * anyone with larger system text settings on.
+ * pack (see [DocumentGlyph]), tinted per [DocumentKind] (see
+ * [DocumentKind.tint] for why never with a semantic-state color). The short
+ * type code is shown as text in the caller's own supporting line, not baked
+ * into this chip, where it would drop below a readable size.
  */
 @Composable
 private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, size: Dp = 44.dp) {
-    val (_, tint) = fileTypeVisualsFor(document)
+    val tint = document.kind.tint()
     Box(
         modifier = modifier
             .size(size)
@@ -552,63 +702,66 @@ private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, 
 }
 
 /**
- * Short type label + accent tint for [FileTypeIcon], derived from real
- * [FydeDocument] fields only. The tint draws exclusively from the app's two
- * brand accents — `primary` and `secondary`, the latter already scoped by
- * design-system.md's Color table to "folder/document-type accents" — plus
- * two blends between them, so four file types stay visually distinct
- * without reaching for a semantic-state color (see [FileTypeIcon]'s doc
- * comment) or inventing a fifth hue the "one disciplined accent" rule
- * doesn't allow for.
+ * The Type and Period filters, each a chip opening its choices. Only facets
+ * the document model can actually filter on are shown — found via review
+ * that Issuer, Amount and "More filters" were permanently disabled
+ * placeholders, and that Type and Period were disabled too despite being
+ * answerable from each document's content type and creation date. Type only
+ * offers the kinds present in the list.
  */
 @Composable
-private fun fileTypeVisualsFor(document: FydeDocument): Pair<String, Color> {
-    val extension = document.name.substringAfterLast('.', "").uppercase().take(4)
-    val type = document.contentType.lowercase()
-    val primary = AppColors.primary
-    val secondary = AppColors.secondary
-    return when {
-        type.contains("pdf") -> "PDF" to primary
-        type.contains("spreadsheet") || type.contains("excel") || type.contains("csv") ->
-            extension.ifEmpty { "XLS" } to secondary
-        type.startsWith("image/") -> extension.ifEmpty { "IMG" } to lerp(primary, secondary, 0.5f)
-        type.contains("word") || type.contains("document") ->
-            extension.ifEmpty { "DOC" } to lerp(secondary, AppColors.text, 0.3f)
-        else -> extension.ifEmpty { "FILE" } to AppColors.textMuted
+private fun FilterChipRow(
+    availableKinds: List<DocumentKind>,
+    typeFilter: DocumentKind?,
+    onTypeFilterChange: (DocumentKind?) -> Unit,
+    periodFilter: PeriodFilter,
+    onPeriodFilterChange: (PeriodFilter) -> Unit,
+) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2)) {
+        FilterMenuChip(
+            label = typeFilter?.let { stringResource(it.label) } ?: stringResource(Res.string.filter_type),
+            selected = typeFilter != null,
+            options = listOf<DocumentKind?>(null) + availableKinds,
+            optionLabel = { kind -> stringResource(kind?.label ?: Res.string.filter_type_all) },
+            onSelect = onTypeFilterChange,
+        )
+        FilterMenuChip(
+            label = if (periodFilter == PeriodFilter.ANY) stringResource(Res.string.filter_period) else stringResource(periodFilter.label),
+            selected = periodFilter != PeriodFilter.ANY,
+            options = PeriodFilter.entries,
+            optionLabel = { period -> stringResource(period.label) },
+            onSelect = onPeriodFilterChange,
+        )
     }
 }
 
-/**
- * Non-functional filter affordances (Type/Issuer/Period/Amount/more) matching
- * the desktop reference layout's filter row — [FydeDocument] has no
- * issuer/amount fields to filter on, so these are visible, disabled
- * placeholders rather than a fabricated filtering feature.
- */
+/** An [AppChip] that opens a menu of [options]; its label shows the active choice once one is picked. */
 @Composable
-private fun FilterChipRow() {
-    // FlowRow, not Row: the primary (list) pane is a fixed 360dp wide, and
-    // five chips don't reliably fit on one line at that width — found via
-    // review that a plain Row let the trailing "+ More filters" chip
-    // overflow straight into the detail pane's divider/column instead of
-    // wrapping. Wrapping to a second line keeps every chip inside the list
-    // column no matter how the labels localize.
-    // None of these has an onClick — there's no real filtering feature
-    // behind any of them yet, and AppChip(enabled = false) dims each one so
-    // the row reads as "not yet wired up" rather than looking like a
-    // working control a tap or click will silently do nothing on.
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3),
-        verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
-    ) {
-        AppChip(text = stringResource(Res.string.filter_type), enabled = false, showChevron = true)
-        AppChip(text = stringResource(Res.string.filter_issuer), enabled = false, showChevron = true)
-        AppChip(text = stringResource(Res.string.filter_period), enabled = false, showChevron = true)
-        AppChip(text = stringResource(Res.string.filter_amount), enabled = false, showChevron = true)
-        // No trailing chevron — unlike the others this isn't a dropdown.
-        // The leading "+" lives in the string resource itself (not
-        // concatenated here) so a translation controls the whole visible
-        // label, not just part of it.
-        AppChip(text = stringResource(Res.string.filter_more), enabled = false)
+private fun <T> FilterMenuChip(
+    label: String,
+    selected: Boolean,
+    options: List<T>,
+    optionLabel: @Composable (T) -> String,
+    onSelect: (T) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        AppChip(text = label, showChevron = true, selected = selected, onClick = { expanded = true })
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = AppColors.surfaceElevated,
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(optionLabel(option), style = AppTypography.body, color = AppColors.text) },
+                    onClick = {
+                        expanded = false
+                        onSelect(option)
+                    },
+                )
+            }
+        }
     }
 }
 
@@ -636,38 +789,3 @@ private fun SkeletonRow() {
         }
     }
 }
-
-private fun formatSize(bytes: Long): String = when {
-    bytes >= 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
-    bytes >= 1024 -> "${bytes / 1024} KB"
-    else -> "$bytes B"
-}
-
-/**
- * Formats a Unix epoch-seconds timestamp as "YYYY-MM-DD", converting via
- * Howard Hinnant's `civil_from_days` proleptic-Gregorian algorithm (pure
- * integer math) rather than a platform clock/date API, so it behaves
- * identically on every Kotlin Multiplatform target without an extra
- * dependency.
- */
-internal fun formatDate(epochSeconds: Long): String {
-    val days = floorDiv(epochSeconds, 86_400L)
-    val z = days + 719_468L
-    val era = floorDiv(if (z >= 0) z else z - 146_096L, 146_097L)
-    val doe = z - era * 146_097L
-    val yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365
-    val year = yoe + era * 400L
-    val doy = doe - (365 * yoe + yoe / 4 - yoe / 100)
-    val mp = (5 * doy + 2) / 153
-    val day = (doy - (153 * mp + 2) / 5 + 1).toInt()
-    val month = (if (mp < 10) mp + 3 else mp - 9).toInt()
-    val civilYear = if (month <= 2) year + 1 else year
-    return "$civilYear-${pad2(month)}-${pad2(day)}"
-}
-
-private fun floorDiv(x: Long, y: Long): Long {
-    val q = x / y
-    return if (x % y != 0L && (x < 0) != (y < 0)) q - 1 else q
-}
-
-private fun pad2(n: Int): String = if (n < 10) "0$n" else "$n"

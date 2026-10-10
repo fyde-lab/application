@@ -83,4 +83,75 @@ class ScriptParametersTest {
 
         assertEquals(mapOf("verbose" to FydeScriptParameterValue.Bool(false)), values)
     }
+
+    @Test
+    fun ordersRequiredBeforeOptionalAndPlainBeforeSecret() {
+        fun parameter(label: String, required: Boolean, secret: Boolean) = FydeScriptParameter(
+            label = label,
+            placeholder = "",
+            type = FydeScriptParameterType.STRING,
+            required = required,
+            secret = secret,
+        )
+        val ordered = orderedParameters(
+            mapOf(
+                "nickname" to parameter("Nickname", required = false, secret = false),
+                "password" to parameter("Password", required = true, secret = true),
+                "username" to parameter("Username", required = true, secret = false),
+                "account" to parameter("Account", required = true, secret = false),
+            ),
+        )
+
+        assertEquals(listOf("account", "username", "password", "nickname"), ordered.map { it.key })
+    }
+
+    @Test
+    fun formValuesRoundTripThroughTypedParameterValues() {
+        val parameters = mapOf(
+            "username" to parameter(FydeScriptParameterType.STRING),
+            "retries" to parameter(FydeScriptParameterType.NUMBER),
+            "ratio" to parameter(FydeScriptParameterType.NUMBER),
+            "verbose" to parameter(FydeScriptParameterType.BOOLEAN),
+        )
+        val installed = mapOf(
+            "username" to FydeScriptParameterValue.Text("alice"),
+            "retries" to FydeScriptParameterValue.Number(3.0),
+            "ratio" to FydeScriptParameterValue.Number(0.5),
+            "verbose" to FydeScriptParameterValue.Bool(true),
+        )
+
+        assertEquals(mapOf("username" to "alice", "retries" to "3", "ratio" to "0.5", "verbose" to "true"), formValues(installed))
+        assertEquals(installed, typedParameterValues(parameters, formValues(installed)))
+    }
+
+    @Test
+    fun decodesWhatEncodeProduces() {
+        val parameters = linkedMapOf(
+            "pass\"word" to FydeScriptParameterValue.Text("a\"b\\c\nd\u0001é"),
+            "retries" to FydeScriptParameterValue.Number(3.0),
+            "ratio" to FydeScriptParameterValue.Number(-0.5),
+            "verbose" to FydeScriptParameterValue.Bool(false),
+        )
+
+        assertEquals(parameters, decodeScriptParametersJson(encodeScriptParametersJson(parameters)))
+    }
+
+    @Test
+    fun decodingSkipsNullsAndToleratesWhitespace() {
+        val values = decodeScriptParametersJson(""" { "username" : "alice" , "nickname" : null } """)
+
+        assertEquals(mapOf("username" to FydeScriptParameterValue.Text("alice")), values)
+    }
+
+    @Test
+    fun decodesAnEmptyObject() {
+        assertEquals(emptyMap(), decodeScriptParametersJson("{}"))
+    }
+
+    @Test
+    fun decodingRejectsNestedValuesAndMalformedJson() {
+        assertFailsWith<IllegalArgumentException> { decodeScriptParametersJson("""{"a":{"b":1}}""") }
+        assertFailsWith<IllegalArgumentException> { decodeScriptParametersJson("""{"a":1""") }
+        assertFailsWith<IllegalArgumentException> { decodeScriptParametersJson("""{"a":1} x""") }
+    }
 }
