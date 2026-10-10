@@ -80,7 +80,7 @@ fun AddonDetailScreen(
     isInstalled: Boolean,
     isPending: Boolean,
     onBack: () -> Unit,
-    onInstall: () -> Unit,
+    onInstall: (parameters: Map<String, FydeScriptParameterValue>) -> Unit,
     onUninstall: () -> Unit,
     modifier: Modifier = Modifier,
     banner: String? = null,
@@ -108,7 +108,7 @@ fun AddonDetailScreen(
 
     fun errorFor(parameter: FydeScriptParameter, value: String): String? = when {
         value.isBlank() -> if (parameter.required && showRequiredErrors) requiredError else null
-        parameter.type == FydeScriptParameterType.NUMBER && value.toDoubleOrNull() == null -> invalidNumberError
+        parameter.type == FydeScriptParameterType.NUMBER && value.toFiniteDoubleOrNull() == null -> invalidNumberError
         else -> null
     }
 
@@ -116,12 +116,12 @@ fun AddonDetailScreen(
         val value = parameterValues[key].orEmpty()
         val blank = value.isBlank()
         (!blank || !parameter.required) &&
-            (parameter.type != FydeScriptParameterType.NUMBER || blank || value.toDoubleOrNull() != null)
+            (parameter.type != FydeScriptParameterType.NUMBER || blank || value.toFiniteDoubleOrNull() != null)
     }
 
     fun attemptInstall() {
         if (parametersValid) {
-            onInstall()
+            onInstall(typedParameterValues(script.parameters, parameterValues))
         } else {
             showRequiredErrors = true
         }
@@ -281,6 +281,34 @@ private fun AllowedDomains(domains: List<String>, isInstalled: Boolean) {
                 color = AppColors.text,
                 modifier = Modifier.padding(vertical = AppSpacing.space1),
             )
+        }
+    }
+}
+
+/** Like [String.toDoubleOrNull], but also rejects `NaN`/`Infinity`, which JSON can't carry. */
+private fun String.toFiniteDoubleOrNull(): Double? = toDoubleOrNull()?.takeIf { it.isFinite() }
+
+/**
+ * Converts the form's raw [values] (one string per parameter machine name,
+ * booleans as "true"/"false") into typed values per [parameters]' declared
+ * types, for [FydeSdk.installScript]. A boolean is always included (an
+ * untouched switch is `false`); a blank text/number value is left out, so
+ * an optional parameter the user skipped is absent rather than empty.
+ * Assumes [values] already passed the form's validation.
+ */
+internal fun typedParameterValues(
+    parameters: Map<String, FydeScriptParameter>,
+    values: Map<String, String>,
+): Map<String, FydeScriptParameterValue> = buildMap {
+    parameters.forEach { (key, parameter) ->
+        val value = values[key].orEmpty()
+        when (parameter.type) {
+            FydeScriptParameterType.BOOLEAN ->
+                put(key, FydeScriptParameterValue.Bool(value.toBooleanStrictOrNull() ?: false))
+            FydeScriptParameterType.NUMBER ->
+                value.toFiniteDoubleOrNull()?.let { put(key, FydeScriptParameterValue.Number(it)) }
+            FydeScriptParameterType.STRING ->
+                if (value.isNotBlank()) put(key, FydeScriptParameterValue.Text(value))
         }
     }
 }

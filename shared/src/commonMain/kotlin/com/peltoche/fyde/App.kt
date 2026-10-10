@@ -411,12 +411,26 @@ private fun AddonsScreenContainer(
         uiState = AddonsUiState.Loaded(scripts = publicScripts, enabledScriptIds = enabledIds)
     }
 
-    fun setInstalled(script: FydeScript, enabled: Boolean) {
+    // Installing publishes [parameters] through the changelog (so the script
+    // and the values it runs with sync to every device on the account) and
+    // then enables the script, which is what the installed/available split
+    // above reads back. Uninstalling only disables it: fyde-sdk has no
+    // uninstall event yet.
+    fun setInstalled(
+        script: FydeScript,
+        enabled: Boolean,
+        parameters: Map<String, FydeScriptParameterValue> = emptyMap(),
+    ) {
         val current = uiState as? AddonsUiState.Loaded
         if (current == null || script.id in current.pendingScriptIds) return
         uiState = current.copy(pendingScriptIds = current.pendingScriptIds + script.id)
         scope.launch {
-            val result = if (enabled) FydeSdk.enableScript(script.id) else FydeSdk.disableScript(script.id)
+            val result = if (enabled) {
+                FydeSdk.installScript(script.id, parameters)
+                    .mapCatching { FydeSdk.enableScript(script.id).getOrThrow() }
+            } else {
+                FydeSdk.disableScript(script.id)
+            }
             val latest = uiState as? AddonsUiState.Loaded ?: return@launch
             val error = result.exceptionOrNull()
             uiState = if (error == null) {
@@ -455,7 +469,7 @@ private fun AddonsScreenContainer(
                 viewedScriptId = null
                 (uiState as? AddonsUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
             },
-            onInstall = { setInstalled(viewedScript, true) },
+            onInstall = { parameters -> setInstalled(viewedScript, true, parameters) },
             onUninstall = { setInstalled(viewedScript, false) },
             onOpenDocuments = onOpenDocuments,
             onOpenScripts = onOpenScripts,

@@ -83,18 +83,24 @@ enum class FydeEventType {
     CREATED,
     UPDATE_METADATA,
     DELETED,
+
+    /** A script was installed for the account, see [FydeSdk.installScript]. */
+    SCRIPT_INSTALLED,
 }
 
 /**
- * A single recorded write against a document, mirroring the SDK's
- * `FfiChangelogEvent` without leaking `:sdkBridge`'s generated bindings into
- * `commonMain`. [document] is only present for [FydeEventType.CREATED]
- * events, which are the only ones that carry content and metadata today.
+ * A single recorded write, mirroring the SDK's `FfiChangelogEvent` without
+ * leaking `:sdkBridge`'s generated bindings into `commonMain`. [subjectId]
+ * is the id of whatever the write is about: a document for
+ * [FydeEventType.CREATED]/[FydeEventType.UPDATE_METADATA]/
+ * [FydeEventType.DELETED], a script for [FydeEventType.SCRIPT_INSTALLED].
+ * [document] is only present for [FydeEventType.CREATED] events, which are
+ * the only ones that carry document content and metadata today.
  */
 data class FydeChangelogEvent(
     val id: String,
     val eventType: FydeEventType,
-    val documentId: String,
+    val subjectId: String,
     val document: FydeDocument?,
 )
 
@@ -124,6 +130,61 @@ data class FydeScriptParameter(
     val required: Boolean,
     val secret: Boolean,
 )
+
+/**
+ * A value entered for one of a script's [FydeScriptParameter]s, typed per
+ * [FydeScriptParameter.type] so it reaches the script as the matching Lua
+ * type (string, number, boolean) rather than always as a string.
+ */
+sealed interface FydeScriptParameterValue {
+    data class Text(val value: String) : FydeScriptParameterValue
+
+    /** Must be finite: JSON (and so the script) has no NaN or infinity. */
+    data class Number(val value: Double) : FydeScriptParameterValue
+
+    data class Bool(val value: Boolean) : FydeScriptParameterValue
+}
+
+/**
+ * Encodes [parameters] as the JSON object `FfiClient::install_script`
+ * takes, keyed by parameter machine name. Whole numbers are written without
+ * a fractional part (`42`, not `42.0`), so a script reading an integer
+ * parameter gets an integer. Hand-rolled since `shared` has no JSON library
+ * and this is its only JSON output.
+ */
+internal fun encodeScriptParametersJson(parameters: Map<String, FydeScriptParameterValue>): String =
+    parameters.entries.joinToString(separator = ",", prefix = "{", postfix = "}") { (key, value) ->
+        val encoded = when (value) {
+            is FydeScriptParameterValue.Text -> encodeJsonString(value.value)
+            is FydeScriptParameterValue.Bool -> value.value.toString()
+            is FydeScriptParameterValue.Number -> {
+                require(value.value.isFinite()) { "parameter $key is not a finite number: ${value.value}" }
+                val asLong = value.value.toLong()
+                if (asLong.toDouble() == value.value) asLong.toString() else value.value.toString()
+            }
+        }
+        "${encodeJsonString(key)}:$encoded"
+    }
+
+private fun encodeJsonString(value: String): String = buildString {
+    append('"')
+    for (char in value) {
+        when (char) {
+            '"' -> append("\\\"")
+            '\\' -> append("\\\\")
+            '\n' -> append("\\n")
+            '\r' -> append("\\r")
+            '\t' -> append("\\t")
+            else -> if (char < ' ') {
+                append("\\u")
+                append(char.code.toString(16).padStart(4, '0'))
+            } else {
+                append(char)
+            }
+        }
+    }
+    append('"')
+}
 
 /**
  * A user-authored script, mirroring the SDK's `FfiScript` without leaking
@@ -261,6 +322,20 @@ expect object FydeSdk {
      * hasn't been called yet.
      */
     suspend fun disableScript(scriptId: String): Result<Unit>
+
+    /**
+     * Installs [scriptId] for the authenticated user, to be run with
+     * [parameters] (keyed by parameter machine name, see
+     * [FydeScript.parameters]): publishes the script and those values,
+     * encrypted, as a [FydeEventType.SCRIPT_INSTALLED] changelog event.
+     * Fails if a parameter the script marks required is missing. Mirrors
+     * [`crate::ScriptsService::install_script`]; fails if [initialize]
+     * hasn't been called yet.
+     */
+    suspend fun installScript(
+        scriptId: String,
+        parameters: Map<String, FydeScriptParameterValue>,
+    ): Result<Unit>
 
     /**
      * Lists the scripts currently enabled for the authenticated user.

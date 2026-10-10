@@ -139,6 +139,14 @@ actual object FydeSdk {
         client.disableScript(scriptId)
     }
 
+    actual suspend fun installScript(
+        scriptId: String,
+        parameters: Map<String, FydeScriptParameterValue>,
+    ): Result<Unit> = runCatching {
+        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        client.installScript(scriptId, encodeScriptParametersJson(parameters))
+    }
+
     actual suspend fun listUserScripts(): Result<List<FydeScript>> = runCatching {
         val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
         client.listUserScripts().map(FfiScript::toFydeScript)
@@ -257,12 +265,13 @@ private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
         FfiEventType.CREATED -> FydeEventType.CREATED
         FfiEventType.UPDATE_METADATA -> FydeEventType.UPDATE_METADATA
         FfiEventType.DELETED -> FydeEventType.DELETED
+        FfiEventType.SCRIPT_INSTALLED -> FydeEventType.SCRIPT_INSTALLED
     },
-    documentId = documentId,
+    subjectId = subjectId,
     document = content?.let { eventContent ->
         metadata?.let { eventMetadata ->
             FydeDocument(
-                id = documentId,
+                id = subjectId,
                 name = eventMetadata.name,
                 contentType = eventMetadata.contentType,
                 createdAt = eventMetadata.createdAt,

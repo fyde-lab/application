@@ -28,7 +28,10 @@ pkgs.mkShell {
     rustToolchain
     sccache
 
-    # required by ../sdk's build.rs to compile ../api-protos/*.proto
+    # required by ../sdk's build.rs, which fetches its .proto files from the
+    # Buf Schema Registry (`buf export buf.build/fyde-lab/api`, needs network
+    # access) and compiles them with protoc — see ../sdk/CLAUDE.md.
+    buf
     protobuf
 
     # ../sdk's wreq dependency vendors a patched BoringSSL (btls-sys) that
