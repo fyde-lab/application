@@ -12,14 +12,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.log_in
 import com.peltoche.fyde.resources.no_account_prompt
@@ -49,6 +55,14 @@ fun LoginScreen(
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val usernameFocus = remember { FocusRequester() }
+
+    val canSubmit = username.isNotBlank() && password.isNotBlank()
+    val submit = { if (canSubmit) onLogIn(username, password) }
+
+    // Land the cursor in the first field on arrival, so the form can be
+    // filled and submitted from the keyboard alone.
+    LaunchedEffect(Unit) { usernameFocus.requestFocus() }
 
     Box(
         modifier = modifier
@@ -70,13 +84,24 @@ fun LoginScreen(
                 color = AppColors.text,
             )
             Spacer(Modifier.height(AppSpacing.space7))
-            AppTextField(value = username, onValueChange = { username = it }, label = stringResource(Res.string.username_label))
+            // Enter (or the soft keyboard's action key) moves on to the
+            // next field, then submits from the last one — but only once
+            // the form is complete, same as the button's `enabled` state.
+            AppTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = stringResource(Res.string.username_label),
+                modifier = Modifier.focusRequester(usernameFocus),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            )
             Spacer(Modifier.height(AppSpacing.space4))
             AppTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = stringResource(Res.string.password_label),
                 isPassword = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+                keyboardActions = KeyboardActions(onGo = { submit() }),
             )
             if (errorMessage != null) {
                 Spacer(Modifier.height(AppSpacing.space3))
@@ -91,8 +116,8 @@ fun LoginScreen(
             // ring and 48dp height, like every other primary action.
             AppButton(
                 text = stringResource(Res.string.log_in),
-                onClick = { onLogIn(username, password) },
-                enabled = username.isNotBlank() && password.isNotBlank(),
+                onClick = submit,
+                enabled = canSubmit,
                 modifier = Modifier.fillMaxWidth(),
             )
             Spacer(Modifier.height(AppSpacing.space3))
