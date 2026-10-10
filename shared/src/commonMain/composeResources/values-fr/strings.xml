@@ -49,6 +49,9 @@
     <string name="document_download">Télécharger</string>
     <string name="document_preview_title">Aperçu du document</string>
     <string name="document_detail_keywords_title">Mots-clés</string>
+    <string name="preview_unavailable_title">Aucun aperçu disponible</string>
+    <string name="pdf_render_failed_title">Impossible d’afficher ce PDF</string>
+    <string name="pdf_render_failed_description">Le fichier est peut-être endommagé. Téléchargez-le pour l’ouvrir dans une autre application.</string>
     <string name="pdf_preview_unavailable">L’aperçu PDF n’est pas encore disponible sur le Web.</string>
     <string name="sidebar_app_title">Fyde</string>
     <string name="encryption_badge_title">Chiffrement de bout en bout</string>
@@ -156,5 +159,4 @@
     <string name="uninstall_script">Désinstaller</string>
     <string name="uninstall_script_failed">Impossible de désinstaller le script : %1$s</string>
     <string name="script_public_badge">Public</string>
-    <string name="pdf_render_failed">Impossible d’afficher ce PDF : %1$s</string>
 </resources>

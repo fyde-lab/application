@@ -49,6 +49,9 @@
     <string name="document_download">Download</string>
     <string name="document_preview_title">Document preview</string>
     <string name="document_detail_keywords_title">Keywords</string>
+    <string name="preview_unavailable_title">No preview available</string>
+    <string name="pdf_render_failed_title">Couldn’t display this PDF</string>
+    <string name="pdf_render_failed_description">The file may be damaged. Download it to open it in another app.</string>
     <string name="pdf_preview_unavailable">PDF preview isn’t available on Web yet.</string>
     <string name="sidebar_app_title">Fyde</string>
     <string name="encryption_badge_title">End-to-end encryption</string>
@@ -156,5 +159,4 @@
     <string name="uninstall_script">Uninstall</string>
     <string name="uninstall_script_failed">Couldn’t uninstall script: %1$s</string>
     <string name="script_public_badge">Public</string>
-    <string name="pdf_render_failed">Couldn’t render this PDF: %1$s</string>
 </resources>
