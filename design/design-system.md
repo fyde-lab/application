@@ -425,16 +425,29 @@ layout and results are always relevance-ordered — and a non-functional
 control that looks clickable reads as broken, not as restraint, once a user
 actually tries it. Removed rather than kept as inert chrome; re-add only
 once the underlying feature (a real sort order, a real grid layout) exists
-to back it. The filter chip row below still follows the "visible,
-non-functional placeholder" pattern — the difference is that chips read
-unambiguously as filters the data model doesn't support yet, not as a
-broken interactive control.
+to back it.
 
-The filter chip row itself covers Type, Issuer, Period, Amount, then a
-trailing "+ More filters" chip — four named facets plus an overflow,
-matching the reference layout's filter row. The document model has no
-issuer/amount fields yet, so, like Type/Period before them, Issuer and
-Amount are visible placeholders, not a working filter.
+**The same rule now covers filter chips: only real filters are shown.** The
+chip row used to follow a "visible, non-functional placeholder" pattern —
+Type, Issuer, Period, Amount and "+ More filters", all permanently disabled
+— on the theory that a dimmed chip reads as "not yet" rather than broken.
+Found via review that five inert controls on the app's main screen read as
+broken anyway, and that Type and Period were answerable all along from each
+document's content type and creation date. The row is now Type (only the
+file kinds present in the list) and Period (any time, last 30 days, this
+year, last year), each a working chip that opens its choices and shows the
+active one; Issuer/Amount return when the document model carries those
+fields. Lists are newest first.
+
+A row's supporting line says what the document *is* — purpose and source
+("Invoice · Telecom"), from the classifier — falling back to type code and
+size when unclassified, then the date, in the Caption role (it's built
+around words now, not figures; the Data role stays for figure-only lines
+like the detail header's "PDF · 1.9 MB · Oct 12, 2026"). Search matches the
+name, keywords and (in the UI language) the classification, not the file
+name alone. Dates, sizes and classification labels are always localized:
+never a fixed `YYYY-MM-DD`, an integer-truncated size, or an English enum
+name in the French UI.
 
 ### Detail panes
 
@@ -443,8 +456,8 @@ three stacked sections, each full-bleed with `space-5` internal padding and
 separated by a `border` hairline divider:
 
 1. **Header** — leading type icon, name + metadata caption, trailing action
-   icons (favorite/download/more or equivalent) right-aligned on the same
-   row.
+   icons right-aligned on the same row — only actions that work (Download
+   today; favorite/more return with the features behind them).
 2. **Information grid** — known fields as a 2-column grid, each cell a muted
    `caption` label stacked above a `body` value, rather than one
    label-left/value-right column per row — this fits roughly twice the
@@ -473,21 +486,54 @@ enough to separate without opening a marketing-page gulf between them.
 
 ---
 
+### Feedback & confirmation
+
+Found via review: the component library had `AppDialog` and
+`AppSnackbarHost`, but no screen used either — so nothing confirmed an
+upload or an install, and uninstalling or logging out happened on a single
+tap. The rules now:
+
+- **Anything that can't be undone asks first**, in an `AppDialog` whose
+  confirm action is `destructive` (`error`-colored): logging out (it wipes
+  this device's keys and decrypted cache) and uninstalling an add-on.
+- **A finished action is confirmed with a snackbar** ("Uploaded 3
+  documents", "Installed “…”", "Saved “…”"), from the one app-wide host so a
+  message outlives the screen that raised it.
+- **A failure stays visible as a banner** above the content it concerns
+  (`AppBanner`, error severity), dismissible. **A degraded condition that
+  clears on its own** — being offline — is a warning-severity banner with no
+  dismiss, explaining whatever it disables (Upload).
+- **Every slow action shows it's working**: its button's `loading` state,
+  with the form it submits disabled — notably login/register, whose OPAQUE
+  key stretching takes seconds on a phone.
+- **Errors shown to users are never technical.** Only fyde-sdk's own
+  user-facing wording, or our own copy — never an exception message (the
+  PDF engine's included).
+
 ## Responsive behavior
 
 Breakpoints match Compose Multiplatform's own `WindowSizeClass` — implemented
 against real tooling, not arbitrary web breakpoints.
 
 - **Compact (< 600dp — phones).** Single-column, one screen at a time,
-  with a bottom navigation bar for the top-level destinations (Search,
-  Scripts, Add-ons, Settings) — the audit's "no bottom nav until 3+ peer
-  top-level destinations" threshold is now met. Drill-downs (document
-  viewer, add-on detail) push over the content with a back chevron.
-  Comfortable density.
+  with a bottom navigation bar for the top-level destinations (Documents,
+  Add-ons, Settings) — the audit's "no bottom nav until 3+ peer top-level
+  destinations" threshold is met. Drill-downs (document detail, add-on
+  detail) push over the content with a back chevron, *inside* their
+  destination, so going back restores its query, filters and scroll
+  position. Comfortable density.
+
+**One name per destination, one destination per concept.** Found via
+review: the documents destination was "Search" in the nav, "Documents" in
+its top bar and "My documents" in the sidebar header; and a separate
+Scripts destination listed and uninstalled the very same installed objects
+as Add-ons under another name. Nav labels match the destination's title,
+the sidebar header carries the product name (Fyde), and scripts — public
+add-ons and the user's own — live in Add-ons alone.
 
 **Every top-level destination is reachable at every breakpoint.** Found via
-review: navigation was desktop-only (the Expanded sidebar), so Scripts and
-Add-ons had no route at all below 840dp, and Add-ons became a dead end — no
+review: navigation was desktop-only (the Expanded sidebar), so Add-ons had
+no route at all below 840dp, and Add-ons became a dead end — no
 back, no nav — if the window shrank while it was open. Navigation is one
 adaptive surface — a bottom bar below Expanded, the sidebar at Expanded —
 never present at one breakpoint and absent at another. Medium uses the
