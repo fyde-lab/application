@@ -95,7 +95,7 @@ fun App() {
                             scope.launch {
                                 authenticate(username, password, FydeSdk::login)
                                     .onSuccess { screen = Screen.Documents }
-                                    .onFailure { authError = it.message ?: getString(Res.string.auth_error_login_failed) }
+                                    .onFailure { authError = it.userMessage(Res.string.auth_error_login_failed) }
                             }
                         },
                         onNavigateToRegister = {
@@ -110,7 +110,7 @@ fun App() {
                             scope.launch {
                                 authenticate(username, password, FydeSdk::register)
                                     .onSuccess { screen = Screen.Documents }
-                                    .onFailure { authError = it.message ?: getString(Res.string.auth_error_register_failed) }
+                                    .onFailure { authError = it.userMessage(Res.string.auth_error_register_failed) }
                             }
                         },
                         onNavigateToLogin = {
@@ -142,7 +142,7 @@ fun App() {
                             languageError = null
                             scope.launch {
                                 FydeSdk.setLanguage(newLanguage)
-                                    .onFailure { languageError = getString(Res.string.language_save_failed, it.message ?: getString(Res.string.error_unknown)) }
+                                    .onFailure { languageError = getString(Res.string.language_save_failed, it.userMessage()) }
                             }
                         },
                         onOpenDocuments = { screen = Screen.Documents },
@@ -212,7 +212,7 @@ private fun DocumentsScreen(
                 val current = uiState as? DocumentListUiState.Loaded
                 if (current != null) {
                     val message = if (paths.size == 1) {
-                        getString(Res.string.upload_failed, failures.first().message ?: getString(Res.string.error_unknown))
+                        getString(Res.string.upload_failed, failures.first().userMessage())
                     } else {
                         getString(Res.string.uploads_failed, failures.size, paths.size)
                     }
@@ -246,7 +246,7 @@ private fun DocumentsScreen(
         }
         if (initResult.isFailure) {
             uiState = DocumentListUiState.ConnectFailed(
-                message = initResult.exceptionOrNull()?.message ?: getString(Res.string.error_unknown),
+                message = initResult.exceptionOrNull()?.userMessage() ?: getString(Res.string.error_unknown),
                 onRetry = { retryKey++ },
             )
             return@LaunchedEffect
@@ -261,12 +261,15 @@ private fun DocumentsScreen(
     // Polls fyde-sdk's own reachability check independently of the changelog
     // stream above, so the upload button reflects whether calls into the SDK
     // are currently expected to succeed rather than just whether that one
-    // stream happened to drop.
+    // stream happened to drop. Only polls once loaded, the only state that
+    // shows it, so a failed connection doesn't log a failure every tick.
     LaunchedEffect(retryKey) {
         while (true) {
-            val reachable = FydeSdk.isServerReachable().getOrDefault(false)
-            (uiState as? DocumentListUiState.Loaded)?.let { current ->
-                uiState = current.copy(serverReachable = reachable)
+            if (uiState is DocumentListUiState.Loaded) {
+                val reachable = FydeSdk.isServerReachable().getOrDefault(false)
+                (uiState as? DocumentListUiState.Loaded)?.let { current ->
+                    uiState = current.copy(serverReachable = reachable)
+                }
             }
             delay(SERVER_REACHABILITY_POLL_INTERVAL_MS)
         }
@@ -339,7 +342,7 @@ private fun ScriptsScreen(onOpenDocuments: () -> Unit, onOpenSettings: () -> Uni
                     .onFailure { error ->
                         val current = uiState as? ScriptListUiState.Loaded
                         if (current != null) {
-                            val message = getString(Res.string.create_script_failed, error.message ?: getString(Res.string.error_unknown))
+                            val message = getString(Res.string.create_script_failed, error.userMessage())
                             uiState = current.copy(
                                 banner = message,
                                 onDismissBanner = { (uiState as? ScriptListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) } },
@@ -356,7 +359,7 @@ private fun ScriptsScreen(onOpenDocuments: () -> Unit, onOpenSettings: () -> Uni
                     .onFailure { error ->
                         val current = uiState as? ScriptListUiState.Loaded
                         if (current != null) {
-                            val message = getString(Res.string.uninstall_script_failed, error.message ?: getString(Res.string.error_unknown))
+                            val message = getString(Res.string.uninstall_script_failed, error.userMessage())
                             uiState = current.copy(
                                 banner = message,
                                 onDismissBanner = { (uiState as? ScriptListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) } },
@@ -399,7 +402,7 @@ private fun AddonsScreenContainer(
         val initResult = FydeSdk.initialize(FYDE_SERVER_URL)
         if (initResult.isFailure) {
             uiState = AddonsUiState.ConnectFailed(
-                message = initResult.exceptionOrNull()?.message ?: getString(Res.string.error_unknown),
+                message = initResult.exceptionOrNull()?.userMessage() ?: getString(Res.string.error_unknown),
                 onRetry = { retryKey++ },
             )
             return@LaunchedEffect
@@ -440,7 +443,7 @@ private fun AddonsScreenContainer(
                 val message = getString(
                     Res.string.addon_toggle_failed,
                     script.name,
-                    error.message ?: getString(Res.string.error_unknown),
+                    error.userMessage(),
                 )
                 latest.copy(
                     pendingScriptIds = latest.pendingScriptIds - script.id,

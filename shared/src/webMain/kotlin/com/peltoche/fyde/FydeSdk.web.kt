@@ -1,12 +1,19 @@
 package com.peltoche.fyde
 
 actual object FydeSdk {
-    private fun <T> unsupported(): Result<T> = Result.failure(
-        UnsupportedOperationException(
+    /**
+     * Fails like every other platform's [FydeSdk] does for a failure that
+     * isn't fyde-sdk's own: logged to the browser console in full, with no
+     * wording for the UI beyond a generic one (see [userMessage]).
+     */
+    private fun <T> unsupported(): Result<T> {
+        val error = UnsupportedOperationException(
             "fyde-sdk cannot be linked into the Web target: it depends on tokio/tonic/sqlx, " +
                 "none of which compile to wasm32; see ../../../CLAUDE.md"
         )
-    )
+        println("[FydeSdk] ERROR: ${error.stackTraceToString()}")
+        return Result.failure(FydeSdkException(null, error))
+    }
 
     actual suspend fun initialize(
         serverUrl: String,

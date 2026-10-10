@@ -2,11 +2,13 @@ package com.peltoche.fyde
 
 import android.util.Log
 import java.io.File
+import kotlin.coroutines.cancellation.CancellationException
 import uniffi.fyde_sdk.DocumentChangeListener
 import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiEventType
+import uniffi.fyde_sdk.FfiException
 import uniffi.fyde_sdk.FfiLogLevel
 import uniffi.fyde_sdk.FfiPurpose
 import uniffi.fyde_sdk.FfiScript
@@ -43,13 +45,39 @@ private class AndroidLogListener : LogListener {
  */
 private fun defaultStoragePath(): String = File(appContext.filesDir, "fyde.db").absolutePath
 
+/**
+ * Runs [block], turning any failure into a [FydeSdkException] whose
+ * [FydeSdkException.userMessage] the UI can show as is, and logging it, since
+ * the UI never shows the technical description. A fyde-sdk [FfiException]
+ * already carries user-facing wording, and fyde-sdk has itself logged its
+ * technical description through [AndroidLogListener] just before, so only which call
+ * failed and with which error (the exception's variant) are logged here;
+ * anything else (e.g. the native library failing to load) is logged in
+ * full. Cancellation is rethrown rather than reported as a failure.
+ */
+private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = try {
+    Result.success(block())
+} catch (e: CancellationException) {
+    throw e
+} catch (e: FfiException) {
+    Log.w(LOG_TAG, "FydeSdk.$operation failed: ${e::class.simpleName}")
+    Result.failure(FydeSdkException(e.message, e))
+} catch (e: Throwable) {
+    Log.e(LOG_TAG, "FydeSdk.$operation failed", e)
+    Result.failure(FydeSdkException(null, e))
+}
+
 actual object FydeSdk {
     private var client: FydeClient? = null
+
+    /** [sdkCall] against the client [initialize] created, failing if there's none yet. */
+    private inline fun <T> withClient(operation: String, block: (FydeClient) -> T): Result<T> =
+        sdkCall(operation) { block(checkNotNull(client) { "FydeSdk.initialize must be called first" }) }
 
     actual suspend fun initialize(
         serverUrl: String,
         onDocumentChange: ((FydeChangelogEvent) -> Unit)?,
-    ): Result<Unit> = runCatching {
+    ): Result<Unit> = sdkCall("initialize") {
         val config = FfiClientConfig(
             url = serverUrl,
             storage = FfiStorage.Disk(path = defaultStoragePath()),
@@ -63,44 +91,36 @@ actual object FydeSdk {
         client = FydeClient.init(config, AndroidLogListener(), listener)
     }
 
-    actual suspend fun login(username: String, password: String): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun login(username: String, password: String): Result<Unit> = withClient("login") { client ->
         client.login(username, password, getPlatform().name)
     }.map { }
 
-    actual suspend fun register(username: String, password: String): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun register(username: String, password: String): Result<Unit> = withClient("register") { client ->
         client.createUser(username, password, getPlatform().name)
     }.map { }
 
-    actual suspend fun isConnected(): Result<Boolean> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun isConnected(): Result<Boolean> = withClient("isConnected") { client ->
         client.isConnected()
     }
 
-    actual suspend fun isServerReachable(): Result<Boolean> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun isServerReachable(): Result<Boolean> = withClient("isServerReachable") { client ->
         client.isServerReachable()
     }
 
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> =
-        runCatching {
-            val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        withClient("listDocuments") { client ->
             client.listDocuments(offset, limit).map(FfiDocument::toFydeDocument)
         }
 
-    actual suspend fun uploadDocument(path: String): Result<String> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun uploadDocument(path: String): Result<String> = withClient("uploadDocument") { client ->
         client.uploadDocument(path)
     }
 
-    actual suspend fun setLanguage(language: String): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun setLanguage(language: String): Result<Unit> = withClient("setLanguage") { client ->
         client.setLanguage(language)
     }
 
-    actual suspend fun getLanguage(): Result<String?> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun getLanguage(): Result<String?> = withClient("getLanguage") { client ->
         client.getLanguage()
     }
 
@@ -114,8 +134,7 @@ actual object FydeSdk {
         allowedDomains: List<String>,
         parameters: Map<String, FydeScriptParameter>,
     ): Result<FydeScript> =
-        runCatching {
-            val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+        withClient("createScript") { client ->
             client.createScript(
                 name,
                 isPublic,
@@ -129,31 +148,26 @@ actual object FydeSdk {
             ).toFydeScript()
         }
 
-    actual suspend fun enableScript(scriptId: String): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun enableScript(scriptId: String): Result<Unit> = withClient("enableScript") { client ->
         client.enableScript(scriptId)
     }
 
-    actual suspend fun disableScript(scriptId: String): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun disableScript(scriptId: String): Result<Unit> = withClient("disableScript") { client ->
         client.disableScript(scriptId)
     }
 
     actual suspend fun installScript(
         scriptId: String,
         parameters: Map<String, FydeScriptParameterValue>,
-    ): Result<Unit> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    ): Result<Unit> = withClient("installScript") { client ->
         client.installScript(scriptId, encodeScriptParametersJson(parameters))
     }
 
-    actual suspend fun listUserScripts(): Result<List<FydeScript>> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun listUserScripts(): Result<List<FydeScript>> = withClient("listUserScripts") { client ->
         client.listUserScripts().map(FfiScript::toFydeScript)
     }
 
-    actual suspend fun listPublicScripts(): Result<List<FydeScript>> = runCatching {
-        val client = checkNotNull(client) { "FydeSdk.initialize must be called first" }
+    actual suspend fun listPublicScripts(): Result<List<FydeScript>> = withClient("listPublicScripts") { client ->
         client.listPublicScripts().map(FfiScript::toFydeScript)
     }
 }

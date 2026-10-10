@@ -2,6 +2,8 @@ package com.peltoche.fyde
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 
@@ -19,6 +21,11 @@ class FydeSdkJvmTest {
         val result = FydeSdk.login("username", "password")
 
         assertTrue(result.isFailure, "expected a connection failure, got $result")
+        // fyde-sdk's own failures reach the UI as its user-facing wording,
+        // never as the technical description (which it only logs).
+        val error = assertIs<FydeSdkException>(result.exceptionOrNull())
+        val userMessage = assertNotNull(error.userMessage, "expected fyde-sdk's user-facing wording")
+        assertTrue("127.0.0.1" !in userMessage, "expected no technical detail, got $userMessage")
     }
 
     @Test
