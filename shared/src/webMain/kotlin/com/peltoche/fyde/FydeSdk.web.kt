@@ -26,6 +26,8 @@ actual object FydeSdk {
 
     actual suspend fun isConnected(): Result<Boolean> = unsupported()
 
+    actual suspend fun logout(): Result<Unit> = unsupported()
+
     actual suspend fun isServerReachable(): Result<Boolean> = unsupported()
 
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> = unsupported()
@@ -59,4 +61,7 @@ actual object FydeSdk {
     actual suspend fun listUserScripts(): Result<List<FydeScript>> = unsupported()
 
     actual suspend fun listPublicScripts(): Result<List<FydeScript>> = unsupported()
+
+    actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =
+        unsupported()
 }

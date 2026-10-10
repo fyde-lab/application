@@ -166,6 +166,112 @@ internal fun encodeScriptParametersJson(parameters: Map<String, FydeScriptParame
         "${encodeJsonString(key)}:$encoded"
     }
 
+/**
+ * Decodes the parameter values `FfiClient::list_installed_scripts` returns
+ * (`parameters_json`) — the inverse of [encodeScriptParametersJson]: a flat
+ * JSON object of strings, numbers and booleans, keyed by parameter machine
+ * name. A `null` value is skipped, as an unset optional parameter. Throws
+ * [IllegalArgumentException] on anything else (nested values, malformed
+ * JSON), which only a fyde-sdk bug could produce.
+ */
+internal fun decodeScriptParametersJson(json: String): Map<String, FydeScriptParameterValue> =
+    FlatJsonObjectParser(json).parse()
+
+private class FlatJsonObjectParser(private val json: String) {
+    private var index = 0
+
+    fun parse(): Map<String, FydeScriptParameterValue> {
+        val values = linkedMapOf<String, FydeScriptParameterValue>()
+        expect('{')
+        if (peek() == '}') {
+            index++
+        } else {
+            while (true) {
+                val key = string()
+                expect(':')
+                value()?.let { values[key] = it }
+                when (next()) {
+                    ',' -> continue
+                    '}' -> break
+                    else -> fail("expected ',' or '}'")
+                }
+            }
+        }
+        skipWhitespace()
+        require(index == json.length) { "unexpected trailing content at $index" }
+        return values
+    }
+
+    private fun value(): FydeScriptParameterValue? = when (val char = peek()) {
+        '"' -> FydeScriptParameterValue.Text(string())
+        't' -> literal("true", FydeScriptParameterValue.Bool(true))
+        'f' -> literal("false", FydeScriptParameterValue.Bool(false))
+        'n' -> literal("null", null)
+        else -> if (char == '-' || char.isDigit()) number() else fail("unexpected '$char'")
+    }
+
+    private fun <T> literal(word: String, result: T): T {
+        require(json.startsWith(word, index)) { "expected $word at $index" }
+        index += word.length
+        return result
+    }
+
+    private fun number(): FydeScriptParameterValue {
+        val start = index
+        while (index < json.length && (json[index].isDigit() || json[index] in "+-.eE")) index++
+        val number = json.substring(start, index).toDoubleOrNull() ?: fail("invalid number")
+        return FydeScriptParameterValue.Number(number)
+    }
+
+    private fun string(): String {
+        expect('"')
+        return buildString {
+            while (true) {
+                require(index < json.length) { "unterminated string" }
+                when (val char = json[index++]) {
+                    '"' -> break
+                    '\\' -> when (val escaped = json[index++]) {
+                        '"', '\\', '/' -> append(escaped)
+                        'n' -> append('\n')
+                        'r' -> append('\r')
+                        't' -> append('\t')
+                        'b' -> append('\b')
+                        'f' -> append('\u000C')
+                        'u' -> {
+                            append(json.substring(index, index + 4).toInt(16).toChar())
+                            index += 4
+                        }
+                        else -> fail("invalid escape '\\$escaped'")
+                    }
+                    else -> append(char)
+                }
+            }
+        }
+    }
+
+    private fun expect(char: Char) {
+        if (next() != char) fail("expected '$char'")
+    }
+
+    private fun next(): Char {
+        skipWhitespace()
+        require(index < json.length) { "unexpected end of input" }
+        return json[index++]
+    }
+
+    private fun peek(): Char {
+        skipWhitespace()
+        require(index < json.length) { "unexpected end of input" }
+        return json[index]
+    }
+
+    private fun skipWhitespace() {
+        while (index < json.length && json[index].isWhitespace()) index++
+    }
+
+    private fun fail(message: String): Nothing = throw IllegalArgumentException("$message at $index in parameters json")
+}
+
 private fun encodeJsonString(value: String): String = buildString {
     append('"')
     for (char in value) {
@@ -253,6 +359,16 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun isConnected(): Result<Boolean>
+
+    /**
+     * Ends the session on this device: tells the server, then always clears
+     * every local trace of the account — the master key and session token in
+     * the OS credential store, and the local database with its decrypted
+     * document cache — even if the server can't be reached. Fails only if
+     * clearing local state itself failed. Mirrors
+     * [`crate::UsersService::logout`].
+     */
+    suspend fun logout(): Result<Unit>
 
     /**
      * Returns whether the fyde server currently responds as reachable.
@@ -351,4 +467,13 @@ expect object FydeSdk {
      * hasn't been called yet.
      */
     suspend fun listPublicScripts(): Result<List<FydeScript>>
+
+    /**
+     * The parameter values each installed script was last installed with,
+     * keyed by script id, for every installation this device has synced so
+     * far — what [installScript] last published for it. Mirrors
+     * [`crate::ScriptsService::list_installed_scripts`]; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>>
 }

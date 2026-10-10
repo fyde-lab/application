@@ -111,6 +111,10 @@ actual object FydeSdk {
         client.isConnected()
     }
 
+    actual suspend fun logout(): Result<Unit> = withClient("logout") { client ->
+        client.logout()
+    }
+
     actual suspend fun isServerReachable(): Result<Boolean> = withClient("isServerReachable") { client ->
         client.isServerReachable()
     }
@@ -178,6 +182,13 @@ actual object FydeSdk {
     actual suspend fun listPublicScripts(): Result<List<FydeScript>> = withClient("listPublicScripts") { client ->
         client.listPublicScripts().map(FfiScript::toFydeScript)
     }
+
+    actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =
+        withClient("installedScriptParameters") { client ->
+            client.listInstalledScripts().associate { installed ->
+                installed.script.id to decodeScriptParametersJson(installed.parametersJson)
+            }
+        }
 }
 
 private fun FfiSourceCategory.toFydeSourceCategory() = when (this) {
