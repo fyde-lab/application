@@ -72,9 +72,7 @@ import com.peltoche.fyde.resources.new_script
 import com.peltoche.fyde.resources.new_script_sheet_title
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.script_code_label
-import com.peltoche.fyde.resources.script_domains_empty_warning
-import com.peltoche.fyde.resources.script_domains_label
-import com.peltoche.fyde.resources.script_domains_supporting
+import com.peltoche.fyde.resources.script_code_supporting
 import com.peltoche.fyde.resources.script_name_label
 import com.peltoche.fyde.resources.script_private_badge
 import com.peltoche.fyde.resources.script_public_label
@@ -135,7 +133,7 @@ fun AddonsScreen(
     state: AddonsUiState,
     modifier: Modifier = Modifier,
     onView: (FydeScript) -> Unit = {},
-    onCreateScript: (name: String, isPublic: Boolean, script: String, allowedDomains: List<String>) -> Unit = { _, _, _, _ -> },
+    onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
     isCreating: Boolean = false,
     runningScriptId: String? = null,
     onOpenDocuments: () -> Unit = {},
@@ -164,7 +162,7 @@ private fun LoadedAddons(
     state: AddonsUiState.Loaded,
     modifier: Modifier,
     onView: (FydeScript) -> Unit,
-    onCreateScript: (name: String, isPublic: Boolean, script: String, allowedDomains: List<String>) -> Unit,
+    onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit,
     isCreating: Boolean,
     runningScriptId: String?,
     onOpenDocuments: () -> Unit,
@@ -230,8 +228,8 @@ private fun LoadedAddons(
         CreateScriptSheet(
             isCreating = isCreating,
             onDismiss = { showCreateSheet = false },
-            onCreate = { name, isPublic, script, allowedDomains ->
-                onCreateScript(name, isPublic, script, allowedDomains)
+            onCreate = { name, isPublic, script ->
+                onCreateScript(name, isPublic, script)
                 showCreateSheet = false
             },
         )
@@ -338,25 +336,23 @@ private fun AddonCard(
 }
 
 /**
- * The New script sheet. Found via review, it used to:
- * - offer no way to set the sites a script may reach, so every script made
- *   here ran with an empty allow-list — which fyde-sdk's sandbox treats as
- *   "no host at all" — and could never make a single request;
- * - set its code in the proportional body face;
- * - give Cancel and Create the same left-aligned text-button weight.
+ * The New script sheet. Scripts made here are parsers — the only type the
+ * server accepts: they classify each uploaded document, in a sandbox with no
+ * network access, so there are no allowed sites or parameters to ask for.
+ * Found via review, it used to set its code in the proportional body face,
+ * give Cancel and Create the same left-aligned text-button weight, and
+ * create scraper scripts the server rejects.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CreateScriptSheet(
     isCreating: Boolean,
     onDismiss: () -> Unit,
-    onCreate: (name: String, isPublic: Boolean, script: String, allowedDomains: List<String>) -> Unit,
+    onCreate: (name: String, isPublic: Boolean, script: String) -> Unit,
 ) {
     var name by remember { mutableStateOf("") }
     var script by remember { mutableStateOf("") }
-    var domains by remember { mutableStateOf("") }
     var isPublic by remember { mutableStateOf(false) }
-    val allowedDomains = parseAllowedDomains(domains)
 
     AppBottomSheet(
         onDismissRequest = onDismiss,
@@ -389,19 +385,8 @@ private fun CreateScriptSheet(
                 enabled = !isCreating,
                 singleLine = false,
                 textStyle = AppTypography.data,
+                supportingText = stringResource(Res.string.script_code_supporting),
                 modifier = Modifier.heightIn(min = 160.dp),
-            )
-            Spacer(Modifier.height(AppSpacing.space4))
-            AppTextField(
-                value = domains,
-                onValueChange = { domains = it },
-                label = stringResource(Res.string.script_domains_label),
-                enabled = !isCreating,
-                singleLine = false,
-                textStyle = AppTypography.data,
-                supportingText = stringResource(
-                    if (allowedDomains.isEmpty()) Res.string.script_domains_empty_warning else Res.string.script_domains_supporting,
-                ),
             )
             Spacer(Modifier.height(AppSpacing.space4))
             AppSwitch(
@@ -420,7 +405,7 @@ private fun CreateScriptSheet(
                 Spacer(Modifier.width(AppSpacing.space3))
                 AppButton(
                     text = stringResource(Res.string.create),
-                    onClick = { onCreate(name.trim(), isPublic, script, allowedDomains) },
+                    onClick = { onCreate(name.trim(), isPublic, script) },
                     enabled = name.isNotBlank() && script.isNotBlank(),
                     loading = isCreating,
                 )
@@ -429,10 +414,6 @@ private fun CreateScriptSheet(
         }
     }
 }
-
-/** One domain per line (commas and spaces also separate), trimmed, deduplicated, blanks dropped. */
-internal fun parseAllowedDomains(input: String): List<String> =
-    input.split('\n', ',', ' ', '\t').map { it.trim().lowercase() }.filter { it.isNotEmpty() }.distinct()
 
 /**
  * A script's version and last-update date as one Data-role line — shared by

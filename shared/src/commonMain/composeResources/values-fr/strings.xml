@@ -162,9 +162,7 @@
     <string name="new_script_sheet_title">Nouveau script</string>
     <string name="script_name_label">Nom</string>
     <string name="script_code_label">Script</string>
-    <string name="script_domains_label">Sites autorisés</string>
-    <string name="script_domains_supporting">Un domaine par ligne, par ex. example.com. Le script ne peut joindre aucun autre site.</string>
-    <string name="script_domains_empty_warning">Sans site autorisé, ce script ne peut faire aucune requête réseau.</string>
+    <string name="script_code_supporting">S’exécute sur chaque document importé, pour le classer. Il n’a pas accès au réseau.</string>
     <string name="script_public_label">Rendre public</string>
     <string name="create">Créer</string>
     <string name="cancel">Annuler</string>

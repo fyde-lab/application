@@ -187,7 +187,7 @@ actual object FydeSdk {
                 description,
                 shortDescription,
                 allowedDomains,
-                FfiScriptType.SCRAPER,
+                FfiScriptType.PARSER,
                 parameters.mapValues { (_, parameter) -> parameter.toFfiScriptParameter() },
             ).toFydeScript()
         }
@@ -322,6 +322,10 @@ private fun FfiScript.toFydeScript() = FydeScript(
     script = script,
     lastUpdated = lastUpdated,
     parameters = parameters.mapValues { (_, parameter) -> parameter.toFydeScriptParameter() },
+    type = when (scriptType) {
+        FfiScriptType.SCRAPER -> FydeScriptType.SCRAPER
+        FfiScriptType.PARSER -> FydeScriptType.PARSER
+    },
 )
 
 private fun FfiDocument.toFydeDocument() = FydeDocument(

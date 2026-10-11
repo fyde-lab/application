@@ -293,6 +293,19 @@ private fun encodeJsonString(value: String): String = buildString {
 }
 
 /**
+ * What a script does, mirroring the SDK's `FfiScriptType`. The server only
+ * accepts [PARSER] scripts today; [SCRAPER] is what `fyde-scripts`'
+ * `scrapers/` are, run by [FydeSdk.runInstalledScript].
+ */
+enum class FydeScriptType {
+    /** Logs into a third-party site and imports documents from it. */
+    SCRAPER,
+
+    /** Classifies each document as it's uploaded; no network access, no parameters. */
+    PARSER,
+}
+
+/**
  * A user-authored script, mirroring the SDK's `FfiScript` without leaking
  * `:sdkBridge`'s generated bindings into `commonMain`. Unlike [FydeDocument],
  * [script] is plain text, not ciphertext — see `sdk/src/domains/scripts/
@@ -310,6 +323,7 @@ data class FydeScript(
     val script: String,
     val lastUpdated: Long,
     val parameters: Map<String, FydeScriptParameter> = emptyMap(),
+    val type: FydeScriptType = FydeScriptType.PARSER,
 )
 
 /** A running scraper's progress, mirroring the SDK's `FfiProgressEvent`. */
@@ -434,7 +448,8 @@ expect object FydeSdk {
     suspend fun getLanguage(): Result<String?>
 
     /**
-     * Creates a new script owned by the authenticated user, at version 1.
+     * Creates a new [FydeScriptType.PARSER] script owned by the authenticated
+     * user, at version 1 — the only type the server accepts.
      * Mirrors [`crate::ScriptsService::create_script`]; fails if
      * [initialize] hasn't been called yet.
      */

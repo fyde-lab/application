@@ -162,9 +162,7 @@
     <string name="new_script_sheet_title">New script</string>
     <string name="script_name_label">Name</string>
     <string name="script_code_label">Script</string>
-    <string name="script_domains_label">Allowed sites</string>
-    <string name="script_domains_supporting">One domain per line, e.g. example.com. The script can’t reach any other site.</string>
-    <string name="script_domains_empty_warning">Without allowed sites, this script can’t make any network request.</string>
+    <string name="script_code_supporting">Runs on every document you upload, to classify it. It has no network access.</string>
     <string name="script_public_label">Make public</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>

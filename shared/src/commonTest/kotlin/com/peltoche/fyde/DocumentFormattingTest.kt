@@ -26,13 +26,4 @@ class DocumentFormattingTest {
         assertEquals("1,0", formatOneDecimalBelowTen(1.0, ","))
         assertEquals("12", formatOneDecimalBelowTen(12.7, "."))
     }
-
-    @Test
-    fun parsesAllowedDomainsFromLinesCommasAndSpaces() {
-        assertEquals(
-            listOf("example.com", "api.example.com", "other.org"),
-            parseAllowedDomains(" Example.com\napi.example.com, other.org  example.com\n\n"),
-        )
-        assertEquals(emptyList(), parseAllowedDomains("  \n "))
-    }
 }

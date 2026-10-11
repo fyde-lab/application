@@ -460,11 +460,12 @@ private fun AddonsScreenContainer(
         }
     }
 
-    // A newly created script is installed and enabled immediately
-    // (`create_script` alone does neither — see `sdk/src/domains/scripts/
-    // mod.rs`'s `Service` trait), so it lands in the Installed section,
-    // ready to run.
-    fun createScript(name: String, isPublic: Boolean, script: String, allowedDomains: List<String>) {
+    // A newly created script is a parser (see FydeSdk.createScript), enabled
+    // immediately (`create_script` alone doesn't — see `sdk/src/domains/
+    // scripts/mod.rs`'s `Service` trait) so it classifies the next uploads
+    // and lands in the Installed section. A parser takes no parameters, so
+    // there's no installation to publish.
+    fun createScript(name: String, isPublic: Boolean, script: String) {
         isCreating = true
         scope.launch {
             FydeSdk.createScript(
@@ -474,22 +475,14 @@ private fun AddonsScreenContainer(
                 script = script,
                 description = "",
                 shortDescription = "",
-                allowedDomains = allowedDomains,
+                allowedDomains = emptyList(),
             )
-                .mapCatching { created ->
-                    // Installed as well as enabled, so it can be run right
-                    // away: a run reads the installation, and a script made
-                    // here declares no parameters to fill in first.
-                    FydeSdk.installScript(created.id, emptyMap()).getOrThrow()
-                    FydeSdk.enableScript(created.id).getOrThrow()
-                    created
-                }
+                .mapCatching { created -> created.also { FydeSdk.enableScript(it.id).getOrThrow() } }
                 .onSuccess { created ->
                     (uiState as? AddonsUiState.Loaded)?.let { latest ->
                         uiState = latest.copy(
                             scripts = listOf(created) + latest.scripts.orEmpty().filter { it.id != created.id },
                             enabledScriptIds = latest.enabledScriptIds + created.id,
-                            installedParameters = latest.installedParameters + (created.id to emptyMap()),
                         )
                     }
                     isCreating = false

@@ -161,7 +161,9 @@ fun AddonDetailScreen(
             (parameter.type != FydeScriptParameterType.NUMBER || blank || value.toFiniteDoubleOrNull() != null)
     }
     val enteredValues = if (parametersValid) typedParameterValues(script.parameters, parameterValues) else null
-    val hasChanges = enteredValues != null && enteredValues != installedParameters
+    // Nothing to save for a script without parameters (every parser), and
+    // no installation yet reads as "nothing entered" rather than a change.
+    val hasChanges = script.parameters.isNotEmpty() && enteredValues != (installedParameters ?: emptyMap<String, FydeScriptParameterValue>())
 
     fun submit() {
         if (enteredValues != null) onInstall(enteredValues) else showRequiredErrors = true
@@ -266,7 +268,9 @@ fun AddonDetailScreen(
                         // Edited values are saved before anything else: a
                         // run always uses what's installed, so offering Run
                         // next to unsaved changes would run the old ones.
-                        if (hasChanges || !parametersValid) {
+                        // Only scrapers are run on demand; a parser runs by
+                        // itself on every upload.
+                        if (hasChanges || (script.parameters.isNotEmpty() && !parametersValid)) {
                             AppButton(
                                 text = stringResource(Res.string.addon_save_button),
                                 onClick = ::submit,
@@ -274,7 +278,7 @@ fun AddonDetailScreen(
                                 loading = isPending,
                                 modifier = itemModifier,
                             )
-                        } else {
+                        } else if (script.type == FydeScriptType.SCRAPER) {
                             AppButton(
                                 text = stringResource(Res.string.addon_run_button),
                                 onClick = onRun,
