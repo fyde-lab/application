@@ -64,7 +64,7 @@ private enum class AppLanguage(val code: String, val displayName: String) {
 /**
  * The Settings destination (sidebar footer on desktop, a regular nav item
  * below that — see [TopLevelScaffold]). Mostly read-only — the server it's
- * connected to (see `App.kt`'s `FYDE_SERVER_URL`) — except for
+ * connected to (see `BuildConfig.SERVER_URL`, set at build time) — except for
  * [currentLanguage], which [onLanguageChange] lets the user override via
  * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
  * where that call and [languageError] actually live), and [onLogout], which

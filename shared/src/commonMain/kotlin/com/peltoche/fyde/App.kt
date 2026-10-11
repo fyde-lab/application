@@ -34,8 +34,6 @@ import org.jetbrains.compose.resources.getString
  */
 private const val DOCUMENT_PAGE_SIZE = 100L
 
-private const val FYDE_SERVER_URL = "http://127.0.0.1:40051"
-
 /**
  * How often to poll [FydeSdk.isServerReachable] while the document list is
  * open. Found via review: it used to poll every 200ms — five calls a second,
@@ -106,7 +104,7 @@ private fun AppContent() {
     // first, since applyPlatformLocale's effect doesn't itself persist across
     // process restarts (unlike the fyde-sdk preference it reads).
     LaunchedEffect(Unit) {
-        FydeSdk.initialize(FYDE_SERVER_URL).onSuccess {
+        FydeSdk.initialize(BuildConfig.SERVER_URL).onSuccess {
             FydeSdk.getLanguage().getOrNull()?.let { savedLanguage ->
                 applyPlatformLocale(savedLanguage)
                 language = savedLanguage
@@ -155,7 +153,7 @@ private fun AppContent() {
                 onOpenAddons = { screen = Screen.Addons },
             )
             Screen.Settings -> SettingsScreen(
-                serverUrl = FYDE_SERVER_URL,
+                serverUrl = BuildConfig.SERVER_URL,
                 currentLanguage = language,
                 onLanguageChange = { newLanguage ->
                     applyPlatformLocale(newLanguage)
@@ -222,7 +220,7 @@ private suspend fun authenticate(
     password: String,
     credentialCall: suspend (String, String) -> Result<Unit>,
 ): Result<Unit> =
-    FydeSdk.initialize(FYDE_SERVER_URL).fold(
+    FydeSdk.initialize(BuildConfig.SERVER_URL).fold(
         onSuccess = { credentialCall(username, password) },
         onFailure = { Result.failure(it) },
     )
@@ -313,7 +311,7 @@ private fun DocumentsScreen(
         // background for the lifetime of the session (started by login/
         // register, or immediately here if one is already persisted), so
         // no separate streaming call is needed.
-        val initResult = FydeSdk.initialize(FYDE_SERVER_URL) {
+        val initResult = FydeSdk.initialize(BuildConfig.SERVER_URL) {
             scope.launch {
                 val current = uiState as? DocumentListUiState.Loaded
                 val refreshed = listAllDocuments().getOrElse { current?.documents ?: emptyList() }
@@ -398,7 +396,7 @@ private fun AddonsScreenContainer(
     LaunchedEffect(retryKey) {
         uiState = AddonsUiState.Connecting
 
-        val initResult = FydeSdk.initialize(FYDE_SERVER_URL)
+        val initResult = FydeSdk.initialize(BuildConfig.SERVER_URL)
         if (initResult.isFailure) {
             uiState = AddonsUiState.ConnectFailed(
                 message = initResult.exceptionOrNull()?.userMessage() ?: getString(Res.string.error_unknown),
