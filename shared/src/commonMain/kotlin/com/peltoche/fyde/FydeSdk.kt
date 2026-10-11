@@ -438,11 +438,23 @@ expect object FydeSdk {
 
     /**
      * Creates a new account for [username] and opens a session for this
-     * device, the same as a subsequent [login] would. Mirrors
-     * [`crate::UsersService::create`]; fails if [initialize] hasn't been
-     * called yet.
+     * device, the same as a subsequent [login] would. On a device without
+     * secure storage (see [isSecureStorageAvailable]), [allowInsecureStorage]
+     * lets the account's keys be kept unencrypted in the local database
+     * instead — only pass `true` once the user explicitly accepted that.
+     * Mirrors [`crate::UsersService::create`]; fails if [initialize] hasn't
+     * been called yet.
      */
-    suspend fun register(username: String, password: String): Result<Unit>
+    suspend fun register(username: String, password: String, allowInsecureStorage: Boolean = false): Result<Unit>
+
+    /**
+     * Returns whether this device has secure storage (Keychain, Secret
+     * Service, ...) for the account's keys; when it doesn't, [register]
+     * needs `allowInsecureStorage`. Mirrors
+     * [`crate::UsersService::is_secure_storage_available`]; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun isSecureStorageAvailable(): Result<Boolean>
 
     /**
      * Returns whether a session token is currently persisted, i.e. a prior

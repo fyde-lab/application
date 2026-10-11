@@ -22,7 +22,10 @@ actual object FydeSdk {
 
     actual suspend fun login(username: String, password: String): Result<Unit> = unsupported()
 
-    actual suspend fun register(username: String, password: String): Result<Unit> = unsupported()
+    actual suspend fun register(username: String, password: String, allowInsecureStorage: Boolean): Result<Unit> =
+        unsupported()
+
+    actual suspend fun isSecureStorageAvailable(): Result<Boolean> = unsupported()
 
     actual suspend fun isConnected(): Result<Boolean> = unsupported()
 

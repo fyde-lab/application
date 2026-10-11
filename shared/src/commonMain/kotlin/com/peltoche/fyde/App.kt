@@ -83,6 +83,11 @@ private fun AppContent() {
     // (Argon2id, 64 MiB) takes noticeable time, longest on a phone, so the
     // form shows it's working and can't be submitted a second time.
     var isAuthenticating by remember { mutableStateOf(false) }
+    // Whether this device has secure storage for the account's keys - when it
+    // doesn't, RegisterScreen asks the user to accept keeping them in the
+    // local database instead. Assumed available until checked, so the
+    // checkbox never flashes on a device that doesn't need it.
+    var isSecureStorageAvailable by remember { mutableStateOf(true) }
     // The device's persisted language preference (see
     // FydeSdk.setLanguage/getLanguage), or `null` if never set (in which case
     // the platform's own locale is left alone). Wrapping the `when` below in
@@ -137,6 +142,16 @@ private fun AppContent() {
             Unit
         }
 
+    // Re-checked every time the registration form opens, so a keyring
+    // started or unlocked in the meantime is picked up.
+    LaunchedEffect(screen) {
+        if (screen == Screen.Register) {
+            isSecureStorageAvailable = FydeSdk.initialize(BuildConfig.SERVER_URL)
+                .mapCatching { FydeSdk.isSecureStorageAvailable().getOrThrow() }
+                .getOrDefault(true)
+        }
+    }
+
     key(language) {
         when (screen) {
             Screen.Login -> LoginScreen(
@@ -151,7 +166,13 @@ private fun AppContent() {
             Screen.Register -> RegisterScreen(
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
-                onRegister = authenticateWith(FydeSdk::register, Res.string.auth_error_register_failed),
+                isSecureStorageAvailable = isSecureStorageAvailable,
+                onRegister = { username, password, allowInsecureStorage ->
+                    authenticateWith(
+                        { user, pass -> FydeSdk.register(user, pass, allowInsecureStorage) },
+                        Res.string.auth_error_register_failed,
+                    )(username, password)
+                },
                 onNavigateToLogin = {
                     authError = null
                     screen = Screen.Login

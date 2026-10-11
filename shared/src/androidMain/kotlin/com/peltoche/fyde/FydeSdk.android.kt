@@ -131,9 +131,14 @@ actual object FydeSdk {
         client.login(username, password, getPlatform().name)
     }.map { }
 
-    actual suspend fun register(username: String, password: String): Result<Unit> = withClient("register") { client ->
-        client.createUser(username, password, getPlatform().name)
-    }.map { }
+    actual suspend fun register(username: String, password: String, allowInsecureStorage: Boolean): Result<Unit> =
+        withClient("register") { client ->
+            client.createUser(username, password, getPlatform().name, allowInsecureStorage)
+        }.map { }
+
+    actual suspend fun isSecureStorageAvailable(): Result<Boolean> = withClient("isSecureStorageAvailable") { client ->
+        client.isSecureStorageAvailable()
+    }
 
     actual suspend fun isConnected(): Result<Boolean> = withClient("isConnected") { client ->
         client.isConnected()
