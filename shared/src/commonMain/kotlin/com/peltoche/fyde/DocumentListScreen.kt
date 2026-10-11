@@ -580,9 +580,9 @@ private fun DocumentDetailsSection(document: FydeDocument) {
     }
 }
 
-/** One cell of [DocumentDetailsSection]'s grid: a muted caption label stacked above the value. */
+/** One cell of an information grid ([DocumentDetailsSection], a script's saved parameters): a muted caption label stacked above the value. */
 @Composable
-private fun DetailCell(label: String, value: String, modifier: Modifier = Modifier) {
+internal fun DetailCell(label: String, value: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(text = label, style = AppTypography.caption, color = AppColors.textMuted)
         Spacer(Modifier.height(AppSpacing.space1))

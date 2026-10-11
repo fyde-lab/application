@@ -210,6 +210,13 @@
     <string name="script_parameters_section">Parameters</string>
     <string name="script_parameter_required">Required</string>
     <string name="script_parameter_invalid_number">Must be a number</string>
+    <string name="script_install_dialog_title">Install “%1$s”</string>
+    <string name="script_install_dialog_text">Fyde saves these values with the script and uses them each time it runs.</string>
+    <string name="script_edit_parameters_button">Edit parameters</string>
+    <string name="script_edit_parameters_title">Parameters for “%1$s”</string>
+    <string name="script_parameter_hidden">••••••••</string>
+    <string name="script_parameter_yes">Yes</string>
+    <string name="script_parameter_no">No</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>

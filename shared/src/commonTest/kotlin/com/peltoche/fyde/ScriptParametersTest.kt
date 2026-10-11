@@ -3,16 +3,19 @@ package com.peltoche.fyde
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class ScriptParametersTest {
 
-    private fun parameter(type: FydeScriptParameterType, required: Boolean = false) = FydeScriptParameter(
+    private fun parameter(type: FydeScriptParameterType, required: Boolean = false, secret: Boolean = false) = FydeScriptParameter(
         label = "label",
         placeholder = "",
         type = type,
         required = required,
-        secret = false,
+        secret = secret,
     )
+
+    private val labels = ParameterValueLabels(hidden = "hidden", yes = "yes", no = "no", unset = "unset")
 
     @Test
     fun encodesEachValueTypeAsItsJsonType() {
@@ -122,6 +125,52 @@ class ScriptParametersTest {
 
         assertEquals(mapOf("username" to "alice", "retries" to "3", "ratio" to "0.5", "verbose" to "true"), formValues(installed))
         assertEquals(installed, typedParameterValues(parameters, formValues(installed)))
+    }
+
+    @Test
+    fun validatedParameterValuesRejectsABlankRequiredValue() {
+        val parameters = mapOf("username" to parameter(FydeScriptParameterType.STRING, required = true))
+
+        assertNull(validatedParameterValues(parameters, mapOf("username" to " ")))
+        assertNull(validatedParameterValues(parameters, emptyMap()))
+        assertEquals(
+            mapOf("username" to FydeScriptParameterValue.Text("alice")),
+            validatedParameterValues(parameters, mapOf("username" to "alice")),
+        )
+    }
+
+    @Test
+    fun validatedParameterValuesRejectsANumberFieldHoldingSomethingElse() {
+        val parameters = mapOf("retries" to parameter(FydeScriptParameterType.NUMBER))
+
+        assertNull(validatedParameterValues(parameters, mapOf("retries" to "three")))
+        assertNull(validatedParameterValues(parameters, mapOf("retries" to "NaN")))
+        assertEquals(emptyMap(), validatedParameterValues(parameters, mapOf("retries" to "")))
+    }
+
+    @Test
+    fun validatedParameterValuesTakesAnUntouchedRequiredSwitchAsFalse() {
+        val parameters = mapOf("accept" to parameter(FydeScriptParameterType.BOOLEAN, required = true))
+
+        assertEquals(mapOf("accept" to FydeScriptParameterValue.Bool(false)), validatedParameterValues(parameters, emptyMap()))
+    }
+
+    @Test
+    fun displayedParameterValueMasksSecretsAndSpellsOutTheRest() {
+        assertEquals("alice", displayedParameterValue(parameter(FydeScriptParameterType.STRING), FydeScriptParameterValue.Text("alice"), labels))
+        assertEquals(
+            "hidden",
+            displayedParameterValue(parameter(FydeScriptParameterType.STRING, secret = true), FydeScriptParameterValue.Text("hunter2"), labels),
+        )
+        assertEquals("3", displayedParameterValue(parameter(FydeScriptParameterType.NUMBER), FydeScriptParameterValue.Number(3.0), labels))
+        assertEquals("yes", displayedParameterValue(parameter(FydeScriptParameterType.BOOLEAN), FydeScriptParameterValue.Bool(true), labels))
+        assertEquals("no", displayedParameterValue(parameter(FydeScriptParameterType.BOOLEAN), FydeScriptParameterValue.Bool(false), labels))
+    }
+
+    @Test
+    fun displayedParameterValueShowsAMissingValueAsUnsetEvenForASecret() {
+        assertEquals("unset", displayedParameterValue(parameter(FydeScriptParameterType.STRING), null, labels))
+        assertEquals("unset", displayedParameterValue(parameter(FydeScriptParameterType.STRING, secret = true), null, labels))
     }
 
     @Test
