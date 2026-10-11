@@ -11,6 +11,7 @@ import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiEventType
 import uniffi.fyde_sdk.FfiException
 import uniffi.fyde_sdk.FfiLogLevel
+import uniffi.fyde_sdk.FfiProgressEvent
 import uniffi.fyde_sdk.FfiPurpose
 import uniffi.fyde_sdk.FfiScript
 import uniffi.fyde_sdk.FfiScriptParameter
@@ -21,6 +22,11 @@ import uniffi.fyde_sdk.FfiSourceSubCategory
 import uniffi.fyde_sdk.FfiStorage
 import uniffi.fyde_sdk.FydeClient
 import uniffi.fyde_sdk.LogListener
+import uniffi.fyde_sdk.ScraperListener
+import kotlin.concurrent.Volatile
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 private val logger = Logger.getLogger("FydeSdk")
 
@@ -77,6 +83,15 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
 actual object FydeSdk {
     private var client: FydeClient? = null
 
+    /** Serializes [initialize], so concurrent first calls can't create two clients. */
+    private val initLock = Mutex()
+
+    @Volatile
+    private var documentChangeCallback: ((FydeChangelogEvent) -> Unit)? = null
+
+    @Volatile
+    private var scraperHandler: FydeScraperHandler? = null
+
     /** [sdkCall] against the client [initialize] created, failing if there's none yet. */
     private inline fun <T> withClient(operation: String, block: (FydeClient) -> T): Result<T> =
         sdkCall(operation) { block(checkNotNull(client) { "FydeSdk.initialize must be called first" }) }
@@ -84,18 +99,36 @@ actual object FydeSdk {
     actual suspend fun initialize(
         serverUrl: String,
         onDocumentChange: ((FydeChangelogEvent) -> Unit)?,
-    ): Result<Unit> = sdkCall("initialize") {
-        val config = FfiClientConfig(
-            url = serverUrl,
-            storage = FfiStorage.Disk(path = defaultStoragePath()),
-            logLevel = FfiLogLevel.INFO,
-        )
-        val listener = onDocumentChange?.let { callback ->
-            object : DocumentChangeListener {
-                override fun onEvent(event: FfiChangelogEvent) = callback(event.toFydeChangelogEvent())
+    ): Result<Unit> {
+        onDocumentChange?.let { documentChangeCallback = it }
+        return initLock.withLock {
+            if (client != null) return@withLock Result.success(Unit)
+            sdkCall("initialize") {
+                val config = FfiClientConfig(
+                    url = serverUrl,
+                    storage = FfiStorage.Disk(path = defaultStoragePath()),
+                    logLevel = FfiLogLevel.INFO,
+                )
+                // Both listeners forward to whatever is registered *now*, so
+                // later callers can swap them without a new client.
+                val documentListener = object : DocumentChangeListener {
+                    override fun onEvent(event: FfiChangelogEvent) {
+                        documentChangeCallback?.invoke(event.toFydeChangelogEvent())
+                    }
+                }
+                val scraperListener = object : ScraperListener {
+                    override fun onProgress(event: FfiProgressEvent) {
+                        scraperHandler?.onProgress(event.toFydeScraperProgress())
+                    }
+
+                    // Called on the scraper's own blocking thread, so it may
+                    // block until the user answers.
+                    override fun onQuestion(question: String): String =
+                        scraperHandler?.let { handler -> runBlocking { handler.onQuestion(question) } } ?: ""
+                }
+                client = FydeClient.init(config, JvmLogListener(), documentListener, scraperListener)
             }
         }
-        client = FydeClient.init(config, JvmLogListener(), listener)
     }
 
     actual suspend fun login(username: String, password: String): Result<Unit> = withClient("login") { client ->
@@ -182,12 +215,25 @@ actual object FydeSdk {
         client.listPublicScripts().map(FfiScript::toFydeScript)
     }
 
+    actual fun setScraperHandler(handler: FydeScraperHandler?) {
+        scraperHandler = handler
+    }
+
+    actual suspend fun runInstalledScript(scriptId: String): Result<Unit> = withClient("runInstalledScript") { client ->
+        client.runInstalledScript(scriptId)
+    }
+
     actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =
         withClient("installedScriptParameters") { client ->
             client.listInstalledScripts().associate { installed ->
                 installed.script.id to decodeScriptParametersJson(installed.parametersJson)
             }
         }
+}
+
+private fun FfiProgressEvent.toFydeScraperProgress(): FydeScraperProgress = when (this) {
+    is FfiProgressEvent.Step -> FydeScraperProgress.Step(name)
+    is FfiProgressEvent.Update -> FydeScraperProgress.Update(current, total, message)
 }
 
 private fun FfiSourceCategory.toFydeSourceCategory() = when (this) {

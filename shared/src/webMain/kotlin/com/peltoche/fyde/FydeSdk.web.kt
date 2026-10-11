@@ -64,4 +64,9 @@ actual object FydeSdk {
 
     actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =
         unsupported()
+
+    actual fun setScraperHandler(handler: FydeScraperHandler?) {
+    }
+
+    actual suspend fun runInstalledScript(scriptId: String): Result<Unit> = unsupported()
 }

@@ -312,6 +312,27 @@ data class FydeScript(
     val parameters: Map<String, FydeScriptParameter> = emptyMap(),
 )
 
+/** A running scraper's progress, mirroring the SDK's `FfiProgressEvent`. */
+sealed interface FydeScraperProgress {
+    /** A named step started (e.g. "Logging in"). */
+    data class Step(val name: String) : FydeScraperProgress
+
+    /** How far the current step has got; [total] is 0 when unknown. */
+    data class Update(val current: Long, val total: Long, val message: String) : FydeScraperProgress
+}
+
+/**
+ * Receives a [FydeSdk.runInstalledScript] run's progress, and answers the
+ * questions its script asks (a one-time code, ...). Called from the run's
+ * own background thread, never the UI's: [onQuestion] suspends until the
+ * user answers, and its result goes back to the script.
+ */
+interface FydeScraperHandler {
+    fun onProgress(progress: FydeScraperProgress)
+
+    suspend fun onQuestion(question: String): String
+}
+
 /**
  * Cross-platform entry point to `fyde-sdk` (`../../sdk`), the Rust client
  * library for talking to a fyde server. Implemented for Desktop (JVM),
@@ -320,14 +341,18 @@ data class FydeScript(
  */
 expect object FydeSdk {
     /**
-     * Connects to a fyde server at [serverUrl], initializing the SDK client
-     * for the lifetime of the process. Safe to call more than once; the last
-     * call wins. [onDocumentChange], if given, is invoked once for every
-     * changelog event consumed by the background sync job that [login]/
-     * [register] start automatically (replaying persisted history, then
-     * continuing with the live tail) — or immediately, if a session from a
-     * previous run is already persisted. Mirrors `ClientConfig`'s
-     * `on_document_change`.
+     * Connects to a fyde server at [serverUrl], creating the SDK client the
+     * first time it succeeds; every later call (from any screen) reuses that
+     * one client, only replacing [onDocumentChange] when one is given.
+     * Found via review: each call used to create another client, while the
+     * previous one kept running and holding the changelog write lock — so
+     * every later client fell back to read-only sync, and documents never
+     * came back after logging out and in again. [onDocumentChange], if
+     * given, is invoked once for every changelog event consumed by the
+     * background sync job that [login]/[register] start automatically
+     * (replaying persisted history, then continuing with the live tail) — or
+     * immediately, if a session from a previous run is already persisted.
+     * Mirrors `ClientConfig`'s `on_document_change`.
      */
     suspend fun initialize(
         serverUrl: String,
@@ -476,4 +501,15 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>>
+
+    /** Where [runInstalledScript] reports progress and asks questions; `null` answers every question with "". */
+    fun setScraperHandler(handler: FydeScraperHandler?)
+
+    /**
+     * Runs the installed script [scriptId] with the values it was installed
+     * with, until it finishes; documents it saves are uploaded like any
+     * other. Mirrors `FfiClient::run_installed_script`; fails if the
+     * installation hasn't synced to this device yet.
+     */
+    suspend fun runInstalledScript(scriptId: String): Result<Unit>
 }
