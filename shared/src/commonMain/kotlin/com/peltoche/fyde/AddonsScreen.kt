@@ -3,6 +3,8 @@ package com.peltoche.fyde
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppBadge
+import com.peltoche.fyde.components.content.AppBadgeVariant
 import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppEmptyState
@@ -58,6 +61,7 @@ import com.peltoche.fyde.resources.addons_available_section
 import com.peltoche.fyde.resources.addons_empty_description
 import com.peltoche.fyde.resources.addons_empty_title
 import com.peltoche.fyde.resources.addons_installed_section
+import com.peltoche.fyde.resources.addon_running_badge
 import com.peltoche.fyde.resources.addons_title
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.connect_failed_title
@@ -133,6 +137,7 @@ fun AddonsScreen(
     onView: (FydeScript) -> Unit = {},
     onCreateScript: (name: String, isPublic: Boolean, script: String, allowedDomains: List<String>) -> Unit = { _, _, _, _ -> },
     isCreating: Boolean = false,
+    runningScriptId: String? = null,
     onOpenDocuments: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
 ) {
@@ -149,7 +154,7 @@ fun AddonsScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is AddonsUiState.Loaded -> LoadedAddons(state, modifier, onView, onCreateScript, isCreating, onOpenDocuments, onOpenSettings)
+        is AddonsUiState.Loaded -> LoadedAddons(state, modifier, onView, onCreateScript, isCreating, runningScriptId, onOpenDocuments, onOpenSettings)
     }
 }
 
@@ -161,6 +166,7 @@ private fun LoadedAddons(
     onView: (FydeScript) -> Unit,
     onCreateScript: (name: String, isPublic: Boolean, script: String, allowedDomains: List<String>) -> Unit,
     isCreating: Boolean,
+    runningScriptId: String?,
     onOpenDocuments: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -211,6 +217,7 @@ private fun LoadedAddons(
                     else -> AddonsGrid(
                         scripts = scripts,
                         enabledScriptIds = state.enabledScriptIds,
+                        runningScriptId = runningScriptId,
                         onView = onView,
                         modifier = Modifier.weight(1f),
                     )
@@ -245,6 +252,7 @@ private val AddonCellMinWidth = 220.dp
 private fun AddonsGrid(
     scripts: List<FydeScript>,
     enabledScriptIds: Set<String>,
+    runningScriptId: String?,
     onView: (FydeScript) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -263,7 +271,7 @@ private fun AddonsGrid(
                 SectionTitle(stringResource(Res.string.addons_installed_section, installed.size))
             }
             items(installed, key = { it.id }) { script ->
-                AddonCard(script = script, onClick = { onView(script) })
+                AddonCard(script = script, isRunning = script.id == runningScriptId, onClick = { onView(script) })
             }
         }
         if (available.isNotEmpty()) {
@@ -291,6 +299,7 @@ private const val CARD_SUMMARY_LINES = 2
 private fun AddonCard(
     script: FydeScript,
     onClick: () -> Unit,
+    isRunning: Boolean = false,
 ) {
     AppCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(verticalAlignment = Alignment.Top) {
@@ -306,7 +315,10 @@ private fun AddonCard(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    if (!script.isPublic) {
+                    if (isRunning) {
+                        Spacer(Modifier.width(AppSpacing.space2))
+                        AppBadge(text = stringResource(Res.string.addon_running_badge), variant = AppBadgeVariant.Primary)
+                    } else if (!script.isPublic) {
                         Spacer(Modifier.width(AppSpacing.space2))
                         AppBadge(text = stringResource(Res.string.script_private_badge))
                     }
@@ -348,9 +360,15 @@ private fun CreateScriptSheet(
 
     AppBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberBottomSheetState(initialValue = SheetValue.Expanded),
+        // Expanded or hidden, never half-open: found via review that the
+        // sheet opened partially expanded, with Create below the window edge
+        // and no way to scroll to it. Its content scrolls on short windows.
+        sheetState = rememberBottomSheetState(
+            initialValue = SheetValue.Expanded,
+            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+        ),
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
+        Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(AppSpacing.space5)) {
             Text(
                 text = stringResource(Res.string.new_script_sheet_title),
                 style = AppTypography.section,

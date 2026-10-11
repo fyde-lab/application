@@ -189,6 +189,14 @@
     <string name="addon_updated">Saved settings for “%1$s”</string>
     <string name="addon_uninstall_confirm_title">Uninstall “%1$s”?</string>
     <string name="addon_uninstall_confirm_text">Documents it already imported stay in Fyde.</string>
+    <string name="addon_run_button">Run now</string>
+    <string name="addon_run_starting">Starting…</string>
+    <string name="addon_run_finished">“%1$s” finished</string>
+    <string name="addon_run_failed">“%1$s” failed: %2$s</string>
+    <string name="addon_running_badge">Running…</string>
+    <string name="scraper_question_title">“%1$s” needs your input</string>
+    <string name="scraper_answer_label">Your answer</string>
+    <string name="scraper_answer_send">Send</string>
     <string name="addon_about_section">About</string>
     <string name="addon_domains_installed">This add-on can access these sites:</string>
     <string name="addon_domains_not_installed">Installing gives this add-on access to these sites:</string>

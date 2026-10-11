@@ -56,7 +56,31 @@ import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.ui.text.input.ImeAction
+import com.peltoche.fyde.components.content.AppCard
+import com.peltoche.fyde.resources.addon_run_button
+import com.peltoche.fyde.resources.addon_run_starting
+import com.peltoche.fyde.resources.scraper_answer_label
+import com.peltoche.fyde.resources.scraper_answer_send
+import com.peltoche.fyde.resources.scraper_question_title
 import org.jetbrains.compose.resources.stringResource
+
+/**
+ * Where a run of this add-on stands (see [ScraperRuns]): [isRunning] while
+ * it's this one running, [canRun] unless some other run is in progress (one
+ * at a time), the current [step]/[update] for the progress card, and the
+ * last run's [failure] message.
+ */
+data class AddonRunState(
+    val isRunning: Boolean = false,
+    val canRun: Boolean = true,
+    val step: String? = null,
+    val update: FydeScraperProgress.Update? = null,
+    val failure: String? = null,
+)
 
 /** Keeps an action button a deliberate target, not a word-sized one, when it isn't full width. */
 private val ActionButtonMinWidth = 160.dp
@@ -88,12 +112,17 @@ fun AddonDetailScreen(
     onUninstall: () -> Unit,
     modifier: Modifier = Modifier,
     installedParameters: Map<String, FydeScriptParameterValue>? = null,
+    run: AddonRunState = AddonRunState(),
+    onRun: () -> Unit = {},
+    onDismissRunFailure: () -> Unit = {},
     banner: String? = null,
     onDismissBanner: () -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
+    // Nothing about the installation changes while it's running.
+    val isBusy = isPending || run.isRunning
 
     // One text value per parameter (machine name -> entered value), keyed
     // on script.id so switching to a different script's detail view starts
@@ -167,6 +196,9 @@ fun AddonDetailScreen(
                 banner?.let { message ->
                     AppBanner(message = message, onDismiss = onDismissBanner, dismissLabel = stringResource(Res.string.dismiss))
                 }
+                run.failure?.let { message ->
+                    AppBanner(message = message, onDismiss = onDismissRunFailure, dismissLabel = stringResource(Res.string.dismiss))
+                }
 
                 Spacer(Modifier.height(AppSpacing.space7))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -179,6 +211,11 @@ fun AddonDetailScreen(
                     }
                 }
 
+                if (run.isRunning) {
+                    Spacer(Modifier.height(AppSpacing.space5))
+                    RunProgressCard(step = run.step, update = run.update)
+                }
+
                 if (script.parameters.isNotEmpty()) {
                     SectionTitle(stringResource(Res.string.addon_parameters_section))
                     orderedParameters(script.parameters).forEach { (key, parameter) ->
@@ -188,7 +225,7 @@ fun AddonDetailScreen(
                                 checked = value.toBooleanStrictOrNull() ?: false,
                                 onCheckedChange = { checked -> parameterValues[key] = checked.toString() },
                                 label = parameter.label,
-                                enabled = !isPending,
+                                enabled = !isBusy,
                             )
                         } else {
                             AppTextField(
@@ -198,7 +235,7 @@ fun AddonDetailScreen(
                                 placeholder = parameter.placeholder.ifBlank { null },
                                 errorText = errorFor(parameter, value),
                                 isPassword = parameter.secret,
-                                enabled = !isPending,
+                                enabled = !isBusy,
                                 keyboardOptions = if (parameter.type == FydeScriptParameterType.NUMBER) {
                                     KeyboardOptions(keyboardType = KeyboardType.Number)
                                 } else {
@@ -226,12 +263,24 @@ fun AddonDetailScreen(
                 }
                 if (isInstalled) {
                     val actions: @Composable (Modifier) -> Unit = { itemModifier ->
-                        if (script.parameters.isNotEmpty()) {
+                        // Edited values are saved before anything else: a
+                        // run always uses what's installed, so offering Run
+                        // next to unsaved changes would run the old ones.
+                        if (hasChanges || !parametersValid) {
                             AppButton(
                                 text = stringResource(Res.string.addon_save_button),
                                 onClick = ::submit,
-                                enabled = hasChanges || !parametersValid,
+                                enabled = !run.isRunning,
                                 loading = isPending,
+                                modifier = itemModifier,
+                            )
+                        } else {
+                            AppButton(
+                                text = stringResource(Res.string.addon_run_button),
+                                onClick = onRun,
+                                enabled = run.canRun && !isPending,
+                                loading = run.isRunning,
+                                leadingIcon = { PlayGlyph(modifier = Modifier.size(12.dp), tint = AppColors.onPrimary) },
                                 modifier = itemModifier,
                             )
                         }
@@ -239,7 +288,7 @@ fun AddonDetailScreen(
                             text = stringResource(Res.string.addon_uninstall_button),
                             onClick = { confirmingUninstall = true },
                             variant = AppButtonVariant.Outlined,
-                            enabled = !isPending,
+                            enabled = !isBusy,
                             modifier = itemModifier,
                         )
                     }
@@ -281,6 +330,68 @@ fun AddonDetailScreen(
             dismissLabel = stringResource(Res.string.cancel),
             onDismiss = { confirmingUninstall = false },
             destructive = true,
+        )
+    }
+}
+
+/**
+ * A running add-on's progress: the current step's name (or "Starting…"
+ * before the script names one), its latest message, and a bar —
+ * determinate when the script says how many items there are, indeterminate
+ * otherwise.
+ */
+@Composable
+private fun RunProgressCard(step: String?, update: FydeScraperProgress.Update?) {
+    AppCard(modifier = Modifier.fillMaxWidth()) {
+        Column {
+            Text(
+                text = step ?: stringResource(Res.string.addon_run_starting),
+                style = AppTypography.bodyEmphasis,
+                color = AppColors.text,
+            )
+            update?.message?.takeIf { it.isNotBlank() }?.let { message ->
+                Spacer(Modifier.height(AppSpacing.space1))
+                Text(text = message, style = AppTypography.caption, color = AppColors.textMuted)
+            }
+            Spacer(Modifier.height(AppSpacing.space3))
+            if (update != null && update.total > 0) {
+                LinearProgressIndicator(
+                    progress = { (update.current.toFloat() / update.total).coerceIn(0f, 1f) },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = AppColors.primary,
+                    trackColor = AppColors.border,
+                )
+            } else {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = AppColors.primary, trackColor = AppColors.border)
+            }
+        }
+    }
+}
+
+/**
+ * A question a running script asks the user (a one-time code, a security
+ * answer), shown above whatever screen is open. Cancel (or dismissing)
+ * answers with an empty string, which the script treats as no answer.
+ */
+@Composable
+internal fun ScraperQuestionDialog(scriptName: String, question: String, onAnswer: (String) -> Unit) {
+    var answer by remember(question) { mutableStateOf("") }
+    AppDialog(
+        onDismissRequest = { onAnswer("") },
+        title = stringResource(Res.string.scraper_question_title, scriptName),
+        text = question,
+        confirmLabel = stringResource(Res.string.scraper_answer_send),
+        onConfirm = { onAnswer(answer) },
+        confirmEnabled = answer.isNotBlank(),
+        dismissLabel = stringResource(Res.string.cancel),
+        onDismiss = { onAnswer("") },
+    ) {
+        AppTextField(
+            value = answer,
+            onValueChange = { answer = it },
+            label = stringResource(Res.string.scraper_answer_label),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+            keyboardActions = KeyboardActions(onSend = { if (answer.isNotBlank()) onAnswer(answer) }),
         )
     }
 }

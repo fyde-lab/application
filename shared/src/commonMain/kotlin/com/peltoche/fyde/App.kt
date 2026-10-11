@@ -91,6 +91,13 @@ private fun AppContent() {
     var isLoggingOut by remember { mutableStateOf(false) }
     var logoutError by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val snackbarHostState = LocalAppSnackbarHostState.current
+    // App-lifetime, so a scraper run outlives the screen that started it.
+    val scraperRuns = remember { ScraperRuns(scope, snackbarHostState) }
+    DisposableEffect(scraperRuns) {
+        FydeSdk.setScraperHandler(scraperRuns)
+        onDispose { FydeSdk.setScraperHandler(null) }
+    }
 
     // Startup check: if a session token is already persisted from a previous
     // run, skip straight to the document list instead of making the user log
@@ -185,8 +192,19 @@ private fun AppContent() {
                 onDismissLanguageError = { languageError = null },
             )
             Screen.Addons -> AddonsScreenContainer(
+                scraperRuns = scraperRuns,
                 onOpenDocuments = { screen = Screen.Documents },
                 onOpenSettings = { screen = Screen.Settings },
+            )
+        }
+
+        // Above whichever screen is showing: a running script can ask its
+        // question after the user has navigated away from its page.
+        scraperRuns.question?.let { pending ->
+            ScraperQuestionDialog(
+                scriptName = scraperRuns.running?.name.orEmpty(),
+                question = pending.text,
+                onAnswer = scraperRuns::answer,
             )
         }
     }
@@ -354,6 +372,7 @@ private fun DocumentsScreen(
  */
 @Composable
 private fun AddonsScreenContainer(
+    scraperRuns: ScraperRuns,
     onOpenDocuments: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -441,9 +460,10 @@ private fun AddonsScreenContainer(
         }
     }
 
-    // A newly created script is enabled immediately (`create_script` alone
-    // doesn't enable it — see `sdk/src/domains/scripts/mod.rs`'s `Service`
-    // trait), so it lands in the Installed section right away.
+    // A newly created script is installed and enabled immediately
+    // (`create_script` alone does neither — see `sdk/src/domains/scripts/
+    // mod.rs`'s `Service` trait), so it lands in the Installed section,
+    // ready to run.
     fun createScript(name: String, isPublic: Boolean, script: String, allowedDomains: List<String>) {
         isCreating = true
         scope.launch {
@@ -456,12 +476,20 @@ private fun AddonsScreenContainer(
                 shortDescription = "",
                 allowedDomains = allowedDomains,
             )
-                .mapCatching { created -> created.also { FydeSdk.enableScript(it.id).getOrThrow() } }
+                .mapCatching { created ->
+                    // Installed as well as enabled, so it can be run right
+                    // away: a run reads the installation, and a script made
+                    // here declares no parameters to fill in first.
+                    FydeSdk.installScript(created.id, emptyMap()).getOrThrow()
+                    FydeSdk.enableScript(created.id).getOrThrow()
+                    created
+                }
                 .onSuccess { created ->
                     (uiState as? AddonsUiState.Loaded)?.let { latest ->
                         uiState = latest.copy(
                             scripts = listOf(created) + latest.scripts.orEmpty().filter { it.id != created.id },
                             enabledScriptIds = latest.enabledScriptIds + created.id,
+                            installedParameters = latest.installedParameters + (created.id to emptyMap()),
                         )
                     }
                     isCreating = false
@@ -493,6 +521,15 @@ private fun AddonsScreenContainer(
             },
             onInstall = { parameters -> setInstalled(viewedScript, true, parameters) },
             onUninstall = { setInstalled(viewedScript, false) },
+            run = AddonRunState(
+                isRunning = scraperRuns.running?.id == viewedScript.id,
+                canRun = scraperRuns.running == null,
+                step = scraperRuns.step,
+                update = scraperRuns.update,
+                failure = scraperRuns.failure?.takeIf { it.first == viewedScript.id }?.second,
+            ),
+            onRun = { scraperRuns.run(viewedScript) },
+            onDismissRunFailure = scraperRuns::dismissFailure,
             onOpenDocuments = onOpenDocuments,
             onOpenSettings = onOpenSettings,
         )
@@ -504,6 +541,7 @@ private fun AddonsScreenContainer(
             onView = { script -> viewedScriptId = script.id },
             onCreateScript = ::createScript,
             isCreating = isCreating,
+            runningScriptId = scraperRuns.running?.id,
         )
     }
 }

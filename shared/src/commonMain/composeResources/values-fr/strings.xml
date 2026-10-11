@@ -189,6 +189,14 @@
     <string name="addon_updated">Paramètres de « %1$s » enregistrés</string>
     <string name="addon_uninstall_confirm_title">Désinstaller « %1$s » ?</string>
     <string name="addon_uninstall_confirm_text">Les documents qu’elle a déjà importés restent dans Fyde.</string>
+    <string name="addon_run_button">Lancer</string>
+    <string name="addon_run_starting">Démarrage…</string>
+    <string name="addon_run_finished">« %1$s » terminée</string>
+    <string name="addon_run_failed">Échec de « %1$s » : %2$s</string>
+    <string name="addon_running_badge">En cours…</string>
+    <string name="scraper_question_title">« %1$s » a besoin de vous</string>
+    <string name="scraper_answer_label">Votre réponse</string>
+    <string name="scraper_answer_send">Envoyer</string>
     <string name="addon_about_section">À propos</string>
     <string name="addon_domains_installed">Cette extension peut accéder à ces sites :</string>
     <string name="addon_domains_not_installed">L’installation donne à cette extension l’accès à ces sites :</string>

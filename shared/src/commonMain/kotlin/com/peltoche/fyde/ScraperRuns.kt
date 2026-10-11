@@ -1,0 +1,95 @@
+package com.peltoche.fyde
+
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.addon_run_failed
+import com.peltoche.fyde.resources.addon_run_finished
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
+
+/** A question a running script is waiting on; completing [answer] hands the reply back to it. */
+class PendingQuestion(val text: String, val answer: CompletableDeferred<String>)
+
+/**
+ * The one scraper run in progress, if any — what [FydeSdk.runInstalledScript]
+ * is doing, as UI state. Owned by `App`, above every screen, with an
+ * app-lifetime [scope], so a run started from an add-on's page keeps going
+ * (and can still ask its questions) after the user navigates elsewhere.
+ * Found via review: add-ons could be installed but never run from the app,
+ * so nothing showed whether one ran, how far it got, or that it was waiting
+ * on a one-time code.
+ *
+ * Registered as [FydeSdk]'s [FydeScraperHandler]: progress callbacks update
+ * [step]/[update], and a question parks the script on [question] until
+ * [answer] is called. A finished run is confirmed with a snackbar; a failed
+ * one is kept in [failure] for the add-on's page to show as a banner.
+ */
+@Stable
+class ScraperRuns(
+    private val scope: CoroutineScope,
+    private val snackbarHostState: SnackbarHostState,
+) : FydeScraperHandler {
+    var running by mutableStateOf<FydeScript?>(null)
+        private set
+    var step by mutableStateOf<String?>(null)
+        private set
+    var update by mutableStateOf<FydeScraperProgress.Update?>(null)
+        private set
+    var question by mutableStateOf<PendingQuestion?>(null)
+        private set
+
+    /** The last failed run's script id and message, until dismissed or the script runs again. */
+    var failure by mutableStateOf<Pair<String, String>?>(null)
+        private set
+
+    fun run(script: FydeScript) {
+        if (running != null) return
+        running = script
+        step = null
+        update = null
+        failure = null
+        scope.launch {
+            val result = FydeSdk.runInstalledScript(script.id)
+            running = null
+            step = null
+            update = null
+            result
+                .onSuccess { snackbarHostState.showSnackbar(getString(Res.string.addon_run_finished, script.name)) }
+                .onFailure { failure = script.id to getString(Res.string.addon_run_failed, script.name, it.userMessage()) }
+        }
+    }
+
+    fun dismissFailure() {
+        failure = null
+    }
+
+    fun answer(text: String) {
+        question?.answer?.complete(text)
+    }
+
+    override fun onProgress(progress: FydeScraperProgress) {
+        when (progress) {
+            is FydeScraperProgress.Step -> {
+                step = progress.name
+                update = null
+            }
+            is FydeScraperProgress.Update -> update = progress
+        }
+    }
+
+    override suspend fun onQuestion(question: String): String {
+        val pending = PendingQuestion(question, CompletableDeferred())
+        this.question = pending
+        return try {
+            pending.answer.await()
+        } finally {
+            if (this.question === pending) this.question = null
+        }
+    }
+}

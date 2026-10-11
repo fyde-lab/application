@@ -228,6 +228,20 @@ fun MoreGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
     }
 }
 
+/** A filled, right-pointing triangle: "start" / "run". */
+@Composable
+fun PlayGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted) {
+    Canvas(modifier = modifier) {
+        val path = Path().apply {
+            moveTo(size.width * 0.18f, size.height * 0.08f)
+            lineTo(size.width * 0.92f, size.height * 0.5f)
+            lineTo(size.width * 0.18f, size.height * 0.92f)
+            close()
+        }
+        drawPath(path = path, color = tint)
+    }
+}
+
 /**
  * A plus sign — the upload-document action's leading icon. Previously a raw
  * `"+"` character rendered in the platform's default font (the one place a
