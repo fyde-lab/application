@@ -32,6 +32,17 @@ actual object FydeSdk {
 
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> = unsupported()
 
+    actual suspend fun searchDocuments(
+        text: String,
+        filters: FydeSearchFilters,
+        order: FydeSearchOrder,
+        offset: Long,
+        limit: Long,
+    ): Result<List<FydeDocument>> = unsupported()
+
+    actual suspend fun searchDocumentFacets(text: String, filters: FydeSearchFilters): Result<FydeSearchFacets> =
+        unsupported()
+
     actual suspend fun uploadDocument(path: String): Result<String> = unsupported()
 
     actual suspend fun setLanguage(language: String): Result<Unit> = unsupported()

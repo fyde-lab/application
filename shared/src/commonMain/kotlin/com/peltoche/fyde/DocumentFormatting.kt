@@ -98,6 +98,20 @@ internal fun civilDate(epochSeconds: Long): CivilDate {
     return CivilDate(if (month <= 2) year + 1 else year, month, day)
 }
 
+/**
+ * The inverse of [civilDate]: the Unix epoch-seconds timestamp of [date]'s
+ * first second (00:00:00 UTC), via Hinnant's `days_from_civil`.
+ */
+internal fun epochSeconds(date: CivilDate): Long {
+    val year = if (date.month <= 2) date.year - 1 else date.year
+    val era = floorDiv(year, 400L)
+    val yoe = year - era * 400L
+    val mp = if (date.month > 2) date.month - 3 else date.month + 9
+    val doy = (153L * mp + 2) / 5 + date.day - 1
+    val doe = yoe * 365 + yoe / 4 - yoe / 100 + doy
+    return (era * 146_097L + doe - 719_468L) * 86_400L
+}
+
 private fun floorDiv(x: Long, y: Long): Long {
     val q = x / y
     return if (x % y != 0L && (x < 0) != (y < 0)) q - 1 else q
@@ -213,7 +227,7 @@ internal fun FydePurpose.label(): String = stringResource(
  * Type filter groups by, what picks [FileTypeIcon]'s tint, and what decides
  * how (or whether) it can be previewed in the app.
  */
-internal enum class DocumentKind(val label: StringResource) {
+enum class DocumentKind(val label: StringResource) {
     PDF(Res.string.filter_type_pdf),
     IMAGE(Res.string.filter_type_image),
     SPREADSHEET(Res.string.filter_type_spreadsheet),
@@ -222,16 +236,19 @@ internal enum class DocumentKind(val label: StringResource) {
 }
 
 internal val FydeDocument.kind: DocumentKind
-    get() {
-        val type = contentType.lowercase()
-        return when {
-            type.contains("pdf") -> DocumentKind.PDF
-            type.startsWith("image/") -> DocumentKind.IMAGE
-            type.contains("spreadsheet") || type.contains("excel") || type.contains("csv") -> DocumentKind.SPREADSHEET
-            type.startsWith("text/") || type.contains("word") || type.contains("document") -> DocumentKind.TEXT
-            else -> DocumentKind.OTHER
-        }
+    get() = documentKindOf(contentType)
+
+/** The [DocumentKind] a document of [contentType] is. */
+internal fun documentKindOf(contentType: String): DocumentKind {
+    val type = contentType.lowercase()
+    return when {
+        type.contains("pdf") -> DocumentKind.PDF
+        type.startsWith("image/") -> DocumentKind.IMAGE
+        type.contains("spreadsheet") || type.contains("excel") || type.contains("csv") -> DocumentKind.SPREADSHEET
+        type.startsWith("text/") || type.contains("word") || type.contains("document") -> DocumentKind.TEXT
+        else -> DocumentKind.OTHER
     }
+}
 
 /** The short type code shown for a document ("PDF", "PNG", "XLSX"): its file extension, or a fallback per kind. */
 internal val FydeDocument.typeCode: String

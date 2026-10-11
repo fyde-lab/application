@@ -17,11 +17,14 @@ import com.peltoche.fyde.resources.error_unknown
 import com.peltoche.fyde.resources.language_save_failed
 import com.peltoche.fyde.resources.log_out_failed
 import com.peltoche.fyde.resources.script_created
+import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.theme.AppTheme
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
@@ -41,6 +44,12 @@ private const val DOCUMENT_PAGE_SIZE = 100L
  * which on a phone is battery spent for nothing.
  */
 private const val SERVER_REACHABILITY_POLL_INTERVAL_MS = 5_000L
+
+/**
+ * How long typing in the search field must pause before it's searched, so a
+ * word isn't searched once per letter. Filter picks aren't delayed.
+ */
+private const val SEARCH_DEBOUNCE_MS = 250L
 
 /** Which top-level screen [App] is currently showing. */
 private sealed interface Screen {
@@ -242,6 +251,49 @@ private suspend fun listAllDocuments(): Result<List<FydeDocument>> = runCatching
 }
 
 /**
+ * Every document [FydeSdk.searchDocuments] finds for [text] and [filters],
+ * best match first, fetching every page like [listAllDocuments].
+ */
+private suspend fun searchAllDocuments(text: String, filters: FydeSearchFilters): List<FydeDocument> = buildList {
+    var offset = 0L
+    do {
+        val page = FydeSdk.searchDocuments(text, filters, FydeSearchOrder.RELEVANCE, offset, DOCUMENT_PAGE_SIZE).getOrThrow()
+        addAll(page)
+        offset += page.size
+    } while (page.size.toLong() == DOCUMENT_PAGE_SIZE)
+}
+
+/** What a [DocumentSearch] found, and which filter choices `fyde-sdk` says are still worth offering for it. */
+private class SearchOutcome(val results: List<FydeDocument>, val filterOptions: DocumentFilterOptions)
+
+/**
+ * Runs [search] through `fyde-sdk`: its facets (the filter choices still
+ * worth offering, see [FydeSearchFacets]) and its results. A [DocumentKind]
+ * has to be turned into the exact content types the SDK filters on first,
+ * which only the SDK's own content-type facet knows — so with a kind picked,
+ * facets are asked for twice: once to learn those content types (that facet
+ * ignores the content-type filter anyway), then again with them applied, for
+ * every other facet to be narrowed by the kind too.
+ */
+private suspend fun runSearch(search: DocumentSearch, now: Long): Result<SearchOutcome> = runCatching {
+    var filters = search.toSearchFilters(now)
+    var facets = FydeSdk.searchDocumentFacets(search.text, filters).getOrThrow()
+    val kind = search.kind
+    if (kind != null) {
+        val contentTypes = contentTypesOf(kind, facets)
+        // No document of that kind is left (e.g. it was deleted): nothing
+        // can match, which an empty filter list (no constraint) can't say.
+        if (contentTypes.isEmpty()) return@runCatching SearchOutcome(emptyList(), filterOptions(facets, search, now))
+        filters = search.toSearchFilters(now, contentTypes)
+        facets = FydeSdk.searchDocumentFacets(search.text, filters).getOrThrow()
+    }
+    SearchOutcome(searchAllDocuments(search.text, filters), filterOptions(facets, search, now))
+}
+
+@OptIn(ExperimentalTime::class)
+private fun nowEpochSeconds(): Long = Clock.System.now().epochSeconds
+
+/**
  * Owns the `fyde-sdk` connection and the changelog subscription, and maps
  * their results into [DocumentListUiState]. Deliberately has no opinion on
  * how that state is drawn — see [DocumentListScreen] for the visual design,
@@ -255,6 +307,10 @@ private fun DocumentsScreen(
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
     var isUploading by remember { mutableStateOf(false) }
+    // What the search field and filter chips show, applied as it changes.
+    var search by remember { mutableStateOf(DocumentSearch()) }
+    // [search]'s text once typing pauses; see SEARCH_DEBOUNCE_MS.
+    var settledText by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
@@ -348,11 +404,34 @@ private fun DocumentsScreen(
         }
     }
 
+    LaunchedEffect(search.text) {
+        if (search.text.isNotBlank()) delay(SEARCH_DEBOUNCE_MS)
+        settledText = search.text
+    }
+
+    // Searches through fyde-sdk whenever the settled search changes, and
+    // again whenever the cached documents do (every changelog event re-lists
+    // them above), so results and filter choices never go stale. A newer
+    // search cancels one still running. A failure keeps the last results.
+    val cachedDocuments = (uiState as? DocumentListUiState.Loaded)?.documents
+    val settledSearch = search.copy(text = settledText)
+    LaunchedEffect(settledSearch, cachedDocuments) {
+        if (cachedDocuments == null) return@LaunchedEffect
+        runSearch(settledSearch, nowEpochSeconds())
+            .onSuccess { outcome ->
+                (uiState as? DocumentListUiState.Loaded)?.let { current ->
+                    uiState = current.copy(results = outcome.results, filterOptions = outcome.filterOptions)
+                }
+            }
+            .onFailure { showBanner(getString(Res.string.search_failed, it.userMessage())) }
+    }
+
     DocumentListScreen(
-        state = uiState,
+        state = (uiState as? DocumentListUiState.Loaded)?.copy(search = search) ?: uiState,
         onUpload = pickDocuments,
         isUploading = isUploading,
         onDownload = { document -> saveDocument(document.name, document.content) },
+        onSearchChange = { search = it },
         onOpenSettings = onOpenSettings,
         onOpenAddons = onOpenAddons,
     )

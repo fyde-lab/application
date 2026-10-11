@@ -70,6 +70,13 @@
     <string name="filter_period_30_days">Last 30 days</string>
     <string name="filter_period_this_year">This year</string>
     <string name="filter_period_last_year">Last year</string>
+    <string name="filter_source">Source</string>
+    <string name="filter_source_all">All sources</string>
+    <string name="filter_subcategory">Source subtype</string>
+    <string name="filter_subcategory_all">All subtypes</string>
+    <string name="filter_purpose">Purpose</string>
+    <string name="filter_purpose_all">All purposes</string>
+    <string name="search_failed">Search failed: %1$s</string>
 
     <!-- Document detail -->
     <string name="document_details_title">Details</string>

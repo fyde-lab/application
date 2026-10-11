@@ -70,6 +70,13 @@
     <string name="filter_period_30_days">30 derniers jours</string>
     <string name="filter_period_this_year">Cette année</string>
     <string name="filter_period_last_year">L’année dernière</string>
+    <string name="filter_source">Source</string>
+    <string name="filter_source_all">Toutes les sources</string>
+    <string name="filter_subcategory">Sous-catégorie</string>
+    <string name="filter_subcategory_all">Toutes les sous-catégories</string>
+    <string name="filter_purpose">Objet</string>
+    <string name="filter_purpose_all">Tous les objets</string>
+    <string name="search_failed">Échec de la recherche : %1$s</string>
 
     <!-- Document detail -->
     <string name="document_details_title">Détails</string>

@@ -78,12 +78,14 @@ import com.peltoche.fyde.resources.document_preview_title
 import com.peltoche.fyde.resources.documents_count
 import com.peltoche.fyde.resources.documents_title
 import com.peltoche.fyde.resources.filter_period
-import com.peltoche.fyde.resources.filter_period_30_days
-import com.peltoche.fyde.resources.filter_period_any
-import com.peltoche.fyde.resources.filter_period_last_year
-import com.peltoche.fyde.resources.filter_period_this_year
 import com.peltoche.fyde.resources.filter_type
 import com.peltoche.fyde.resources.filter_type_all
+import com.peltoche.fyde.resources.filter_purpose
+import com.peltoche.fyde.resources.filter_purpose_all
+import com.peltoche.fyde.resources.filter_source
+import com.peltoche.fyde.resources.filter_source_all
+import com.peltoche.fyde.resources.filter_subcategory
+import com.peltoche.fyde.resources.filter_subcategory_all
 import com.peltoche.fyde.resources.no_documents_description
 import com.peltoche.fyde.resources.no_documents_match
 import com.peltoche.fyde.resources.no_documents_match_filters
@@ -103,9 +105,6 @@ import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -131,33 +130,24 @@ sealed interface DocumentListUiState {
      * `fyde-sdk`'s own `is_server_reachable` check, polled periodically by
      * the caller — while it's false an offline banner explains why the
      * upload button is disabled.
+     *
+     * [search] is what the search field and filter chips show; [results] are
+     * the documents `fyde-sdk` found for it (`null` until the first search
+     * returns), and [filterOptions] the choices it says are still worth
+     * offering for it — see [FydeSearchFacets]. [documents] stays every cached
+     * document, so "nothing imported yet" can be told apart from "nothing
+     * matches".
      */
     data class Loaded(
         val documents: List<FydeDocument>?,
         val banner: String? = null,
         val onDismissBanner: () -> Unit = {},
         val serverReachable: Boolean = true,
+        val search: DocumentSearch = DocumentSearch(),
+        val results: List<FydeDocument>? = null,
+        val filterOptions: DocumentFilterOptions = DocumentFilterOptions(),
     ) : DocumentListUiState
 }
-
-/** The Period filter's choices, each matching on a document's creation date. */
-private enum class PeriodFilter(val label: StringResource) {
-    ANY(Res.string.filter_period_any),
-    LAST_30_DAYS(Res.string.filter_period_30_days),
-    THIS_YEAR(Res.string.filter_period_this_year),
-    LAST_YEAR(Res.string.filter_period_last_year),
-    ;
-
-    fun matches(createdAt: Long, now: Long): Boolean = when (this) {
-        ANY -> true
-        LAST_30_DAYS -> createdAt >= now - 30L * 86_400L
-        THIS_YEAR -> civilDate(createdAt).year == civilDate(now).year
-        LAST_YEAR -> civilDate(createdAt).year == civilDate(now).year - 1
-    }
-}
-
-@OptIn(ExperimentalTime::class)
-private fun nowEpochSeconds(): Long = Clock.System.now().epochSeconds
 
 @Composable
 fun DocumentListScreen(
@@ -166,6 +156,7 @@ fun DocumentListScreen(
     onUpload: () -> Unit = {},
     isUploading: Boolean = false,
     onDownload: (FydeDocument) -> Unit = {},
+    onSearchChange: (DocumentSearch) -> Unit = {},
     onOpenSettings: () -> Unit = {},
     onOpenAddons: () -> Unit = {},
 ) {
@@ -182,7 +173,7 @@ fun DocumentListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onDownload, onOpenSettings, onOpenAddons)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onDownload, onSearchChange, onOpenSettings, onOpenAddons)
     }
 }
 
@@ -193,18 +184,17 @@ private fun LoadedDocumentList(
     onUpload: () -> Unit,
     isUploading: Boolean,
     onDownload: (FydeDocument) -> Unit,
+    onSearchChange: (DocumentSearch) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenAddons: () -> Unit,
 ) {
-    // All of this is presentation-only, so it stays local rather than being
-    // hoisted to the caller — and it all lives *above* the Compact
-    // list/detail switch below, so opening a document on a phone and coming
-    // back keeps the query, the filters and the scroll position. Found via
-    // review: the phone viewer used to be a separate top-level screen that
-    // tore all of it down (and reconnected) on every back.
-    var searchQuery by remember { mutableStateOf("") }
-    var typeFilter by remember { mutableStateOf<DocumentKind?>(null) }
-    var periodFilter by remember { mutableStateOf(PeriodFilter.ANY) }
+    // The query and filters live in the caller ([DocumentListUiState.Loaded.search]),
+    // which runs them through fyde-sdk; what's left here is presentation-only,
+    // and lives *above* the Compact list/detail switch below, so opening a
+    // document on a phone and coming back keeps the selection and the scroll
+    // position. Found via review: the phone viewer used to be a separate
+    // top-level screen that tore all of it down (and reconnected) on every back.
+    val search = state.search
     // The id, not the document: the list is re-fetched on every changelog
     // event, and the open document should follow its fresh copy.
     var selectedId by remember { mutableStateOf<String?>(null) }
@@ -226,21 +216,8 @@ private fun LoadedDocumentList(
         return
     }
 
-    val labels = rememberClassificationLabels()
-    val now = remember(documents) { nowEpochSeconds() }
-    val visibleDocuments = remember(documents, searchQuery, typeFilter, periodFilter, labels) {
-        documents.orEmpty().filter { document ->
-            (typeFilter == null || document.kind == typeFilter) &&
-                periodFilter.matches(document.createdAt, now) &&
-                document.matchesQuery(searchQuery, labels)
-        }
-    }
-    val filtersActive = typeFilter != null || periodFilter != PeriodFilter.ANY
-    val clearAll = {
-        searchQuery = ""
-        typeFilter = null
-        periodFilter = PeriodFilter.ANY
-    }
+    val visibleDocuments = state.results
+    val clearAll = { onSearchChange(DocumentSearch()) }
 
     TopLevelScaffold(
         current = SidebarDestination.Documents,
@@ -301,10 +278,10 @@ private fun LoadedDocumentList(
                         Column(modifier = Modifier.fillMaxSize().padding(end = AppSpacing.space5)) {
                             Spacer(Modifier.height(AppSpacing.space3))
                             AppSearchField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
+                                value = search.text,
+                                onValueChange = { onSearchChange(search.copy(text = it)) },
                                 placeholder = stringResource(Res.string.search_documents_placeholder),
-                                onClear = { searchQuery = "" },
+                                onClear = { onSearchChange(search.copy(text = "")) },
                                 clearContentDescription = stringResource(Res.string.clear_search),
                                 leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
                             )
@@ -312,27 +289,27 @@ private fun LoadedDocumentList(
                             if (!documents.isNullOrEmpty()) {
                                 Spacer(Modifier.height(AppSpacing.space2))
                                 FilterChipRow(
-                                    availableKinds = remember(documents) { documents.map { it.kind }.distinct().sorted() },
-                                    typeFilter = typeFilter,
-                                    onTypeFilterChange = { typeFilter = it },
-                                    periodFilter = periodFilter,
-                                    onPeriodFilterChange = { periodFilter = it },
+                                    search = search,
+                                    options = state.filterOptions,
+                                    onSearchChange = onSearchChange,
                                 )
-                                Spacer(Modifier.height(AppSpacing.space2))
-                                Text(
-                                    text = if (searchQuery.isBlank()) {
-                                        pluralStringResource(Res.plurals.documents_count, visibleDocuments.size, visibleDocuments.size)
-                                    } else {
-                                        pluralStringResource(Res.plurals.search_results_count, visibleDocuments.size, visibleDocuments.size, searchQuery)
-                                    },
-                                    style = AppTypography.caption,
-                                    color = AppColors.textMuted,
-                                )
+                                if (visibleDocuments != null) {
+                                    Spacer(Modifier.height(AppSpacing.space2))
+                                    Text(
+                                        text = if (search.text.isBlank()) {
+                                            pluralStringResource(Res.plurals.documents_count, visibleDocuments.size, visibleDocuments.size)
+                                        } else {
+                                            pluralStringResource(Res.plurals.search_results_count, visibleDocuments.size, visibleDocuments.size, search.text)
+                                        },
+                                        style = AppTypography.caption,
+                                        color = AppColors.textMuted,
+                                    )
+                                }
                                 Spacer(Modifier.height(AppSpacing.space2))
                             }
 
                             when {
-                                documents == null -> DocumentSkeletonList(modifier = Modifier.weight(1f))
+                                documents == null || visibleDocuments == null -> DocumentSkeletonList(modifier = Modifier.weight(1f))
 
                                 documents.isEmpty() -> AppEmptyState(
                                     modifier = Modifier.weight(1f),
@@ -345,13 +322,13 @@ private fun LoadedDocumentList(
                                     modifier = Modifier.weight(1f),
                                     icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                                     title = stringResource(Res.string.no_matches_title),
-                                    description = if (searchQuery.isNotBlank()) {
-                                        stringResource(Res.string.no_documents_match, searchQuery)
+                                    description = if (search.text.isNotBlank()) {
+                                        stringResource(Res.string.no_documents_match, search.text)
                                     } else {
                                         stringResource(Res.string.no_documents_match_filters)
                                     },
                                     actionLabel = stringResource(
-                                        if (filtersActive) Res.string.clear_filters else Res.string.clear_search,
+                                        if (search.filtersActive) Res.string.clear_filters else Res.string.clear_search,
                                     ),
                                     onAction = clearAll,
                                 )
@@ -418,37 +395,6 @@ private fun CompactDocumentDetail(
             modifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background),
         )
     }
-}
-
-/** The localized label of every classification value, looked up once per composition for [matchesQuery]. */
-private data class ClassificationLabels(
-    val categories: Map<FydeSourceCategory, String>,
-    val subCategories: Map<FydeSourceSubCategory, String>,
-    val purposes: Map<FydePurpose, String>,
-)
-
-@Composable
-private fun rememberClassificationLabels(): ClassificationLabels = ClassificationLabels(
-    categories = FydeSourceCategory.entries.associateWith { it.label() },
-    subCategories = FydeSourceSubCategory.entries.associateWith { it.label() },
-    purposes = FydePurpose.entries.associateWith { it.label() },
-)
-
-/**
- * Whether [query] appears in the document's name, keywords, or (in the UI's
- * language) classification — found via review that search only matched the
- * file name, so "invoice" never found a document classified as one.
- */
-private fun FydeDocument.matchesQuery(query: String, labels: ClassificationLabels): Boolean {
-    if (query.isBlank()) return true
-    val haystack = buildList {
-        add(name)
-        addAll(subjects)
-        sourceCategory?.let { add(labels.categories.getValue(it)) }
-        sourceSubCategory?.let { add(labels.subCategories.getValue(it)) }
-        purpose?.let { add(labels.purposes.getValue(it)) }
-    }
-    return haystack.any { it.contains(query.trim(), ignoreCase = true) }
 }
 
 private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (windowSizeClass) {
@@ -702,37 +648,91 @@ private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, 
 }
 
 /**
- * The Type and Period filters, each a chip opening its choices. Only facets
- * the document model can actually filter on are shown — found via review
- * that Issuer, Amount and "More filters" were permanently disabled
- * placeholders, and that Type and Period were disabled too despite being
- * answerable from each document's content type and creation date. Type only
- * offers the kinds present in the list.
+ * The Type, Period, Source, Source subtype and Purpose filters, each a chip
+ * opening its choices. Only choices `fyde-sdk` says still lead to documents
+ * are offered (see [DocumentFilterOptions] and [FydeSearchFacets]), each with
+ * how many: picking a source narrows the subtypes and purposes on offer to
+ * that source's, and a chip with nothing to offer isn't shown at all — so
+ * Source subtype only appears once the documents in view have one. Found via
+ * review that Issuer, Amount and "More filters" used to be permanently
+ * disabled placeholders; every chip here works.
  */
 @Composable
 private fun FilterChipRow(
-    availableKinds: List<DocumentKind>,
-    typeFilter: DocumentKind?,
-    onTypeFilterChange: (DocumentKind?) -> Unit,
-    periodFilter: PeriodFilter,
-    onPeriodFilterChange: (PeriodFilter) -> Unit,
+    search: DocumentSearch,
+    options: DocumentFilterOptions,
+    onSearchChange: (DocumentSearch) -> Unit,
 ) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2)) {
-        FilterMenuChip(
-            label = typeFilter?.let { stringResource(it.label) } ?: stringResource(Res.string.filter_type),
-            selected = typeFilter != null,
-            options = listOf<DocumentKind?>(null) + availableKinds,
-            optionLabel = { kind -> stringResource(kind?.label ?: Res.string.filter_type_all) },
-            onSelect = onTypeFilterChange,
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2),
+        verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
+    ) {
+        FacetMenuChip(
+            title = stringResource(Res.string.filter_type),
+            allLabel = stringResource(Res.string.filter_type_all),
+            selected = search.kind,
+            options = options.kinds,
+            optionLabel = { stringResource(it.label) },
+            onSelect = { onSearchChange(search.copy(kind = it)) },
         )
-        FilterMenuChip(
-            label = if (periodFilter == PeriodFilter.ANY) stringResource(Res.string.filter_period) else stringResource(periodFilter.label),
-            selected = periodFilter != PeriodFilter.ANY,
-            options = PeriodFilter.entries,
-            optionLabel = { period -> stringResource(period.label) },
-            onSelect = onPeriodFilterChange,
+        if (options.periods.size > 1) {
+            FilterMenuChip(
+                label = if (search.period == PeriodFilter.ANY) stringResource(Res.string.filter_period) else stringResource(search.period.label),
+                selected = search.period != PeriodFilter.ANY,
+                options = options.periods.map { it to null },
+                optionLabel = { period -> stringResource(period.label) },
+                onSelect = { onSearchChange(search.copy(period = it)) },
+            )
+        }
+        FacetMenuChip(
+            title = stringResource(Res.string.filter_source),
+            allLabel = stringResource(Res.string.filter_source_all),
+            selected = search.sourceCategory,
+            options = options.sourceCategories,
+            optionLabel = { it.label() },
+            onSelect = { onSearchChange(search.withSourceCategory(it)) },
+        )
+        FacetMenuChip(
+            title = stringResource(Res.string.filter_subcategory),
+            allLabel = stringResource(Res.string.filter_subcategory_all),
+            selected = search.sourceSubCategory,
+            options = options.sourceSubCategories,
+            optionLabel = { it.label() },
+            onSelect = { onSearchChange(search.copy(sourceSubCategory = it)) },
+        )
+        FacetMenuChip(
+            title = stringResource(Res.string.filter_purpose),
+            allLabel = stringResource(Res.string.filter_purpose_all),
+            selected = search.purpose,
+            options = options.purposes,
+            optionLabel = { it.label() },
+            onSelect = { onSearchChange(search.copy(purpose = it)) },
         )
     }
+}
+
+/**
+ * A [FilterMenuChip] over one facet's [options]: "all" first, then each
+ * value with its document count. Hidden while there's nothing to pick and
+ * nothing picked.
+ */
+@Composable
+private fun <T : Any> FacetMenuChip(
+    title: String,
+    allLabel: String,
+    selected: T?,
+    options: List<FydeFacetCount<T>>,
+    optionLabel: @Composable (T) -> String,
+    onSelect: (T?) -> Unit,
+) {
+    if (options.isEmpty() && selected == null) return
+    FilterMenuChip(
+        label = selected?.let { optionLabel(it) } ?: title,
+        selected = selected != null,
+        options = listOf<Pair<T?, Long?>>(null to null) + options.map { it.value to it.count },
+        optionLabel = { value -> value?.let { optionLabel(it) } ?: allLabel },
+        onSelect = onSelect,
+    )
 }
 
 /** An [AppChip] that opens a menu of [options]; its label shows the active choice once one is picked. */
@@ -740,7 +740,8 @@ private fun FilterChipRow(
 private fun <T> FilterMenuChip(
     label: String,
     selected: Boolean,
-    options: List<T>,
+    // Each choice, with how many documents it leads to when known.
+    options: List<Pair<T, Long?>>,
     optionLabel: @Composable (T) -> String,
     onSelect: (T) -> Unit,
 ) {
@@ -752,9 +753,12 @@ private fun <T> FilterMenuChip(
             onDismissRequest = { expanded = false },
             containerColor = AppColors.surfaceElevated,
         ) {
-            options.forEach { option ->
+            options.forEach { (option, count) ->
                 DropdownMenuItem(
                     text = { Text(optionLabel(option), style = AppTypography.body, color = AppColors.text) },
+                    trailingIcon = count?.let {
+                        { Text(it.toString(), style = AppTypography.caption, color = AppColors.textMuted) }
+                    },
                     onClick = {
                         expanded = false
                         onSelect(option)

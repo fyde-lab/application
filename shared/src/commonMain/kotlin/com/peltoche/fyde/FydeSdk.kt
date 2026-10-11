@@ -76,6 +76,59 @@ enum class FydePurpose {
 }
 
 /**
+ * Restricts a [FydeSdk.searchDocuments] to documents whose fields match,
+ * mirroring the SDK's `FfiSearchFilters`: any of the values within one list,
+ * every list that's non-empty, and every bound that's set. The default
+ * matches every document.
+ */
+data class FydeSearchFilters(
+    val sourceCategories: List<FydeSourceCategory> = emptyList(),
+    val sourceSubCategories: List<FydeSourceSubCategory> = emptyList(),
+    val purposes: List<FydePurpose> = emptyList(),
+    val types: List<String> = emptyList(),
+    val subjects: List<String> = emptyList(),
+    /** Compared exactly against [FydeDocument.contentType]. */
+    val contentTypes: List<String> = emptyList(),
+    /** Inclusive lower bound on [FydeDocument.createdAt], in epoch seconds. */
+    val createdFrom: Long? = null,
+    /** Inclusive upper bound on [FydeDocument.createdAt], in epoch seconds. */
+    val createdUntil: Long? = null,
+)
+
+/** How many documents carry one [value] of a field, mirroring the SDK's `Ffi*Count` records. */
+data class FydeFacetCount<T>(val value: T, val count: Long)
+
+/**
+ * The filter values still worth offering for a search, mirroring the SDK's
+ * `FfiSearchFacets`: per field, every value at least one matching document
+ * carries, most common first. Each field's values ignore that field's own
+ * filter but honor every other one — so picking a source narrows the
+ * sub-categories and purposes on offer to that source's, while the other
+ * sources compatible with the rest of the search stay available. Computed by
+ * `fyde-sdk`, never here.
+ */
+data class FydeSearchFacets(
+    val sourceCategories: List<FydeFacetCount<FydeSourceCategory>> = emptyList(),
+    val sourceSubCategories: List<FydeFacetCount<FydeSourceSubCategory>> = emptyList(),
+    val purposes: List<FydeFacetCount<FydePurpose>> = emptyList(),
+    val types: List<FydeFacetCount<String>> = emptyList(),
+    val contentTypes: List<FydeFacetCount<String>> = emptyList(),
+    val subjects: List<FydeFacetCount<String>> = emptyList(),
+    /** The oldest matching [FydeDocument.createdAt], ignoring the date filters; `null` when nothing matches. */
+    val earliestCreatedAt: Long? = null,
+    /** The newest matching [FydeDocument.createdAt], likewise. */
+    val latestCreatedAt: Long? = null,
+)
+
+/** The order [FydeSdk.searchDocuments] returns its matches in, mirroring the SDK's `FfiSearchOrder`. */
+enum class FydeSearchOrder {
+    /** Best text match first, newest first among equals; the same as [NEWEST] without search text. */
+    RELEVANCE,
+    NEWEST,
+    OLDEST,
+}
+
+/**
  * The kind of write recorded by a [FydeChangelogEvent], mirroring the SDK's
  * `FfiEventType`.
  */
@@ -422,6 +475,31 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>>
+
+    /**
+     * Searches documents previously cached locally for [text] — every word
+     * must match, as a case- and accent-insensitive prefix, the document's
+     * name, original name, text content, type, classification or subjects
+     * (blank matches every document) — keeping only those matching
+     * [filters], one page at a time in [order]. Mirrors
+     * [`crate::DocumentsService::search`]; fails if [initialize] hasn't been
+     * called yet.
+     */
+    suspend fun searchDocuments(
+        text: String,
+        filters: FydeSearchFilters,
+        order: FydeSearchOrder,
+        offset: Long,
+        limit: Long,
+    ): Result<List<FydeDocument>>
+
+    /**
+     * The filter values still worth offering for a [searchDocuments] of
+     * [text] narrowed by [filters] (see [FydeSearchFacets]). Mirrors
+     * [`crate::DocumentsService::search_facets`]; fails if [initialize]
+     * hasn't been called yet.
+     */
+    suspend fun searchDocumentFacets(text: String, filters: FydeSearchFilters): Result<FydeSearchFacets>
 
     /**
      * Reads the local file at [path], encrypts it and its metadata, then

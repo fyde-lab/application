@@ -17,6 +17,9 @@ import uniffi.fyde_sdk.FfiScript
 import uniffi.fyde_sdk.FfiScriptParameter
 import uniffi.fyde_sdk.FfiScriptParameterType
 import uniffi.fyde_sdk.FfiScriptType
+import uniffi.fyde_sdk.FfiSearchFacets
+import uniffi.fyde_sdk.FfiSearchFilters
+import uniffi.fyde_sdk.FfiSearchOrder
 import uniffi.fyde_sdk.FfiSourceCategory
 import uniffi.fyde_sdk.FfiSourceSubCategory
 import uniffi.fyde_sdk.FfiStorage
@@ -156,6 +159,22 @@ actual object FydeSdk {
             client.listDocuments(offset, limit).map(FfiDocument::toFydeDocument)
         }
 
+    actual suspend fun searchDocuments(
+        text: String,
+        filters: FydeSearchFilters,
+        order: FydeSearchOrder,
+        offset: Long,
+        limit: Long,
+    ): Result<List<FydeDocument>> = withClient("searchDocuments") { client ->
+        client.searchDocuments(text, filters.toFfiSearchFilters(), order.toFfiSearchOrder(), offset, limit)
+            .map(FfiDocument::toFydeDocument)
+    }
+
+    actual suspend fun searchDocumentFacets(text: String, filters: FydeSearchFilters): Result<FydeSearchFacets> =
+        withClient("searchDocumentFacets") { client ->
+            client.searchDocumentFacets(text, filters.toFfiSearchFilters()).toFydeSearchFacets()
+        }
+
     actual suspend fun uploadDocument(path: String): Result<String> = withClient("uploadDocument") { client ->
         client.uploadDocument(path)
     }
@@ -280,6 +299,80 @@ private fun FfiPurpose.toFydePurpose() = when (this) {
     FfiPurpose.DESCRIPTION -> FydePurpose.DESCRIPTION
     FfiPurpose.EVALUATION -> FydePurpose.EVALUATION
     FfiPurpose.EMPLOYMENT -> FydePurpose.EMPLOYMENT
+}
+
+private fun FydeSourceCategory.toFfiSourceCategory() = when (this) {
+    FydeSourceCategory.BANK -> FfiSourceCategory.BANK
+    FydeSourceCategory.INSURANCE -> FfiSourceCategory.INSURANCE
+    FydeSourceCategory.RETAIL -> FfiSourceCategory.RETAIL
+    FydeSourceCategory.TELECOM -> FfiSourceCategory.TELECOM
+    FydeSourceCategory.ENERGY -> FfiSourceCategory.ENERGY
+    FydeSourceCategory.WATER -> FfiSourceCategory.WATER
+    FydeSourceCategory.HEALTH -> FfiSourceCategory.HEALTH
+    FydeSourceCategory.GOV -> FfiSourceCategory.GOV
+    FydeSourceCategory.ASSOCIATION -> FfiSourceCategory.ASSOCIATION
+    FydeSourceCategory.EDUCATION -> FfiSourceCategory.EDUCATION
+    FydeSourceCategory.EMPLOYER -> FfiSourceCategory.EMPLOYER
+    FydeSourceCategory.TRANSPORT -> FfiSourceCategory.TRANSPORT
+    FydeSourceCategory.GOODS -> FfiSourceCategory.GOODS
+    FydeSourceCategory.ALIMENTATION -> FfiSourceCategory.ALIMENTATION
+    FydeSourceCategory.BUILDING -> FfiSourceCategory.BUILDING
+    FydeSourceCategory.REAL_ESTATE -> FfiSourceCategory.REAL_ESTATE
+    FydeSourceCategory.WEB -> FfiSourceCategory.WEB
+    FydeSourceCategory.INDIVIDUAL -> FfiSourceCategory.INDIVIDUAL
+    FydeSourceCategory.SHOPPING -> FfiSourceCategory.SHOPPING
+}
+
+private fun FydeSourceSubCategory.toFfiSourceSubCategory() = when (this) {
+    FydeSourceSubCategory.CIVIL_REGISTRATION -> FfiSourceSubCategory.CIVIL_REGISTRATION
+    FydeSourceSubCategory.IMMIGRATION -> FfiSourceSubCategory.IMMIGRATION
+    FydeSourceSubCategory.TRANSPORT -> FfiSourceSubCategory.TRANSPORT
+    FydeSourceSubCategory.FAMILY -> FfiSourceSubCategory.FAMILY
+    FydeSourceSubCategory.TAX -> FfiSourceSubCategory.TAX
+    FydeSourceSubCategory.HEALTH -> FfiSourceSubCategory.HEALTH
+    FydeSourceSubCategory.REAL_ESTATE -> FfiSourceSubCategory.REAL_ESTATE
+    FydeSourceSubCategory.MOBILE -> FfiSourceSubCategory.MOBILE
+    FydeSourceSubCategory.INTERNET -> FfiSourceSubCategory.INTERNET
+    FydeSourceSubCategory.CITIZEN -> FfiSourceSubCategory.CITIZEN
+    FydeSourceSubCategory.SPORT -> FfiSourceSubCategory.SPORT
+}
+
+private fun FydePurpose.toFfiPurpose() = when (this) {
+    FydePurpose.ATTESTATION -> FfiPurpose.ATTESTATION
+    FydePurpose.CONTRACT -> FfiPurpose.CONTRACT
+    FydePurpose.INVOICE -> FfiPurpose.INVOICE
+    FydePurpose.REPORT -> FfiPurpose.REPORT
+    FydePurpose.DESCRIPTION -> FfiPurpose.DESCRIPTION
+    FydePurpose.EVALUATION -> FfiPurpose.EVALUATION
+    FydePurpose.EMPLOYMENT -> FfiPurpose.EMPLOYMENT
+}
+
+private fun FydeSearchFilters.toFfiSearchFilters() = FfiSearchFilters(
+    sourceCategories = sourceCategories.map { it.toFfiSourceCategory() },
+    sourceSubCategories = sourceSubCategories.map { it.toFfiSourceSubCategory() },
+    purposes = purposes.map { it.toFfiPurpose() },
+    types = types,
+    subjects = subjects,
+    contentTypes = contentTypes,
+    createdFrom = createdFrom,
+    createdUntil = createdUntil,
+)
+
+private fun FfiSearchFacets.toFydeSearchFacets() = FydeSearchFacets(
+    sourceCategories = sourceCategories.map { FydeFacetCount(it.value.toFydeSourceCategory(), it.count.toLong()) },
+    sourceSubCategories = sourceSubCategories.map { FydeFacetCount(it.value.toFydeSourceSubCategory(), it.count.toLong()) },
+    purposes = purposes.map { FydeFacetCount(it.value.toFydePurpose(), it.count.toLong()) },
+    types = types.map { FydeFacetCount(it.value, it.count.toLong()) },
+    contentTypes = contentTypes.map { FydeFacetCount(it.value, it.count.toLong()) },
+    subjects = subjects.map { FydeFacetCount(it.value, it.count.toLong()) },
+    earliestCreatedAt = earliestCreatedAt,
+    latestCreatedAt = latestCreatedAt,
+)
+
+private fun FydeSearchOrder.toFfiSearchOrder() = when (this) {
+    FydeSearchOrder.RELEVANCE -> FfiSearchOrder.RELEVANCE
+    FydeSearchOrder.NEWEST -> FfiSearchOrder.NEWEST
+    FydeSearchOrder.OLDEST -> FfiSearchOrder.OLDEST
 }
 
 private fun FfiScriptParameterType.toFydeScriptParameterType() = when (this) {
