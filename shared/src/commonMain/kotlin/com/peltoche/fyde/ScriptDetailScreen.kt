@@ -38,18 +38,18 @@ import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.addon_about_section
-import com.peltoche.fyde.resources.addon_domains_installed
-import com.peltoche.fyde.resources.addon_domains_not_installed
-import com.peltoche.fyde.resources.addon_install_button
-import com.peltoche.fyde.resources.addon_parameter_invalid_number
-import com.peltoche.fyde.resources.addon_parameter_required
-import com.peltoche.fyde.resources.addon_parameters_section
-import com.peltoche.fyde.resources.addon_save_button
-import com.peltoche.fyde.resources.addon_uninstall_button
-import com.peltoche.fyde.resources.addon_uninstall_confirm_text
-import com.peltoche.fyde.resources.addon_uninstall_confirm_title
-import com.peltoche.fyde.resources.addons_title
+import com.peltoche.fyde.resources.script_about_section
+import com.peltoche.fyde.resources.script_domains_installed
+import com.peltoche.fyde.resources.script_domains_not_installed
+import com.peltoche.fyde.resources.script_install_button
+import com.peltoche.fyde.resources.script_parameter_invalid_number
+import com.peltoche.fyde.resources.script_parameter_required
+import com.peltoche.fyde.resources.script_parameters_section
+import com.peltoche.fyde.resources.script_save_button
+import com.peltoche.fyde.resources.script_uninstall_button
+import com.peltoche.fyde.resources.script_uninstall_confirm_text
+import com.peltoche.fyde.resources.script_uninstall_confirm_title
+import com.peltoche.fyde.resources.scripts_title
 import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.dismiss
@@ -61,20 +61,20 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.ui.text.input.ImeAction
 import com.peltoche.fyde.components.content.AppCard
-import com.peltoche.fyde.resources.addon_run_button
-import com.peltoche.fyde.resources.addon_run_starting
+import com.peltoche.fyde.resources.script_run_button
+import com.peltoche.fyde.resources.script_run_starting
 import com.peltoche.fyde.resources.scraper_answer_label
 import com.peltoche.fyde.resources.scraper_answer_send
 import com.peltoche.fyde.resources.scraper_question_title
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Where a run of this add-on stands (see [ScraperRuns]): [isRunning] while
+ * Where a run of this script stands (see [ScraperRuns]): [isRunning] while
  * it's this one running, [canRun] unless some other run is in progress (one
  * at a time), the current [step]/[update] for the progress card, and the
  * last run's [failure] message.
  */
-data class AddonRunState(
+data class ScriptRunState(
     val isRunning: Boolean = false,
     val canRun: Boolean = true,
     val step: String? = null,
@@ -86,13 +86,13 @@ data class AddonRunState(
 private val ActionButtonMinWidth = 160.dp
 
 /**
- * Drill-down detail view opened by clicking an [AddonsScreen] card: header
+ * Drill-down detail view opened by clicking an [ScriptsScreen] card: header
  * (icon, name, version line), a form for the script's declared
  * [FydeScript.parameters], the sites it may access, the install/save/
  * uninstall actions, then the full description.
  *
  * Found via review, this screen used to:
- * - put the "this add-on can access these sites" disclosure *below* the
+ * - put the "this script can access these sites" disclosure *below* the
  *   Install button, so it was read after agreeing to it;
  * - drop the parameter form once installed, so credentials could only be
  *   changed by uninstalling and installing again — now the form stays,
@@ -103,7 +103,7 @@ private val ActionButtonMinWidth = 160.dp
  * - uninstall on a single tap, with no confirmation.
  */
 @Composable
-fun AddonDetailScreen(
+fun ScriptDetailScreen(
     script: FydeScript,
     isInstalled: Boolean,
     isPending: Boolean,
@@ -112,7 +112,7 @@ fun AddonDetailScreen(
     onUninstall: () -> Unit,
     modifier: Modifier = Modifier,
     installedParameters: Map<String, FydeScriptParameterValue>? = null,
-    run: AddonRunState = AddonRunState(),
+    run: ScriptRunState = ScriptRunState(),
     onRun: () -> Unit = {},
     onDismissRunFailure: () -> Unit = {},
     banner: String? = null,
@@ -145,8 +145,8 @@ fun AddonDetailScreen(
     var showRequiredErrors by remember(script.id) { mutableStateOf(false) }
     var confirmingUninstall by remember(script.id) { mutableStateOf(false) }
 
-    val requiredError = stringResource(Res.string.addon_parameter_required)
-    val invalidNumberError = stringResource(Res.string.addon_parameter_invalid_number)
+    val requiredError = stringResource(Res.string.script_parameter_required)
+    val invalidNumberError = stringResource(Res.string.script_parameter_invalid_number)
 
     fun errorFor(parameter: FydeScriptParameter, value: String): String? = when {
         value.isBlank() -> if (parameter.required && showRequiredErrors) requiredError else null
@@ -170,15 +170,15 @@ fun AddonDetailScreen(
     }
 
     TopLevelScaffold(
-        current = SidebarDestination.Addons,
+        current = SidebarDestination.Scripts,
         onOpenDocuments = onOpenDocuments,
-        // Re-selecting Add-ons from its own drill-down returns to the grid.
-        onOpenAddons = onBack,
+        // Re-selecting Scripts from its own drill-down returns to the grid.
+        onOpenScripts = onBack,
         onOpenSettings = onOpenSettings,
         modifier = modifier,
         topBar = {
             AppTopBar(
-                title = stringResource(Res.string.addons_title),
+                title = stringResource(Res.string.scripts_title),
                 onBack = onBack,
                 backContentDescription = stringResource(Res.string.back),
                 windowSizeClass = windowSizeClass,
@@ -204,7 +204,7 @@ fun AddonDetailScreen(
 
                 Spacer(Modifier.height(AppSpacing.space7))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    AddonIcon(icon = script.icon, size = 64.dp)
+                    ScriptIcon(icon = script.icon, size = 64.dp)
                     Spacer(Modifier.width(AppSpacing.space4))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(text = script.name, style = AppTypography.title, color = AppColors.text)
@@ -219,7 +219,7 @@ fun AddonDetailScreen(
                 }
 
                 if (script.parameters.isNotEmpty()) {
-                    SectionTitle(stringResource(Res.string.addon_parameters_section))
+                    SectionTitle(stringResource(Res.string.script_parameters_section))
                     orderedParameters(script.parameters).forEach { (key, parameter) ->
                         val value = parameterValues[key].orEmpty()
                         if (parameter.type == FydeScriptParameterType.BOOLEAN) {
@@ -272,7 +272,7 @@ fun AddonDetailScreen(
                         // itself on every upload.
                         if (hasChanges || (script.parameters.isNotEmpty() && !parametersValid)) {
                             AppButton(
-                                text = stringResource(Res.string.addon_save_button),
+                                text = stringResource(Res.string.script_save_button),
                                 onClick = ::submit,
                                 enabled = !run.isRunning,
                                 loading = isPending,
@@ -280,7 +280,7 @@ fun AddonDetailScreen(
                             )
                         } else if (script.type == FydeScriptType.SCRAPER) {
                             AppButton(
-                                text = stringResource(Res.string.addon_run_button),
+                                text = stringResource(Res.string.script_run_button),
                                 onClick = onRun,
                                 enabled = run.canRun && !isPending,
                                 loading = run.isRunning,
@@ -289,7 +289,7 @@ fun AddonDetailScreen(
                             )
                         }
                         AppButton(
-                            text = stringResource(Res.string.addon_uninstall_button),
+                            text = stringResource(Res.string.script_uninstall_button),
                             onClick = { confirmingUninstall = true },
                             variant = AppButtonVariant.Outlined,
                             enabled = !isBusy,
@@ -303,7 +303,7 @@ fun AddonDetailScreen(
                     }
                 } else {
                     AppButton(
-                        text = stringResource(Res.string.addon_install_button),
+                        text = stringResource(Res.string.script_install_button),
                         onClick = ::submit,
                         enabled = !isPending,
                         loading = isPending,
@@ -312,7 +312,7 @@ fun AddonDetailScreen(
                 }
 
                 if (script.description.isNotBlank()) {
-                    SectionTitle(stringResource(Res.string.addon_about_section))
+                    SectionTitle(stringResource(Res.string.script_about_section))
                     Text(text = script.description, style = AppTypography.body, color = AppColors.text)
                 }
 
@@ -324,9 +324,9 @@ fun AddonDetailScreen(
     if (confirmingUninstall) {
         AppDialog(
             onDismissRequest = { confirmingUninstall = false },
-            title = stringResource(Res.string.addon_uninstall_confirm_title, script.name),
-            text = stringResource(Res.string.addon_uninstall_confirm_text),
-            confirmLabel = stringResource(Res.string.addon_uninstall_button),
+            title = stringResource(Res.string.script_uninstall_confirm_title, script.name),
+            text = stringResource(Res.string.script_uninstall_confirm_text),
+            confirmLabel = stringResource(Res.string.script_uninstall_button),
             onConfirm = {
                 confirmingUninstall = false
                 onUninstall()
@@ -339,7 +339,7 @@ fun AddonDetailScreen(
 }
 
 /**
- * A running add-on's progress: the current step's name (or "Starting…"
+ * A running script's progress: the current step's name (or "Starting…"
  * before the script names one), its latest message, and a bar —
  * determinate when the script says how many items there are, indeterminate
  * otherwise.
@@ -349,7 +349,7 @@ private fun RunProgressCard(step: String?, update: FydeScraperProgress.Update?) 
     AppCard(modifier = Modifier.fillMaxWidth()) {
         Column {
             Text(
-                text = step ?: stringResource(Res.string.addon_run_starting),
+                text = step ?: stringResource(Res.string.script_run_starting),
                 style = AppTypography.bodyEmphasis,
                 color = AppColors.text,
             )
@@ -401,7 +401,7 @@ internal fun ScraperQuestionDialog(scriptName: String, question: String, onAnswe
 }
 
 /**
- * The domains this add-on's script may reach — a permission disclosure,
+ * The domains this script may reach — a permission disclosure,
  * worded for whether installing grants it or it's already granted.
  * Hostnames are exact identifiers, so they're set in the Data role.
  */
@@ -409,7 +409,7 @@ internal fun ScraperQuestionDialog(scriptName: String, question: String, onAnswe
 private fun AllowedDomains(domains: List<String>, isInstalled: Boolean) {
     Column {
         Text(
-            text = stringResource(if (isInstalled) Res.string.addon_domains_installed else Res.string.addon_domains_not_installed),
+            text = stringResource(if (isInstalled) Res.string.script_domains_installed else Res.string.script_domains_not_installed),
             style = AppTypography.caption,
             color = AppColors.textMuted,
         )

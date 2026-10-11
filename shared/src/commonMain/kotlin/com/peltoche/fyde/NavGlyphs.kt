@@ -86,7 +86,7 @@ fun GearGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
     }
 }
 
-/** Two angle brackets, `<` `>` — the sidebar's Scripts destination. */
+/** Two angle brackets, `<` `>` — a code glyph; no destination uses it since Scripts took [PuzzleGlyph]. */
 @Composable
 fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
     Canvas(modifier = modifier) {
@@ -107,7 +107,7 @@ fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
 }
 
 /**
- * A puzzle piece — the sidebar's Addons destination and the addon grid's
+ * A puzzle piece — the sidebar's Scripts destination and the script grid's
  * per-card icon chip. One knob on the right edge and one socket on the
  * bottom edge are enough to read as "puzzle piece" at nav-icon size without
  * drawing all four, keeping it a single closed outline like every other

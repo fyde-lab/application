@@ -57,12 +57,12 @@ import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.addons_available_section
-import com.peltoche.fyde.resources.addons_empty_description
-import com.peltoche.fyde.resources.addons_empty_title
-import com.peltoche.fyde.resources.addons_installed_section
-import com.peltoche.fyde.resources.addon_running_badge
-import com.peltoche.fyde.resources.addons_title
+import com.peltoche.fyde.resources.scripts_available_section
+import com.peltoche.fyde.resources.scripts_empty_description
+import com.peltoche.fyde.resources.scripts_empty_title
+import com.peltoche.fyde.resources.scripts_installed_section
+import com.peltoche.fyde.resources.script_running_badge
+import com.peltoche.fyde.resources.scripts_title
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
@@ -85,18 +85,18 @@ import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Everything [AddonsScreen] needs to render, and nothing it doesn't — no
+ * Everything [ScriptsScreen] needs to render, and nothing it doesn't — no
  * `FydeSdk` types appear here beyond [FydeScript] itself, which is already
- * SDK-free (see its own doc comment). The caller (see `AddonsScreenContainer`
+ * SDK-free (see its own doc comment). The caller (see `ScriptsScreenContainer`
  * in `App.kt`) owns the SDK calls and maps their results into this state,
  * same split as [DocumentListUiState].
  */
-sealed interface AddonsUiState {
+sealed interface ScriptsUiState {
     /** Not yet known whether the server is reachable; nothing to show at all. */
-    data object Connecting : AddonsUiState
+    data object Connecting : ScriptsUiState
 
     /** The initial connection failed outright. */
-    data class ConnectFailed(val message: String, val onRetry: () -> Unit) : AddonsUiState
+    data class ConnectFailed(val message: String, val onRetry: () -> Unit) : ScriptsUiState
 
     /**
      * Connected. [scripts] is `null` while the first page is still being
@@ -106,7 +106,7 @@ sealed interface AddonsUiState {
      * which of [scripts] the user currently has installed — those are
      * grouped into their own "Installed" section, ahead of every other
      * script. [installedParameters] holds the values each installed script
-     * was last installed with, so [AddonDetailScreen] can show and edit
+     * was last installed with, so [ScriptDetailScreen] can show and edit
      * them. [pendingScriptIds] marks a script whose install/uninstall call
      * is in flight, so a second tap can't race the first. [banner] surfaces
      * a failed call without discarding what's already loaded.
@@ -118,19 +118,21 @@ sealed interface AddonsUiState {
         val pendingScriptIds: Set<String> = emptySet(),
         val banner: String? = null,
         val onDismissBanner: () -> Unit = {},
-    ) : AddonsUiState
+    ) : ScriptsUiState
 }
 
 /**
- * The one destination for scripts: public add-ons to browse and install,
+ * The one destination for scripts: public scripts to browse and install,
  * the ones already installed, and the user's own scripts. Found via review:
- * a separate Scripts destination listed and uninstalled the very same
- * installed objects under another name; it's folded in here, its "New
- * script" action becoming this screen's top-bar action.
+ * separate Scripts and Add-ons destinations listed and uninstalled the very
+ * same installed objects under two names; they're folded into this one,
+ * the old Scripts' "New script" action becoming this screen's top-bar action.
+ * Renamed from Add-ons to Scripts since the SDK and the server only know
+ * scripts.
  */
 @Composable
-fun AddonsScreen(
-    state: AddonsUiState,
+fun ScriptsScreen(
+    state: ScriptsUiState,
     modifier: Modifier = Modifier,
     onView: (FydeScript) -> Unit = {},
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
@@ -140,11 +142,11 @@ fun AddonsScreen(
     onOpenSettings: () -> Unit = {},
 ) {
     when (state) {
-        AddonsUiState.Connecting -> AppLoading(
+        ScriptsUiState.Connecting -> AppLoading(
             modifier = modifier,
             message = stringResource(Res.string.connecting_message),
         )
-        is AddonsUiState.ConnectFailed -> AppErrorState(
+        is ScriptsUiState.ConnectFailed -> AppErrorState(
             modifier = modifier,
             icon = { AlertGlyph(modifier = Modifier.size(32.dp)) },
             title = stringResource(Res.string.connect_failed_title),
@@ -152,14 +154,14 @@ fun AddonsScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is AddonsUiState.Loaded -> LoadedAddons(state, modifier, onView, onCreateScript, isCreating, runningScriptId, onOpenDocuments, onOpenSettings)
+        is ScriptsUiState.Loaded -> LoadedScripts(state, modifier, onView, onCreateScript, isCreating, runningScriptId, onOpenDocuments, onOpenSettings)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LoadedAddons(
-    state: AddonsUiState.Loaded,
+private fun LoadedScripts(
+    state: ScriptsUiState.Loaded,
     modifier: Modifier,
     onView: (FydeScript) -> Unit,
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit,
@@ -172,13 +174,13 @@ private fun LoadedAddons(
     var showCreateSheet by remember { mutableStateOf(false) }
 
     TopLevelScaffold(
-        current = SidebarDestination.Addons,
+        current = SidebarDestination.Scripts,
         onOpenDocuments = onOpenDocuments,
-        onOpenAddons = {},
+        onOpenScripts = {},
         onOpenSettings = onOpenSettings,
         modifier = modifier,
         topBar = {
-            AppTopBar(title = stringResource(Res.string.addons_title), windowSizeClass = windowSizeClass) {
+            AppTopBar(title = stringResource(Res.string.scripts_title), windowSizeClass = windowSizeClass) {
                 AppTextButton(
                     text = stringResource(Res.string.new_script),
                     onClick = { showCreateSheet = true },
@@ -203,16 +205,16 @@ private fun LoadedAddons(
 
                 val scripts = state.scripts
                 when {
-                    scripts == null -> AddonsSkeletonGrid(modifier = Modifier.weight(1f))
+                    scripts == null -> ScriptsSkeletonGrid(modifier = Modifier.weight(1f))
 
                     scripts.isEmpty() -> AppEmptyState(
                         modifier = Modifier.weight(1f),
                         icon = { PuzzleGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
-                        title = stringResource(Res.string.addons_empty_title),
-                        description = stringResource(Res.string.addons_empty_description),
+                        title = stringResource(Res.string.scripts_empty_title),
+                        description = stringResource(Res.string.scripts_empty_description),
                     )
 
-                    else -> AddonsGrid(
+                    else -> ScriptsGrid(
                         scripts = scripts,
                         enabledScriptIds = state.enabledScriptIds,
                         runningScriptId = runningScriptId,
@@ -237,7 +239,7 @@ private fun LoadedAddons(
 }
 
 /** Minimum grid cell width — `GridCells.Adaptive` fits as many columns of at least this as the width allows. */
-private val AddonCellMinWidth = 220.dp
+private val ScriptCellMinWidth = 220.dp
 
 /**
  * The installed/available split, each its own full-width section header
@@ -247,7 +249,7 @@ private val AddonCellMinWidth = 220.dp
  * browsing order.
  */
 @Composable
-private fun AddonsGrid(
+private fun ScriptsGrid(
     scripts: List<FydeScript>,
     enabledScriptIds: Set<String>,
     runningScriptId: String?,
@@ -258,7 +260,7 @@ private fun AddonsGrid(
     val available = scripts.filter { it.id !in enabledScriptIds }.sortedBy { it.name.lowercase() }
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = AddonCellMinWidth),
+        columns = GridCells.Adaptive(minSize = ScriptCellMinWidth),
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = AppSpacing.space7),
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
@@ -266,18 +268,18 @@ private fun AddonsGrid(
     ) {
         if (installed.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                SectionTitle(stringResource(Res.string.addons_installed_section, installed.size))
+                SectionTitle(stringResource(Res.string.scripts_installed_section, installed.size))
             }
             items(installed, key = { it.id }) { script ->
-                AddonCard(script = script, isRunning = script.id == runningScriptId, onClick = { onView(script) })
+                ScriptCard(script = script, isRunning = script.id == runningScriptId, onClick = { onView(script) })
             }
         }
         if (available.isNotEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                SectionTitle(stringResource(Res.string.addons_available_section, available.size))
+                SectionTitle(stringResource(Res.string.scripts_available_section, available.size))
             }
             items(available, key = { it.id }) { script ->
-                AddonCard(script = script, onClick = { onView(script) })
+                ScriptCard(script = script, onClick = { onView(script) })
             }
         }
     }
@@ -288,20 +290,20 @@ private const val CARD_SUMMARY_LINES = 2
 
 /**
  * One grid cell: icon chip, name, and a short summary. The whole card is
- * the click target that opens [AddonDetailScreen]. The user's own private
+ * the click target that opens [ScriptDetailScreen]. The user's own private
  * scripts carry a "Private" badge, since they share the grid with public
- * add-ons. The name always stays on one line (see design-system.md §
+ * scripts. The name always stays on one line (see design-system.md §
  * Typography, "A scannable row's title is one line").
  */
 @Composable
-private fun AddonCard(
+private fun ScriptCard(
     script: FydeScript,
     onClick: () -> Unit,
     isRunning: Boolean = false,
 ) {
     AppCard(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Row(verticalAlignment = Alignment.Top) {
-            AddonIcon(icon = script.icon)
+            ScriptIcon(icon = script.icon)
             Spacer(Modifier.width(AppSpacing.space4))
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -315,7 +317,7 @@ private fun AddonCard(
                     )
                     if (isRunning) {
                         Spacer(Modifier.width(AppSpacing.space2))
-                        AppBadge(text = stringResource(Res.string.addon_running_badge), variant = AppBadgeVariant.Primary)
+                        AppBadge(text = stringResource(Res.string.script_running_badge), variant = AppBadgeVariant.Primary)
                     } else if (!script.isPublic) {
                         Spacer(Modifier.width(AppSpacing.space2))
                         AppBadge(text = stringResource(Res.string.script_private_badge))
@@ -417,14 +419,14 @@ private fun CreateScriptSheet(
 
 /**
  * A script's version and last-update date as one Data-role line — shared by
- * [AddonDetailScreen] and the grid.
+ * [ScriptDetailScreen] and the grid.
  */
 @Composable
 internal fun scriptVersionLine(script: FydeScript): String =
     "${stringResource(Res.string.script_version, script.version)} · ${localizedDate(script.lastUpdated)}"
 
 /**
- * [icon]'s image content never fills [AddonIcon]'s full chip — publisher
+ * [icon]'s image content never fills [ScriptIcon]'s full chip — publisher
  * logos arrive in wildly inconsistent shapes/paddings, and filling the chip
  * edge-to-edge let each one's own background show through (or not) at
  * random. Insetting every logo the same amount makes the chip read as a
@@ -442,7 +444,7 @@ private const val ICON_GLYPH_SCALE = 0.45f
  * decoration rather than emphasis.
  */
 @Composable
-internal fun AddonIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modifier, size: Dp = 44.dp) {
+internal fun ScriptIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modifier, size: Dp = 44.dp) {
     val bitmap = remember(icon) { decodeIconBitmap(icon) }
     Box(
         modifier = modifier
@@ -466,9 +468,9 @@ internal fun AddonIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modi
 }
 
 @Composable
-private fun AddonsSkeletonGrid(modifier: Modifier = Modifier) {
+private fun ScriptsSkeletonGrid(modifier: Modifier = Modifier) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = AddonCellMinWidth),
+        columns = GridCells.Adaptive(minSize = ScriptCellMinWidth),
         modifier = modifier.fillMaxSize(),
         // Top padding stands in for the section header the loaded grid opens with.
         contentPadding = PaddingValues(top = AppSpacing.space7, bottom = AppSpacing.space7),
@@ -479,7 +481,7 @@ private fun AddonsSkeletonGrid(modifier: Modifier = Modifier) {
     }
 }
 
-/** Same anatomy as [AddonCard] — icon, one name line, two summary lines — so loading doesn't shift the layout. */
+/** Same anatomy as [ScriptCard] — icon, one name line, two summary lines — so loading doesn't shift the layout. */
 @Composable
 private fun SkeletonCard() {
     AppCard(modifier = Modifier.fillMaxWidth()) {

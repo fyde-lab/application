@@ -158,7 +158,7 @@ fun DocumentListScreen(
     onDownload: (FydeDocument) -> Unit = {},
     onSearchChange: (DocumentSearch) -> Unit = {},
     onOpenSettings: () -> Unit = {},
-    onOpenAddons: () -> Unit = {},
+    onOpenScripts: () -> Unit = {},
 ) {
     when (state) {
         DocumentListUiState.Connecting -> AppLoading(
@@ -173,7 +173,7 @@ fun DocumentListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onDownload, onSearchChange, onOpenSettings, onOpenAddons)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onDownload, onSearchChange, onOpenSettings, onOpenScripts)
     }
 }
 
@@ -186,7 +186,7 @@ private fun LoadedDocumentList(
     onDownload: (FydeDocument) -> Unit,
     onSearchChange: (DocumentSearch) -> Unit,
     onOpenSettings: () -> Unit,
-    onOpenAddons: () -> Unit,
+    onOpenScripts: () -> Unit,
 ) {
     // The query and filters live in the caller ([DocumentListUiState.Loaded.search]),
     // which runs them through fyde-sdk; what's left here is presentation-only,
@@ -210,7 +210,7 @@ private fun LoadedDocumentList(
             document = selectedDocument,
             onBack = { selectedId = null },
             onDownload = { onDownload(selectedDocument) },
-            onOpenAddons = onOpenAddons,
+            onOpenScripts = onOpenScripts,
             onOpenSettings = onOpenSettings,
         )
         return
@@ -223,7 +223,7 @@ private fun LoadedDocumentList(
         current = SidebarDestination.Documents,
         // Re-selecting Documents closes an open document, like a drill-down's back.
         onOpenDocuments = { selectedId = null },
-        onOpenAddons = onOpenAddons,
+        onOpenScripts = onOpenScripts,
         onOpenSettings = onOpenSettings,
         modifier = modifier,
         topBar = {
@@ -372,13 +372,13 @@ private fun CompactDocumentDetail(
     document: FydeDocument,
     onBack: () -> Unit,
     onDownload: () -> Unit,
-    onOpenAddons: () -> Unit,
+    onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
     TopLevelScaffold(
         current = SidebarDestination.Documents,
         onOpenDocuments = onBack,
-        onOpenAddons = onOpenAddons,
+        onOpenScripts = onOpenScripts,
         onOpenSettings = onOpenSettings,
         topBar = {
             AppTopBar(

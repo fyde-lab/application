@@ -166,7 +166,7 @@
     <string name="purpose_evaluation">Evaluation</string>
     <string name="purpose_employment">Employment</string>
 
-    <!-- New script sheet (Add-ons) -->
+    <!-- New script sheet (Scripts) -->
     <string name="new_script">New script</string>
     <string name="new_script_sheet_title">New script</string>
     <string name="script_name_label">Name</string>
@@ -180,36 +180,36 @@
     <string name="script_version">v%1$d</string>
     <string name="script_private_badge">Private</string>
 
-    <!-- Addons screen -->
-    <string name="nav_addons">Add-ons</string>
-    <string name="addons_title">Add-ons</string>
-    <string name="addons_installed_section">Installed (%1$d)</string>
-    <string name="addons_available_section">Available (%1$d)</string>
-    <string name="addons_empty_title">No add-ons yet</string>
-    <string name="addons_empty_description">Public add-ons, and scripts you create, will show up here.</string>
-    <string name="addon_toggle_failed">Couldn’t update “%1$s”: %2$s</string>
-    <string name="addon_install_button">Install</string>
-    <string name="addon_uninstall_button">Uninstall</string>
-    <string name="addon_save_button">Save changes</string>
-    <string name="addon_installed">Installed “%1$s”</string>
-    <string name="addon_uninstalled">Uninstalled “%1$s”</string>
-    <string name="addon_updated">Saved settings for “%1$s”</string>
-    <string name="addon_uninstall_confirm_title">Uninstall “%1$s”?</string>
-    <string name="addon_uninstall_confirm_text">Documents it already imported stay in Fyde.</string>
-    <string name="addon_run_button">Run now</string>
-    <string name="addon_run_starting">Starting…</string>
-    <string name="addon_run_finished">“%1$s” finished</string>
-    <string name="addon_run_failed">“%1$s” failed: %2$s</string>
-    <string name="addon_running_badge">Running…</string>
+    <!-- Scripts screen -->
+    <string name="nav_scripts">Scripts</string>
+    <string name="scripts_title">Scripts</string>
+    <string name="scripts_installed_section">Installed (%1$d)</string>
+    <string name="scripts_available_section">Available (%1$d)</string>
+    <string name="scripts_empty_title">No scripts yet</string>
+    <string name="scripts_empty_description">Public scripts, and the ones you create, will show up here.</string>
+    <string name="script_toggle_failed">Couldn’t update “%1$s”: %2$s</string>
+    <string name="script_install_button">Install</string>
+    <string name="script_uninstall_button">Uninstall</string>
+    <string name="script_save_button">Save changes</string>
+    <string name="script_installed">Installed “%1$s”</string>
+    <string name="script_uninstalled">Uninstalled “%1$s”</string>
+    <string name="script_updated">Saved settings for “%1$s”</string>
+    <string name="script_uninstall_confirm_title">Uninstall “%1$s”?</string>
+    <string name="script_uninstall_confirm_text">Documents it already imported stay in Fyde.</string>
+    <string name="script_run_button">Run now</string>
+    <string name="script_run_starting">Starting…</string>
+    <string name="script_run_finished">“%1$s” finished</string>
+    <string name="script_run_failed">“%1$s” failed: %2$s</string>
+    <string name="script_running_badge">Running…</string>
     <string name="scraper_question_title">“%1$s” needs your input</string>
     <string name="scraper_answer_label">Your answer</string>
     <string name="scraper_answer_send">Send</string>
-    <string name="addon_about_section">About</string>
-    <string name="addon_domains_installed">This add-on can access these sites:</string>
-    <string name="addon_domains_not_installed">Installing gives this add-on access to these sites:</string>
-    <string name="addon_parameters_section">Parameters</string>
-    <string name="addon_parameter_required">Required</string>
-    <string name="addon_parameter_invalid_number">Must be a number</string>
+    <string name="script_about_section">About</string>
+    <string name="script_domains_installed">This script can access these sites:</string>
+    <string name="script_domains_not_installed">Installing gives this script access to these sites:</string>
+    <string name="script_parameters_section">Parameters</string>
+    <string name="script_parameter_required">Required</string>
+    <string name="script_parameter_invalid_number">Must be a number</string>
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>

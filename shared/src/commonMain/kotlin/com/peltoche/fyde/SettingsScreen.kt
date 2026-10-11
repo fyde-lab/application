@@ -87,7 +87,7 @@ fun SettingsScreen(
     currentLanguage: String?,
     onLanguageChange: (String) -> Unit,
     onOpenDocuments: () -> Unit,
-    onOpenAddons: () -> Unit = {},
+    onOpenScripts: () -> Unit = {},
     onLogout: () -> Unit = {},
     isLoggingOut: Boolean = false,
     logoutError: String? = null,
@@ -102,7 +102,7 @@ fun SettingsScreen(
     TopLevelScaffold(
         current = SidebarDestination.Settings,
         onOpenDocuments = onOpenDocuments,
-        onOpenAddons = onOpenAddons,
+        onOpenScripts = onOpenScripts,
         onOpenSettings = {},
         modifier = modifier,
         topBar = { AppTopBar(title = stringResource(Res.string.settings_title), windowSizeClass = windowSizeClass) },

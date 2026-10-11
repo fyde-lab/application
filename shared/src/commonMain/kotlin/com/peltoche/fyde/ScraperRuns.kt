@@ -6,8 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.addon_run_failed
-import com.peltoche.fyde.resources.addon_run_finished
+import com.peltoche.fyde.resources.script_run_failed
+import com.peltoche.fyde.resources.script_run_finished
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -19,16 +19,16 @@ class PendingQuestion(val text: String, val answer: CompletableDeferred<String>)
 /**
  * The one scraper run in progress, if any — what [FydeSdk.runInstalledScript]
  * is doing, as UI state. Owned by `App`, above every screen, with an
- * app-lifetime [scope], so a run started from an add-on's page keeps going
+ * app-lifetime [scope], so a run started from a script's page keeps going
  * (and can still ask its questions) after the user navigates elsewhere.
- * Found via review: add-ons could be installed but never run from the app,
+ * Found via review: scripts could be installed but never run from the app,
  * so nothing showed whether one ran, how far it got, or that it was waiting
  * on a one-time code.
  *
  * Registered as [FydeSdk]'s [FydeScraperHandler]: progress callbacks update
  * [step]/[update], and a question parks the script on [question] until
  * [answer] is called. A finished run is confirmed with a snackbar; a failed
- * one is kept in [failure] for the add-on's page to show as a banner.
+ * one is kept in [failure] for the script's page to show as a banner.
  */
 @Stable
 class ScraperRuns(
@@ -60,8 +60,8 @@ class ScraperRuns(
             step = null
             update = null
             result
-                .onSuccess { snackbarHostState.showSnackbar(getString(Res.string.addon_run_finished, script.name)) }
-                .onFailure { failure = script.id to getString(Res.string.addon_run_failed, script.name, it.userMessage()) }
+                .onSuccess { snackbarHostState.showSnackbar(getString(Res.string.script_run_finished, script.name)) }
+                .onFailure { failure = script.id to getString(Res.string.script_run_failed, script.name, it.userMessage()) }
         }
     }
 

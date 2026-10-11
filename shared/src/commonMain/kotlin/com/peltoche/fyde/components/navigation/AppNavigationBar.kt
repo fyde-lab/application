@@ -26,7 +26,7 @@ data class AppNavigationItem(
 
 /**
  * Bottom navigation for the compact breakpoint — the app's top-level
- * destinations (Search, Scripts, Add-ons, Settings) below 600dp, via
+ * destinations (Documents, Scripts, Settings) below 600dp, via
  * `TopLevelScaffold`.
  */
 @Composable

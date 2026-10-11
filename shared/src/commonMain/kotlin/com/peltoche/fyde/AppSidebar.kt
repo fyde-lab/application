@@ -30,7 +30,7 @@ import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.encryption_badge_description
 import com.peltoche.fyde.resources.encryption_badge_title
-import com.peltoche.fyde.resources.nav_addons
+import com.peltoche.fyde.resources.nav_scripts
 import com.peltoche.fyde.resources.nav_documents
 import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.resources.sidebar_app_title
@@ -45,11 +45,11 @@ import org.jetbrains.compose.resources.stringResource
  * at every window size via [TopLevelScaffold]. Used to also carry several
  * `enabled = false` placeholders (All documents, Categories, Suppliers,
  * Issuers, Dates, Favorites) that never linked anywhere real — dropped
- * rather than shipped as dead links. Scripts used to be a fourth peer, but
- * it listed and uninstalled the very same installed objects as Add-ons
- * under a second name, so it was folded into Add-ons (see [AddonsScreen]).
+ * rather than shipped as dead links. Scripts and Add-ons used to be two
+ * peers listing and uninstalling the very same installed objects under two
+ * names, so they were folded into one, Scripts (see [ScriptsScreen]).
  */
-enum class SidebarDestination { Documents, Addons, Settings }
+enum class SidebarDestination { Documents, Scripts, Settings }
 
 /**
  * The one snackbar host every top-level destination shows transient
@@ -62,13 +62,13 @@ val LocalAppSnackbarHostState = staticCompositionLocalOf { SnackbarHostState() }
 
 /**
  * The shell every top-level destination ([DocumentListScreen],
- * [AddonsScreen], [SettingsScreen]) and its drill-downs
- * ([AddonDetailScreen], the compact document detail) compose into, so
+ * [ScriptsScreen], [SettingsScreen]) and its drill-downs
+ * ([ScriptDetailScreen], the compact document detail) compose into, so
  * navigation is one decision made once rather than re-derived per screen.
  *
  * Navigation is present at every [AppWindowSizeClass] — the sidebar at
  * Expanded, a bottom bar below that. Found via review: it used to be
- * desktop-only, which left Add-ons unreachable below 840dp, and left it a
+ * desktop-only, which left Scripts unreachable below 840dp, and left it a
  * dead end (no back, no nav) if the window shrank while it was open.
  *
  * Medium gets the bottom bar too, not `AppNavigationLayout`'s rail: the rail
@@ -79,7 +79,7 @@ val LocalAppSnackbarHostState = staticCompositionLocalOf { SnackbarHostState() }
 fun TopLevelScaffold(
     current: SidebarDestination,
     onOpenDocuments: () -> Unit,
-    onOpenAddons: () -> Unit,
+    onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
@@ -100,7 +100,7 @@ fun TopLevelScaffold(
             // regular item instead.
             includeSettings = !isDesktop,
             onOpenDocuments = onOpenDocuments,
-            onOpenAddons = onOpenAddons,
+            onOpenScripts = onOpenScripts,
             onOpenSettings = onOpenSettings,
         ),
         navigationHeader = if (isDesktop) { { SidebarHeader() } } else null,
@@ -116,7 +116,7 @@ private fun appNavigationItems(
     current: SidebarDestination,
     includeSettings: Boolean,
     onOpenDocuments: () -> Unit,
-    onOpenAddons: () -> Unit,
+    onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
 ): List<AppNavigationItem> {
     // Labelled after the destination it opens ("Documents", also its top
@@ -127,7 +127,7 @@ private fun appNavigationItems(
         navigationItem(stringResource(Res.string.nav_documents), current == SidebarDestination.Documents, onOpenDocuments) { tint ->
             DocumentGlyph(tint = tint, modifier = Modifier.size(20.dp))
         },
-        navigationItem(stringResource(Res.string.nav_addons), current == SidebarDestination.Addons, onOpenAddons) { tint ->
+        navigationItem(stringResource(Res.string.nav_scripts), current == SidebarDestination.Scripts, onOpenScripts) { tint ->
             PuzzleGlyph(tint = tint, modifier = Modifier.size(20.dp))
         },
     )

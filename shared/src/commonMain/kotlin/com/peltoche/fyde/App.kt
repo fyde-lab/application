@@ -4,10 +4,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.addon_installed
-import com.peltoche.fyde.resources.addon_toggle_failed
-import com.peltoche.fyde.resources.addon_uninstalled
-import com.peltoche.fyde.resources.addon_updated
+import com.peltoche.fyde.resources.script_installed
+import com.peltoche.fyde.resources.script_toggle_failed
+import com.peltoche.fyde.resources.script_uninstalled
+import com.peltoche.fyde.resources.script_updated
 import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.create_script_failed
@@ -57,7 +57,7 @@ private sealed interface Screen {
     data object Register : Screen
     data object Documents : Screen
     data object Settings : Screen
-    data object Addons : Screen
+    data object Scripts : Screen
 }
 
 @Composable
@@ -180,7 +180,7 @@ private fun AppContent() {
             )
             Screen.Documents -> DocumentsScreen(
                 onOpenSettings = { screen = Screen.Settings },
-                onOpenAddons = { screen = Screen.Addons },
+                onOpenScripts = { screen = Screen.Scripts },
             )
             Screen.Settings -> SettingsScreen(
                 serverUrl = BuildConfig.SERVER_URL,
@@ -195,7 +195,7 @@ private fun AppContent() {
                     }
                 },
                 onOpenDocuments = { screen = Screen.Documents },
-                onOpenAddons = { screen = Screen.Addons },
+                onOpenScripts = { screen = Screen.Scripts },
                 // Found via review: this used to only navigate back to Login,
                 // leaving the session token, the master key and the decrypted
                 // document cache on the device — so a relaunch logged straight
@@ -219,7 +219,7 @@ private fun AppContent() {
                 languageError = languageError,
                 onDismissLanguageError = { languageError = null },
             )
-            Screen.Addons -> AddonsScreenContainer(
+            Screen.Scripts -> ScriptsScreenContainer(
                 scraperRuns = scraperRuns,
                 onOpenDocuments = { screen = Screen.Documents },
                 onOpenSettings = { screen = Screen.Settings },
@@ -323,7 +323,7 @@ private fun nowEpochSeconds(): Long = Clock.System.now().epochSeconds
 @Composable
 private fun DocumentsScreen(
     onOpenSettings: () -> Unit,
-    onOpenAddons: () -> Unit,
+    onOpenScripts: () -> Unit,
 ) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
@@ -454,13 +454,13 @@ private fun DocumentsScreen(
         onDownload = { document -> saveDocument(document.name, document.content) },
         onSearchChange = { search = it },
         onOpenSettings = onOpenSettings,
-        onOpenAddons = onOpenAddons,
+        onOpenScripts = onOpenScripts,
     )
 }
 
 /**
- * Owns the `fyde-sdk` scripts calls backing [AddonsScreen] and
- * [AddonDetailScreen]. The grid shows every public script plus the user's
+ * Owns the `fyde-sdk` scripts calls backing [ScriptsScreen] and
+ * [ScriptDetailScreen]. The grid shows every public script plus the user's
  * own enabled private ones ([FydeSdk.listPublicScripts] +
  * [FydeSdk.listUserScripts]); the enabled subset is what's "installed", and
  * [FydeSdk.installedScriptParameters] supplies the values each was
@@ -469,15 +469,15 @@ private fun DocumentsScreen(
  * (plus [retryKey] bumps) rather than kept in sync by a background stream.
  */
 @Composable
-private fun AddonsScreenContainer(
+private fun ScriptsScreenContainer(
     scraperRuns: ScraperRuns,
     onOpenDocuments: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
     var retryKey by remember { mutableStateOf(0) }
-    var uiState by remember { mutableStateOf<AddonsUiState>(AddonsUiState.Connecting) }
+    var uiState by remember { mutableStateOf<ScriptsUiState>(ScriptsUiState.Connecting) }
     var isCreating by remember { mutableStateOf(false) }
-    // Which script's [AddonDetailScreen] is open, if any — a drill-down
+    // Which script's [ScriptDetailScreen] is open, if any — a drill-down
     // local to this container rather than a top-level Screen, since the
     // detail view shares the same scripts/enabled/pending state this
     // container already owns.
@@ -486,29 +486,29 @@ private fun AddonsScreenContainer(
     val snackbarHostState = LocalAppSnackbarHostState.current
 
     fun showBanner(message: String) {
-        val current = uiState as? AddonsUiState.Loaded ?: return
+        val current = uiState as? ScriptsUiState.Loaded ?: return
         uiState = current.copy(
             banner = message,
-            onDismissBanner = { (uiState as? AddonsUiState.Loaded)?.let { loaded -> uiState = loaded.copy(banner = null) } },
+            onDismissBanner = { (uiState as? ScriptsUiState.Loaded)?.let { loaded -> uiState = loaded.copy(banner = null) } },
         )
     }
 
     LaunchedEffect(retryKey) {
-        uiState = AddonsUiState.Connecting
+        uiState = ScriptsUiState.Connecting
 
         val initResult = FydeSdk.initialize(BuildConfig.SERVER_URL)
         if (initResult.isFailure) {
-            uiState = AddonsUiState.ConnectFailed(
+            uiState = ScriptsUiState.ConnectFailed(
                 message = initResult.exceptionOrNull()?.userMessage() ?: getString(Res.string.error_unknown),
                 onRetry = { retryKey++ },
             )
             return@LaunchedEffect
         }
 
-        uiState = AddonsUiState.Loaded(scripts = null)
+        uiState = ScriptsUiState.Loaded(scripts = null)
         val publicScripts = FydeSdk.listPublicScripts().getOrElse { emptyList() }
         val userScripts = FydeSdk.listUserScripts().getOrElse { emptyList() }
-        uiState = AddonsUiState.Loaded(
+        uiState = ScriptsUiState.Loaded(
             scripts = (userScripts + publicScripts).distinctBy { it.id },
             enabledScriptIds = userScripts.map { it.id }.toSet(),
             installedParameters = FydeSdk.installedScriptParameters().getOrElse { emptyMap() },
@@ -526,7 +526,7 @@ private fun AddonsScreenContainer(
         enabled: Boolean,
         parameters: Map<String, FydeScriptParameterValue> = emptyMap(),
     ) {
-        val current = uiState as? AddonsUiState.Loaded
+        val current = uiState as? ScriptsUiState.Loaded
         if (current == null || script.id in current.pendingScriptIds) return
         val wasInstalled = script.id in current.enabledScriptIds
         uiState = current.copy(pendingScriptIds = current.pendingScriptIds + script.id)
@@ -537,7 +537,7 @@ private fun AddonsScreenContainer(
             } else {
                 FydeSdk.disableScript(script.id)
             }
-            val latest = uiState as? AddonsUiState.Loaded ?: return@launch
+            val latest = uiState as? ScriptsUiState.Loaded ?: return@launch
             val error = result.exceptionOrNull()
             if (error == null) {
                 uiState = latest.copy(
@@ -546,14 +546,14 @@ private fun AddonsScreenContainer(
                     pendingScriptIds = latest.pendingScriptIds - script.id,
                 )
                 val confirmation = when {
-                    !enabled -> Res.string.addon_uninstalled
-                    wasInstalled -> Res.string.addon_updated
-                    else -> Res.string.addon_installed
+                    !enabled -> Res.string.script_uninstalled
+                    wasInstalled -> Res.string.script_updated
+                    else -> Res.string.script_installed
                 }
                 snackbarHostState.showSnackbar(getString(confirmation, script.name))
             } else {
                 uiState = latest.copy(pendingScriptIds = latest.pendingScriptIds - script.id)
-                showBanner(getString(Res.string.addon_toggle_failed, script.name, error.userMessage()))
+                showBanner(getString(Res.string.script_toggle_failed, script.name, error.userMessage()))
             }
         }
     }
@@ -577,7 +577,7 @@ private fun AddonsScreenContainer(
             )
                 .mapCatching { created -> created.also { FydeSdk.enableScript(it.id).getOrThrow() } }
                 .onSuccess { created ->
-                    (uiState as? AddonsUiState.Loaded)?.let { latest ->
+                    (uiState as? ScriptsUiState.Loaded)?.let { latest ->
                         uiState = latest.copy(
                             scripts = listOf(created) + latest.scripts.orEmpty().filter { it.id != created.id },
                             enabledScriptIds = latest.enabledScriptIds + created.id,
@@ -593,11 +593,11 @@ private fun AddonsScreenContainer(
         }
     }
 
-    val loaded = uiState as? AddonsUiState.Loaded
+    val loaded = uiState as? ScriptsUiState.Loaded
     val viewedScript = viewedScriptId?.let { id -> loaded?.scripts?.find { it.id == id } }
 
     if (loaded != null && viewedScript != null) {
-        AddonDetailScreen(
+        ScriptDetailScreen(
             script = viewedScript,
             isInstalled = viewedScript.id in loaded.enabledScriptIds,
             isPending = viewedScript.id in loaded.pendingScriptIds,
@@ -608,11 +608,11 @@ private fun AddonsScreenContainer(
             onDismissBanner = loaded.onDismissBanner,
             onBack = {
                 viewedScriptId = null
-                (uiState as? AddonsUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
+                (uiState as? ScriptsUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
             },
             onInstall = { parameters -> setInstalled(viewedScript, true, parameters) },
             onUninstall = { setInstalled(viewedScript, false) },
-            run = AddonRunState(
+            run = ScriptRunState(
                 isRunning = scraperRuns.running?.id == viewedScript.id,
                 canRun = scraperRuns.running == null,
                 step = scraperRuns.step,
@@ -625,7 +625,7 @@ private fun AddonsScreenContainer(
             onOpenSettings = onOpenSettings,
         )
     } else {
-        AddonsScreen(
+        ScriptsScreen(
             state = uiState,
             onOpenDocuments = onOpenDocuments,
             onOpenSettings = onOpenSettings,

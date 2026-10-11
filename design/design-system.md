@@ -145,7 +145,7 @@ for identical content. Any title in a row meant to be scanned (a list item,
 not a detail-pane header) truncates with an ellipsis at one line — the full
 text is always available where the item is opened, so nothing is lost.
 
-This applies to grid cards too. Found via review: add-on cards were allowed
+This applies to grid cards too. Found via review: script cards were allowed
 2-line names to work around truncation, which made cards in the same grid
 row different heights. The real cause was a per-card "View" button eating
 the name's width; the fix was to make the whole card the click target and
@@ -495,7 +495,7 @@ tap. The rules now:
 
 - **Anything that can't be undone asks first**, in an `AppDialog` whose
   confirm action is `destructive` (`error`-colored): logging out (it wipes
-  this device's keys and decrypted cache) and uninstalling an add-on.
+  this device's keys and decrypted cache) and uninstalling a script.
 - **A finished action is confirmed with a snackbar** ("Uploaded 3
   documents", "Installed “…”", "Saved “…”"), from the one app-wide host so a
   message outlives the screen that raised it.
@@ -517,8 +517,8 @@ against real tooling, not arbitrary web breakpoints.
 
 - **Compact (< 600dp — phones).** Single-column, one screen at a time,
   with a bottom navigation bar for the top-level destinations (Documents,
-  Add-ons, Settings) — the audit's "no bottom nav until 3+ peer top-level
-  destinations" threshold is met. Drill-downs (document detail, add-on
+  Scripts, Settings) — the audit's "no bottom nav until 3+ peer top-level
+  destinations" threshold is met. Drill-downs (document detail, script
   detail) push over the content with a back chevron, *inside* their
   destination, so going back restores its query, filters and scroll
   position. Comfortable density.
@@ -529,11 +529,12 @@ its top bar and "My documents" in the sidebar header; and a separate
 Scripts destination listed and uninstalled the very same installed objects
 as Add-ons under another name. Nav labels match the destination's title,
 the sidebar header carries the product name (Fyde), and scripts — public
-add-ons and the user's own — live in Add-ons alone.
+ones and the user's own — live in Scripts alone, named as the SDK and the
+server name them.
 
 **Every top-level destination is reachable at every breakpoint.** Found via
-review: navigation was desktop-only (the Expanded sidebar), so Add-ons had
-no route at all below 840dp, and Add-ons became a dead end — no
+review: navigation was desktop-only (the Expanded sidebar), so Scripts had
+no route at all below 840dp, and Scripts became a dead end — no
 back, no nav — if the window shrank while it was open. Navigation is one
 adaptive surface — a bottom bar below Expanded, the sidebar at Expanded —
 never present at one breakpoint and absent at another. Medium uses the
