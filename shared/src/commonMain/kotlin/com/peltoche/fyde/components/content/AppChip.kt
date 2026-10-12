@@ -77,9 +77,12 @@ fun AppChip(
     ) {
         Text(text, style = AppTypography.caption, color = contentColor)
         if (showChevron) {
-            Spacer(Modifier.width(AppSpacing.space1))
+            // A real icon-to-text gap (design-system.md § Spacing), not the
+            // 2dp micro gap it used to be: found via review that the chevron
+            // sat glued to the label, reading as one run-together word.
+            Spacer(Modifier.width(AppSpacing.space2))
             ChevronRightGlyph(
-                modifier = Modifier.size(10.dp).rotate(90f),
+                modifier = Modifier.size(8.dp).rotate(90f),
                 tint = if (selected) AppColors.primary else AppColors.textMuted,
             )
         }

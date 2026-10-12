@@ -1,11 +1,11 @@
 package com.peltoche.fyde.components.form
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -15,6 +15,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.ChevronRightGlyph
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppShapes
 
@@ -52,7 +55,13 @@ fun <T> AppDropdown(
             enabled = enabled,
             label = { Text(label) },
             placeholder = placeholder?.let { { Text(it) } },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            // The app's own outline chevron, pointing down (up while open),
+            // not M3's filled triangle — found via review that this was the
+            // one filled caret beside every outline chevron elsewhere (filter
+            // chips, list rows).
+            trailingIcon = {
+                ChevronRightGlyph(modifier = Modifier.size(12.dp).rotate(if (expanded) -90f else 90f), tint = AppColors.textMuted)
+            },
             shape = AppShapes.input,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = AppColors.primary,

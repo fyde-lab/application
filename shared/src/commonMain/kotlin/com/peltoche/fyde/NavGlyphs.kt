@@ -3,13 +3,15 @@ package com.peltoche.fyde
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.theme.AppColors
@@ -36,53 +38,79 @@ fun SearchGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted
     }
 }
 
+/**
+ * A padlock: a narrow, tall shackle over a body with a keyhole. Found via
+ * review: the shackle used to be a wide, flat arch over an empty rectangle,
+ * which at the 18dp the encryption badge draws it read as an envelope or a
+ * basket rather than a lock.
+ */
 @Composable
 fun LockGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.success, strokeWidth: Dp = 1.6.dp) {
     Canvas(modifier = modifier) {
         val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
-        val bodyTop = size.height * 0.48f
-        drawRect(
+        val bodyTop = size.height * 0.46f
+        drawRoundRect(
             color = tint,
-            topLeft = Offset(size.width * 0.16f, bodyTop),
-            size = androidx.compose.ui.geometry.Size(size.width * 0.68f, size.height * 0.44f),
+            topLeft = Offset(size.width * 0.18f, bodyTop),
+            size = Size(size.width * 0.64f, size.height * 0.46f),
+            cornerRadius = CornerRadius(size.minDimension * 0.08f),
             style = stroke,
         )
         val shacklePath = Path().apply {
-            val shackleWidth = size.width * 0.44f
+            val shackleWidth = size.width * 0.40f
             val left = (size.width - shackleWidth) / 2f
+            val archBottom = size.height * 0.30f
             moveTo(left, bodyTop)
+            lineTo(left, archBottom)
             arcTo(
-                rect = androidx.compose.ui.geometry.Rect(left, size.height * 0.06f, left + shackleWidth, bodyTop + shackleWidth / 2f),
+                rect = Rect(left, archBottom - shackleWidth / 2f, left + shackleWidth, archBottom + shackleWidth / 2f),
                 startAngleDegrees = 180f,
-                sweepAngleDegrees = -180f,
+                sweepAngleDegrees = 180f,
                 forceMoveTo = false,
             )
             lineTo(left + shackleWidth, bodyTop)
         }
         drawPath(shacklePath, color = tint, style = stroke)
+        drawCircle(color = tint, radius = size.minDimension * 0.07f, center = Offset(size.width / 2f, size.height * 0.67f))
     }
 }
 
+/**
+ * A cog: one closed outline of eight flat-topped teeth around a hole. Found
+ * via review: it used to be a circle with eight separate rays, which reads
+ * as a sun (a brightness/theme control), not as Settings.
+ */
 @Composable
 fun GearGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
     Canvas(modifier = modifier) {
-        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
         val center = Offset(size.width / 2f, size.height / 2f)
-        val innerRadius = size.minDimension * 0.22f
-        val toothInner = size.minDimension * 0.32f
-        val toothOuter = size.minDimension * 0.48f
-        drawCircle(color = tint, radius = innerRadius, center = center, style = stroke)
-        repeat(8) { i ->
-            rotate(degrees = i * 45f, pivot = center) {
-                drawLine(
-                    color = tint,
-                    start = Offset(center.x, center.y - toothInner),
-                    end = Offset(center.x, center.y - toothOuter),
-                    strokeWidth = stroke.width,
-                    cap = StrokeCap.Round,
-                )
+        val outerRadius = size.minDimension * 0.46f
+        val rootRadius = size.minDimension * 0.35f
+        val teeth = 8
+        val pitch = 2 * PI / teeth
+        // Half-widths, in radians, of a tooth at its root and at its tip:
+        // narrower at the tip, so each tooth tapers slightly.
+        val rootHalf = pitch * 0.30
+        val tipHalf = pitch * 0.20
+        fun point(radius: Float, angle: Double) =
+            Offset(center.x + radius * cos(angle).toFloat(), center.y + radius * sin(angle).toFloat())
+        val outline = Path()
+        repeat(teeth) { i ->
+            val angle = i * pitch - PI / 2
+            val corners = listOf(
+                point(rootRadius, angle - rootHalf),
+                point(outerRadius, angle - tipHalf),
+                point(outerRadius, angle + tipHalf),
+                point(rootRadius, angle + rootHalf),
+            )
+            corners.forEachIndexed { index, corner ->
+                if (i == 0 && index == 0) outline.moveTo(corner.x, corner.y) else outline.lineTo(corner.x, corner.y)
             }
         }
+        outline.close()
+        drawPath(outline, color = tint, style = stroke)
+        drawCircle(color = tint, radius = size.minDimension * 0.14f, center = center, style = stroke)
     }
 }
 
