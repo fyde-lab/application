@@ -435,10 +435,10 @@ private fun FfiDocument.toFydeDocument() = FydeDocument(
 private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
     id = id,
     eventType = when (eventType) {
-        FfiEventType.CREATED -> FydeEventType.CREATED
+        FfiEventType.SAVE_DOCUMENT -> FydeEventType.SAVE_DOCUMENT
         FfiEventType.UPDATE_METADATA -> FydeEventType.UPDATE_METADATA
         FfiEventType.DELETED -> FydeEventType.DELETED
-        FfiEventType.SCRIPT_INSTALLED -> FydeEventType.SCRIPT_INSTALLED
+        FfiEventType.INSTALL_SCRIPT -> FydeEventType.INSTALL_SCRIPT
     },
     subjectId = subjectId,
     document = content?.let { eventContent ->

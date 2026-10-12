@@ -133,21 +133,21 @@ enum class FydeSearchOrder {
  * `FfiEventType`.
  */
 enum class FydeEventType {
-    CREATED,
+    SAVE_DOCUMENT,
     UPDATE_METADATA,
     DELETED,
 
     /** A script was installed for the account, see [FydeSdk.installScript]. */
-    SCRIPT_INSTALLED,
+    INSTALL_SCRIPT,
 }
 
 /**
  * A single recorded write, mirroring the SDK's `FfiChangelogEvent` without
  * leaking `:sdkBridge`'s generated bindings into `commonMain`. [subjectId]
  * is the id of whatever the write is about: a document for
- * [FydeEventType.CREATED]/[FydeEventType.UPDATE_METADATA]/
- * [FydeEventType.DELETED], a script for [FydeEventType.SCRIPT_INSTALLED].
- * [document] is only present for [FydeEventType.CREATED] events, which are
+ * [FydeEventType.SAVE_DOCUMENT]/[FydeEventType.UPDATE_METADATA]/
+ * [FydeEventType.DELETED], a script for [FydeEventType.INSTALL_SCRIPT].
+ * [document] is only present for [FydeEventType.SAVE_DOCUMENT] events, which are
  * the only ones that carry document content and metadata today.
  */
 data class FydeChangelogEvent(
@@ -573,7 +573,7 @@ expect object FydeSdk {
      * Installs [scriptId] for the authenticated user, to be run with
      * [parameters] (keyed by parameter machine name, see
      * [FydeScript.parameters]): publishes the script and those values,
-     * encrypted, as a [FydeEventType.SCRIPT_INSTALLED] changelog event.
+     * encrypted, as a [FydeEventType.INSTALL_SCRIPT] changelog event.
      * Fails if a parameter the script marks required is missing. Mirrors
      * [`crate::ScriptsService::install_script`]; fails if [initialize]
      * hasn't been called yet.
