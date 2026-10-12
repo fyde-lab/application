@@ -51,6 +51,7 @@ import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.form.AppSwitch
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppTopBar
+import com.peltoche.fyde.components.navigation.AppTopBarAction
 import com.peltoche.fyde.components.overlay.AppBottomSheet
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
@@ -181,10 +182,11 @@ private fun LoadedScripts(
         modifier = modifier,
         topBar = {
             AppTopBar(title = stringResource(Res.string.scripts_title), windowSizeClass = windowSizeClass) {
-                AppTextButton(
+                AppTopBarAction(
                     text = stringResource(Res.string.new_script),
                     onClick = { showCreateSheet = true },
-                    leadingIcon = { PlusGlyph(modifier = Modifier.size(14.dp), tint = AppColors.primary) },
+                    icon = { tint -> PlusGlyph(modifier = Modifier.size(14.dp), tint = tint) },
+                    windowSizeClass = windowSizeClass,
                 )
             }
         },

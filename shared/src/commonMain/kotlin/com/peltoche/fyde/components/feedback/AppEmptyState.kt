@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
+import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
@@ -27,6 +28,11 @@ import com.peltoche.fyde.theme.AppTypography
  * Icon-in-circle / title / description / optional-action — generalizes the
  * layout already proven for the document list's empty state. No hardcoded
  * copy: title/description/actionLabel are all caller-supplied strings.
+ *
+ * [actionVariant] is Filled by default, for a state that *is* the whole
+ * screen; pass Outlined when the screen already has its own filled primary
+ * action (e.g. Upload in the top bar), so two filled buttons don't compete
+ * — design-system.md § Shape/Buttons allows one per screen.
  */
 @Composable
 fun AppEmptyState(
@@ -36,6 +42,7 @@ fun AppEmptyState(
     icon: (@Composable () -> Unit)? = null,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
+    actionVariant: AppButtonVariant = AppButtonVariant.Filled,
 ) {
     StateMessage(
         title = title,
@@ -45,6 +52,7 @@ fun AppEmptyState(
         icon = icon,
         actionLabel = actionLabel,
         onAction = onAction,
+        actionVariant = actionVariant,
     )
 }
 
@@ -58,6 +66,7 @@ internal fun StateMessage(
     icon: (@Composable () -> Unit)? = null,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
+    actionVariant: AppButtonVariant = AppButtonVariant.Filled,
 ) {
     Box(
         modifier = modifier
@@ -85,7 +94,7 @@ internal fun StateMessage(
             )
             if (actionLabel != null && onAction != null) {
                 Spacer(Modifier.height(AppSpacing.space6))
-                AppButton(text = actionLabel, onClick = onAction)
+                AppButton(text = actionLabel, onClick = onAction, variant = actionVariant)
             }
         }
     }

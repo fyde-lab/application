@@ -248,6 +248,16 @@ fill — the default for secondary actions in a form-heavy app), Text/ghost,
 and Icon variants; no additional shape rules per variant beyond radius and
 height.
 
+**A screen's primary action is one component, in one place.** Found via
+review: Documents had a filled Upload button in its top bar while Scripts
+had a text-only New script link in the same slot, the full "Upload
+document" button took half a phone's top bar, and the no-results state
+added a second filled button beside Upload. A destination's primary action
+is `AppTopBarAction` in its top bar — filled with icon and label from
+Medium up, the filled icon alone (labelled for assistive tech) on Compact —
+and is the screen's only filled button: an empty state's recovery action
+on that same screen is Outlined.
+
 **Inputs** — `radius-sm`, `border-strong` at rest, `primary` border on
 focus (2px), transparent-to-`surface` fill. This is the one deliberate break
 from the current spec's underline style (see *Relationship to `DESIGN.md`*):

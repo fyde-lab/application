@@ -37,7 +37,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppIconButton
 import com.peltoche.fyde.components.content.AppBadge
@@ -52,6 +51,7 @@ import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.navigation.AppTopBar
+import com.peltoche.fyde.components.navigation.AppTopBarAction
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppTwoPaneLayout
@@ -228,13 +228,13 @@ private fun LoadedDocumentList(
         modifier = modifier,
         topBar = {
             AppTopBar(title = stringResource(Res.string.documents_title), windowSizeClass = windowSizeClass) {
-                AppButton(
+                AppTopBarAction(
                     text = stringResource(Res.string.upload_document),
                     onClick = onUpload,
-                    variant = AppButtonVariant.Filled,
                     enabled = state.serverReachable,
                     loading = isUploading,
-                    leadingIcon = { PlusGlyph(modifier = Modifier.size(14.dp), tint = AppColors.onPrimary) },
+                    icon = { tint -> PlusGlyph(modifier = Modifier.size(14.dp), tint = tint) },
+                    windowSizeClass = windowSizeClass,
                 )
             }
         },
@@ -331,6 +331,8 @@ private fun LoadedDocumentList(
                                         if (search.filtersActive) Res.string.clear_filters else Res.string.clear_search,
                                     ),
                                     onAction = clearAll,
+                                    // Upload, in the top bar, is this screen's one filled action.
+                                    actionVariant = AppButtonVariant.Outlined,
                                 )
 
                                 else -> DocumentList(
