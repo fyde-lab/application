@@ -495,7 +495,10 @@ tap. The rules now:
 
 - **Anything that can't be undone asks first**, in an `AppDialog` whose
   confirm action is `destructive` (`error`-colored): logging out (it wipes
-  this device's keys and decrypted cache) and uninstalling a script.
+  this device's keys and decrypted cache) and uninstalling a script. The
+  button that opens that prompt is `destructive` too (an `error` outline
+  and label), never styled like the harmless actions beside it — found via
+  review that Uninstall looked exactly like Edit parameters next to it.
 - **A finished action is confirmed with a snackbar** ("Uploaded 3
   documents", "Installed “…”", "Saved “…”"), from the one app-wide host so a
   message outlives the screen that raised it.

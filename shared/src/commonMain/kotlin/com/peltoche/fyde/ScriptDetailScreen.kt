@@ -268,6 +268,7 @@ fun ScriptDetailScreen(
                             onClick = { confirmingUninstall = true },
                             variant = AppButtonVariant.Outlined,
                             enabled = !isBusy,
+                            destructive = true,
                             modifier = itemModifier,
                         )
                     }

@@ -40,6 +40,12 @@ enum class AppButtonVariant { Filled, Tonal, Outlined }
  * `loading` disables the button and swaps its content for a spinner rather
  * than adding a second boolean the caller has to reason about alongside
  * `enabled`.
+ *
+ * [destructive] swaps the variant's accent for `error` (design-system.md §
+ * Color: `error` is for destructive actions), like [AppTextButton]'s
+ * same-named parameter — for an action that can't be undone, so it doesn't
+ * share the look of the harmless actions beside it. Found via review:
+ * Uninstall was drawn exactly like Edit parameters next to it.
  */
 @Composable
 fun AppButton(
@@ -50,6 +56,7 @@ fun AppButton(
     enabled: Boolean = true,
     loading: Boolean = false,
     leadingIcon: (@Composable () -> Unit)? = null,
+    destructive: Boolean = false,
 ) {
     val isEnabled = enabled && !loading
     val interactionSource = remember { MutableInteractionSource() }
@@ -82,8 +89,8 @@ fun AppButton(
             shape = AppShapes.button,
             interactionSource = interactionSource,
             colors = ButtonDefaults.buttonColors(
-                containerColor = AppColors.primary,
-                contentColor = AppColors.onPrimary,
+                containerColor = if (destructive) AppColors.error else AppColors.primary,
+                contentColor = if (destructive) AppColors.onError else AppColors.onPrimary,
             ),
             content = content,
         )
@@ -94,8 +101,8 @@ fun AppButton(
             shape = AppShapes.button,
             interactionSource = interactionSource,
             colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                containerColor = if (destructive) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
+                contentColor = if (destructive) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer,
             ),
             content = content,
         )
@@ -105,8 +112,15 @@ fun AppButton(
             enabled = isEnabled,
             shape = AppShapes.button,
             interactionSource = interactionSource,
-            border = BorderStroke(1.dp, if (isEnabled) AppColors.borderStrong else AppColors.border),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = AppColors.text),
+            border = BorderStroke(
+                1.dp,
+                when {
+                    !isEnabled -> AppColors.border
+                    destructive -> AppColors.error
+                    else -> AppColors.borderStrong
+                },
+            ),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = if (destructive) AppColors.error else AppColors.text),
             content = content,
         )
     }
