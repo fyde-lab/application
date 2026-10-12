@@ -7,6 +7,7 @@ import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppTypography
 
@@ -30,12 +31,13 @@ fun AppNavigationRail(
                 selected = item.selected,
                 onClick = item.onClick,
                 enabled = item.enabled,
-                icon = item.icon,
+                icon = { NavigationIndicator(selected = item.selected, icon = item.icon) },
                 label = { Text(item.label, style = AppTypography.micro) },
                 colors = NavigationRailItemDefaults.colors(
                     selectedIconColor = AppColors.primary,
                     selectedTextColor = AppColors.primary,
-                    indicatorColor = AppColors.selectionSurface,
+                    // Drawn by NavigationIndicator instead, see its doc.
+                    indicatorColor = Color.Transparent,
                     unselectedIconColor = AppColors.textMuted,
                     unselectedTextColor = AppColors.textMuted,
                 ),

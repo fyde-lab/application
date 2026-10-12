@@ -1,12 +1,20 @@
 package com.peltoche.fyde.components.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppTypography
 
 /**
@@ -37,16 +45,39 @@ fun AppNavigationBar(items: List<AppNavigationItem>, modifier: Modifier = Modifi
                 selected = item.selected,
                 onClick = item.onClick,
                 enabled = item.enabled,
-                icon = item.icon,
+                icon = { NavigationIndicator(selected = item.selected, icon = item.icon) },
                 label = { Text(item.label, style = AppTypography.micro) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = AppColors.primary,
                     selectedTextColor = AppColors.primary,
-                    indicatorColor = AppColors.selectionSurface,
+                    // Drawn by NavigationIndicator instead, see its doc.
+                    indicatorColor = Color.Transparent,
                     unselectedIconColor = AppColors.textMuted,
                     unselectedTextColor = AppColors.textMuted,
                 ),
             )
         }
+    }
+}
+
+/**
+ * The selected-destination indicator behind a bar/rail item's icon, at M3's
+ * own indicator size but `radius-sm` — the same shape as the sidebar's
+ * selected row. M3's `NavigationBarItem`/`NavigationRailItem` draw theirs as
+ * a fixed stadium pill with no shape parameter, so their own indicator is
+ * made transparent and this one drawn in its place. Found via review: the
+ * pill was the one shape design-system.md § Shape forbids ("nothing is a
+ * pill except literal circles") still on screen, below 840dp.
+ */
+@Composable
+internal fun NavigationIndicator(selected: Boolean, icon: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(width = 56.dp, height = 32.dp)
+            .clip(AppRadius.sm)
+            .background(if (selected) AppColors.selectionSurface else Color.Transparent),
+        contentAlignment = Alignment.Center,
+    ) {
+        icon()
     }
 }
