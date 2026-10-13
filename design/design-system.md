@@ -201,7 +201,10 @@ in the same screen (a tag using `secondary` must never be mistaken for a
 warning state).
 
 **Focus ring:** 2px `primary`, 2px outside the element's own border, both
-themes — the one place `primary` is allowed to outline rather than fill.
+themes — the one place `primary` is allowed to outline rather than fill. It
+marks keyboard focus only (like `:focus-visible`): a control focused by a
+click or tap draws none — found via review that clicking a list row or a
+filter chip left a ring around it, covering a selected row's accent bar.
 
 ### Why teal, not blue or the current lime
 
