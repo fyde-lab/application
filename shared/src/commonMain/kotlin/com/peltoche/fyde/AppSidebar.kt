@@ -1,7 +1,6 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
@@ -181,20 +179,15 @@ private fun SidebarHeader() {
 }
 
 /**
- * Fyde's mark: its initial on a filled `primary` tile. Found via review: the
- * sidebar header used to draw [DocumentGlyph] — the very glyph of the
- * Documents destination right below it — so the product's identity read as
- * a duplicate nav icon. Filled rather than outlined, so it can't be mistaken
- * for one of the outline destination glyphs either.
+ * Fyde's mark: the product logo ([FydeLogo]). Found via review: the sidebar
+ * header used to draw [DocumentGlyph] — the very glyph of the Documents
+ * destination right below it — so the product's identity read as a
+ * duplicate nav icon. Full-color rather than outlined, so it can't be
+ * mistaken for one of the outline destination glyphs either.
  */
 @Composable
 private fun BrandMark(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.size(24.dp).clip(AppRadius.sm).background(AppColors.primary),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text = "F", style = AppTypography.bodyEmphasis.copy(fontWeight = FontWeight.SemiBold), color = AppColors.onPrimary)
-    }
+    FydeLogo(modifier = modifier.size(28.dp))
 }
 
 /**

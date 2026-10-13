@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -100,6 +101,8 @@ fun RegisterScreen(
                 .padding(horizontal = AppSpacing.space7),
             verticalArrangement = Arrangement.Center,
         ) {
+            FydeLogo(modifier = Modifier.size(AppDimensions.authLogo))
+            Spacer(Modifier.height(AppSpacing.space5))
             Text(
                 text = stringResource(Res.string.create_account_title),
                 style = AppTypography.title,

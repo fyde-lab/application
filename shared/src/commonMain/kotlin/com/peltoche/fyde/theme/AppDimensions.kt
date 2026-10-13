@@ -55,6 +55,9 @@ object AppDimensions {
     /** Focus ring width and the focused-state input indicator. */
     val borderFocus: Dp = 2.dp
 
+    /** The Fyde logo heading the Login and Register screens. */
+    val authLogo: Dp = 56.dp
+
     /**
      * Layout § density — list-row minimum heights, applied via
      * `Modifier.heightIn(min = ...)`. These are floors, not targets: a row's
