@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
+import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppBadge
 import com.peltoche.fyde.components.content.AppBadgeVariant
@@ -48,6 +49,7 @@ import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppSkeleton
+import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.form.AppSwitch
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppTopBar
@@ -65,6 +67,10 @@ import com.peltoche.fyde.resources.scripts_installed_section
 import com.peltoche.fyde.resources.script_running_badge
 import com.peltoche.fyde.resources.scripts_title
 import com.peltoche.fyde.resources.cancel
+import com.peltoche.fyde.resources.clear_search
+import com.peltoche.fyde.resources.no_matches_title
+import com.peltoche.fyde.resources.no_scripts_match
+import com.peltoche.fyde.resources.search_scripts_placeholder
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.create
@@ -130,6 +136,11 @@ sealed interface ScriptsUiState {
  * the old Scripts' "New script" action becoming this screen's top-bar action.
  * Renamed from Add-ons to Scripts since the SDK and the server only know
  * scripts.
+ *
+ * [query] narrows the grid to the scripts it matches (see [filterScripts]);
+ * it's hoisted so it survives the drill-down into a script's page. Found via
+ * review: over a hundred public scripts were one long alphabetical grid with
+ * no way to find one but scrolling.
  */
 @Composable
 fun ScriptsScreen(
@@ -139,6 +150,8 @@ fun ScriptsScreen(
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
     isCreating: Boolean = false,
     runningScriptId: String? = null,
+    query: String = "",
+    onQueryChange: (String) -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
 ) {
@@ -155,7 +168,7 @@ fun ScriptsScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is ScriptsUiState.Loaded -> LoadedScripts(state, modifier, onView, onCreateScript, isCreating, runningScriptId, onOpenDocuments, onOpenSettings)
+        is ScriptsUiState.Loaded -> LoadedScripts(state, modifier, onView, onCreateScript, isCreating, runningScriptId, query, onQueryChange, onOpenDocuments, onOpenSettings)
     }
 }
 
@@ -168,6 +181,8 @@ private fun LoadedScripts(
     onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit,
     isCreating: Boolean,
     runningScriptId: String?,
+    query: String,
+    onQueryChange: (String) -> Unit,
     onOpenDocuments: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -220,13 +235,38 @@ private fun LoadedScripts(
                         description = stringResource(Res.string.scripts_empty_description),
                     )
 
-                    else -> ScriptsGrid(
-                        scripts = scripts,
-                        enabledScriptIds = state.enabledScriptIds,
-                        runningScriptId = runningScriptId,
-                        onView = onView,
-                        modifier = Modifier.weight(1f),
-                    )
+                    else -> {
+                        Spacer(Modifier.height(AppSpacing.space3))
+                        AppSearchField(
+                            value = query,
+                            onValueChange = onQueryChange,
+                            placeholder = stringResource(Res.string.search_scripts_placeholder),
+                            onClear = { onQueryChange("") },
+                            clearContentDescription = stringResource(Res.string.clear_search),
+                            leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
+                        )
+                        val matches = filterScripts(scripts, query)
+                        if (matches.isEmpty()) {
+                            AppEmptyState(
+                                modifier = Modifier.weight(1f),
+                                icon = { PuzzleGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                title = stringResource(Res.string.no_matches_title),
+                                description = stringResource(Res.string.no_scripts_match, query.trim()),
+                                actionLabel = stringResource(Res.string.clear_search),
+                                onAction = { onQueryChange("") },
+                                // New script, in the top bar, is this screen's one filled action.
+                                actionVariant = AppButtonVariant.Outlined,
+                            )
+                        } else {
+                            ScriptsGrid(
+                                scripts = matches,
+                                enabledScriptIds = state.enabledScriptIds,
+                                runningScriptId = runningScriptId,
+                                onView = onView,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -239,6 +279,41 @@ private fun LoadedScripts(
             onCreate = { name, isPublic, script ->
                 onCreateScript(name, isPublic, script)
                 showCreateSheet = false
+            },
+        )
+    }
+}
+
+/**
+ * The scripts [query] matches, in their original order: those whose name,
+ * short description or description contains every word of it, ignoring
+ * case and accents ("aesio" finds "Aésio"). A blank query matches all.
+ */
+internal fun filterScripts(scripts: List<FydeScript>, query: String): List<FydeScript> {
+    val words = foldForSearch(query).split(' ').filter { it.isNotBlank() }
+    if (words.isEmpty()) return scripts
+    return scripts.filter { script ->
+        val haystack = foldForSearch("${script.name} ${script.shortDescription} ${script.description}")
+        words.all { it in haystack }
+    }
+}
+
+/** [text] lowercased, with the Latin accents scripts' names and descriptions use (French, mostly) folded away. */
+private fun foldForSearch(text: String): String = buildString(text.length) {
+    text.lowercase().forEach { char ->
+        append(
+            when (char) {
+                'à', 'á', 'â', 'ã', 'ä', 'å' -> "a"
+                'æ' -> "ae"
+                'ç' -> "c"
+                'è', 'é', 'ê', 'ë' -> "e"
+                'ì', 'í', 'î', 'ï' -> "i"
+                'ñ' -> "n"
+                'ò', 'ó', 'ô', 'õ', 'ö' -> "o"
+                'œ' -> "oe"
+                'ù', 'ú', 'û', 'ü' -> "u"
+                'ý', 'ÿ' -> "y"
+                else -> char.toString()
             },
         )
     }

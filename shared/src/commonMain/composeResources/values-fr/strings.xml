@@ -187,6 +187,8 @@
     <string name="scripts_available_section">Disponibles (%1$d)</string>
     <string name="scripts_empty_title">Aucun script pour le moment</string>
     <string name="scripts_empty_description">Les scripts publics, et ceux que vous créez, apparaîtront ici.</string>
+    <string name="search_scripts_placeholder">Rechercher des scripts</string>
+    <string name="no_scripts_match">Aucun script ne correspond à « %1$s »</string>
     <string name="script_toggle_failed">Impossible de mettre à jour « %1$s » : %2$s</string>
     <string name="script_install_button">Installer</string>
     <string name="script_uninstall_button">Désinstaller</string>

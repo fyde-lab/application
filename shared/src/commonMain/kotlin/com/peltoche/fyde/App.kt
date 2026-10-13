@@ -482,6 +482,10 @@ private fun ScriptsScreenContainer(
     // detail view shares the same scripts/enabled/pending state this
     // container already owns.
     var viewedScriptId by remember { mutableStateOf<String?>(null) }
+    // The grid's search, kept here rather than in ScriptsScreen, which
+    // leaves composition while a script's detail view is open: going back
+    // finds the same query, as with the document list.
+    var scriptQuery by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
@@ -633,6 +637,8 @@ private fun ScriptsScreenContainer(
             onCreateScript = ::createScript,
             isCreating = isCreating,
             runningScriptId = scraperRuns.running?.id,
+            query = scriptQuery,
+            onQueryChange = { scriptQuery = it },
         )
     }
 }

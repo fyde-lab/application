@@ -187,6 +187,8 @@
     <string name="scripts_available_section">Available (%1$d)</string>
     <string name="scripts_empty_title">No scripts yet</string>
     <string name="scripts_empty_description">Public scripts, and the ones you create, will show up here.</string>
+    <string name="search_scripts_placeholder">Search scripts</string>
+    <string name="no_scripts_match">No scripts match “%1$s”</string>
     <string name="script_toggle_failed">Couldn’t update “%1$s”: %2$s</string>
     <string name="script_install_button">Install</string>
     <string name="script_uninstall_button">Uninstall</string>
