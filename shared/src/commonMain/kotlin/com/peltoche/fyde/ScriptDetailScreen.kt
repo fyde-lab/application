@@ -181,6 +181,8 @@ fun ScriptDetailScreen(
                 onBack = onBack,
                 backContentDescription = stringResource(Res.string.back),
                 windowSizeClass = windowSizeClass,
+                width = AppContentWidth.Detail,
+                sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
             )
         },
     ) { contentPadding ->

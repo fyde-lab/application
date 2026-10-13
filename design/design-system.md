@@ -381,6 +381,18 @@ elements left outside — otherwise every sibling above or below the wrapped
 element is one design-system update away from silently drifting out of
 alignment again.
 
+**The top bar shares the content's edges.** Found via review: beside the
+sidebar, the screen title started 16dp right of the content below it, and
+the top bar's actions ended 8dp from the window edge while the content kept
+its 32dp margin. `AppTopBar` takes the same width and `sidebarAdjacent` as
+the screen's `AppContentContainer` and derives its start/end padding and
+max-width from the same functions, so the title starts on the content's
+leading edge and the primary action ends on its trailing edge; a back
+chevron is pulled out by its button's inset so the chevron itself sits on
+that edge. The same goes for actions inside the content: a lone action
+that should start on the content edge is an outlined button, not a text
+button whose inner padding indents its label.
+
 ### List spacing & density
 
 Desktop is mouse/pointer-precise and has more vertical room to spend on

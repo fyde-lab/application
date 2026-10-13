@@ -17,7 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.intl.Locale
-import com.peltoche.fyde.components.action.AppTextButton
+import com.peltoche.fyde.components.action.AppButton
+import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.form.AppDropdown
 import com.peltoche.fyde.components.navigation.AppTopBar
@@ -105,7 +106,14 @@ fun SettingsScreen(
         onOpenScripts = onOpenScripts,
         onOpenSettings = {},
         modifier = modifier,
-        topBar = { AppTopBar(title = stringResource(Res.string.settings_title), windowSizeClass = windowSizeClass) },
+        topBar = {
+            AppTopBar(
+                title = stringResource(Res.string.settings_title),
+                windowSizeClass = windowSizeClass,
+                width = AppContentWidth.Detail,
+                sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
+            )
+        },
     ) { contentPadding ->
         AppContentContainer(
             modifier = Modifier
@@ -145,12 +153,16 @@ fun SettingsScreen(
                 SectionTitle(stringResource(Res.string.account_section_title))
                 EncryptionBadge()
                 Spacer(Modifier.height(AppSpacing.space3))
-                AppTextButton(
+                // An outlined button, not a text button: its label starts on
+                // the content edge like everything above it, where a text
+                // button's inner padding indented it ~12dp. Destructive, since
+                // it leads to logging out (see design-system.md § Feedback).
+                AppButton(
                     text = stringResource(Res.string.log_out),
                     onClick = { confirmingLogout = true },
+                    variant = AppButtonVariant.Outlined,
                     loading = isLoggingOut,
                     destructive = true,
-                    modifier = Modifier.padding(vertical = AppSpacing.space1),
                 )
             }
         }

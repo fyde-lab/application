@@ -227,7 +227,11 @@ private fun LoadedDocumentList(
         onOpenSettings = onOpenSettings,
         modifier = modifier,
         topBar = {
-            AppTopBar(title = stringResource(Res.string.documents_title), windowSizeClass = windowSizeClass) {
+            AppTopBar(
+                title = stringResource(Res.string.documents_title),
+                windowSizeClass = windowSizeClass,
+                sidebarAdjacent = isDesktop,
+            ) {
                 AppTopBarAction(
                     text = stringResource(Res.string.upload_document),
                     onClick = onUpload,

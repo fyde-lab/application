@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppSpacing
 
@@ -35,20 +36,9 @@ fun AppContentContainer(
     sidebarAdjacent: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val maxWidth = when (width) {
-        AppContentWidth.List -> AppDimensions.maxWidthList
-        AppContentWidth.Detail -> AppDimensions.maxWidthDetail
-    }
-    val margin = when (windowSizeClass) {
-        AppWindowSizeClass.Compact -> AppSpacing.space5
-        AppWindowSizeClass.Medium -> AppSpacing.space7
-        AppWindowSizeClass.Expanded -> AppSpacing.space8
-    }
-    val startMargin = if (sidebarAdjacent) AppSpacing.space5 else margin
-
     // Centering a width-capped box ignores asymmetric padding — on a wide
     // enough viewport the cap kicks in and centers the box regardless of
-    // `startMargin`, reopening the full gap `sidebarAdjacent` trims down.
+    // the start margin, reopening the full gap `sidebarAdjacent` trims down.
     // Anchoring to the start instead keeps the trimmed gap next to the
     // sidebar and pushes all the leftover width to the trailing edge.
     val alignment = if (sidebarAdjacent) Alignment.TopStart else Alignment.TopCenter
@@ -56,11 +46,32 @@ fun AppContentContainer(
     Box(modifier = modifier.fillMaxWidth(), contentAlignment = alignment) {
         Box(
             modifier = Modifier
-                .widthIn(max = maxWidth)
+                .widthIn(max = contentMaxWidth(width))
                 .fillMaxWidth()
-                .padding(start = startMargin, end = margin),
+                .padding(start = contentStartMargin(windowSizeClass, sidebarAdjacent), end = screenMargin(windowSizeClass)),
         ) {
             content()
         }
     }
 }
+
+/** design-system.md § Layout's max width for [width]. */
+internal fun contentMaxWidth(width: AppContentWidth): Dp = when (width) {
+    AppContentWidth.List -> AppDimensions.maxWidthList
+    AppContentWidth.Detail -> AppDimensions.maxWidthDetail
+}
+
+/** design-system.md § Layout's screen edge margin at [windowSizeClass]. */
+internal fun screenMargin(windowSizeClass: AppWindowSizeClass): Dp = when (windowSizeClass) {
+    AppWindowSizeClass.Compact -> AppSpacing.space5
+    AppWindowSizeClass.Medium -> AppSpacing.space7
+    AppWindowSizeClass.Expanded -> AppSpacing.space8
+}
+
+/**
+ * Where content starts: [screenMargin], or the smaller gap next to a
+ * sidebar (see [AppContentContainer]'s `sidebarAdjacent`). Shared with
+ * `AppTopBar`, so a screen's title starts on the same edge as its content.
+ */
+internal fun contentStartMargin(windowSizeClass: AppWindowSizeClass, sidebarAdjacent: Boolean): Dp =
+    if (sidebarAdjacent) AppSpacing.space5 else screenMargin(windowSizeClass)

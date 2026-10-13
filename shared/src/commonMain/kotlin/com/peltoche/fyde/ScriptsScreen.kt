@@ -181,7 +181,11 @@ private fun LoadedScripts(
         onOpenSettings = onOpenSettings,
         modifier = modifier,
         topBar = {
-            AppTopBar(title = stringResource(Res.string.scripts_title), windowSizeClass = windowSizeClass) {
+            AppTopBar(
+                title = stringResource(Res.string.scripts_title),
+                windowSizeClass = windowSizeClass,
+                sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
+            ) {
                 AppTopBarAction(
                     text = stringResource(Res.string.new_script),
                     onClick = { showCreateSheet = true },
