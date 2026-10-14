@@ -3,8 +3,6 @@ package com.peltoche.fyde
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,13 +21,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,9 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
-import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppBadge
 import com.peltoche.fyde.components.content.AppBadgeVariant
 import com.peltoche.fyde.components.content.AppCard
@@ -50,11 +40,7 @@ import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.form.AppSearchField
-import com.peltoche.fyde.components.form.AppSwitch
-import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppTopBar
-import com.peltoche.fyde.components.navigation.AppTopBarAction
-import com.peltoche.fyde.components.overlay.AppBottomSheet
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppWindowSizeClass
@@ -66,23 +52,15 @@ import com.peltoche.fyde.resources.scripts_empty_title
 import com.peltoche.fyde.resources.scripts_installed_section
 import com.peltoche.fyde.resources.script_running_badge
 import com.peltoche.fyde.resources.scripts_title
-import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.clear_search
 import com.peltoche.fyde.resources.no_matches_title
 import com.peltoche.fyde.resources.no_scripts_match
 import com.peltoche.fyde.resources.search_scripts_placeholder
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
-import com.peltoche.fyde.resources.create
 import com.peltoche.fyde.resources.dismiss
-import com.peltoche.fyde.resources.new_script
-import com.peltoche.fyde.resources.new_script_sheet_title
 import com.peltoche.fyde.resources.retry
-import com.peltoche.fyde.resources.script_code_label
-import com.peltoche.fyde.resources.script_code_supporting
-import com.peltoche.fyde.resources.script_name_label
 import com.peltoche.fyde.resources.script_private_badge
-import com.peltoche.fyde.resources.script_public_label
 import com.peltoche.fyde.resources.script_version
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
@@ -132,8 +110,7 @@ sealed interface ScriptsUiState {
  * The one destination for scripts: public scripts to browse and install,
  * the ones already installed, and the user's own scripts. Found via review:
  * separate Scripts and Add-ons destinations listed and uninstalled the very
- * same installed objects under two names; they're folded into this one,
- * the old Scripts' "New script" action becoming this screen's top-bar action.
+ * same installed objects under two names; they're folded into this one.
  * Renamed from Add-ons to Scripts since the SDK and the server only know
  * scripts.
  *
@@ -147,8 +124,6 @@ fun ScriptsScreen(
     state: ScriptsUiState,
     modifier: Modifier = Modifier,
     onView: (FydeScript) -> Unit = {},
-    onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit = { _, _, _ -> },
-    isCreating: Boolean = false,
     runningScriptId: String? = null,
     query: String = "",
     onQueryChange: (String) -> Unit = {},
@@ -168,7 +143,7 @@ fun ScriptsScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is ScriptsUiState.Loaded -> LoadedScripts(state, modifier, onView, onCreateScript, isCreating, runningScriptId, query, onQueryChange, onOpenDocuments, onOpenSettings)
+        is ScriptsUiState.Loaded -> LoadedScripts(state, modifier, onView, runningScriptId, query, onQueryChange, onOpenDocuments, onOpenSettings)
     }
 }
 
@@ -178,8 +153,6 @@ private fun LoadedScripts(
     state: ScriptsUiState.Loaded,
     modifier: Modifier,
     onView: (FydeScript) -> Unit,
-    onCreateScript: (name: String, isPublic: Boolean, script: String) -> Unit,
-    isCreating: Boolean,
     runningScriptId: String?,
     query: String,
     onQueryChange: (String) -> Unit,
@@ -187,7 +160,6 @@ private fun LoadedScripts(
     onOpenSettings: () -> Unit,
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
-    var showCreateSheet by remember { mutableStateOf(false) }
 
     TopLevelScaffold(
         current = SidebarDestination.Scripts,
@@ -200,14 +172,7 @@ private fun LoadedScripts(
                 title = stringResource(Res.string.scripts_title),
                 windowSizeClass = windowSizeClass,
                 sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
-            ) {
-                AppTopBarAction(
-                    text = stringResource(Res.string.new_script),
-                    onClick = { showCreateSheet = true },
-                    icon = { tint -> PlusGlyph(modifier = Modifier.size(14.dp), tint = tint) },
-                    windowSizeClass = windowSizeClass,
-                )
-            }
+            )
         },
     ) { contentPadding ->
         AppContentContainer(
@@ -254,7 +219,6 @@ private fun LoadedScripts(
                                 description = stringResource(Res.string.no_scripts_match, query.trim()),
                                 actionLabel = stringResource(Res.string.clear_search),
                                 onAction = { onQueryChange("") },
-                                // New script, in the top bar, is this screen's one filled action.
                                 actionVariant = AppButtonVariant.Outlined,
                             )
                         } else {
@@ -270,17 +234,6 @@ private fun LoadedScripts(
                 }
             }
         }
-    }
-
-    if (showCreateSheet) {
-        CreateScriptSheet(
-            isCreating = isCreating,
-            onDismiss = { showCreateSheet = false },
-            onCreate = { name, isPublic, script ->
-                onCreateScript(name, isPublic, script)
-                showCreateSheet = false
-            },
-        )
     }
 }
 
@@ -414,86 +367,6 @@ private fun ScriptCard(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-        }
-    }
-}
-
-/**
- * The New script sheet. Scripts made here are parsers — the only type the
- * server accepts: they classify each uploaded document, in a sandbox with no
- * network access, so there are no allowed sites or parameters to ask for.
- * Found via review, it used to set its code in the proportional body face,
- * give Cancel and Create the same left-aligned text-button weight, and
- * create scraper scripts the server rejects.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CreateScriptSheet(
-    isCreating: Boolean,
-    onDismiss: () -> Unit,
-    onCreate: (name: String, isPublic: Boolean, script: String) -> Unit,
-) {
-    var name by remember { mutableStateOf("") }
-    var script by remember { mutableStateOf("") }
-    var isPublic by remember { mutableStateOf(false) }
-
-    AppBottomSheet(
-        onDismissRequest = onDismiss,
-        // Expanded or hidden, never half-open: found via review that the
-        // sheet opened partially expanded, with Create below the window edge
-        // and no way to scroll to it. Its content scrolls on short windows.
-        sheetState = rememberBottomSheetState(
-            initialValue = SheetValue.Expanded,
-            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-        ),
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(AppSpacing.space5)) {
-            Text(
-                text = stringResource(Res.string.new_script_sheet_title),
-                style = AppTypography.section,
-                color = AppColors.text,
-            )
-            Spacer(Modifier.height(AppSpacing.space5))
-            AppTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = stringResource(Res.string.script_name_label),
-                enabled = !isCreating,
-            )
-            Spacer(Modifier.height(AppSpacing.space4))
-            AppTextField(
-                value = script,
-                onValueChange = { script = it },
-                label = stringResource(Res.string.script_code_label),
-                enabled = !isCreating,
-                singleLine = false,
-                textStyle = AppTypography.data,
-                supportingText = stringResource(Res.string.script_code_supporting),
-                modifier = Modifier.heightIn(min = 160.dp),
-            )
-            Spacer(Modifier.height(AppSpacing.space4))
-            AppSwitch(
-                checked = isPublic,
-                onCheckedChange = { isPublic = it },
-                enabled = !isCreating,
-                label = stringResource(Res.string.script_public_label),
-            )
-            Spacer(Modifier.height(AppSpacing.space6))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                AppTextButton(text = stringResource(Res.string.cancel), onClick = onDismiss, enabled = !isCreating)
-                Spacer(Modifier.width(AppSpacing.space3))
-                AppButton(
-                    text = stringResource(Res.string.create),
-                    onClick = { onCreate(name.trim(), isPublic, script) },
-                    enabled = name.isNotBlank() && script.isNotBlank(),
-                    loading = isCreating,
-                )
-            }
-            Spacer(Modifier.height(AppSpacing.space5))
         }
     }
 }

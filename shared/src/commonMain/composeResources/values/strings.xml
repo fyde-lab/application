@@ -168,17 +168,8 @@
     <string name="purpose_evaluation">Evaluation</string>
     <string name="purpose_employment">Employment</string>
 
-    <!-- New script sheet (Scripts) -->
-    <string name="new_script">New script</string>
-    <string name="new_script_sheet_title">New script</string>
-    <string name="script_name_label">Name</string>
-    <string name="script_code_label">Script</string>
-    <string name="script_code_supporting">Runs on every document you upload, to classify it. It has no network access.</string>
-    <string name="script_public_label">Make public</string>
-    <string name="create">Create</string>
+    <!-- Scripts -->
     <string name="cancel">Cancel</string>
-    <string name="create_script_failed">Couldn’t create script: %1$s</string>
-    <string name="script_created">Created “%1$s”</string>
     <string name="script_version">v%1$d</string>
     <string name="script_private_badge">Private</string>
 

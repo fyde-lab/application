@@ -168,17 +168,8 @@
     <string name="purpose_evaluation">Évaluation</string>
     <string name="purpose_employment">Emploi</string>
 
-    <!-- New script sheet (Scripts) -->
-    <string name="new_script">Nouveau script</string>
-    <string name="new_script_sheet_title">Nouveau script</string>
-    <string name="script_name_label">Nom</string>
-    <string name="script_code_label">Script</string>
-    <string name="script_code_supporting">S’exécute sur chaque document importé, pour le classer. Il n’a pas accès au réseau.</string>
-    <string name="script_public_label">Rendre public</string>
-    <string name="create">Créer</string>
+    <!-- Scripts -->
     <string name="cancel">Annuler</string>
-    <string name="create_script_failed">Impossible de créer le script : %1$s</string>
-    <string name="script_created">« %1$s » créé</string>
     <string name="script_version">v%1$d</string>
     <string name="script_private_badge">Privé</string>
 

@@ -117,7 +117,7 @@ fun AppTopBar(
 
 /**
  * A screen's one primary action, for [AppTopBar]'s `actions` — the same
- * component on every screen that has one (Upload document, New script), so
+ * component on every screen that has one (Upload document), so
  * the same kind of action never looks different from one destination to the
  * next. Found via review: Documents had a filled Upload button and Scripts a
  * text-only New script link in the very same slot.

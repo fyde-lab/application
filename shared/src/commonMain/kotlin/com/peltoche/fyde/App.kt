@@ -10,13 +10,11 @@ import com.peltoche.fyde.resources.script_uninstalled
 import com.peltoche.fyde.resources.script_updated
 import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
-import com.peltoche.fyde.resources.create_script_failed
 import com.peltoche.fyde.resources.document_save_failed
 import com.peltoche.fyde.resources.document_saved
 import com.peltoche.fyde.resources.error_unknown
 import com.peltoche.fyde.resources.language_save_failed
 import com.peltoche.fyde.resources.log_out_failed
-import com.peltoche.fyde.resources.script_created
 import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.session_expired
 import com.peltoche.fyde.resources.upload_failed
@@ -521,7 +519,6 @@ private fun ScriptsScreenContainer(
 ) {
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<ScriptsUiState>(ScriptsUiState.Connecting) }
-    var isCreating by remember { mutableStateOf(false) }
     // Which script's [ScriptDetailScreen] is open, if any — a drill-down
     // local to this container rather than a top-level Screen, since the
     // detail view shares the same scripts/enabled/pending state this
@@ -607,41 +604,6 @@ private fun ScriptsScreenContainer(
         }
     }
 
-    // A newly created script is a parser (see FydeSdk.createScript), enabled
-    // immediately (`create_script` alone doesn't — see `sdk/src/domains/
-    // scripts/mod.rs`'s `Service` trait) so it classifies the next uploads
-    // and lands in the Installed section. A parser takes no parameters, so
-    // there's no installation to publish.
-    fun createScript(name: String, isPublic: Boolean, script: String) {
-        isCreating = true
-        scope.launch {
-            FydeSdk.createScript(
-                name = name,
-                isPublic = isPublic,
-                icon = ByteArray(0),
-                script = script,
-                description = "",
-                shortDescription = "",
-                allowedDomains = emptyList(),
-            )
-                .mapCatching { created -> created.also { FydeSdk.enableScript(it.id).getOrThrow() } }
-                .onSuccess { created ->
-                    (uiState as? ScriptsUiState.Loaded)?.let { latest ->
-                        uiState = latest.copy(
-                            scripts = listOf(created) + latest.scripts.orEmpty().filter { it.id != created.id },
-                            enabledScriptIds = latest.enabledScriptIds + created.id,
-                        )
-                    }
-                    isCreating = false
-                    snackbarHostState.showSnackbar(getString(Res.string.script_created, created.name))
-                }
-                .onFailure { error ->
-                    isCreating = false
-                    showBanner(getString(Res.string.create_script_failed, error.userMessage()))
-                }
-        }
-    }
-
     val loaded = uiState as? ScriptsUiState.Loaded
     val viewedScript = viewedScriptId?.let { id -> loaded?.scripts?.find { it.id == id } }
 
@@ -679,8 +641,6 @@ private fun ScriptsScreenContainer(
             onOpenDocuments = onOpenDocuments,
             onOpenSettings = onOpenSettings,
             onView = { script -> viewedScriptId = script.id },
-            onCreateScript = ::createScript,
-            isCreating = isCreating,
             runningScriptId = scraperRuns.running?.id,
             query = scriptQuery,
             onQueryChange = { scriptQuery = it },
