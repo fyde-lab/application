@@ -127,8 +127,9 @@ actual object FydeSdk {
         }
     }
 
-    actual suspend fun login(username: String, password: String): Result<Unit> = withClient("login") { client ->
-        client.login(username, password, getPlatform().name)
+    actual suspend fun login(username: String, password: String, allowInsecureStorage: Boolean): Result<Unit> =
+        withClient("login") { client ->
+            client.login(username, password, getPlatform().name, allowInsecureStorage)
     }.map { }
 
     actual suspend fun register(username: String, password: String, allowInsecureStorage: Boolean): Result<Unit> =

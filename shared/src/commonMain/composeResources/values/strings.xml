@@ -18,6 +18,7 @@
     <string name="auth_error_register_failed">Failed to create account</string>
     <string name="register_password_warning">Your password is the only key to your documents. Fyde can’t reset it: if you forget it, your documents can’t be recovered.</string>
     <string name="secure_storage_unavailable_warning">This device has no secure storage for your account’s keys. You can still sign up by keeping them unencrypted in the app’s local database, but anyone who can read this device’s files could then unlock your documents.</string>
+    <string name="secure_storage_unavailable_login_warning">This device has no secure storage for your account’s keys. You can still log in by keeping them unencrypted in the app’s local database, but anyone who can read this device’s files could then unlock your documents.</string>
     <string name="allow_insecure_storage_label">Keep my keys in the local database (less secure)</string>
 
     <!-- Connection -->

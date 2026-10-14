@@ -142,10 +142,11 @@ private fun AppContent() {
             Unit
         }
 
-    // Re-checked every time the registration form opens, so a keyring
-    // started or unlocked in the meantime is picked up.
+    // Re-checked every time the login or registration form opens, so a
+    // keyring started or unlocked in the meantime is picked up; both offer
+    // the local-database fallback when there's none.
     LaunchedEffect(screen) {
-        if (screen == Screen.Register) {
+        if (screen == Screen.Register || screen == Screen.Login) {
             isSecureStorageAvailable = FydeSdk.initialize(BuildConfig.SERVER_URL)
                 .mapCatching { FydeSdk.isSecureStorageAvailable().getOrThrow() }
                 .getOrDefault(true)
@@ -157,7 +158,13 @@ private fun AppContent() {
             Screen.Login -> LoginScreen(
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
-                onLogIn = authenticateWith(FydeSdk::login, Res.string.auth_error_login_failed),
+                isSecureStorageAvailable = isSecureStorageAvailable,
+                onLogIn = { username, password, allowInsecureStorage ->
+                    authenticateWith(
+                        { user, pass -> FydeSdk.login(user, pass, allowInsecureStorage) },
+                        Res.string.auth_error_login_failed,
+                    )(username, password)
+                },
                 onNavigateToRegister = {
                     authError = null
                     screen = Screen.Register

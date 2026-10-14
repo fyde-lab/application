@@ -430,11 +430,15 @@ expect object FydeSdk {
      * Verifies [username]/[password] and opens a session for this device,
      * storing the resulting session token so that subsequent calls can
      * authenticate with the server, and starts the background changelog
-     * sync that feeds [initialize]'s `onDocumentChange`. Mirrors
+     * sync that feeds [initialize]'s `onDocumentChange`. On a device without
+     * secure storage (see [isSecureStorageAvailable]),
+     * [allowInsecureStorage] lets the session's keys be kept unencrypted in
+     * the local database instead, as for [register] — only pass `true` once
+     * the user explicitly accepted that. Mirrors
      * [`crate::UsersService::login`]; fails if [initialize] hasn't been
      * called yet.
      */
-    suspend fun login(username: String, password: String): Result<Unit>
+    suspend fun login(username: String, password: String, allowInsecureStorage: Boolean = false): Result<Unit>
 
     /**
      * Creates a new account for [username] and opens a session for this

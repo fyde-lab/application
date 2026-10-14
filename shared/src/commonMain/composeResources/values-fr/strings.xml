@@ -18,6 +18,7 @@
     <string name="auth_error_register_failed">Échec de la création du compte</string>
     <string name="register_password_warning">Votre mot de passe est la seule clé de vos documents. Fyde ne peut pas le réinitialiser : si vous l’oubliez, vos documents seront irrécupérables.</string>
     <string name="secure_storage_unavailable_warning">Cet appareil ne dispose d’aucun stockage sécurisé pour les clés de votre compte. Vous pouvez tout de même vous inscrire en les conservant non chiffrées dans la base de données locale de l’application, mais toute personne pouvant lire les fichiers de cet appareil pourrait alors déverrouiller vos documents.</string>
+    <string name="secure_storage_unavailable_login_warning">Cet appareil ne dispose d’aucun stockage sécurisé pour les clés de votre compte. Vous pouvez tout de même vous connecter en les conservant non chiffrées dans la base de données locale de l’application, mais toute personne pouvant lire les fichiers de cet appareil pourrait alors déverrouiller vos documents.</string>
     <string name="allow_insecure_storage_label">Conserver mes clés dans la base de données locale (moins sécurisé)</string>
 
     <!-- Connection -->
