@@ -145,20 +145,22 @@ fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
  * rather than a puzzle piece.
  */
 @Composable
-fun PuzzleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+fun PuzzleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
     Canvas(modifier = modifier) {
         val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
-        val w = size.width
-        val h = size.height
-        val left = w * 0.10f
-        val right = w * 0.70f
-        val top = h * 0.30f
-        val bottom = h * 0.90f
-        val knobRadius = size.minDimension * 0.12f
+        val knobRadius = size.minDimension * 0.16f
         // How far each knob's center sits outside the edge it grows from:
         // less than its radius, so the knob joins the edge through a neck
         // narrower than the knob itself.
-        val knobOffset = size.minDimension * 0.07f
+        val knobOffset = size.minDimension * 0.10f
+        // Body plus knobs span the whole canvas, edge to edge like
+        // [DocumentGlyph] above it in the sidebar. Found via review: inset
+        // to 10%-90% it read visibly smaller than its neighbours.
+        val reach = knobRadius + knobOffset
+        val left = 0f
+        val right = size.width - reach
+        val top = reach
+        val bottom = size.height
         val neckHalf = sqrt(knobRadius * knobRadius - knobOffset * knobOffset)
         // Angle between the edge and the radius to where the knob meets it.
         val neckAngle = (atan2(knobOffset, neckHalf) * 180f / PI.toFloat())
