@@ -9,6 +9,7 @@ import com.peltoche.fyde.resources.script_toggle_failed
 import com.peltoche.fyde.resources.script_uninstalled
 import com.peltoche.fyde.resources.script_updated
 import com.peltoche.fyde.resources.auth_error_login_failed
+import com.peltoche.fyde.resources.session_limit_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.document_save_failed
 import com.peltoche.fyde.resources.document_saved
@@ -63,10 +64,31 @@ private const val SEARCH_DEBOUNCE_MS = 250L
 private sealed interface Screen {
     data object Login : Screen
     data object Register : Screen
+
+    /**
+     * The credentials checked out, but the account is at its plan's session
+     * limit: [SessionLimitScreen] lists its [sessions] so the user picks one
+     * to disconnect. Holds the credentials to rerun the login with, since
+     * the server's login exchange is single-use — dropped again as soon as
+     * the user leaves this screen. A plain class, not a data class, so the
+     * password never ends up in a generated `toString`.
+     */
+    class SessionLimit(
+        val username: String,
+        val password: String,
+        val allowInsecureStorage: Boolean,
+        val maxSessions: Int,
+        val sessions: List<FydeOpenSession>,
+    ) : Screen
+
     data object Documents : Screen
     data object Settings : Screen
     data object Scripts : Screen
 }
+
+/** Whether [this] is shown with no session open, before signing in. */
+private val Screen.isSignedOut: Boolean
+    get() = this == Screen.Login || this == Screen.Register || this is Screen.SessionLimit
 
 @Composable
 @Preview
@@ -137,6 +159,40 @@ private fun AppContent() {
         }
     }
 
+    // Shows SessionLimitScreen instead of signing in when the account is at
+    // its plan's session limit; [replaceSessionId] is the session picked
+    // there to disconnect in favor of this device.
+    fun logIn(username: String, password: String, allowInsecureStorage: Boolean, replaceSessionId: String? = null) {
+        authError = null
+        isAuthenticating = true
+        scope.launch {
+            authenticate(username, password) { user, pass ->
+                FydeSdk.login(user, pass, allowInsecureStorage, replaceSessionId)
+            }
+                .onSuccess { outcome ->
+                    screen = when (outcome) {
+                        FydeLoginOutcome.LoggedIn -> Screen.Documents
+                        is FydeLoginOutcome.SessionLimitReached -> Screen.SessionLimit(
+                            username = username,
+                            password = password,
+                            allowInsecureStorage = allowInsecureStorage,
+                            maxSessions = outcome.maxSessions,
+                            sessions = outcome.sessions,
+                        )
+                    }
+                }
+                .onFailure {
+                    val fallback = if (replaceSessionId == null) {
+                        Res.string.auth_error_login_failed
+                    } else {
+                        Res.string.session_limit_failed
+                    }
+                    authError = it.userMessage(fallback)
+                }
+            isAuthenticating = false
+        }
+    }
+
     fun authenticateWith(credentialCall: suspend (String, String) -> Result<Unit>, fallback: StringResource) =
         { username: String, password: String ->
             authError = null
@@ -154,7 +210,7 @@ private fun AppContent() {
     // (expired, revoked, ...): back to the login form, saying why, from
     // whichever signed-in screen was open.
     suspend fun returnToLogin(message: String?) {
-        if (screen == Screen.Login || screen == Screen.Register) return
+        if (screen.isSignedOut) return
         authError = message ?: getString(Res.string.session_expired)
         screen = Screen.Login
     }
@@ -168,7 +224,7 @@ private fun AppContent() {
     // SESSION_CHECK_INTERVAL_MS). Not while logging out from Settings, which
     // clears it on purpose and navigates by itself.
     LaunchedEffect(screen) {
-        if (screen == Screen.Login || screen == Screen.Register) return@LaunchedEffect
+        if (screen.isSignedOut) return@LaunchedEffect
         while (true) {
             delay(SESSION_CHECK_INTERVAL_MS)
             if (!isLoggingOut && FydeSdk.isConnected().getOrNull() == false) {
@@ -196,16 +252,29 @@ private fun AppContent() {
                 isSubmitting = isAuthenticating,
                 isSecureStorageAvailable = isSecureStorageAvailable,
                 onLogIn = { username, password, allowInsecureStorage ->
-                    authenticateWith(
-                        { user, pass -> FydeSdk.login(user, pass, allowInsecureStorage) },
-                        Res.string.auth_error_login_failed,
-                    )(username, password)
+                    logIn(username, password, allowInsecureStorage)
                 },
                 onNavigateToRegister = {
                     authError = null
                     screen = Screen.Register
                 },
             )
+            is Screen.SessionLimit -> {
+                val limit = screen as Screen.SessionLimit
+                SessionLimitScreen(
+                    maxSessions = limit.maxSessions,
+                    sessions = limit.sessions,
+                    errorMessage = authError,
+                    isSubmitting = isAuthenticating,
+                    onReplace = { sessionId ->
+                        logIn(limit.username, limit.password, limit.allowInsecureStorage, sessionId)
+                    },
+                    onCancel = {
+                        authError = null
+                        screen = Screen.Login
+                    },
+                )
+            }
             Screen.Register -> RegisterScreen(
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
@@ -288,11 +357,11 @@ private fun AppContent() {
  * changelog stream. [FydeSdk.initialize] is safe to call again from
  * [DocumentsScreen] afterwards — it's a no-op reconnect.
  */
-private suspend fun authenticate(
+private suspend fun <T> authenticate(
     username: String,
     password: String,
-    credentialCall: suspend (String, String) -> Result<Unit>,
-): Result<Unit> =
+    credentialCall: suspend (String, String) -> Result<T>,
+): Result<T> =
     FydeSdk.initialize(BuildConfig.SERVER_URL).fold(
         onSuccess = { credentialCall(username, password) },
         onFailure = { Result.failure(it) },

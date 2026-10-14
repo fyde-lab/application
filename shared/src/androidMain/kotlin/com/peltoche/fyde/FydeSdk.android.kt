@@ -10,6 +10,8 @@ import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiEventType
 import uniffi.fyde_sdk.FfiException
 import uniffi.fyde_sdk.FfiLogLevel
+import uniffi.fyde_sdk.FfiLoginOutcome
+import uniffi.fyde_sdk.FfiOpenSession
 import uniffi.fyde_sdk.FfiProgressEvent
 import uniffi.fyde_sdk.FfiPurpose
 import uniffi.fyde_sdk.FfiScript
@@ -129,10 +131,15 @@ actual object FydeSdk {
         }
     }
 
-    actual suspend fun login(username: String, password: String, allowInsecureStorage: Boolean): Result<Unit> =
-        withClient("login") { client ->
-            client.login(username, password, getPlatform().name, allowInsecureStorage)
-    }.map { }
+    actual suspend fun login(
+        username: String,
+        password: String,
+        allowInsecureStorage: Boolean,
+        replaceSessionId: String?,
+    ): Result<FydeLoginOutcome> = withClient("login") { client ->
+        client.login(username, password, getPlatform().name, allowInsecureStorage, replaceSessionId)
+            .toFydeLoginOutcome()
+    }
 
     actual suspend fun register(username: String, password: String, allowInsecureStorage: Boolean): Result<Unit> =
         withClient("register") { client ->
@@ -402,6 +409,20 @@ private fun FydeScriptParameter.toFfiScriptParameter() = FfiScriptParameter(
     parameterType = type.toFfiScriptParameterType(),
     required = required,
     secret = secret,
+)
+
+private fun FfiLoginOutcome.toFydeLoginOutcome(): FydeLoginOutcome = when (this) {
+    is FfiLoginOutcome.LoggedIn -> FydeLoginOutcome.LoggedIn
+    is FfiLoginOutcome.SessionLimitReached -> FydeLoginOutcome.SessionLimitReached(
+        maxSessions = maxSessions.toInt(),
+        sessions = sessions.map(FfiOpenSession::toFydeOpenSession),
+    )
+}
+
+private fun FfiOpenSession.toFydeOpenSession() = FydeOpenSession(
+    id = id,
+    deviceName = deviceName,
+    createdAt = createdAt,
 )
 
 private fun FfiScript.toFydeScript() = FydeScript(

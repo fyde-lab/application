@@ -11,6 +11,16 @@
     <string name="auth_error_login_failed">Échec de la connexion</string>
     <string name="session_expired">Votre session a expiré. Veuillez vous reconnecter.</string>
 
+    <!-- Session limit screen -->
+    <string name="session_limit_title">Trop d’appareils</string>
+    <plurals name="session_limit_explanation">
+        <item quantity="one">Votre offre permet %1$d appareil connecté à la fois. Choisissez l’appareil à déconnecter pour continuer sur celui-ci.</item>
+        <item quantity="other">Votre offre permet %1$d appareils connectés à la fois. Choisissez un appareil à déconnecter pour continuer sur celui-ci.</item>
+    </plurals>
+    <string name="session_limit_connected_since">Connecté depuis le %1$s</string>
+    <string name="session_limit_replace">Le déconnecter et continuer</string>
+    <string name="session_limit_failed">Échec de la déconnexion de l’appareil</string>
+
     <!-- Register screen -->
     <string name="create_account_title">Créer un compte</string>
     <string name="confirm_password_label">Confirmer le mot de passe</string>

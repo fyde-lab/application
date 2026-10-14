@@ -20,7 +20,12 @@ actual object FydeSdk {
         onDocumentChange: ((FydeChangelogEvent) -> Unit)?,
     ): Result<Unit> = unsupported()
 
-    actual suspend fun login(username: String, password: String, allowInsecureStorage: Boolean): Result<Unit> = unsupported()
+    actual suspend fun login(
+        username: String,
+        password: String,
+        allowInsecureStorage: Boolean,
+        replaceSessionId: String?,
+    ): Result<FydeLoginOutcome> = unsupported()
 
     actual suspend fun register(username: String, password: String, allowInsecureStorage: Boolean): Result<Unit> =
         unsupported()

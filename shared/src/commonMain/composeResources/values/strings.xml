@@ -11,6 +11,16 @@
     <string name="auth_error_login_failed">Failed to log in</string>
     <string name="session_expired">Your session has expired. Please log in again.</string>
 
+    <!-- Session limit screen -->
+    <string name="session_limit_title">Too many devices</string>
+    <plurals name="session_limit_explanation">
+        <item quantity="one">Your plan allows %1$d connected device at a time. Pick the device to disconnect to continue on this one.</item>
+        <item quantity="other">Your plan allows %1$d connected devices at a time. Pick a device to disconnect to continue on this one.</item>
+    </plurals>
+    <string name="session_limit_connected_since">Connected since %1$s</string>
+    <string name="session_limit_replace">Disconnect it and continue</string>
+    <string name="session_limit_failed">Failed to disconnect the device</string>
+
     <!-- Register screen -->
     <string name="create_account_title">Create an account</string>
     <string name="confirm_password_label">Confirm password</string>

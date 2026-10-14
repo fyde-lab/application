@@ -401,6 +401,33 @@ interface FydeScraperHandler {
 }
 
 /**
+ * One of an account's open sessions (a device logged into it), mirroring
+ * `fyde-sdk`'s `FfiOpenSession`. [createdAt] is in Unix seconds.
+ */
+data class FydeOpenSession(
+    val id: String,
+    val deviceName: String,
+    val createdAt: Long,
+)
+
+/** What [FydeSdk.login] did, once the credentials checked out. Mirrors `fyde-sdk`'s `FfiLoginOutcome`. */
+sealed interface FydeLoginOutcome {
+    /** A session was opened for this device. */
+    data object LoggedIn : FydeLoginOutcome
+
+    /**
+     * The account already has as many open sessions as its plan allows
+     * ([maxSessions]), so none was opened and nothing was stored. Log in
+     * again with one of [sessions]' ids as `replaceSessionId` to close it in
+     * favor of this device.
+     */
+    data class SessionLimitReached(
+        val maxSessions: Int,
+        val sessions: List<FydeOpenSession>,
+    ) : FydeLoginOutcome
+}
+
+/**
  * Cross-platform entry point to `fyde-sdk` (`../../sdk`), the Rust client
  * library for talking to a fyde server. Implemented for Desktop (JVM),
  * Android and iOS via the UniFFI-generated bindings in `:sdkBridge`; not
@@ -437,8 +464,18 @@ expect object FydeSdk {
      * the user explicitly accepted that. Mirrors
      * [`crate::UsersService::login`]; fails if [initialize] hasn't been
      * called yet.
+     *
+     * Succeeds with [FydeLoginOutcome.SessionLimitReached] instead, opening
+     * no session, when the account's plan allows no more open sessions:
+     * calling this again with one of the listed sessions' ids as
+     * [replaceSessionId] closes that session in favor of this device.
      */
-    suspend fun login(username: String, password: String, allowInsecureStorage: Boolean = false): Result<Unit>
+    suspend fun login(
+        username: String,
+        password: String,
+        allowInsecureStorage: Boolean = false,
+        replaceSessionId: String? = null,
+    ): Result<FydeLoginOutcome>
 
     /**
      * Creates a new account for [username] and opens a session for this
