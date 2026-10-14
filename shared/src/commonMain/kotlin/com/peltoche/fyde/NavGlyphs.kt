@@ -16,8 +16,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.theme.AppColors
 import kotlin.math.PI
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * Hand-drawn `Canvas` glyphs for the desktop sidebar and list rows, in the
@@ -136,10 +138,11 @@ fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
 
 /**
  * A puzzle piece — the sidebar's Scripts destination and the script grid's
- * per-card icon chip. One knob on the right edge and one socket on the
- * bottom edge are enough to read as "puzzle piece" at nav-icon size without
- * drawing all four, keeping it a single closed outline like every other
- * glyph here rather than four small circular bumps.
+ * per-card icon chip: a square body with a round knob on its top and right
+ * edges, as one closed outline like every other glyph here. Found via
+ * review: it used to close its right knob with a diagonal back into the
+ * body and widen the body halfway down, so it read as a lopsided L-shape
+ * rather than a puzzle piece.
  */
 @Composable
 fun PuzzleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
@@ -147,40 +150,35 @@ fun PuzzleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted
         val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
         val w = size.width
         val h = size.height
-        val knobRadius = w * 0.14f
+        val left = w * 0.10f
+        val right = w * 0.70f
+        val top = h * 0.30f
+        val bottom = h * 0.90f
+        val knobRadius = size.minDimension * 0.12f
+        // How far each knob's center sits outside the edge it grows from:
+        // less than its radius, so the knob joins the edge through a neck
+        // narrower than the knob itself.
+        val knobOffset = size.minDimension * 0.07f
+        val neckHalf = sqrt(knobRadius * knobRadius - knobOffset * knobOffset)
+        // Angle between the edge and the radius to where the knob meets it.
+        val neckAngle = (atan2(knobOffset, neckHalf) * 180f / PI.toFloat())
+        val topKnob = Offset((left + right) / 2f, top - knobOffset)
+        val rightKnob = Offset(right + knobOffset, (top + bottom) / 2f)
+        fun Path.knob(center: Offset, outwardDegrees: Float) = arcTo(
+            rect = Rect(center, knobRadius),
+            startAngleDegrees = outwardDegrees - 90f - neckAngle,
+            sweepAngleDegrees = 180f + 2f * neckAngle,
+            forceMoveTo = false,
+        )
         val path = Path().apply {
-            moveTo(w * 0.18f, h * 0.18f)
-            lineTo(w * 0.62f, h * 0.18f)
-            // Knob bulging outward on the right edge.
-            lineTo(w * 0.62f, h * 0.34f)
-            arcTo(
-                rect = androidx.compose.ui.geometry.Rect(
-                    w * 0.62f,
-                    h * 0.5f - knobRadius,
-                    w * 0.62f + knobRadius * 2f,
-                    h * 0.5f + knobRadius,
-                ),
-                startAngleDegrees = 180f,
-                sweepAngleDegrees = -180f,
-                forceMoveTo = false,
-            )
-            lineTo(w * 0.62f, h * 0.66f)
-            lineTo(w * 0.82f, h * 0.66f)
-            lineTo(w * 0.82f, h * 0.82f)
-            lineTo(w * 0.5f + knobRadius, h * 0.82f)
-            // Socket indenting inward on the bottom edge.
-            arcTo(
-                rect = androidx.compose.ui.geometry.Rect(
-                    w * 0.5f - knobRadius,
-                    h * 0.82f - knobRadius,
-                    w * 0.5f + knobRadius,
-                    h * 0.82f + knobRadius,
-                ),
-                startAngleDegrees = 0f,
-                sweepAngleDegrees = 180f,
-                forceMoveTo = false,
-            )
-            lineTo(w * 0.18f, h * 0.82f)
+            moveTo(left, top)
+            lineTo(topKnob.x - neckHalf, top)
+            knob(topKnob, outwardDegrees = 270f)
+            lineTo(right, top)
+            lineTo(right, rightKnob.y - neckHalf)
+            knob(rightKnob, outwardDegrees = 0f)
+            lineTo(right, bottom)
+            lineTo(left, bottom)
             close()
         }
         drawPath(path, color = tint, style = stroke)
