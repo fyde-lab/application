@@ -70,7 +70,8 @@ private fun defaultStoragePath(): String {
  * technical description through [IosLogListener] just before, so only which call
  * failed and with which error (the exception's variant) are logged here;
  * anything else (e.g. the native library failing to load) is logged in
- * full. Cancellation is rethrown rather than reported as a failure.
+ * full. Cancellation is rethrown rather than reported as a failure. A
+ * `SessionExpired` failure is also reported to [SessionExpiry].
  */
 private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = try {
     Result.success(block())
@@ -78,6 +79,7 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
     throw e
 } catch (e: FfiException) {
     NSLog("[FydeSdk] WARN: FydeSdk.%@ failed: %@", operation, e::class.simpleName ?: "FfiException")
+    if (e is FfiException.SessionExpired) SessionExpiry.report(e.message)
     Result.failure(FydeSdkException(e.message, e))
 } catch (e: Throwable) {
     NSLog("[FydeSdk] ERROR: FydeSdk.%@ failed: %@", operation, e.stackTraceToString())

@@ -9,6 +9,7 @@
     <!-- Login screen -->
     <string name="no_account_prompt">Don’t have an account?</string>
     <string name="auth_error_login_failed">Failed to log in</string>
+    <string name="session_expired">Your session has expired. Please log in again.</string>
 
     <!-- Register screen -->
     <string name="create_account_title">Create an account</string>

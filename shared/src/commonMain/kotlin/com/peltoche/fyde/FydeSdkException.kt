@@ -2,6 +2,10 @@ package com.peltoche.fyde
 
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.error_unknown
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 
@@ -23,3 +27,25 @@ class FydeSdkException(val userMessage: String?, cause: Throwable) : Exception(u
  */
 internal suspend fun Throwable.userMessage(fallback: StringResource = Res.string.error_unknown): String =
     (this as? FydeSdkException)?.userMessage ?: getString(fallback)
+
+/**
+ * Announces every [FydeSdk] call that failed because the server rejected the
+ * session token (fyde-sdk's `FfiException.SessionExpired`). By then fyde-sdk
+ * has already logged out locally, so the app only has to go back to the
+ * login screen: [App] collects [events] and does that wherever the failing
+ * call came from. Each event carries the failure's user wording (see
+ * [FydeSdkException.userMessage]).
+ */
+object SessionExpiry {
+    private val expirations = MutableSharedFlow<String?>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+
+    val events: SharedFlow<String?> = expirations.asSharedFlow()
+
+    /** Called by each platform's [FydeSdk] when a call fails with `SessionExpired`. */
+    internal fun report(userMessage: String?) {
+        expirations.tryEmit(userMessage)
+    }
+}

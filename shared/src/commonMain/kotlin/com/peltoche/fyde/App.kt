@@ -18,6 +18,7 @@ import com.peltoche.fyde.resources.language_save_failed
 import com.peltoche.fyde.resources.log_out_failed
 import com.peltoche.fyde.resources.script_created
 import com.peltoche.fyde.resources.search_failed
+import com.peltoche.fyde.resources.session_expired
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.resources.uploads_succeeded
@@ -44,6 +45,15 @@ private const val DOCUMENT_PAGE_SIZE = 100L
  * which on a phone is battery spent for nothing.
  */
 private const val SERVER_REACHABILITY_POLL_INTERVAL_MS = 5_000L
+
+/**
+ * How often [FydeSdk.isConnected] is checked while a signed-in screen is
+ * open, to notice fyde-sdk logging out on its own because its background
+ * changelog sync found the session rejected — no app call fails then, so
+ * [SessionExpiry] never hears of it. A local credential-store read, at the
+ * same pace as [SERVER_REACHABILITY_POLL_INTERVAL_MS].
+ */
+private const val SESSION_CHECK_INTERVAL_MS = 5_000L
 
 /**
  * How long typing in the search field must pause before it's searched, so a
@@ -141,6 +151,34 @@ private fun AppContent() {
             }
             Unit
         }
+
+    // fyde-sdk logs out by itself once the server rejects the session token
+    // (expired, revoked, ...): back to the login form, saying why, from
+    // whichever signed-in screen was open.
+    suspend fun returnToLogin(message: String?) {
+        if (screen == Screen.Login || screen == Screen.Register) return
+        authError = message ?: getString(Res.string.session_expired)
+        screen = Screen.Login
+    }
+
+    // A call that failed because the session was rejected...
+    LaunchedEffect(Unit) {
+        SessionExpiry.events.collect { message -> returnToLogin(message) }
+    }
+
+    // ...or the session gone without any call failing (see
+    // SESSION_CHECK_INTERVAL_MS). Not while logging out from Settings, which
+    // clears it on purpose and navigates by itself.
+    LaunchedEffect(screen) {
+        if (screen == Screen.Login || screen == Screen.Register) return@LaunchedEffect
+        while (true) {
+            delay(SESSION_CHECK_INTERVAL_MS)
+            if (!isLoggingOut && FydeSdk.isConnected().getOrNull() == false) {
+                returnToLogin(null)
+                return@LaunchedEffect
+            }
+        }
+    }
 
     // Re-checked every time the login or registration form opens, so a
     // keyring started or unlocked in the meantime is picked up; both offer

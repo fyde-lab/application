@@ -62,7 +62,8 @@ private fun defaultStoragePath(): String = File(appContext.filesDir, "fyde.db").
  * technical description through [AndroidLogListener] just before, so only which call
  * failed and with which error (the exception's variant) are logged here;
  * anything else (e.g. the native library failing to load) is logged in
- * full. Cancellation is rethrown rather than reported as a failure.
+ * full. Cancellation is rethrown rather than reported as a failure. A
+ * `SessionExpired` failure is also reported to [SessionExpiry].
  */
 private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = try {
     Result.success(block())
@@ -70,6 +71,7 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
     throw e
 } catch (e: FfiException) {
     Log.w(LOG_TAG, "FydeSdk.$operation failed: ${e::class.simpleName}")
+    if (e is FfiException.SessionExpired) SessionExpiry.report(e.message)
     Result.failure(FydeSdkException(e.message, e))
 } catch (e: Throwable) {
     Log.e(LOG_TAG, "FydeSdk.$operation failed", e)
