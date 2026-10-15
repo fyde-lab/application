@@ -4,6 +4,47 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.category_housing
+import com.peltoche.fyde.resources.category_telecom
+import com.peltoche.fyde.resources.category_money
+import com.peltoche.fyde.resources.category_taxes
+import com.peltoche.fyde.resources.category_health
+import com.peltoche.fyde.resources.category_work
+import com.peltoche.fyde.resources.category_family
+import com.peltoche.fyde.resources.category_transport
+import com.peltoche.fyde.resources.category_shopping
+import com.peltoche.fyde.resources.category_subscriptions
+import com.peltoche.fyde.resources.category_donations
+import com.peltoche.fyde.resources.subcategory_energy
+import com.peltoche.fyde.resources.subcategory_water
+import com.peltoche.fyde.resources.subcategory_internet
+import com.peltoche.fyde.resources.subcategory_home_insurance
+import com.peltoche.fyde.resources.subcategory_home_services
+import com.peltoche.fyde.resources.subcategory_mobile
+import com.peltoche.fyde.resources.subcategory_banking
+import com.peltoche.fyde.resources.subcategory_savings
+import com.peltoche.fyde.resources.subcategory_gaming
+import com.peltoche.fyde.resources.subcategory_income_tax
+import com.peltoche.fyde.resources.subcategory_tax_certificates
+import com.peltoche.fyde.resources.subcategory_health_insurance
+import com.peltoche.fyde.resources.subcategory_complementary_health
+import com.peltoche.fyde.resources.subcategory_care
+import com.peltoche.fyde.resources.subcategory_payslips
+import com.peltoche.fyde.resources.subcategory_employment
+import com.peltoche.fyde.resources.subcategory_household_employer
+import com.peltoche.fyde.resources.subcategory_benefits
+import com.peltoche.fyde.resources.subcategory_childcare_school
+import com.peltoche.fyde.resources.subcategory_train
+import com.peltoche.fyde.resources.subcategory_flight
+import com.peltoche.fyde.resources.subcategory_road
+import com.peltoche.fyde.resources.subcategory_ride
+import com.peltoche.fyde.resources.subcategory_travel
+import com.peltoche.fyde.resources.subcategory_online
+import com.peltoche.fyde.resources.subcategory_pets
+import com.peltoche.fyde.resources.subcategory_groceries
+import com.peltoche.fyde.resources.subcategory_food_delivery
+import com.peltoche.fyde.resources.subcategory_media
+import com.peltoche.fyde.resources.subcategory_cloud_software
 import com.peltoche.fyde.resources.date_format
 import com.peltoche.fyde.resources.decimal_separator
 import com.peltoche.fyde.resources.document_type_invoice
@@ -53,36 +94,6 @@ import com.peltoche.fyde.resources.size_bytes
 import com.peltoche.fyde.resources.size_gigabytes
 import com.peltoche.fyde.resources.size_kilobytes
 import com.peltoche.fyde.resources.size_megabytes
-import com.peltoche.fyde.resources.source_category_alimentation
-import com.peltoche.fyde.resources.source_category_association
-import com.peltoche.fyde.resources.source_category_bank
-import com.peltoche.fyde.resources.source_category_building
-import com.peltoche.fyde.resources.source_category_education
-import com.peltoche.fyde.resources.source_category_employer
-import com.peltoche.fyde.resources.source_category_energy
-import com.peltoche.fyde.resources.source_category_goods
-import com.peltoche.fyde.resources.source_category_gov
-import com.peltoche.fyde.resources.source_category_health
-import com.peltoche.fyde.resources.source_category_individual
-import com.peltoche.fyde.resources.source_category_insurance
-import com.peltoche.fyde.resources.source_category_real_estate
-import com.peltoche.fyde.resources.source_category_retail
-import com.peltoche.fyde.resources.source_category_shopping
-import com.peltoche.fyde.resources.source_category_telecom
-import com.peltoche.fyde.resources.source_category_transport
-import com.peltoche.fyde.resources.source_category_water
-import com.peltoche.fyde.resources.source_category_web
-import com.peltoche.fyde.resources.source_subcategory_citizen
-import com.peltoche.fyde.resources.source_subcategory_civil_registration
-import com.peltoche.fyde.resources.source_subcategory_family
-import com.peltoche.fyde.resources.source_subcategory_health
-import com.peltoche.fyde.resources.source_subcategory_immigration
-import com.peltoche.fyde.resources.source_subcategory_internet
-import com.peltoche.fyde.resources.source_subcategory_mobile
-import com.peltoche.fyde.resources.source_subcategory_real_estate
-import com.peltoche.fyde.resources.source_subcategory_sport
-import com.peltoche.fyde.resources.source_subcategory_tax
-import com.peltoche.fyde.resources.source_subcategory_transport
 import com.peltoche.fyde.theme.AppColors
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -187,44 +198,55 @@ internal fun formatOneDecimalBelowTen(value: Double, decimalSeparator: String): 
 }
 
 @Composable
-internal fun FydeSourceCategory.label(): String = stringResource(
+internal fun FydeCategory.label(): String = stringResource(
     when (this) {
-        FydeSourceCategory.BANK -> Res.string.source_category_bank
-        FydeSourceCategory.INSURANCE -> Res.string.source_category_insurance
-        FydeSourceCategory.RETAIL -> Res.string.source_category_retail
-        FydeSourceCategory.TELECOM -> Res.string.source_category_telecom
-        FydeSourceCategory.ENERGY -> Res.string.source_category_energy
-        FydeSourceCategory.WATER -> Res.string.source_category_water
-        FydeSourceCategory.HEALTH -> Res.string.source_category_health
-        FydeSourceCategory.GOV -> Res.string.source_category_gov
-        FydeSourceCategory.ASSOCIATION -> Res.string.source_category_association
-        FydeSourceCategory.EDUCATION -> Res.string.source_category_education
-        FydeSourceCategory.EMPLOYER -> Res.string.source_category_employer
-        FydeSourceCategory.TRANSPORT -> Res.string.source_category_transport
-        FydeSourceCategory.GOODS -> Res.string.source_category_goods
-        FydeSourceCategory.ALIMENTATION -> Res.string.source_category_alimentation
-        FydeSourceCategory.BUILDING -> Res.string.source_category_building
-        FydeSourceCategory.REAL_ESTATE -> Res.string.source_category_real_estate
-        FydeSourceCategory.WEB -> Res.string.source_category_web
-        FydeSourceCategory.INDIVIDUAL -> Res.string.source_category_individual
-        FydeSourceCategory.SHOPPING -> Res.string.source_category_shopping
+        FydeCategory.HOUSING -> Res.string.category_housing
+        FydeCategory.TELECOM -> Res.string.category_telecom
+        FydeCategory.MONEY -> Res.string.category_money
+        FydeCategory.TAXES -> Res.string.category_taxes
+        FydeCategory.HEALTH -> Res.string.category_health
+        FydeCategory.WORK -> Res.string.category_work
+        FydeCategory.FAMILY -> Res.string.category_family
+        FydeCategory.TRANSPORT -> Res.string.category_transport
+        FydeCategory.SHOPPING -> Res.string.category_shopping
+        FydeCategory.SUBSCRIPTIONS -> Res.string.category_subscriptions
+        FydeCategory.DONATIONS -> Res.string.category_donations
     },
 )
 
 @Composable
-internal fun FydeSourceSubCategory.label(): String = stringResource(
+internal fun FydeSubcategory.label(): String = stringResource(
     when (this) {
-        FydeSourceSubCategory.CIVIL_REGISTRATION -> Res.string.source_subcategory_civil_registration
-        FydeSourceSubCategory.IMMIGRATION -> Res.string.source_subcategory_immigration
-        FydeSourceSubCategory.TRANSPORT -> Res.string.source_subcategory_transport
-        FydeSourceSubCategory.FAMILY -> Res.string.source_subcategory_family
-        FydeSourceSubCategory.TAX -> Res.string.source_subcategory_tax
-        FydeSourceSubCategory.HEALTH -> Res.string.source_subcategory_health
-        FydeSourceSubCategory.REAL_ESTATE -> Res.string.source_subcategory_real_estate
-        FydeSourceSubCategory.MOBILE -> Res.string.source_subcategory_mobile
-        FydeSourceSubCategory.INTERNET -> Res.string.source_subcategory_internet
-        FydeSourceSubCategory.CITIZEN -> Res.string.source_subcategory_citizen
-        FydeSourceSubCategory.SPORT -> Res.string.source_subcategory_sport
+        FydeSubcategory.ENERGY -> Res.string.subcategory_energy
+        FydeSubcategory.WATER -> Res.string.subcategory_water
+        FydeSubcategory.INTERNET -> Res.string.subcategory_internet
+        FydeSubcategory.HOME_INSURANCE -> Res.string.subcategory_home_insurance
+        FydeSubcategory.HOME_SERVICES -> Res.string.subcategory_home_services
+        FydeSubcategory.MOBILE -> Res.string.subcategory_mobile
+        FydeSubcategory.BANKING -> Res.string.subcategory_banking
+        FydeSubcategory.SAVINGS -> Res.string.subcategory_savings
+        FydeSubcategory.GAMING -> Res.string.subcategory_gaming
+        FydeSubcategory.INCOME_TAX -> Res.string.subcategory_income_tax
+        FydeSubcategory.TAX_CERTIFICATES -> Res.string.subcategory_tax_certificates
+        FydeSubcategory.HEALTH_INSURANCE -> Res.string.subcategory_health_insurance
+        FydeSubcategory.COMPLEMENTARY_HEALTH -> Res.string.subcategory_complementary_health
+        FydeSubcategory.CARE -> Res.string.subcategory_care
+        FydeSubcategory.PAYSLIPS -> Res.string.subcategory_payslips
+        FydeSubcategory.EMPLOYMENT -> Res.string.subcategory_employment
+        FydeSubcategory.HOUSEHOLD_EMPLOYER -> Res.string.subcategory_household_employer
+        FydeSubcategory.BENEFITS -> Res.string.subcategory_benefits
+        FydeSubcategory.CHILDCARE_SCHOOL -> Res.string.subcategory_childcare_school
+        FydeSubcategory.TRAIN -> Res.string.subcategory_train
+        FydeSubcategory.FLIGHT -> Res.string.subcategory_flight
+        FydeSubcategory.ROAD -> Res.string.subcategory_road
+        FydeSubcategory.RIDE -> Res.string.subcategory_ride
+        FydeSubcategory.TRAVEL -> Res.string.subcategory_travel
+        FydeSubcategory.ONLINE -> Res.string.subcategory_online
+        FydeSubcategory.PETS -> Res.string.subcategory_pets
+        FydeSubcategory.GROCERIES -> Res.string.subcategory_groceries
+        FydeSubcategory.FOOD_DELIVERY -> Res.string.subcategory_food_delivery
+        FydeSubcategory.MEDIA -> Res.string.subcategory_media
+        FydeSubcategory.CLOUD_SOFTWARE -> Res.string.subcategory_cloud_software
     },
 )
 

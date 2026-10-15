@@ -12,55 +12,67 @@ data class FydeDocument(
     val createdAt: Long,
     val size: Long,
     val documentType: FydeDocumentType?,
-    val sourceCategory: FydeSourceCategory?,
-    val sourceSubCategory: FydeSourceSubCategory?,
+    val category: FydeCategory?,
+    val subcategory: FydeSubcategory?,
     val subjects: List<String>,
     val purpose: FydePurpose?,
     val content: ByteArray,
 )
 
 /**
- * Who/what a document originated from, mirroring the SDK's
- * `FfiSourceCategory`. `null` on [FydeDocument] means not yet classified.
+ * The part of life a document is about (housing, money, taxes...),
+ * mirroring the SDK's `FfiCategory`. `null` on [FydeDocument] means not yet
+ * classified.
  */
-enum class FydeSourceCategory {
-    BANK,
-    INSURANCE,
-    RETAIL,
+enum class FydeCategory {
+    HOUSING,
     TELECOM,
-    ENERGY,
-    WATER,
+    MONEY,
+    TAXES,
     HEALTH,
-    GOV,
-    ASSOCIATION,
-    EDUCATION,
-    EMPLOYER,
+    WORK,
+    FAMILY,
     TRANSPORT,
-    GOODS,
-    ALIMENTATION,
-    BUILDING,
-    REAL_ESTATE,
-    WEB,
-    INDIVIDUAL,
     SHOPPING,
+    SUBSCRIPTIONS,
+    DONATIONS,
 }
 
 /**
- * A finer-grained classification within a [FydeSourceCategory], mirroring
- * the SDK's `FfiSourceSubCategory`.
+ * A finer-grained classification within one [FydeCategory], mirroring the
+ * SDK's `FfiSubcategory`.
  */
-enum class FydeSourceSubCategory {
-    CIVIL_REGISTRATION,
-    IMMIGRATION,
-    TRANSPORT,
-    FAMILY,
-    TAX,
-    HEALTH,
-    REAL_ESTATE,
-    MOBILE,
+enum class FydeSubcategory {
+    ENERGY,
+    WATER,
     INTERNET,
-    CITIZEN,
-    SPORT,
+    HOME_INSURANCE,
+    HOME_SERVICES,
+    MOBILE,
+    BANKING,
+    SAVINGS,
+    GAMING,
+    INCOME_TAX,
+    TAX_CERTIFICATES,
+    HEALTH_INSURANCE,
+    COMPLEMENTARY_HEALTH,
+    CARE,
+    PAYSLIPS,
+    EMPLOYMENT,
+    HOUSEHOLD_EMPLOYER,
+    BENEFITS,
+    CHILDCARE_SCHOOL,
+    TRAIN,
+    FLIGHT,
+    ROAD,
+    RIDE,
+    TRAVEL,
+    ONLINE,
+    PETS,
+    GROCERIES,
+    FOOD_DELIVERY,
+    MEDIA,
+    CLOUD_SOFTWARE,
 }
 
 /**
@@ -110,8 +122,8 @@ enum class FydePurpose {
  * matches every document.
  */
 data class FydeSearchFilters(
-    val sourceCategories: List<FydeSourceCategory> = emptyList(),
-    val sourceSubCategories: List<FydeSourceSubCategory> = emptyList(),
+    val categories: List<FydeCategory> = emptyList(),
+    val subcategories: List<FydeSubcategory> = emptyList(),
     val purposes: List<FydePurpose> = emptyList(),
     val types: List<FydeDocumentType> = emptyList(),
     val subjects: List<String> = emptyList(),
@@ -130,14 +142,14 @@ data class FydeFacetCount<T>(val value: T, val count: Long)
  * The filter values still worth offering for a search, mirroring the SDK's
  * `FfiSearchFacets`: per field, every value at least one matching document
  * carries, most common first. Each field's values ignore that field's own
- * filter but honor every other one — so picking a source narrows the
- * sub-categories and purposes on offer to that source's, while the other
- * sources compatible with the rest of the search stay available. Computed by
+ * filter but honor every other one — so picking a category narrows the
+ * subcategories and purposes on offer to that category's, while the other
+ * categories compatible with the rest of the search stay available. Computed by
  * `fyde-sdk`, never here.
  */
 data class FydeSearchFacets(
-    val sourceCategories: List<FydeFacetCount<FydeSourceCategory>> = emptyList(),
-    val sourceSubCategories: List<FydeFacetCount<FydeSourceSubCategory>> = emptyList(),
+    val categories: List<FydeFacetCount<FydeCategory>> = emptyList(),
+    val subcategories: List<FydeFacetCount<FydeSubcategory>> = emptyList(),
     val purposes: List<FydeFacetCount<FydePurpose>> = emptyList(),
     val types: List<FydeFacetCount<FydeDocumentType>> = emptyList(),
     val contentTypes: List<FydeFacetCount<String>> = emptyList(),

@@ -26,8 +26,8 @@ import uniffi.fyde_sdk.FfiScriptType
 import uniffi.fyde_sdk.FfiSearchFacets
 import uniffi.fyde_sdk.FfiSearchFilters
 import uniffi.fyde_sdk.FfiSearchOrder
-import uniffi.fyde_sdk.FfiSourceCategory
-import uniffi.fyde_sdk.FfiSourceSubCategory
+import uniffi.fyde_sdk.FfiCategory
+import uniffi.fyde_sdk.FfiSubcategory
 import uniffi.fyde_sdk.FfiStorage
 import uniffi.fyde_sdk.FydeClient
 import uniffi.fyde_sdk.LogListener
@@ -272,40 +272,51 @@ private fun FfiProgressEvent.toFydeScraperProgress(): FydeScraperProgress = when
     is FfiProgressEvent.Update -> FydeScraperProgress.Update(current, total, message)
 }
 
-private fun FfiSourceCategory.toFydeSourceCategory() = when (this) {
-    FfiSourceCategory.BANK -> FydeSourceCategory.BANK
-    FfiSourceCategory.INSURANCE -> FydeSourceCategory.INSURANCE
-    FfiSourceCategory.RETAIL -> FydeSourceCategory.RETAIL
-    FfiSourceCategory.TELECOM -> FydeSourceCategory.TELECOM
-    FfiSourceCategory.ENERGY -> FydeSourceCategory.ENERGY
-    FfiSourceCategory.WATER -> FydeSourceCategory.WATER
-    FfiSourceCategory.HEALTH -> FydeSourceCategory.HEALTH
-    FfiSourceCategory.GOV -> FydeSourceCategory.GOV
-    FfiSourceCategory.ASSOCIATION -> FydeSourceCategory.ASSOCIATION
-    FfiSourceCategory.EDUCATION -> FydeSourceCategory.EDUCATION
-    FfiSourceCategory.EMPLOYER -> FydeSourceCategory.EMPLOYER
-    FfiSourceCategory.TRANSPORT -> FydeSourceCategory.TRANSPORT
-    FfiSourceCategory.GOODS -> FydeSourceCategory.GOODS
-    FfiSourceCategory.ALIMENTATION -> FydeSourceCategory.ALIMENTATION
-    FfiSourceCategory.BUILDING -> FydeSourceCategory.BUILDING
-    FfiSourceCategory.REAL_ESTATE -> FydeSourceCategory.REAL_ESTATE
-    FfiSourceCategory.WEB -> FydeSourceCategory.WEB
-    FfiSourceCategory.INDIVIDUAL -> FydeSourceCategory.INDIVIDUAL
-    FfiSourceCategory.SHOPPING -> FydeSourceCategory.SHOPPING
+private fun FfiCategory.toFydeCategory() = when (this) {
+    FfiCategory.HOUSING -> FydeCategory.HOUSING
+    FfiCategory.TELECOM -> FydeCategory.TELECOM
+    FfiCategory.MONEY -> FydeCategory.MONEY
+    FfiCategory.TAXES -> FydeCategory.TAXES
+    FfiCategory.HEALTH -> FydeCategory.HEALTH
+    FfiCategory.WORK -> FydeCategory.WORK
+    FfiCategory.FAMILY -> FydeCategory.FAMILY
+    FfiCategory.TRANSPORT -> FydeCategory.TRANSPORT
+    FfiCategory.SHOPPING -> FydeCategory.SHOPPING
+    FfiCategory.SUBSCRIPTIONS -> FydeCategory.SUBSCRIPTIONS
+    FfiCategory.DONATIONS -> FydeCategory.DONATIONS
 }
 
-private fun FfiSourceSubCategory.toFydeSourceSubCategory() = when (this) {
-    FfiSourceSubCategory.CIVIL_REGISTRATION -> FydeSourceSubCategory.CIVIL_REGISTRATION
-    FfiSourceSubCategory.IMMIGRATION -> FydeSourceSubCategory.IMMIGRATION
-    FfiSourceSubCategory.TRANSPORT -> FydeSourceSubCategory.TRANSPORT
-    FfiSourceSubCategory.FAMILY -> FydeSourceSubCategory.FAMILY
-    FfiSourceSubCategory.TAX -> FydeSourceSubCategory.TAX
-    FfiSourceSubCategory.HEALTH -> FydeSourceSubCategory.HEALTH
-    FfiSourceSubCategory.REAL_ESTATE -> FydeSourceSubCategory.REAL_ESTATE
-    FfiSourceSubCategory.MOBILE -> FydeSourceSubCategory.MOBILE
-    FfiSourceSubCategory.INTERNET -> FydeSourceSubCategory.INTERNET
-    FfiSourceSubCategory.CITIZEN -> FydeSourceSubCategory.CITIZEN
-    FfiSourceSubCategory.SPORT -> FydeSourceSubCategory.SPORT
+private fun FfiSubcategory.toFydeSubcategory() = when (this) {
+    FfiSubcategory.ENERGY -> FydeSubcategory.ENERGY
+    FfiSubcategory.WATER -> FydeSubcategory.WATER
+    FfiSubcategory.INTERNET -> FydeSubcategory.INTERNET
+    FfiSubcategory.HOME_INSURANCE -> FydeSubcategory.HOME_INSURANCE
+    FfiSubcategory.HOME_SERVICES -> FydeSubcategory.HOME_SERVICES
+    FfiSubcategory.MOBILE -> FydeSubcategory.MOBILE
+    FfiSubcategory.BANKING -> FydeSubcategory.BANKING
+    FfiSubcategory.SAVINGS -> FydeSubcategory.SAVINGS
+    FfiSubcategory.GAMING -> FydeSubcategory.GAMING
+    FfiSubcategory.INCOME_TAX -> FydeSubcategory.INCOME_TAX
+    FfiSubcategory.TAX_CERTIFICATES -> FydeSubcategory.TAX_CERTIFICATES
+    FfiSubcategory.HEALTH_INSURANCE -> FydeSubcategory.HEALTH_INSURANCE
+    FfiSubcategory.COMPLEMENTARY_HEALTH -> FydeSubcategory.COMPLEMENTARY_HEALTH
+    FfiSubcategory.CARE -> FydeSubcategory.CARE
+    FfiSubcategory.PAYSLIPS -> FydeSubcategory.PAYSLIPS
+    FfiSubcategory.EMPLOYMENT -> FydeSubcategory.EMPLOYMENT
+    FfiSubcategory.HOUSEHOLD_EMPLOYER -> FydeSubcategory.HOUSEHOLD_EMPLOYER
+    FfiSubcategory.BENEFITS -> FydeSubcategory.BENEFITS
+    FfiSubcategory.CHILDCARE_SCHOOL -> FydeSubcategory.CHILDCARE_SCHOOL
+    FfiSubcategory.TRAIN -> FydeSubcategory.TRAIN
+    FfiSubcategory.FLIGHT -> FydeSubcategory.FLIGHT
+    FfiSubcategory.ROAD -> FydeSubcategory.ROAD
+    FfiSubcategory.RIDE -> FydeSubcategory.RIDE
+    FfiSubcategory.TRAVEL -> FydeSubcategory.TRAVEL
+    FfiSubcategory.ONLINE -> FydeSubcategory.ONLINE
+    FfiSubcategory.PETS -> FydeSubcategory.PETS
+    FfiSubcategory.GROCERIES -> FydeSubcategory.GROCERIES
+    FfiSubcategory.FOOD_DELIVERY -> FydeSubcategory.FOOD_DELIVERY
+    FfiSubcategory.MEDIA -> FydeSubcategory.MEDIA
+    FfiSubcategory.CLOUD_SOFTWARE -> FydeSubcategory.CLOUD_SOFTWARE
 }
 
 private fun FfiPurpose.toFydePurpose() = when (this) {
@@ -318,40 +329,51 @@ private fun FfiPurpose.toFydePurpose() = when (this) {
     FfiPurpose.EMPLOYMENT -> FydePurpose.EMPLOYMENT
 }
 
-private fun FydeSourceCategory.toFfiSourceCategory() = when (this) {
-    FydeSourceCategory.BANK -> FfiSourceCategory.BANK
-    FydeSourceCategory.INSURANCE -> FfiSourceCategory.INSURANCE
-    FydeSourceCategory.RETAIL -> FfiSourceCategory.RETAIL
-    FydeSourceCategory.TELECOM -> FfiSourceCategory.TELECOM
-    FydeSourceCategory.ENERGY -> FfiSourceCategory.ENERGY
-    FydeSourceCategory.WATER -> FfiSourceCategory.WATER
-    FydeSourceCategory.HEALTH -> FfiSourceCategory.HEALTH
-    FydeSourceCategory.GOV -> FfiSourceCategory.GOV
-    FydeSourceCategory.ASSOCIATION -> FfiSourceCategory.ASSOCIATION
-    FydeSourceCategory.EDUCATION -> FfiSourceCategory.EDUCATION
-    FydeSourceCategory.EMPLOYER -> FfiSourceCategory.EMPLOYER
-    FydeSourceCategory.TRANSPORT -> FfiSourceCategory.TRANSPORT
-    FydeSourceCategory.GOODS -> FfiSourceCategory.GOODS
-    FydeSourceCategory.ALIMENTATION -> FfiSourceCategory.ALIMENTATION
-    FydeSourceCategory.BUILDING -> FfiSourceCategory.BUILDING
-    FydeSourceCategory.REAL_ESTATE -> FfiSourceCategory.REAL_ESTATE
-    FydeSourceCategory.WEB -> FfiSourceCategory.WEB
-    FydeSourceCategory.INDIVIDUAL -> FfiSourceCategory.INDIVIDUAL
-    FydeSourceCategory.SHOPPING -> FfiSourceCategory.SHOPPING
+private fun FydeCategory.toFfiCategory() = when (this) {
+    FydeCategory.HOUSING -> FfiCategory.HOUSING
+    FydeCategory.TELECOM -> FfiCategory.TELECOM
+    FydeCategory.MONEY -> FfiCategory.MONEY
+    FydeCategory.TAXES -> FfiCategory.TAXES
+    FydeCategory.HEALTH -> FfiCategory.HEALTH
+    FydeCategory.WORK -> FfiCategory.WORK
+    FydeCategory.FAMILY -> FfiCategory.FAMILY
+    FydeCategory.TRANSPORT -> FfiCategory.TRANSPORT
+    FydeCategory.SHOPPING -> FfiCategory.SHOPPING
+    FydeCategory.SUBSCRIPTIONS -> FfiCategory.SUBSCRIPTIONS
+    FydeCategory.DONATIONS -> FfiCategory.DONATIONS
 }
 
-private fun FydeSourceSubCategory.toFfiSourceSubCategory() = when (this) {
-    FydeSourceSubCategory.CIVIL_REGISTRATION -> FfiSourceSubCategory.CIVIL_REGISTRATION
-    FydeSourceSubCategory.IMMIGRATION -> FfiSourceSubCategory.IMMIGRATION
-    FydeSourceSubCategory.TRANSPORT -> FfiSourceSubCategory.TRANSPORT
-    FydeSourceSubCategory.FAMILY -> FfiSourceSubCategory.FAMILY
-    FydeSourceSubCategory.TAX -> FfiSourceSubCategory.TAX
-    FydeSourceSubCategory.HEALTH -> FfiSourceSubCategory.HEALTH
-    FydeSourceSubCategory.REAL_ESTATE -> FfiSourceSubCategory.REAL_ESTATE
-    FydeSourceSubCategory.MOBILE -> FfiSourceSubCategory.MOBILE
-    FydeSourceSubCategory.INTERNET -> FfiSourceSubCategory.INTERNET
-    FydeSourceSubCategory.CITIZEN -> FfiSourceSubCategory.CITIZEN
-    FydeSourceSubCategory.SPORT -> FfiSourceSubCategory.SPORT
+private fun FydeSubcategory.toFfiSubcategory() = when (this) {
+    FydeSubcategory.ENERGY -> FfiSubcategory.ENERGY
+    FydeSubcategory.WATER -> FfiSubcategory.WATER
+    FydeSubcategory.INTERNET -> FfiSubcategory.INTERNET
+    FydeSubcategory.HOME_INSURANCE -> FfiSubcategory.HOME_INSURANCE
+    FydeSubcategory.HOME_SERVICES -> FfiSubcategory.HOME_SERVICES
+    FydeSubcategory.MOBILE -> FfiSubcategory.MOBILE
+    FydeSubcategory.BANKING -> FfiSubcategory.BANKING
+    FydeSubcategory.SAVINGS -> FfiSubcategory.SAVINGS
+    FydeSubcategory.GAMING -> FfiSubcategory.GAMING
+    FydeSubcategory.INCOME_TAX -> FfiSubcategory.INCOME_TAX
+    FydeSubcategory.TAX_CERTIFICATES -> FfiSubcategory.TAX_CERTIFICATES
+    FydeSubcategory.HEALTH_INSURANCE -> FfiSubcategory.HEALTH_INSURANCE
+    FydeSubcategory.COMPLEMENTARY_HEALTH -> FfiSubcategory.COMPLEMENTARY_HEALTH
+    FydeSubcategory.CARE -> FfiSubcategory.CARE
+    FydeSubcategory.PAYSLIPS -> FfiSubcategory.PAYSLIPS
+    FydeSubcategory.EMPLOYMENT -> FfiSubcategory.EMPLOYMENT
+    FydeSubcategory.HOUSEHOLD_EMPLOYER -> FfiSubcategory.HOUSEHOLD_EMPLOYER
+    FydeSubcategory.BENEFITS -> FfiSubcategory.BENEFITS
+    FydeSubcategory.CHILDCARE_SCHOOL -> FfiSubcategory.CHILDCARE_SCHOOL
+    FydeSubcategory.TRAIN -> FfiSubcategory.TRAIN
+    FydeSubcategory.FLIGHT -> FfiSubcategory.FLIGHT
+    FydeSubcategory.ROAD -> FfiSubcategory.ROAD
+    FydeSubcategory.RIDE -> FfiSubcategory.RIDE
+    FydeSubcategory.TRAVEL -> FfiSubcategory.TRAVEL
+    FydeSubcategory.ONLINE -> FfiSubcategory.ONLINE
+    FydeSubcategory.PETS -> FfiSubcategory.PETS
+    FydeSubcategory.GROCERIES -> FfiSubcategory.GROCERIES
+    FydeSubcategory.FOOD_DELIVERY -> FfiSubcategory.FOOD_DELIVERY
+    FydeSubcategory.MEDIA -> FfiSubcategory.MEDIA
+    FydeSubcategory.CLOUD_SOFTWARE -> FfiSubcategory.CLOUD_SOFTWARE
 }
 
 private fun FydePurpose.toFfiPurpose() = when (this) {
@@ -409,8 +431,8 @@ private fun FydeDocumentType.toFfiDocumentType() = when (this) {
 }
 
 private fun FydeSearchFilters.toFfiSearchFilters() = FfiSearchFilters(
-    sourceCategories = sourceCategories.map { it.toFfiSourceCategory() },
-    sourceSubCategories = sourceSubCategories.map { it.toFfiSourceSubCategory() },
+    categories = categories.map { it.toFfiCategory() },
+    subcategories = subcategories.map { it.toFfiSubcategory() },
     purposes = purposes.map { it.toFfiPurpose() },
     types = types.map { it.toFfiDocumentType() },
     subjects = subjects,
@@ -420,8 +442,8 @@ private fun FydeSearchFilters.toFfiSearchFilters() = FfiSearchFilters(
 )
 
 private fun FfiSearchFacets.toFydeSearchFacets() = FydeSearchFacets(
-    sourceCategories = sourceCategories.map { FydeFacetCount(it.value.toFydeSourceCategory(), it.count.toLong()) },
-    sourceSubCategories = sourceSubCategories.map { FydeFacetCount(it.value.toFydeSourceSubCategory(), it.count.toLong()) },
+    categories = categories.map { FydeFacetCount(it.value.toFydeCategory(), it.count.toLong()) },
+    subcategories = subcategories.map { FydeFacetCount(it.value.toFydeSubcategory(), it.count.toLong()) },
     purposes = purposes.map { FydeFacetCount(it.value.toFydePurpose(), it.count.toLong()) },
     types = types.map { FydeFacetCount(it.value.toFydeDocumentType(), it.count.toLong()) },
     contentTypes = contentTypes.map { FydeFacetCount(it.value, it.count.toLong()) },
@@ -503,8 +525,8 @@ private fun FfiDocument.toFydeDocument() = FydeDocument(
     createdAt = metadata.createdAt,
     size = metadata.size.toLong(),
     documentType = metadata.type?.toFydeDocumentType(),
-    sourceCategory = metadata.sourceCategory?.toFydeSourceCategory(),
-    sourceSubCategory = metadata.sourceSubCategory?.toFydeSourceSubCategory(),
+    category = metadata.category?.toFydeCategory(),
+    subcategory = metadata.subcategory?.toFydeSubcategory(),
     subjects = metadata.subjects,
     purpose = metadata.purpose?.toFydePurpose(),
     content = content,
@@ -528,8 +550,8 @@ private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
                 createdAt = eventMetadata.createdAt,
                 size = eventMetadata.size.toLong(),
                 documentType = eventMetadata.type?.toFydeDocumentType(),
-                sourceCategory = eventMetadata.sourceCategory?.toFydeSourceCategory(),
-                sourceSubCategory = eventMetadata.sourceSubCategory?.toFydeSourceSubCategory(),
+                category = eventMetadata.category?.toFydeCategory(),
+                subcategory = eventMetadata.subcategory?.toFydeSubcategory(),
                 subjects = eventMetadata.subjects,
                 purpose = eventMetadata.purpose?.toFydePurpose(),
                 content = eventContent,

@@ -43,21 +43,22 @@ data class DocumentSearch(
     val text: String = "",
     val kind: DocumentKind? = null,
     val period: PeriodFilter = PeriodFilter.ANY,
-    val sourceCategory: FydeSourceCategory? = null,
-    val sourceSubCategory: FydeSourceSubCategory? = null,
+    val category: FydeCategory? = null,
+    val subcategory: FydeSubcategory? = null,
     val purpose: FydePurpose? = null,
 ) {
     val filtersActive: Boolean
-        get() = kind != null || period != PeriodFilter.ANY || sourceCategory != null ||
-            sourceSubCategory != null || purpose != null
+        get() = kind != null || period != PeriodFilter.ANY || category != null ||
+            subcategory != null || purpose != null
 
     /**
-     * Picks [category] as the source. Its sub-category is dropped along with
-     * it: sub-categories are offered per source (see [FydeSearchFacets]), so
-     * the old one may not exist under the new source at all.
+     * Picks [category]. Its subcategory is dropped along with it:
+     * subcategories are offered per category (see [FydeSearchFacets]), and
+     * each belongs to exactly one, so the old one can't apply to the new
+     * category.
      */
-    fun withSourceCategory(category: FydeSourceCategory?): DocumentSearch =
-        if (category == sourceCategory) this else copy(sourceCategory = category, sourceSubCategory = null)
+    fun withCategory(category: FydeCategory?): DocumentSearch =
+        if (category == this.category) this else copy(category = category, subcategory = null)
 }
 
 /**
@@ -70,8 +71,8 @@ data class DocumentSearch(
 internal fun DocumentSearch.toSearchFilters(now: Long, contentTypes: List<String> = emptyList()): FydeSearchFilters {
     val (createdFrom, createdUntil) = period.bounds(now)
     return FydeSearchFilters(
-        sourceCategories = listOfNotNull(sourceCategory),
-        sourceSubCategories = listOfNotNull(sourceSubCategory),
+        categories = listOfNotNull(category),
+        subcategories = listOfNotNull(subcategory),
         purposes = listOfNotNull(purpose),
         contentTypes = contentTypes,
         createdFrom = createdFrom,
@@ -92,8 +93,8 @@ internal fun contentTypesOf(kind: DocumentKind, facets: FydeSearchFacets): List<
 data class DocumentFilterOptions(
     val kinds: List<FydeFacetCount<DocumentKind>> = emptyList(),
     val periods: List<PeriodFilter> = listOf(PeriodFilter.ANY),
-    val sourceCategories: List<FydeFacetCount<FydeSourceCategory>> = emptyList(),
-    val sourceSubCategories: List<FydeFacetCount<FydeSourceSubCategory>> = emptyList(),
+    val categories: List<FydeFacetCount<FydeCategory>> = emptyList(),
+    val subcategories: List<FydeFacetCount<FydeSubcategory>> = emptyList(),
     val purposes: List<FydeFacetCount<FydePurpose>> = emptyList(),
 )
 
@@ -115,8 +116,8 @@ internal fun filterOptions(facets: FydeSearchFacets, search: DocumentSearch, now
                     (from == null || latest >= from) && (until == null || earliest <= until)
                 )
         },
-        sourceCategories = facets.sourceCategories.withSelected(search.sourceCategory),
-        sourceSubCategories = facets.sourceSubCategories.withSelected(search.sourceSubCategory),
+        categories = facets.categories.withSelected(search.category),
+        subcategories = facets.subcategories.withSelected(search.subcategory),
         purposes = facets.purposes.withSelected(search.purpose),
     )
 }

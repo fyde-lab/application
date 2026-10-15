@@ -34,15 +34,15 @@ class DocumentSearchTest {
             text = "facture",
             kind = DocumentKind.PDF,
             period = PeriodFilter.LAST_YEAR,
-            sourceCategory = FydeSourceCategory.BANK,
-            sourceSubCategory = FydeSourceSubCategory.TAX,
+            category = FydeCategory.MONEY,
+            subcategory = FydeSubcategory.BANKING,
             purpose = FydePurpose.INVOICE,
         )
 
         assertEquals(
             FydeSearchFilters(
-                sourceCategories = listOf(FydeSourceCategory.BANK),
-                sourceSubCategories = listOf(FydeSourceSubCategory.TAX),
+                categories = listOf(FydeCategory.MONEY),
+                subcategories = listOf(FydeSubcategory.BANKING),
                 purposes = listOf(FydePurpose.INVOICE),
                 contentTypes = listOf("application/pdf"),
                 createdFrom = epochSeconds(CivilDate(2025, 1, 1)),
@@ -102,32 +102,32 @@ class DocumentSearchTest {
     @Test
     fun filterOptionsKeepsThePickedValueEvenWhenTheFacetsNoLongerHaveIt() {
         val facets = FydeSearchFacets(
-            sourceCategories = listOf(FydeFacetCount(FydeSourceCategory.ENERGY, 2)),
+            categories = listOf(FydeFacetCount(FydeCategory.HOUSING, 2)),
             purposes = listOf(FydeFacetCount(FydePurpose.INVOICE, 1)),
         )
-        val search = DocumentSearch(sourceCategory = FydeSourceCategory.BANK, purpose = FydePurpose.INVOICE)
+        val search = DocumentSearch(category = FydeCategory.MONEY, purpose = FydePurpose.INVOICE)
 
         val options = filterOptions(facets, search, now)
 
         assertEquals(
-            listOf(FydeFacetCount(FydeSourceCategory.ENERGY, 2), FydeFacetCount(FydeSourceCategory.BANK, 0)),
-            options.sourceCategories,
+            listOf(FydeFacetCount(FydeCategory.HOUSING, 2), FydeFacetCount(FydeCategory.MONEY, 0)),
+            options.categories,
         )
         assertEquals(listOf(FydeFacetCount(FydePurpose.INVOICE, 1)), options.purposes)
     }
 
     @Test
-    fun withSourceCategoryDropsTheSubCategoryOnlyWhenTheSourceChanges() {
+    fun withCategoryDropsTheSubcategoryOnlyWhenTheCategoryChanges() {
         val search = DocumentSearch(
-            sourceCategory = FydeSourceCategory.GOV,
-            sourceSubCategory = FydeSourceSubCategory.TAX,
+            category = FydeCategory.TAXES,
+            subcategory = FydeSubcategory.INCOME_TAX,
         )
 
-        assertEquals(search, search.withSourceCategory(FydeSourceCategory.GOV))
+        assertEquals(search, search.withCategory(FydeCategory.TAXES))
         assertEquals(
-            DocumentSearch(sourceCategory = FydeSourceCategory.BANK),
-            search.withSourceCategory(FydeSourceCategory.BANK),
+            DocumentSearch(category = FydeCategory.MONEY),
+            search.withCategory(FydeCategory.MONEY),
         )
-        assertEquals(DocumentSearch(), search.withSourceCategory(null))
+        assertEquals(DocumentSearch(), search.withCategory(null))
     }
 }

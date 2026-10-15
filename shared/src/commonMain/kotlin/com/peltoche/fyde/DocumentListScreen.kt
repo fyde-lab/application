@@ -69,8 +69,8 @@ import com.peltoche.fyde.resources.document_detail_document_type
 import com.peltoche.fyde.resources.document_detail_keywords_title
 import com.peltoche.fyde.resources.document_detail_purpose
 import com.peltoche.fyde.resources.document_detail_size
-import com.peltoche.fyde.resources.document_detail_source_category
-import com.peltoche.fyde.resources.document_detail_source_subcategory
+import com.peltoche.fyde.resources.document_detail_category
+import com.peltoche.fyde.resources.document_detail_subcategory
 import com.peltoche.fyde.resources.document_detail_type
 import com.peltoche.fyde.resources.document_detail_value_unset
 import com.peltoche.fyde.resources.document_details_title
@@ -83,8 +83,8 @@ import com.peltoche.fyde.resources.filter_type
 import com.peltoche.fyde.resources.filter_type_all
 import com.peltoche.fyde.resources.filter_purpose
 import com.peltoche.fyde.resources.filter_purpose_all
-import com.peltoche.fyde.resources.filter_source
-import com.peltoche.fyde.resources.filter_source_all
+import com.peltoche.fyde.resources.filter_category
+import com.peltoche.fyde.resources.filter_category_all
 import com.peltoche.fyde.resources.filter_subcategory
 import com.peltoche.fyde.resources.filter_subcategory_all
 import com.peltoche.fyde.resources.no_documents_description
@@ -411,8 +411,8 @@ private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (win
 }
 
 /**
- * A row's supporting line: what the document *is* — its purpose and source
- * ("Invoice · Telecom") — when the SDK's classifier has said, falling back to
+ * A row's supporting line: what the document *is* — its type (or purpose)
+ * and category ("Invoice · Housing") — when the SDK's classifier has said, falling back to
  * its file type and size, then its date either way. Found via review that
  * rows only ever showed type/size/date, while the classification that tells
  * documents apart (the reference layout's tags and issuer) sat unused in the
@@ -422,7 +422,7 @@ private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (win
 private fun rowSummary(document: FydeDocument): String {
     val classification = listOfNotNull(
         document.documentType?.label() ?: document.purpose?.label(),
-        document.sourceCategory?.label(),
+        document.category?.label(),
     )
     val description = classification.ifEmpty { listOf(document.typeCode, localizedSize(document.size)) }
     return (description + localizedDate(document.createdAt)).joinToString(" · ")
@@ -554,7 +554,7 @@ private fun PreviewUnavailable(document: FydeDocument, modifier: Modifier = Modi
 
 /**
  * The document's own known fields (type/size/created, plus the SDK's
- * classifier output — source/purpose), laid out as a dense 2-column
+ * classifier output — category/purpose), laid out as a dense 2-column
  * label/value grid (label above value), matching the reference layout's
  * "Informations extraites" panel. Name is deliberately not repeated here —
  * it's already the pane's header. Subjects are shown separately as tag
@@ -568,8 +568,8 @@ private fun DocumentDetailsSection(document: FydeDocument) {
         stringResource(Res.string.document_detail_size) to localizedSize(document.size),
         stringResource(Res.string.document_detail_created) to localizedDate(document.createdAt),
         stringResource(Res.string.document_detail_document_type) to (document.documentType?.label() ?: unsetValue),
-        stringResource(Res.string.document_detail_source_category) to (document.sourceCategory?.label() ?: unsetValue),
-        stringResource(Res.string.document_detail_source_subcategory) to (document.sourceSubCategory?.label() ?: unsetValue),
+        stringResource(Res.string.document_detail_category) to (document.category?.label() ?: unsetValue),
+        stringResource(Res.string.document_detail_subcategory) to (document.subcategory?.label() ?: unsetValue),
         stringResource(Res.string.document_detail_purpose) to (document.purpose?.label() ?: unsetValue),
     )
     Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
@@ -659,12 +659,12 @@ private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, 
 }
 
 /**
- * The Type, Period, Source, Source subtype and Purpose filters, each a chip
+ * The Type, Period, Category, Subcategory and Purpose filters, each a chip
  * opening its choices. Only choices `fyde-sdk` says still lead to documents
  * are offered (see [DocumentFilterOptions] and [FydeSearchFacets]), each with
- * how many: picking a source narrows the subtypes and purposes on offer to
- * that source's, and a chip with nothing to offer isn't shown at all — so
- * Source subtype only appears once the documents in view have one. Found via
+ * how many: picking a category narrows the subcategories and purposes on
+ * offer to that category's, and a chip with nothing to offer isn't shown at
+ * all — so Subcategory only appears once the documents in view have one. Found via
  * review that Issuer, Amount and "More filters" used to be permanently
  * disabled placeholders; every chip here works.
  */
@@ -696,20 +696,20 @@ private fun FilterChipRow(
             )
         }
         FacetMenuChip(
-            title = stringResource(Res.string.filter_source),
-            allLabel = stringResource(Res.string.filter_source_all),
-            selected = search.sourceCategory,
-            options = options.sourceCategories,
+            title = stringResource(Res.string.filter_category),
+            allLabel = stringResource(Res.string.filter_category_all),
+            selected = search.category,
+            options = options.categories,
             optionLabel = { it.label() },
-            onSelect = { onSearchChange(search.withSourceCategory(it)) },
+            onSelect = { onSearchChange(search.withCategory(it)) },
         )
         FacetMenuChip(
             title = stringResource(Res.string.filter_subcategory),
             allLabel = stringResource(Res.string.filter_subcategory_all),
-            selected = search.sourceSubCategory,
-            options = options.sourceSubCategories,
+            selected = search.subcategory,
+            options = options.subcategories,
             optionLabel = { it.label() },
-            onSelect = { onSearchChange(search.copy(sourceSubCategory = it)) },
+            onSelect = { onSearchChange(search.copy(subcategory = it)) },
         )
         FacetMenuChip(
             title = stringResource(Res.string.filter_purpose),
