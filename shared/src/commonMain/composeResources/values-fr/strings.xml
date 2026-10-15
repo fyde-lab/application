@@ -95,6 +95,7 @@
     <!-- Document detail -->
     <string name="document_details_title">Détails</string>
     <string name="document_detail_type">Type</string>
+    <string name="document_detail_document_type">Type de document</string>
     <string name="document_detail_size">Taille</string>
     <string name="document_detail_created">Créé le</string>
     <string name="document_detail_source_category">Source</string>
@@ -170,6 +171,25 @@
     <string name="source_subcategory_internet">Internet</string>
     <string name="source_subcategory_citizen">Citoyenneté</string>
     <string name="source_subcategory_sport">Sport</string>
+    <string name="document_type_invoice">Facture</string>
+    <string name="document_type_receipt">Reçu</string>
+    <string name="document_type_statement">Relevé</string>
+    <string name="document_type_reimbursement_statement">Relevé de remboursements</string>
+    <string name="document_type_payslip">Bulletin de paie</string>
+    <string name="document_type_contract">Contrat</string>
+    <string name="document_type_insurance_certificate">Attestation d’assurance</string>
+    <string name="document_type_insurance_card">Carte d’assuré</string>
+    <string name="document_type_rights_certificate">Attestation de droits</string>
+    <string name="document_type_proof_of_residence">Justificatif de domicile</string>
+    <string name="document_type_rib">RIB</string>
+    <string name="document_type_tax_notice">Avis d’imposition</string>
+    <string name="document_type_tax_return">Déclaration d’impôts</string>
+    <string name="document_type_tax_certificate">Attestation fiscale</string>
+    <string name="document_type_employment_certificate">Attestation d’emploi</string>
+    <string name="document_type_fee_summary">Récapitulatif de frais</string>
+    <string name="document_type_booking">Réservation</string>
+    <string name="document_type_medical_document">Document médical</string>
+    <string name="document_type_other">Autre</string>
     <string name="purpose_attestation">Attestation</string>
     <string name="purpose_contract">Contrat</string>
     <string name="purpose_invoice">Facture</string>

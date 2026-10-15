@@ -11,6 +11,7 @@ data class FydeDocument(
     val contentType: String,
     val createdAt: Long,
     val size: Long,
+    val documentType: FydeDocumentType?,
     val sourceCategory: FydeSourceCategory?,
     val sourceSubCategory: FydeSourceSubCategory?,
     val subjects: List<String>,
@@ -63,6 +64,33 @@ enum class FydeSourceSubCategory {
 }
 
 /**
+ * What kind of paper a document is (invoice, payslip, tax notice...),
+ * mirroring the SDK's `FfiDocumentType`. `null` on [FydeDocument] means not
+ * yet typed.
+ */
+enum class FydeDocumentType {
+    INVOICE,
+    RECEIPT,
+    STATEMENT,
+    REIMBURSEMENT_STATEMENT,
+    PAYSLIP,
+    CONTRACT,
+    INSURANCE_CERTIFICATE,
+    INSURANCE_CARD,
+    RIGHTS_CERTIFICATE,
+    PROOF_OF_RESIDENCE,
+    RIB,
+    TAX_NOTICE,
+    TAX_RETURN,
+    TAX_CERTIFICATE,
+    EMPLOYMENT_CERTIFICATE,
+    FEE_SUMMARY,
+    BOOKING,
+    MEDICAL_DOCUMENT,
+    OTHER,
+}
+
+/**
  * What a document is for, mirroring the SDK's `FfiPurpose`.
  */
 enum class FydePurpose {
@@ -85,7 +113,7 @@ data class FydeSearchFilters(
     val sourceCategories: List<FydeSourceCategory> = emptyList(),
     val sourceSubCategories: List<FydeSourceSubCategory> = emptyList(),
     val purposes: List<FydePurpose> = emptyList(),
-    val types: List<String> = emptyList(),
+    val types: List<FydeDocumentType> = emptyList(),
     val subjects: List<String> = emptyList(),
     /** Compared exactly against [FydeDocument.contentType]. */
     val contentTypes: List<String> = emptyList(),
@@ -111,7 +139,7 @@ data class FydeSearchFacets(
     val sourceCategories: List<FydeFacetCount<FydeSourceCategory>> = emptyList(),
     val sourceSubCategories: List<FydeFacetCount<FydeSourceSubCategory>> = emptyList(),
     val purposes: List<FydeFacetCount<FydePurpose>> = emptyList(),
-    val types: List<FydeFacetCount<String>> = emptyList(),
+    val types: List<FydeFacetCount<FydeDocumentType>> = emptyList(),
     val contentTypes: List<FydeFacetCount<String>> = emptyList(),
     val subjects: List<FydeFacetCount<String>> = emptyList(),
     /** The oldest matching [FydeDocument.createdAt], ignoring the date filters; `null` when nothing matches. */

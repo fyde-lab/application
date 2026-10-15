@@ -6,6 +6,25 @@ import androidx.compose.ui.graphics.lerp
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.date_format
 import com.peltoche.fyde.resources.decimal_separator
+import com.peltoche.fyde.resources.document_type_invoice
+import com.peltoche.fyde.resources.document_type_receipt
+import com.peltoche.fyde.resources.document_type_statement
+import com.peltoche.fyde.resources.document_type_reimbursement_statement
+import com.peltoche.fyde.resources.document_type_payslip
+import com.peltoche.fyde.resources.document_type_contract
+import com.peltoche.fyde.resources.document_type_insurance_certificate
+import com.peltoche.fyde.resources.document_type_insurance_card
+import com.peltoche.fyde.resources.document_type_rights_certificate
+import com.peltoche.fyde.resources.document_type_proof_of_residence
+import com.peltoche.fyde.resources.document_type_rib
+import com.peltoche.fyde.resources.document_type_tax_notice
+import com.peltoche.fyde.resources.document_type_tax_return
+import com.peltoche.fyde.resources.document_type_tax_certificate
+import com.peltoche.fyde.resources.document_type_employment_certificate
+import com.peltoche.fyde.resources.document_type_fee_summary
+import com.peltoche.fyde.resources.document_type_booking
+import com.peltoche.fyde.resources.document_type_medical_document
+import com.peltoche.fyde.resources.document_type_other
 import com.peltoche.fyde.resources.filter_type_image
 import com.peltoche.fyde.resources.filter_type_other
 import com.peltoche.fyde.resources.filter_type_pdf
@@ -206,6 +225,31 @@ internal fun FydeSourceSubCategory.label(): String = stringResource(
         FydeSourceSubCategory.INTERNET -> Res.string.source_subcategory_internet
         FydeSourceSubCategory.CITIZEN -> Res.string.source_subcategory_citizen
         FydeSourceSubCategory.SPORT -> Res.string.source_subcategory_sport
+    },
+)
+
+@Composable
+internal fun FydeDocumentType.label(): String = stringResource(
+    when (this) {
+        FydeDocumentType.INVOICE -> Res.string.document_type_invoice
+        FydeDocumentType.RECEIPT -> Res.string.document_type_receipt
+        FydeDocumentType.STATEMENT -> Res.string.document_type_statement
+        FydeDocumentType.REIMBURSEMENT_STATEMENT -> Res.string.document_type_reimbursement_statement
+        FydeDocumentType.PAYSLIP -> Res.string.document_type_payslip
+        FydeDocumentType.CONTRACT -> Res.string.document_type_contract
+        FydeDocumentType.INSURANCE_CERTIFICATE -> Res.string.document_type_insurance_certificate
+        FydeDocumentType.INSURANCE_CARD -> Res.string.document_type_insurance_card
+        FydeDocumentType.RIGHTS_CERTIFICATE -> Res.string.document_type_rights_certificate
+        FydeDocumentType.PROOF_OF_RESIDENCE -> Res.string.document_type_proof_of_residence
+        FydeDocumentType.RIB -> Res.string.document_type_rib
+        FydeDocumentType.TAX_NOTICE -> Res.string.document_type_tax_notice
+        FydeDocumentType.TAX_RETURN -> Res.string.document_type_tax_return
+        FydeDocumentType.TAX_CERTIFICATE -> Res.string.document_type_tax_certificate
+        FydeDocumentType.EMPLOYMENT_CERTIFICATE -> Res.string.document_type_employment_certificate
+        FydeDocumentType.FEE_SUMMARY -> Res.string.document_type_fee_summary
+        FydeDocumentType.BOOKING -> Res.string.document_type_booking
+        FydeDocumentType.MEDICAL_DOCUMENT -> Res.string.document_type_medical_document
+        FydeDocumentType.OTHER -> Res.string.document_type_other
     },
 )
 

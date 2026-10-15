@@ -95,6 +95,7 @@
     <!-- Document detail -->
     <string name="document_details_title">Details</string>
     <string name="document_detail_type">Type</string>
+    <string name="document_detail_document_type">Document type</string>
     <string name="document_detail_size">Size</string>
     <string name="document_detail_created">Created</string>
     <string name="document_detail_source_category">Source</string>
@@ -170,6 +171,25 @@
     <string name="source_subcategory_internet">Internet</string>
     <string name="source_subcategory_citizen">Citizenship</string>
     <string name="source_subcategory_sport">Sport</string>
+    <string name="document_type_invoice">Invoice</string>
+    <string name="document_type_receipt">Receipt</string>
+    <string name="document_type_statement">Statement</string>
+    <string name="document_type_reimbursement_statement">Reimbursement statement</string>
+    <string name="document_type_payslip">Payslip</string>
+    <string name="document_type_contract">Contract</string>
+    <string name="document_type_insurance_certificate">Insurance certificate</string>
+    <string name="document_type_insurance_card">Insurance card</string>
+    <string name="document_type_rights_certificate">Rights certificate</string>
+    <string name="document_type_proof_of_residence">Proof of residence</string>
+    <string name="document_type_rib">Bank details</string>
+    <string name="document_type_tax_notice">Tax notice</string>
+    <string name="document_type_tax_return">Tax return</string>
+    <string name="document_type_tax_certificate">Tax certificate</string>
+    <string name="document_type_employment_certificate">Employment certificate</string>
+    <string name="document_type_fee_summary">Fee summary</string>
+    <string name="document_type_booking">Booking</string>
+    <string name="document_type_medical_document">Medical document</string>
+    <string name="document_type_other">Other</string>
     <string name="purpose_attestation">Certificate</string>
     <string name="purpose_contract">Contract</string>
     <string name="purpose_invoice">Invoice</string>

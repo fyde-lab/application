@@ -65,6 +65,7 @@ import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.document_detail_created
+import com.peltoche.fyde.resources.document_detail_document_type
 import com.peltoche.fyde.resources.document_detail_keywords_title
 import com.peltoche.fyde.resources.document_detail_purpose
 import com.peltoche.fyde.resources.document_detail_size
@@ -419,7 +420,10 @@ private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (win
  */
 @Composable
 private fun rowSummary(document: FydeDocument): String {
-    val classification = listOfNotNull(document.purpose?.label(), document.sourceCategory?.label())
+    val classification = listOfNotNull(
+        document.documentType?.label() ?: document.purpose?.label(),
+        document.sourceCategory?.label(),
+    )
     val description = classification.ifEmpty { listOf(document.typeCode, localizedSize(document.size)) }
     return (description + localizedDate(document.createdAt)).joinToString(" · ")
 }
@@ -563,6 +567,7 @@ private fun DocumentDetailsSection(document: FydeDocument) {
         stringResource(Res.string.document_detail_type) to document.typeCode,
         stringResource(Res.string.document_detail_size) to localizedSize(document.size),
         stringResource(Res.string.document_detail_created) to localizedDate(document.createdAt),
+        stringResource(Res.string.document_detail_document_type) to (document.documentType?.label() ?: unsetValue),
         stringResource(Res.string.document_detail_source_category) to (document.sourceCategory?.label() ?: unsetValue),
         stringResource(Res.string.document_detail_source_subcategory) to (document.sourceSubCategory?.label() ?: unsetValue),
         stringResource(Res.string.document_detail_purpose) to (document.purpose?.label() ?: unsetValue),

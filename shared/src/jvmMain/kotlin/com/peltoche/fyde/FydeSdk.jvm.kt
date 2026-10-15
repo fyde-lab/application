@@ -8,6 +8,7 @@ import uniffi.fyde_sdk.DocumentChangeListener
 import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocument
+import uniffi.fyde_sdk.FfiDocumentType
 import uniffi.fyde_sdk.FfiEventType
 import uniffi.fyde_sdk.FfiException
 import uniffi.fyde_sdk.FfiLogLevel
@@ -362,11 +363,55 @@ private fun FydePurpose.toFfiPurpose() = when (this) {
     FydePurpose.EMPLOYMENT -> FfiPurpose.EMPLOYMENT
 }
 
+private fun FfiDocumentType.toFydeDocumentType() = when (this) {
+    FfiDocumentType.INVOICE -> FydeDocumentType.INVOICE
+    FfiDocumentType.RECEIPT -> FydeDocumentType.RECEIPT
+    FfiDocumentType.STATEMENT -> FydeDocumentType.STATEMENT
+    FfiDocumentType.REIMBURSEMENT_STATEMENT -> FydeDocumentType.REIMBURSEMENT_STATEMENT
+    FfiDocumentType.PAYSLIP -> FydeDocumentType.PAYSLIP
+    FfiDocumentType.CONTRACT -> FydeDocumentType.CONTRACT
+    FfiDocumentType.INSURANCE_CERTIFICATE -> FydeDocumentType.INSURANCE_CERTIFICATE
+    FfiDocumentType.INSURANCE_CARD -> FydeDocumentType.INSURANCE_CARD
+    FfiDocumentType.RIGHTS_CERTIFICATE -> FydeDocumentType.RIGHTS_CERTIFICATE
+    FfiDocumentType.PROOF_OF_RESIDENCE -> FydeDocumentType.PROOF_OF_RESIDENCE
+    FfiDocumentType.RIB -> FydeDocumentType.RIB
+    FfiDocumentType.TAX_NOTICE -> FydeDocumentType.TAX_NOTICE
+    FfiDocumentType.TAX_RETURN -> FydeDocumentType.TAX_RETURN
+    FfiDocumentType.TAX_CERTIFICATE -> FydeDocumentType.TAX_CERTIFICATE
+    FfiDocumentType.EMPLOYMENT_CERTIFICATE -> FydeDocumentType.EMPLOYMENT_CERTIFICATE
+    FfiDocumentType.FEE_SUMMARY -> FydeDocumentType.FEE_SUMMARY
+    FfiDocumentType.BOOKING -> FydeDocumentType.BOOKING
+    FfiDocumentType.MEDICAL_DOCUMENT -> FydeDocumentType.MEDICAL_DOCUMENT
+    FfiDocumentType.OTHER -> FydeDocumentType.OTHER
+}
+
+private fun FydeDocumentType.toFfiDocumentType() = when (this) {
+    FydeDocumentType.INVOICE -> FfiDocumentType.INVOICE
+    FydeDocumentType.RECEIPT -> FfiDocumentType.RECEIPT
+    FydeDocumentType.STATEMENT -> FfiDocumentType.STATEMENT
+    FydeDocumentType.REIMBURSEMENT_STATEMENT -> FfiDocumentType.REIMBURSEMENT_STATEMENT
+    FydeDocumentType.PAYSLIP -> FfiDocumentType.PAYSLIP
+    FydeDocumentType.CONTRACT -> FfiDocumentType.CONTRACT
+    FydeDocumentType.INSURANCE_CERTIFICATE -> FfiDocumentType.INSURANCE_CERTIFICATE
+    FydeDocumentType.INSURANCE_CARD -> FfiDocumentType.INSURANCE_CARD
+    FydeDocumentType.RIGHTS_CERTIFICATE -> FfiDocumentType.RIGHTS_CERTIFICATE
+    FydeDocumentType.PROOF_OF_RESIDENCE -> FfiDocumentType.PROOF_OF_RESIDENCE
+    FydeDocumentType.RIB -> FfiDocumentType.RIB
+    FydeDocumentType.TAX_NOTICE -> FfiDocumentType.TAX_NOTICE
+    FydeDocumentType.TAX_RETURN -> FfiDocumentType.TAX_RETURN
+    FydeDocumentType.TAX_CERTIFICATE -> FfiDocumentType.TAX_CERTIFICATE
+    FydeDocumentType.EMPLOYMENT_CERTIFICATE -> FfiDocumentType.EMPLOYMENT_CERTIFICATE
+    FydeDocumentType.FEE_SUMMARY -> FfiDocumentType.FEE_SUMMARY
+    FydeDocumentType.BOOKING -> FfiDocumentType.BOOKING
+    FydeDocumentType.MEDICAL_DOCUMENT -> FfiDocumentType.MEDICAL_DOCUMENT
+    FydeDocumentType.OTHER -> FfiDocumentType.OTHER
+}
+
 private fun FydeSearchFilters.toFfiSearchFilters() = FfiSearchFilters(
     sourceCategories = sourceCategories.map { it.toFfiSourceCategory() },
     sourceSubCategories = sourceSubCategories.map { it.toFfiSourceSubCategory() },
     purposes = purposes.map { it.toFfiPurpose() },
-    types = types,
+    types = types.map { it.toFfiDocumentType() },
     subjects = subjects,
     contentTypes = contentTypes,
     createdFrom = createdFrom,
@@ -377,7 +422,7 @@ private fun FfiSearchFacets.toFydeSearchFacets() = FydeSearchFacets(
     sourceCategories = sourceCategories.map { FydeFacetCount(it.value.toFydeSourceCategory(), it.count.toLong()) },
     sourceSubCategories = sourceSubCategories.map { FydeFacetCount(it.value.toFydeSourceSubCategory(), it.count.toLong()) },
     purposes = purposes.map { FydeFacetCount(it.value.toFydePurpose(), it.count.toLong()) },
-    types = types.map { FydeFacetCount(it.value, it.count.toLong()) },
+    types = types.map { FydeFacetCount(it.value.toFydeDocumentType(), it.count.toLong()) },
     contentTypes = contentTypes.map { FydeFacetCount(it.value, it.count.toLong()) },
     subjects = subjects.map { FydeFacetCount(it.value, it.count.toLong()) },
     earliestCreatedAt = earliestCreatedAt,
@@ -456,6 +501,7 @@ private fun FfiDocument.toFydeDocument() = FydeDocument(
     contentType = metadata.contentType,
     createdAt = metadata.createdAt,
     size = metadata.size.toLong(),
+    documentType = metadata.type?.toFydeDocumentType(),
     sourceCategory = metadata.sourceCategory?.toFydeSourceCategory(),
     sourceSubCategory = metadata.sourceSubCategory?.toFydeSourceSubCategory(),
     subjects = metadata.subjects,
@@ -480,6 +526,7 @@ private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
                 contentType = eventMetadata.contentType,
                 createdAt = eventMetadata.createdAt,
                 size = eventMetadata.size.toLong(),
+                documentType = eventMetadata.type?.toFydeDocumentType(),
                 sourceCategory = eventMetadata.sourceCategory?.toFydeSourceCategory(),
                 sourceSubCategory = eventMetadata.sourceSubCategory?.toFydeSourceSubCategory(),
                 subjects = eventMetadata.subjects,
