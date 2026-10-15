@@ -45,11 +45,10 @@ data class DocumentSearch(
     val period: PeriodFilter = PeriodFilter.ANY,
     val category: FydeCategory? = null,
     val subcategory: FydeSubcategory? = null,
-    val purpose: FydePurpose? = null,
 ) {
     val filtersActive: Boolean
         get() = kind != null || period != PeriodFilter.ANY || category != null ||
-            subcategory != null || purpose != null
+            subcategory != null
 
     /**
      * Picks [category]. Its subcategory is dropped along with it:
@@ -73,7 +72,6 @@ internal fun DocumentSearch.toSearchFilters(now: Long, contentTypes: List<String
     return FydeSearchFilters(
         categories = listOfNotNull(category),
         subcategories = listOfNotNull(subcategory),
-        purposes = listOfNotNull(purpose),
         contentTypes = contentTypes,
         createdFrom = createdFrom,
         createdUntil = createdUntil,
@@ -95,7 +93,6 @@ data class DocumentFilterOptions(
     val periods: List<PeriodFilter> = listOf(PeriodFilter.ANY),
     val categories: List<FydeFacetCount<FydeCategory>> = emptyList(),
     val subcategories: List<FydeFacetCount<FydeSubcategory>> = emptyList(),
-    val purposes: List<FydeFacetCount<FydePurpose>> = emptyList(),
 )
 
 internal fun filterOptions(facets: FydeSearchFacets, search: DocumentSearch, now: Long): DocumentFilterOptions {
@@ -118,7 +115,6 @@ internal fun filterOptions(facets: FydeSearchFacets, search: DocumentSearch, now
         },
         categories = facets.categories.withSelected(search.category),
         subcategories = facets.subcategories.withSelected(search.subcategory),
-        purposes = facets.purposes.withSelected(search.purpose),
     )
 }
 

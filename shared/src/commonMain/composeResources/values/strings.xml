@@ -88,8 +88,6 @@
     <string name="filter_category_all">All categories</string>
     <string name="filter_subcategory">Subcategory</string>
     <string name="filter_subcategory_all">All subcategories</string>
-    <string name="filter_purpose">Purpose</string>
-    <string name="filter_purpose_all">All purposes</string>
     <string name="search_failed">Search failed: %1$s</string>
 
     <!-- Document detail -->
@@ -100,20 +98,11 @@
     <string name="document_detail_created">Created</string>
     <string name="document_detail_category">Category</string>
     <string name="document_detail_subcategory">Subcategory</string>
-    <string name="document_detail_purpose">Purpose</string>
     <string name="document_detail_value_unset">—</string>
     <string name="document_download">Download</string>
     <string name="document_saved">Saved “%1$s”</string>
     <string name="document_save_failed">Couldn’t save “%1$s”</string>
     <string name="document_preview_title">Document preview</string>
-    <string name="subject_kind_person">Person</string>
-    <string name="subject_kind_line">Line</string>
-    <string name="subject_kind_account">Account</string>
-    <string name="subject_kind_contract">Contract</string>
-    <string name="subject_kind_place">Place</string>
-    <string name="subject_kind_vehicle">Vehicle</string>
-    <string name="subject_kind_trip">Trip</string>
-    <string name="document_detail_keywords_title">Keywords</string>
     <string name="preview_unavailable_title">No preview available</string>
     <string name="preview_unavailable_description">%1$s files can’t be previewed here. Download the file to open it.</string>
     <string name="pdf_render_failed_title">Couldn’t display this PDF</string>
@@ -208,13 +197,6 @@
     <string name="document_type_booking">Booking</string>
     <string name="document_type_medical_document">Medical document</string>
     <string name="document_type_other">Other</string>
-    <string name="purpose_attestation">Certificate</string>
-    <string name="purpose_contract">Contract</string>
-    <string name="purpose_invoice">Invoice</string>
-    <string name="purpose_report">Report</string>
-    <string name="purpose_description">Description</string>
-    <string name="purpose_evaluation">Evaluation</string>
-    <string name="purpose_employment">Employment</string>
 
     <!-- Scripts -->
     <string name="cancel">Cancel</string>

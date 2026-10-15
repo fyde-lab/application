@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppIconButton
-import com.peltoche.fyde.components.content.AppBadge
 import com.peltoche.fyde.components.content.AppChip
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppListItem
@@ -66,8 +65,6 @@ import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.document_detail_created
 import com.peltoche.fyde.resources.document_detail_document_type
-import com.peltoche.fyde.resources.document_detail_keywords_title
-import com.peltoche.fyde.resources.document_detail_purpose
 import com.peltoche.fyde.resources.document_detail_size
 import com.peltoche.fyde.resources.document_detail_category
 import com.peltoche.fyde.resources.document_detail_subcategory
@@ -81,8 +78,6 @@ import com.peltoche.fyde.resources.documents_title
 import com.peltoche.fyde.resources.filter_period
 import com.peltoche.fyde.resources.filter_type
 import com.peltoche.fyde.resources.filter_type_all
-import com.peltoche.fyde.resources.filter_purpose
-import com.peltoche.fyde.resources.filter_purpose_all
 import com.peltoche.fyde.resources.filter_category
 import com.peltoche.fyde.resources.filter_category_all
 import com.peltoche.fyde.resources.filter_subcategory
@@ -411,7 +406,7 @@ private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (win
 }
 
 /**
- * A row's supporting line: what the document *is* — its type (or purpose)
+ * A row's supporting line: what the document *is* — its type
  * and category ("Invoice · Housing") — when the SDK's classifier has said, falling back to
  * its file type and size, then its date either way. Found via review that
  * rows only ever showed type/size/date, while the classification that tells
@@ -421,7 +416,7 @@ private fun rowMinHeightFor(windowSizeClass: AppWindowSizeClass): Dp = when (win
 @Composable
 private fun rowSummary(document: FydeDocument): String {
     val classification = listOfNotNull(
-        document.documentType?.label() ?: document.purpose?.label(),
+        document.documentType?.label(),
         document.category?.label(),
     )
     val description = classification.ifEmpty { listOf(document.typeCode, localizedSize(document.size)) }
@@ -502,8 +497,6 @@ private fun DocumentDetailPane(
         AppDivider()
         DocumentDetailsSection(document)
         AppDivider()
-        DocumentKeywordsSection(document)
-        AppDivider()
         Text(
             text = stringResource(Res.string.document_preview_title),
             style = AppTypography.section,
@@ -554,11 +547,10 @@ private fun PreviewUnavailable(document: FydeDocument, modifier: Modifier = Modi
 
 /**
  * The document's own known fields (type/size/created, plus the SDK's
- * classifier output — category/purpose), laid out as a dense 2-column
+ * classifier output — type/category), laid out as a dense 2-column
  * label/value grid (label above value), matching the reference layout's
  * "Informations extraites" panel. Name is deliberately not repeated here —
- * it's already the pane's header. Subjects are shown separately as tag
- * pills (see [DocumentKeywordsSection]).
+ * it's already the pane's header.
  */
 @Composable
 private fun DocumentDetailsSection(document: FydeDocument) {
@@ -570,7 +562,6 @@ private fun DocumentDetailsSection(document: FydeDocument) {
         stringResource(Res.string.document_detail_document_type) to (document.documentType?.label() ?: unsetValue),
         stringResource(Res.string.document_detail_category) to (document.category?.label() ?: unsetValue),
         stringResource(Res.string.document_detail_subcategory) to (document.subcategory?.label() ?: unsetValue),
-        stringResource(Res.string.document_detail_purpose) to (document.purpose?.label() ?: unsetValue),
     )
     Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
         Text(
@@ -608,37 +599,6 @@ internal fun DetailCell(label: String, value: String, modifier: Modifier = Modif
 }
 
 /**
- * The document's subjects, rendered as tag pills under a "Keywords" heading,
- * each led by what it points at (see [subjectLabel]) —
- * the reference layout's "Mots-clés" section.
- */
-@Composable
-private fun DocumentKeywordsSection(document: FydeDocument) {
-    Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5)) {
-        Text(
-            text = stringResource(Res.string.document_detail_keywords_title),
-            style = AppTypography.section,
-            color = AppColors.text,
-        )
-        Spacer(Modifier.height(AppSpacing.space3))
-        if (document.subjects.isEmpty()) {
-            Text(
-                text = stringResource(Res.string.document_detail_value_unset),
-                style = AppTypography.body,
-                color = AppColors.textMuted,
-            )
-        } else {
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2),
-                verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
-            ) {
-                document.subjects.forEach { subject -> AppBadge(text = subjectLabel(subject)) }
-            }
-        }
-    }
-}
-
-/**
  * A folded-corner file icon on a rounded, tinted chip, drawn without an icon
  * pack (see [DocumentGlyph]), tinted per [DocumentKind] (see
  * [DocumentKind.tint] for why never with a semantic-state color). The short
@@ -660,10 +620,10 @@ private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, 
 }
 
 /**
- * The Type, Period, Category, Subcategory and Purpose filters, each a chip
+ * The Type, Period, Category and Subcategory filters, each a chip
  * opening its choices. Only choices `fyde-sdk` says still lead to documents
  * are offered (see [DocumentFilterOptions] and [FydeSearchFacets]), each with
- * how many: picking a category narrows the subcategories and purposes on
+ * how many: picking a category narrows the subcategories on
  * offer to that category's, and a chip with nothing to offer isn't shown at
  * all — so Subcategory only appears once the documents in view have one. Found via
  * review that Issuer, Amount and "More filters" used to be permanently
@@ -711,14 +671,6 @@ private fun FilterChipRow(
             options = options.subcategories,
             optionLabel = { it.label() },
             onSelect = { onSearchChange(search.copy(subcategory = it)) },
-        )
-        FacetMenuChip(
-            title = stringResource(Res.string.filter_purpose),
-            allLabel = stringResource(Res.string.filter_purpose_all),
-            selected = search.purpose,
-            options = options.purposes,
-            optionLabel = { it.label() },
-            onSelect = { onSearchChange(search.copy(purpose = it)) },
         )
     }
 }

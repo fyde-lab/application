@@ -14,7 +14,6 @@ import uniffi.fyde_sdk.FfiLogLevel
 import uniffi.fyde_sdk.FfiLoginOutcome
 import uniffi.fyde_sdk.FfiOpenSession
 import uniffi.fyde_sdk.FfiProgressEvent
-import uniffi.fyde_sdk.FfiPurpose
 import uniffi.fyde_sdk.FfiScript
 import uniffi.fyde_sdk.FfiScriptParameter
 import uniffi.fyde_sdk.FfiScriptParameterType
@@ -311,16 +310,6 @@ private fun FfiSubcategory.toFydeSubcategory() = when (this) {
     FfiSubcategory.CLOUD_SOFTWARE -> FydeSubcategory.CLOUD_SOFTWARE
 }
 
-private fun FfiPurpose.toFydePurpose() = when (this) {
-    FfiPurpose.ATTESTATION -> FydePurpose.ATTESTATION
-    FfiPurpose.CONTRACT -> FydePurpose.CONTRACT
-    FfiPurpose.INVOICE -> FydePurpose.INVOICE
-    FfiPurpose.REPORT -> FydePurpose.REPORT
-    FfiPurpose.DESCRIPTION -> FydePurpose.DESCRIPTION
-    FfiPurpose.EVALUATION -> FydePurpose.EVALUATION
-    FfiPurpose.EMPLOYMENT -> FydePurpose.EMPLOYMENT
-}
-
 private fun FydeCategory.toFfiCategory() = when (this) {
     FydeCategory.HOUSING -> FfiCategory.HOUSING
     FydeCategory.TELECOM -> FfiCategory.TELECOM
@@ -366,16 +355,6 @@ private fun FydeSubcategory.toFfiSubcategory() = when (this) {
     FydeSubcategory.FOOD_DELIVERY -> FfiSubcategory.FOOD_DELIVERY
     FydeSubcategory.MEDIA -> FfiSubcategory.MEDIA
     FydeSubcategory.CLOUD_SOFTWARE -> FfiSubcategory.CLOUD_SOFTWARE
-}
-
-private fun FydePurpose.toFfiPurpose() = when (this) {
-    FydePurpose.ATTESTATION -> FfiPurpose.ATTESTATION
-    FydePurpose.CONTRACT -> FfiPurpose.CONTRACT
-    FydePurpose.INVOICE -> FfiPurpose.INVOICE
-    FydePurpose.REPORT -> FfiPurpose.REPORT
-    FydePurpose.DESCRIPTION -> FfiPurpose.DESCRIPTION
-    FydePurpose.EVALUATION -> FfiPurpose.EVALUATION
-    FydePurpose.EMPLOYMENT -> FfiPurpose.EMPLOYMENT
 }
 
 private fun FfiDocumentType.toFydeDocumentType() = when (this) {
@@ -425,9 +404,7 @@ private fun FydeDocumentType.toFfiDocumentType() = when (this) {
 private fun FydeSearchFilters.toFfiSearchFilters() = FfiSearchFilters(
     categories = categories.map { it.toFfiCategory() },
     subcategories = subcategories.map { it.toFfiSubcategory() },
-    purposes = purposes.map { it.toFfiPurpose() },
     types = types.map { it.toFfiDocumentType() },
-    subjects = subjects,
     contentTypes = contentTypes,
     createdFrom = createdFrom,
     createdUntil = createdUntil,
@@ -436,10 +413,8 @@ private fun FydeSearchFilters.toFfiSearchFilters() = FfiSearchFilters(
 private fun FfiSearchFacets.toFydeSearchFacets() = FydeSearchFacets(
     categories = categories.map { FydeFacetCount(it.value.toFydeCategory(), it.count.toLong()) },
     subcategories = subcategories.map { FydeFacetCount(it.value.toFydeSubcategory(), it.count.toLong()) },
-    purposes = purposes.map { FydeFacetCount(it.value.toFydePurpose(), it.count.toLong()) },
     types = types.map { FydeFacetCount(it.value.toFydeDocumentType(), it.count.toLong()) },
     contentTypes = contentTypes.map { FydeFacetCount(it.value, it.count.toLong()) },
-    subjects = subjects.map { FydeFacetCount(it.value, it.count.toLong()) },
     earliestCreatedAt = earliestCreatedAt,
     latestCreatedAt = latestCreatedAt,
 )
@@ -519,8 +494,6 @@ private fun FfiDocument.toFydeDocument() = FydeDocument(
     documentType = metadata.type?.toFydeDocumentType(),
     category = metadata.category?.toFydeCategory(),
     subcategory = metadata.subcategory?.toFydeSubcategory(),
-    subjects = metadata.subjects,
-    purpose = metadata.purpose?.toFydePurpose(),
     content = content,
 )
 
@@ -544,8 +517,6 @@ private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
                 documentType = eventMetadata.type?.toFydeDocumentType(),
                 category = eventMetadata.category?.toFydeCategory(),
                 subcategory = eventMetadata.subcategory?.toFydeSubcategory(),
-                subjects = eventMetadata.subjects,
-                purpose = eventMetadata.purpose?.toFydePurpose(),
                 content = eventContent,
             )
         }

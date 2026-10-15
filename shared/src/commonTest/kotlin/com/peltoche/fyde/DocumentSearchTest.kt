@@ -36,14 +36,12 @@ class DocumentSearchTest {
             period = PeriodFilter.LAST_YEAR,
             category = FydeCategory.MONEY,
             subcategory = FydeSubcategory.BANKING,
-            purpose = FydePurpose.INVOICE,
         )
 
         assertEquals(
             FydeSearchFilters(
                 categories = listOf(FydeCategory.MONEY),
                 subcategories = listOf(FydeSubcategory.BANKING),
-                purposes = listOf(FydePurpose.INVOICE),
                 contentTypes = listOf("application/pdf"),
                 createdFrom = epochSeconds(CivilDate(2025, 1, 1)),
                 createdUntil = epochSeconds(CivilDate(2026, 1, 1)) - 1,
@@ -103,9 +101,9 @@ class DocumentSearchTest {
     fun filterOptionsKeepsThePickedValueEvenWhenTheFacetsNoLongerHaveIt() {
         val facets = FydeSearchFacets(
             categories = listOf(FydeFacetCount(FydeCategory.HOUSING, 2)),
-            purposes = listOf(FydeFacetCount(FydePurpose.INVOICE, 1)),
+            subcategories = listOf(FydeFacetCount(FydeSubcategory.BANKING, 1)),
         )
-        val search = DocumentSearch(category = FydeCategory.MONEY, purpose = FydePurpose.INVOICE)
+        val search = DocumentSearch(category = FydeCategory.MONEY, subcategory = FydeSubcategory.BANKING)
 
         val options = filterOptions(facets, search, now)
 
@@ -113,7 +111,7 @@ class DocumentSearchTest {
             listOf(FydeFacetCount(FydeCategory.HOUSING, 2), FydeFacetCount(FydeCategory.MONEY, 0)),
             options.categories,
         )
-        assertEquals(listOf(FydeFacetCount(FydePurpose.INVOICE, 1)), options.purposes)
+        assertEquals(listOf(FydeFacetCount(FydeSubcategory.BANKING, 1)), options.subcategories)
     }
 
     @Test

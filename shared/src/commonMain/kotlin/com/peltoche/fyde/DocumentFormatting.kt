@@ -83,24 +83,10 @@ import com.peltoche.fyde.resources.month_6
 import com.peltoche.fyde.resources.month_7
 import com.peltoche.fyde.resources.month_8
 import com.peltoche.fyde.resources.month_9
-import com.peltoche.fyde.resources.purpose_attestation
-import com.peltoche.fyde.resources.purpose_contract
-import com.peltoche.fyde.resources.purpose_description
-import com.peltoche.fyde.resources.purpose_employment
-import com.peltoche.fyde.resources.purpose_evaluation
-import com.peltoche.fyde.resources.purpose_invoice
-import com.peltoche.fyde.resources.purpose_report
 import com.peltoche.fyde.resources.size_bytes
 import com.peltoche.fyde.resources.size_gigabytes
 import com.peltoche.fyde.resources.size_kilobytes
 import com.peltoche.fyde.resources.size_megabytes
-import com.peltoche.fyde.resources.subject_kind_person
-import com.peltoche.fyde.resources.subject_kind_line
-import com.peltoche.fyde.resources.subject_kind_account
-import com.peltoche.fyde.resources.subject_kind_contract
-import com.peltoche.fyde.resources.subject_kind_place
-import com.peltoche.fyde.resources.subject_kind_vehicle
-import com.peltoche.fyde.resources.subject_kind_trip
 import com.peltoche.fyde.theme.AppColors
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -281,51 +267,6 @@ internal fun FydeDocumentType.label(): String = stringResource(
         FydeDocumentType.OTHER -> Res.string.document_type_other
     },
 )
-
-@Composable
-internal fun FydePurpose.label(): String = stringResource(
-    when (this) {
-        FydePurpose.ATTESTATION -> Res.string.purpose_attestation
-        FydePurpose.CONTRACT -> Res.string.purpose_contract
-        FydePurpose.INVOICE -> Res.string.purpose_invoice
-        FydePurpose.REPORT -> Res.string.purpose_report
-        FydePurpose.DESCRIPTION -> Res.string.purpose_description
-        FydePurpose.EVALUATION -> Res.string.purpose_evaluation
-        FydePurpose.EMPLOYMENT -> Res.string.purpose_employment
-    },
-)
-
-/**
- * What a document's subject points at: its `kind:` prefix, mirroring
- * `fyde-sdk`'s `SubjectKind` (each beneficiary of a health insurance, each
- * phone line of a telecom account...).
- */
-internal enum class SubjectKind(val label: StringResource) {
-    PERSON(Res.string.subject_kind_person),
-    LINE(Res.string.subject_kind_line),
-    ACCOUNT(Res.string.subject_kind_account),
-    CONTRACT(Res.string.subject_kind_contract),
-    PLACE(Res.string.subject_kind_place),
-    VEHICLE(Res.string.subject_kind_vehicle),
-    TRIP(Res.string.subject_kind_trip),
-}
-
-/**
- * Splits a `kind:value` subject into its [SubjectKind] and value, or a `null`
- * kind and the subject untouched for one stored before subjects had kinds.
- */
-internal fun subjectParts(subject: String): Pair<SubjectKind?, String> {
-    val kind = SubjectKind.entries.firstOrNull { subject.startsWith(it.name.lowercase() + ":") }
-        ?: return null to subject
-    return kind to subject.substringAfter(':')
-}
-
-/** A subject as shown on its pill: "Person · lea-dupont", or the raw subject when it has no kind. */
-@Composable
-internal fun subjectLabel(subject: String): String {
-    val (kind, value) = subjectParts(subject)
-    return if (kind == null) value else "${stringResource(kind.label)} · $value"
-}
 
 /**
  * What kind of file a document is, derived from its content type: what the
