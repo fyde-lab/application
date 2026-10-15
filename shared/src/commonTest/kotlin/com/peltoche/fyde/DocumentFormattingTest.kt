@@ -26,4 +26,12 @@ class DocumentFormattingTest {
         assertEquals("1,0", formatOneDecimalBelowTen(1.0, ","))
         assertEquals("12", formatOneDecimalBelowTen(12.7, "."))
     }
+
+    @Test
+    fun subjectPartsSplitsAKnownKindFromItsValue() {
+        assertEquals(SubjectKind.PERSON to "lea-dupont", subjectParts("person:lea-dupont"))
+        assertEquals(SubjectKind.TRIP to "paris:lyon", subjectParts("trip:paris:lyon"))
+        assertEquals(null to "Loyer Paris", subjectParts("Loyer Paris"))
+        assertEquals(null to "pet:rex", subjectParts("pet:rex"))
+    }
 }

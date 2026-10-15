@@ -106,6 +106,13 @@
     <string name="document_saved">Saved “%1$s”</string>
     <string name="document_save_failed">Couldn’t save “%1$s”</string>
     <string name="document_preview_title">Document preview</string>
+    <string name="subject_kind_person">Person</string>
+    <string name="subject_kind_line">Line</string>
+    <string name="subject_kind_account">Account</string>
+    <string name="subject_kind_contract">Contract</string>
+    <string name="subject_kind_place">Place</string>
+    <string name="subject_kind_vehicle">Vehicle</string>
+    <string name="subject_kind_trip">Trip</string>
     <string name="document_detail_keywords_title">Keywords</string>
     <string name="preview_unavailable_title">No preview available</string>
     <string name="preview_unavailable_description">%1$s files can’t be previewed here. Download the file to open it.</string>

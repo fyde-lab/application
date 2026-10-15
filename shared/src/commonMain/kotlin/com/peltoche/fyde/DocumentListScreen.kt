@@ -608,7 +608,8 @@ internal fun DetailCell(label: String, value: String, modifier: Modifier = Modif
 }
 
 /**
- * The document's subjects, rendered as tag pills under a "Keywords" heading —
+ * The document's subjects, rendered as tag pills under a "Keywords" heading,
+ * each led by what it points at (see [subjectLabel]) —
  * the reference layout's "Mots-clés" section.
  */
 @Composable
@@ -631,7 +632,7 @@ private fun DocumentKeywordsSection(document: FydeDocument) {
                 horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2),
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
             ) {
-                document.subjects.forEach { subject -> AppBadge(text = subject) }
+                document.subjects.forEach { subject -> AppBadge(text = subjectLabel(subject)) }
             }
         }
     }

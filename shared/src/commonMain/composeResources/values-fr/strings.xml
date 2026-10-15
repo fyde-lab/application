@@ -106,6 +106,13 @@
     <string name="document_saved">« %1$s » enregistré</string>
     <string name="document_save_failed">Impossible d’enregistrer « %1$s »</string>
     <string name="document_preview_title">Aperçu du document</string>
+    <string name="subject_kind_person">Personne</string>
+    <string name="subject_kind_line">Ligne</string>
+    <string name="subject_kind_account">Compte</string>
+    <string name="subject_kind_contract">Contrat</string>
+    <string name="subject_kind_place">Lieu</string>
+    <string name="subject_kind_vehicle">Véhicule</string>
+    <string name="subject_kind_trip">Trajet</string>
     <string name="document_detail_keywords_title">Mots-clés</string>
     <string name="preview_unavailable_title">Aucun aperçu disponible</string>
     <string name="preview_unavailable_description">Les fichiers %1$s ne peuvent pas être prévisualisés ici. Téléchargez le fichier pour l’ouvrir.</string>
