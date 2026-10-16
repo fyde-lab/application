@@ -262,6 +262,14 @@
     <string name="usage_at_limit">Limit reached</string>
     <string name="usage_over_limit">Over your plan’s limit</string>
     <string name="usage_load_failed">Couldn’t load your plan: %1$s</string>
+    <string name="sessions_section_title">Devices</string>
+    <string name="sessions_current_device">This device</string>
+    <string name="sessions_disconnect">Disconnect</string>
+    <string name="sessions_disconnect_confirm_title">Disconnect “%1$s”?</string>
+    <string name="sessions_disconnect_confirm_text">That device is signed out right away and needs your password to connect again. Your documents stay safe in your account.</string>
+    <string name="sessions_disconnected">Disconnected “%1$s”</string>
+    <string name="sessions_disconnect_failed">Couldn’t disconnect the device: %1$s</string>
+    <string name="sessions_load_failed">Couldn’t load your devices: %1$s</string>
     <string name="account_section_title">Account</string>
     <string name="log_out_confirm_title">Log out?</string>
     <string name="log_out_confirm_text">This removes your documents and keys from this device. They stay safe in your account: log in again to get them back.</string>

@@ -175,6 +175,14 @@ actual object FydeSdk {
         client.getUsage().toFydePlanUsage()
     }
 
+    actual suspend fun listSessions(): Result<List<FydeOpenSession>> = withClient("listSessions") { client ->
+        client.listSessions().map(FfiOpenSession::toFydeOpenSession)
+    }
+
+    actual suspend fun revokeSession(sessionId: String): Result<Unit> = withClient("revokeSession") { client ->
+        client.revokeSession(sessionId)
+    }
+
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> =
         withClient("listDocuments") { client ->
             client.listDocuments(offset, limit).map(FfiDocument::toFydeDocument)
@@ -488,6 +496,7 @@ private fun FfiOpenSession.toFydeOpenSession() = FydeOpenSession(
     id = id,
     deviceName = deviceName,
     createdAt = createdAt,
+    isCurrent = isCurrent,
 )
 
 private fun FfiScript.toFydeScript() = FydeScript(

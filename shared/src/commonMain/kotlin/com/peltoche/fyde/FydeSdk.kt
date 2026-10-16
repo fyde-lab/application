@@ -424,11 +424,15 @@ interface FydeScraperHandler {
 /**
  * One of an account's open sessions (a device logged into it), mirroring
  * `fyde-sdk`'s `FfiOpenSession`. [createdAt] is in Unix seconds.
+ * [isCurrent] flags the session this device is signed in with, in
+ * [FydeSdk.listSessions]; it's always `false` in
+ * [FydeLoginOutcome.SessionLimitReached], when no session is open here yet.
  */
 data class FydeOpenSession(
     val id: String,
     val deviceName: String,
     val createdAt: Long,
+    val isCurrent: Boolean = false,
 )
 
 /**
@@ -570,6 +574,22 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun getUsage(): Result<FydePlanUsage>
+
+    /**
+     * Lists every session open on the signed-in account, across all of its
+     * users, oldest first, with this device's flagged
+     * [FydeOpenSession.isCurrent]. Always asks the server: the account's
+     * other devices open and close sessions too. Mirrors
+     * [`crate::UsersService::list_sessions`].
+     */
+    suspend fun listSessions(): Result<List<FydeOpenSession>>
+
+    /**
+     * Closes [sessionId], one of [listSessions]' sessions, logging its device
+     * out on its next call. Use [logout] for this device's own session, which
+     * also clears local state. Mirrors [`crate::UsersService::revoke_session`].
+     */
+    suspend fun revokeSession(sessionId: String): Result<Unit>
 
     /**
      * Lists documents previously cached locally, oldest first, one page at a

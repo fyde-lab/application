@@ -70,7 +70,9 @@ private enum class AppLanguage(val code: String, val displayName: String) {
  * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
  * where that call and [languageError] actually live), and [onLogout], which
  * ends the session. [planUsage] shows the account's plan and how much of
- * each of its limits it uses (see [PlanUsageSection]).
+ * each of its limits it uses (see [PlanUsageSection]), and [sessions] the
+ * devices connected to it, any other than this one disconnectable through
+ * [onDisconnectSession] (see [SessionsSection]).
  *
  * Logging out wipes this device's copy of the account (see
  * [FydeSdk.logout]), so it asks first; [isLoggingOut] keeps the action
@@ -97,6 +99,11 @@ fun SettingsScreen(
     languageError: String? = null,
     onDismissLanguageError: () -> Unit = {},
     planUsage: PlanUsageUiState = PlanUsageUiState.Loading,
+    sessions: SessionsUiState = SessionsUiState.Loading,
+    onDisconnectSession: (FydeOpenSession) -> Unit = {},
+    disconnectingSessionId: String? = null,
+    disconnectSessionError: String? = null,
+    onDismissDisconnectSessionError: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
@@ -153,6 +160,13 @@ fun SettingsScreen(
                         .padding(vertical = AppSpacing.space3),
                 )
                 PlanUsageSection(planUsage)
+                SessionsSection(
+                    state = sessions,
+                    onDisconnect = onDisconnectSession,
+                    disconnectingId = disconnectingSessionId,
+                    disconnectError = disconnectSessionError,
+                    onDismissDisconnectError = onDismissDisconnectSessionError,
+                )
                 SectionTitle(stringResource(Res.string.account_section_title))
                 EncryptionBadge()
                 Spacer(Modifier.height(AppSpacing.space3))

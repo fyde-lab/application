@@ -40,6 +40,10 @@ actual object FydeSdk {
 
     actual suspend fun getUsage(): Result<FydePlanUsage> = unsupported()
 
+    actual suspend fun listSessions(): Result<List<FydeOpenSession>> = unsupported()
+
+    actual suspend fun revokeSession(sessionId: String): Result<Unit> = unsupported()
+
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> = unsupported()
 
     actual suspend fun searchDocuments(

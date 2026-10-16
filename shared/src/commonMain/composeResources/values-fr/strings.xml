@@ -262,6 +262,14 @@
     <string name="usage_at_limit">Limite atteinte</string>
     <string name="usage_over_limit">Au-delà de la limite de votre forfait</string>
     <string name="usage_load_failed">Impossible de charger votre forfait : %1$s</string>
+    <string name="sessions_section_title">Appareils</string>
+    <string name="sessions_current_device">Cet appareil</string>
+    <string name="sessions_disconnect">Déconnecter</string>
+    <string name="sessions_disconnect_confirm_title">Déconnecter « %1$s » ?</string>
+    <string name="sessions_disconnect_confirm_text">Cet appareil est déconnecté immédiatement et aura besoin de votre mot de passe pour se reconnecter. Vos documents restent en sécurité dans votre compte.</string>
+    <string name="sessions_disconnected">« %1$s » déconnecté</string>
+    <string name="sessions_disconnect_failed">Impossible de déconnecter l’appareil : %1$s</string>
+    <string name="sessions_load_failed">Impossible de charger vos appareils : %1$s</string>
     <string name="account_section_title">Compte</string>
     <string name="log_out_confirm_title">Se déconnecter ?</string>
     <string name="log_out_confirm_text">Vos documents et vos clés seront supprimés de cet appareil. Ils restent en sécurité dans votre compte : reconnectez-vous pour les retrouver.</string>

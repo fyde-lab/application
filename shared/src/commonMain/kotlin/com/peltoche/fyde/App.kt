@@ -18,6 +18,9 @@ import com.peltoche.fyde.resources.language_save_failed
 import com.peltoche.fyde.resources.log_out_failed
 import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.session_expired
+import com.peltoche.fyde.resources.sessions_disconnect_failed
+import com.peltoche.fyde.resources.sessions_disconnected
+import com.peltoche.fyde.resources.sessions_load_failed
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.resources.uploads_succeeded
@@ -135,6 +138,10 @@ private fun AppContent() {
     var logoutError by remember { mutableStateOf<String?>(null) }
     var planUsage by remember { mutableStateOf<PlanUsageUiState>(PlanUsageUiState.Loading) }
     var planUsageAttempt by remember { mutableStateOf(0) }
+    var sessions by remember { mutableStateOf<SessionsUiState>(SessionsUiState.Loading) }
+    var sessionsAttempt by remember { mutableStateOf(0) }
+    var disconnectingSessionId by remember { mutableStateOf<String?>(null) }
+    var disconnectSessionError by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
     // App-lifetime, so a scraper run outlives the screen that started it.
@@ -248,20 +255,41 @@ private fun AppContent() {
         }
     }
 
+    suspend fun fetchPlanUsage(): PlanUsageUiState = FydeSdk.getUsage().fold(
+        onSuccess = { PlanUsageUiState.Loaded(it) },
+        onFailure = {
+            PlanUsageUiState.Failed(
+                message = getString(Res.string.usage_load_failed, it.userMessage()),
+                onRetry = { planUsageAttempt++ },
+            )
+        },
+    )
+
+    suspend fun fetchSessions(): SessionsUiState = FydeSdk.listSessions().fold(
+        onSuccess = { SessionsUiState.Loaded(it) },
+        onFailure = {
+            SessionsUiState.Failed(
+                message = getString(Res.string.sessions_load_failed, it.userMessage()),
+                onRetry = { sessionsAttempt++ },
+            )
+        },
+    )
+
     // Re-fetched every time Settings opens (and on retry): the account's
     // other devices change these figures, so a cached copy would go stale.
     LaunchedEffect(screen, planUsageAttempt) {
         if (screen != Screen.Settings) return@LaunchedEffect
         planUsage = PlanUsageUiState.Loading
-        planUsage = FydeSdk.getUsage().fold(
-            onSuccess = { PlanUsageUiState.Loaded(it) },
-            onFailure = {
-                PlanUsageUiState.Failed(
-                    message = getString(Res.string.usage_load_failed, it.userMessage()),
-                    onRetry = { planUsageAttempt++ },
-                )
-            },
-        )
+        planUsage = fetchPlanUsage()
+    }
+
+    // Same for the devices list, which other devices change by connecting or
+    // disconnecting.
+    LaunchedEffect(screen, sessionsAttempt) {
+        if (screen != Screen.Settings) return@LaunchedEffect
+        disconnectSessionError = null
+        sessions = SessionsUiState.Loading
+        sessions = fetchSessions()
     }
 
     key(language) {
@@ -350,6 +378,29 @@ private fun AppContent() {
                 languageError = languageError,
                 onDismissLanguageError = { languageError = null },
                 planUsage = planUsage,
+                sessions = sessions,
+                // Refreshes the list and the plan's device count in place,
+                // without going back through their loading skeletons.
+                onDisconnectSession = { session ->
+                    disconnectSessionError = null
+                    disconnectingSessionId = session.id
+                    scope.launch {
+                        val revoked = FydeSdk.revokeSession(session.id)
+                            .onFailure {
+                                disconnectSessionError = getString(Res.string.sessions_disconnect_failed, it.userMessage())
+                            }
+                        sessions = fetchSessions()
+                        planUsage = fetchPlanUsage()
+                        disconnectingSessionId = null
+                        // Last: showSnackbar suspends until the message is gone.
+                        if (revoked.isSuccess) {
+                            snackbarHostState.showSnackbar(getString(Res.string.sessions_disconnected, session.deviceName))
+                        }
+                    }
+                },
+                disconnectingSessionId = disconnectingSessionId,
+                disconnectSessionError = disconnectSessionError,
+                onDismissDisconnectSessionError = { disconnectSessionError = null },
             )
             Screen.Scripts -> ScriptsScreenContainer(
                 scraperRuns = scraperRuns,
