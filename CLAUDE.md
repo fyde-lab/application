@@ -1,49 +1,69 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+`fyde-application` is the Kotlin Multiplatform + Compose Multiplatform client (Android, iOS,
+Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through UniFFI bindings (`sdkBridge`).
 
-## What this is
+## Rules
 
-`fyde-application` is a Kotlin Multiplatform + Compose Multiplatform client targeting Android, iOS, Desktop (JVM), and Web (JS + Wasm). It is one of several sibling repos under `fyde/` — see the top-level `../CLAUDE.md` for how it relates to `server`, `sdk`, `cli`, and `api-protos`.
-
-**Current state:** a working client on `../sdk` (via the `sdkBridge` UniFFI bindings, wrapped by `shared/.../FydeSdk.kt`'s `expect object` and its per-platform `actual`s; Web is stubbed, since `fyde-sdk` can't compile to wasm). Three top-level destinations share one navigation shell (`AppSidebar.kt`'s `TopLevelScaffold`): Documents (`DocumentListScreen.kt` — list + detail, typed preview, download; search and filters run in `fyde-sdk` via `FydeSdk.searchDocuments`/`searchDocumentFacets`, hoisted as a `DocumentSearch` into `App.kt`'s `DocumentsScreen` — the Type/Period/Category/Subcategory chips only offer the choices the SDK's facets say still lead to documents, so never filter or compute filter choices in the app; see `DocumentSearch.kt`), Scripts (`ScriptsScreen.kt`/`ScriptDetailScreen.kt` — public scripts plus the user's own, install/edit/uninstall), and Settings (language, plan usage, connected devices, logout — the devices section, `SessionsSection.kt`, lists `FydeSdk.listSessions`, badges this device's own and lets any other be disconnected via `FydeSdk.revokeSession` after a confirmation dialog, then re-fetches it and the plan usage in place; this device's own session is ended only by logout, which also clears local state. The plan section, `PlanUsageSection.kt`, shows `FydeSdk.getUsage`'s plan name and a meter per limit: storage, connected devices, active scripts; re-fetched each time Settings opens, since the account's other devices move those figures); plus `LoginScreen`/`RegisterScreen`, and `SessionLimitScreen`: when `FydeSdk.login` answers `FydeLoginOutcome.SessionLimitReached` (the account's plan allows no more open sessions), `App.kt` shows the listed sessions there instead of signing in, keeping the typed credentials in `Screen.SessionLimit` only while that screen is open, and reruns the login with the picked session as `replaceSessionId` — the server's login exchange is single-use, so the password is needed again. `App.kt` owns every `FydeSdk` call and maps results into each screen's `*UiState`; screens stay presentation-only. When the server rejects the session token, `fyde-sdk` logs out locally by itself and fails the call with `FfiException.SessionExpired`: each platform's `sdkCall` reports that to `SessionExpiry` (`FydeSdkException.kt`), whose events `App.kt` collects to go back to `LoginScreen` with the reason shown; `App.kt` also polls `FydeSdk.isConnected` while a signed-in screen is open, since the SDK's background sync can end the session without any app call failing. Don't handle `SessionExpired` per screen. Visual rules live in `design/design-system.md` (source of truth, tokens under `shared/.../theme/`, components under `shared/.../components/`).
+- **`App.kt` owns every `FydeSdk` call** and maps results into each screen's `*UiState`;
+  screens stay presentation-only.
+- **Never filter documents or compute filter choices in the app.** Search and filter chips go
+  through `FydeSdk.searchDocuments`/`searchDocumentFacets` (see `DocumentSearch.kt`); the chips
+  only offer what the SDK's facets return.
+- **Don't handle `SessionExpired` per screen.** Each platform's `sdkCall` reports
+  `FfiException.SessionExpired` to `SessionExpiry` (`FydeSdkException.kt`); `App.kt` collects
+  it and returns to `LoginScreen`. `App.kt` also polls `FydeSdk.isConnected` while signed in,
+  since background sync can end the session without a failing call.
+- **Visual rules:** `design/design-system.md` is the source of truth (tokens in
+  `shared/.../theme/`, components in `shared/.../components/`). Root `DESIGN.md` is superseded —
+  don't implement against it.
 
 ## Commands
 
-Build/run/test each target via the Gradle wrapper from this directory (`./gradlew ...`):
+Load `shell.nix` first (`nix-shell` or direnv): it provides JDK 21 (`JAVA_HOME` is otherwise
+unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's native libs.
 
 ```sh
-./gradlew :androidApp:assembleDebug                        # Android app
-./gradlew :desktopApp:run                                  # Desktop app
-./gradlew :desktopApp:hotRun --auto                         # Desktop app, hot reload
-./gradlew :webApp:wasmJsBrowserDevelopmentRun                # Web app, Wasm target (faster, modern browsers)
-./gradlew :webApp:jsBrowserDevelopmentRun                    # Web app, JS target (slower, older browsers)
+./gradlew :androidApp:assembleDebug
+./gradlew :desktopApp:run                    # :desktopApp:hotRun --auto for hot reload
+./gradlew :webApp:wasmJsBrowserDevelopmentRun # or :webApp:jsBrowserDevelopmentRun
+./gradlew :shared:jvmTest                     # also: testAndroidHostTest, wasmJsTest, jsTest, iosSimulatorArm64Test
 ```
 
-iOS has no Gradle run task: open `iosApp/iosApp.xcodeproj` in Xcode and run from there. Xcode builds the `shared` module's static iOS framework (`Shared`, see `shared/build.gradle.kts`) as part of that build.
-
-The server URL is fixed at build time, as `BuildConfig.SERVER_URL` (generated by `shared`'s `generateBuildConfig` task): dev builds (`run`, `assembleDebug`, tests, Xcode's Debug configuration) connect to `http://127.0.0.1:40051`, release builds (any requested task naming `release`/`production`/`distribution`/`distributable` or starting with `package` — e.g. `:androidApp:assembleRelease`, `:desktopApp:packageDeb` — or Xcode's Release configuration) to `https://doc.halium.fr`. Override either with `-Pfyde.serverUrl=<url>` (e.g. `http://10.0.2.2:40051` to reach the host's dev server from the Android emulator). Gradle's abbreviated task names (`aR`) aren't recognized as release — spell them out.
-
-Tests are per-target, all against code in `shared/src/*Test`:
-
-```sh
-./gradlew :shared:testAndroidHostTest      # Android
-./gradlew :shared:jvmTest                  # Desktop (JVM)
-./gradlew :shared:wasmJsTest               # Web, Wasm target
-./gradlew :shared:jsTest                   # Web, JS target
-./gradlew :shared:iosSimulatorArm64Test    # iOS
-```
-
-Toolchain: JDK 21 (Gradle toolchain via the Foojay resolver plugin, see `gradle/gradle-daemon-jvm.properties`), Kotlin 2.4.20, Compose Multiplatform 1.12.0, AGP 9.1.1 (versions pinned in `gradle/libs.versions.toml`). This directory has its own `shell.nix`/`.envrc` (not wired to the repo-root one) providing `jdk21`, the Rust toolchain `sdkBridge` needs to cross-compile `../sdk`, and the native libs (X11/GL/fontconfig) desktop's Compose UI needs at runtime — load it (`nix-shell` or direnv) before running Gradle, since `JAVA_HOME` is not otherwise set.
+- iOS: open `iosApp/iosApp.xcodeproj` in Xcode (builds `Shared.framework`); iOS targets only
+  build on macOS hosts.
+- Use the `run-fyde-application` skill to run/screenshot the desktop app headlessly.
+- **Server URL is fixed at build time** (`BuildConfig.SERVER_URL`, generated by `shared`'s
+  `generateBuildConfig`): dev builds → `http://127.0.0.1:40051`; release builds (any requested
+  task naming `release`/`production`/`distribution`/`distributable` or starting with `package`,
+  or Xcode Release) → `https://doc.halium.fr`. Override with `-Pfyde.serverUrl=<url>` (e.g.
+  `http://10.0.2.2:40051` from the Android emulator). Abbreviated task names (`aR`) are not
+  detected as release — spell them out.
 
 ## Architecture
 
-Four platform entry-point modules wrap one shared module, wired together in `settings.gradle.kts`:
+- `shared/` — all app code and UI, standard KMP source sets (`commonMain`, `androidMain`,
+  `iosMain`, `jvmMain`, `jsMain`, `wasmJsMain`, `webMain` + matching tests). Platform APIs use
+  `expect`/`actual` (template: `Platform.kt`). Android namespace `com.peltoche.fyde.shared`.
+- `sdkBridge/` — UniFFI bindings to `../sdk` (`ch.ubique.uniffi.plugin`). `FydeSdk.kt` is an
+  `expect object` with per-platform `actual`s; Web is stubbed (`fyde-sdk` can't compile to wasm).
+- `androidApp/`, `desktopApp/` (`com.peltoche.fyde.MainKt`), `webApp/`, `iosApp/` (Xcode, not
+  Gradle) — thin shells bootstrapping `App()`; no business logic.
 
-- `shared/` — all application code and UI, organized as standard KMP source sets: `commonMain` (target-independent Compose UI and logic) plus `androidMain`, `iosMain`, `jvmMain`, `jsMain`, `wasmJsMain` for platform-specific code, each with a matching test source set (`commonTest`, `androidHostTest`, `iosTest`, `jvmTest`, `webTest`). Cross-platform APIs that need a platform-specific implementation follow Kotlin's `expect`/`actual` pattern — see `Platform.kt` (expect) and `Platform.android.kt`/`Platform.ios.kt`/`Platform.jvm.kt`/`Platform.wasmJs.kt` (actual) for the template example. `shared`'s Android build uses its own namespace, `com.peltoche.fyde.shared`, distinct from the app's `com.peltoche.fyde`.
-- `androidApp/` — thin Android application shell (`MainActivity.kt`) that hosts the shared Compose UI; the only module with an `applicationId`/manifest.
-- `desktopApp/` — thin JVM application shell (`main.kt`, entry point `com.peltoche.fyde.MainKt`) using Compose Desktop; packages to Dmg/Msi/Deb via `compose.desktop.application.nativeDistributions`.
-- `webApp/` — thin Kotlin/JS + Kotlin/Wasm browser shell (`webMain/kotlin/.../main.kt`, `webMain/resources/index.html`); both JS and Wasm binaries are built from the same `webMain` source set.
-- `iosApp/` — native Xcode project (Swift, `iosApp.xcodeproj`), not a Gradle module. `iOSApp.swift`/`ContentView.swift` embed the `shared` module's compiled `Shared.framework` as the UI entry point.
+Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 
-All four app modules depend on `:shared` and add no business logic of their own beyond bootstrapping the shared `App()` composable for their platform.
+- Shell: `AppSidebar.kt`'s `TopLevelScaffold` hosts Documents, Scripts, Settings.
+- Documents: `DocumentListScreen.kt` (list, detail, preview, download), state hoisted as a
+  `DocumentSearch` in `App.kt`'s `DocumentsScreen`.
+- Scripts: `ScriptsScreen.kt` / `ScriptDetailScreen.kt` (public + own scripts, install/edit/uninstall).
+- Settings: language, `PlanUsageSection.kt` (`FydeSdk.getUsage`, re-fetched each time Settings
+  opens), `SessionsSection.kt` (`listSessions`; revoke another device via `revokeSession` after
+  confirmation, then re-fetch sessions and usage), logout (the only way to end this device's
+  session; clears local state).
+- `LoginScreen`, `RegisterScreen`, `SessionLimitScreen`: when `FydeSdk.login` returns
+  `FydeLoginOutcome.SessionLimitReached`, `App.kt` shows the account's sessions, keeps the typed
+  credentials in `Screen.SessionLimit` only while it's open, and re-runs login with the picked
+  session as `replaceSessionId` (the server's login exchange is single-use).
+
+Toolchain versions are pinned in `gradle/libs.versions.toml` (Kotlin 2.4.20, Compose MP 1.12.0,
+AGP 9.1.1); JDK 21 via Foojay (`gradle/gradle-daemon-jvm.properties`).
