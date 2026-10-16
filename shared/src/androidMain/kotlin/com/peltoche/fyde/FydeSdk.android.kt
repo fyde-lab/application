@@ -15,6 +15,7 @@ import uniffi.fyde_sdk.FfiLoginOutcome
 import uniffi.fyde_sdk.FfiOpenSession
 import uniffi.fyde_sdk.FfiProgressEvent
 import uniffi.fyde_sdk.FfiScript
+import uniffi.fyde_sdk.FfiScriptMetadata
 import uniffi.fyde_sdk.FfiScriptParameter
 import uniffi.fyde_sdk.FfiScriptParameterType
 import uniffi.fyde_sdk.FfiScriptType
@@ -252,11 +253,11 @@ actual object FydeSdk {
     }
 
     actual suspend fun listUserScripts(): Result<List<FydeScript>> = withClient("listUserScripts") { client ->
-        client.listUserScripts().map(FfiScript::toFydeScript)
+        client.listUserScripts().map(FfiScriptMetadata::toFydeScript)
     }
 
     actual suspend fun listPublicScripts(): Result<List<FydeScript>> = withClient("listPublicScripts") { client ->
-        client.listPublicScripts().map(FfiScript::toFydeScript)
+        client.listPublicScripts().map(FfiScriptMetadata::toFydeScript)
     }
 
     actual fun setScraperHandler(handler: FydeScraperHandler?) {
@@ -504,14 +505,29 @@ private fun FfiScript.toFydeScript() = FydeScript(
     icon = icon,
     allowedDomains = allowedDomains,
     version = version.toLong(),
-    script = script,
     lastUpdated = lastUpdated,
     parameters = parameters.mapValues { (_, parameter) -> parameter.toFydeScriptParameter() },
-    type = when (scriptType) {
-        FfiScriptType.SCRAPER -> FydeScriptType.SCRAPER
-        FfiScriptType.PARSER -> FydeScriptType.PARSER
-    },
+    type = scriptType.toFydeScriptType(),
 )
+
+private fun FfiScriptMetadata.toFydeScript() = FydeScript(
+    id = id,
+    name = name,
+    description = description,
+    shortDescription = shortDescription,
+    isPublic = isPublic,
+    icon = icon,
+    allowedDomains = allowedDomains,
+    version = version.toLong(),
+    lastUpdated = lastUpdated,
+    parameters = parameters.mapValues { (_, parameter) -> parameter.toFydeScriptParameter() },
+    type = scriptType.toFydeScriptType(),
+)
+
+private fun FfiScriptType.toFydeScriptType() = when (this) {
+    FfiScriptType.SCRAPER -> FydeScriptType.SCRAPER
+    FfiScriptType.PARSER -> FydeScriptType.PARSER
+}
 
 private fun FfiDocument.toFydeDocument() = FydeDocument(
     id = id,

@@ -380,10 +380,11 @@ enum class FydeScriptType {
 }
 
 /**
- * A user-authored script, mirroring the SDK's `FfiScript` without leaking
- * `:sdkBridge`'s generated bindings into `commonMain`. Unlike [FydeDocument],
- * [script] is plain text, not ciphertext — see `sdk/src/domains/scripts/
- * models.rs`'s doc comment for why.
+ * A user-authored script's metadata, mirroring the SDK's `FfiScript` and
+ * `FfiScriptMetadata` without leaking `:sdkBridge`'s generated bindings into
+ * `commonMain`. Never carries the script's content: the listings don't
+ * return it (see `sdk/src/domains/scripts/models.rs`'s `ScriptMetadata`),
+ * and nothing in the app reads it.
  */
 data class FydeScript(
     val id: String,
@@ -394,7 +395,6 @@ data class FydeScript(
     val icon: ByteArray,
     val allowedDomains: List<String>,
     val version: Long,
-    val script: String,
     val lastUpdated: Long,
     val parameters: Map<String, FydeScriptParameter> = emptyMap(),
     val type: FydeScriptType = FydeScriptType.PARSER,

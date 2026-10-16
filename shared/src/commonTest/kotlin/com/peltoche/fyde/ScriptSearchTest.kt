@@ -14,7 +14,6 @@ class ScriptSearchTest {
         icon = ByteArray(0),
         allowedDomains = emptyList(),
         version = 1,
-        script = "",
         lastUpdated = 0,
     )
 
