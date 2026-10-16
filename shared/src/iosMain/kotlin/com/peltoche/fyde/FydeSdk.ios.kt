@@ -46,12 +46,12 @@ private class IosLogListener : LogListener {
 }
 
 /**
- * The on-disk database path fyde-sdk persists local state to on iOS:
- * `fyde.db` inside the app's Application Support directory, the
- * Apple-recommended location for app-generated data the user doesn't
- * browse directly (unlike Documents).
+ * The data directory fyde-sdk persists local state under on iOS (its
+ * database lands in an `ios/` subdirectory): the app's Application
+ * Support directory, the Apple-recommended location for app-generated
+ * data the user doesn't browse directly (unlike Documents).
  */
-private fun defaultStoragePath(): String {
+private fun defaultDataDirectory(): String {
     val directoryPath = (
         NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true)
             .firstOrNull() as? String
@@ -62,7 +62,7 @@ private fun defaultStoragePath(): String {
         attributes = null,
         error = null,
     )
-    return "$directoryPath/fyde.db"
+    return directoryPath
 }
 
 /**
@@ -115,7 +115,10 @@ actual object FydeSdk {
             sdkCall("initialize") {
                 val config = FfiClientConfig(
                     url = serverUrl,
-                    storage = FfiStorage.Disk(path = defaultStoragePath()),
+                    // The sdk keeps this client's database in its own
+                    // "ios" subdirectory of the data directory.
+                    clientName = "ios",
+                    storage = FfiStorage.Disk(path = defaultDataDirectory()),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so

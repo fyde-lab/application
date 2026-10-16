@@ -52,16 +52,16 @@ private class JvmLogListener : LogListener {
 }
 
 /**
- * The on-disk database path fyde-sdk persists local state to on Desktop
- * (JVM): `fyde.db` under the XDG data directory (`$XDG_DATA_HOME/fyde`,
- * falling back to `~/.local/share/fyde` when unset), mirroring the
- * default `fyde-sdk` itself uses for non-FFI callers (see `sdk/CLAUDE.md`).
+ * The data directory fyde-sdk persists local state under on Desktop
+ * (JVM), its database landing in a `desktop/` subdirectory: the XDG data
+ * directory (`$XDG_DATA_HOME/fyde`, falling back to `~/.local/share/fyde`
+ * when unset), mirroring the default `fyde-sdk` itself uses for non-FFI
+ * callers (see `sdk/CLAUDE.md`).
  */
-private fun defaultStoragePath(): String {
+private fun defaultDataDirectory(): String {
     val dataHome = System.getenv("XDG_DATA_HOME")?.takeIf { it.isNotBlank() }
         ?: "${System.getProperty("user.home")}/.local/share"
-    val directory = File(dataHome, "fyde").apply { mkdirs() }
-    return File(directory, "fyde.db").absolutePath
+    return File(dataHome, "fyde").apply { mkdirs() }.absolutePath
 }
 
 /**
@@ -114,7 +114,10 @@ actual object FydeSdk {
             sdkCall("initialize") {
                 val config = FfiClientConfig(
                     url = serverUrl,
-                    storage = FfiStorage.Disk(path = defaultStoragePath()),
+                    // The sdk keeps this client's database in its own
+                    // "desktop" subdirectory of the data directory.
+                    clientName = "desktop",
+                    storage = FfiStorage.Disk(path = defaultDataDirectory()),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so

@@ -51,11 +51,12 @@ private class AndroidLogListener : LogListener {
 }
 
 /**
- * The on-disk database path fyde-sdk persists local state to on Android:
- * `fyde.db` inside the app's private, per-app storage directory (backed up
- * on app uninstall/data-clear, and off-limits to other apps).
+ * The data directory fyde-sdk persists local state under on Android (its
+ * database lands in an `android/` subdirectory): the app's private,
+ * per-app storage directory (backed up on app uninstall/data-clear, and
+ * off-limits to other apps).
  */
-private fun defaultStoragePath(): String = File(appContext.filesDir, "fyde.db").absolutePath
+private fun defaultDataDirectory(): String = appContext.filesDir.absolutePath
 
 /**
  * Runs [block], turning any failure into a [FydeSdkException] whose
@@ -107,7 +108,10 @@ actual object FydeSdk {
             sdkCall("initialize") {
                 val config = FfiClientConfig(
                     url = serverUrl,
-                    storage = FfiStorage.Disk(path = defaultStoragePath()),
+                    // The sdk keeps this client's database in its own
+                    // "android" subdirectory of the data directory.
+                    clientName = "android",
+                    storage = FfiStorage.Disk(path = defaultDataDirectory()),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so
