@@ -21,6 +21,7 @@ import com.peltoche.fyde.resources.session_expired
 import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.resources.uploads_succeeded
+import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.theme.AppTheme
 import kotlin.time.Clock
@@ -132,6 +133,8 @@ private fun AppContent() {
     var languageError by remember { mutableStateOf<String?>(null) }
     var isLoggingOut by remember { mutableStateOf(false) }
     var logoutError by remember { mutableStateOf<String?>(null) }
+    var planUsage by remember { mutableStateOf<PlanUsageUiState>(PlanUsageUiState.Loading) }
+    var planUsageAttempt by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
     // App-lifetime, so a scraper run outlives the screen that started it.
@@ -245,6 +248,22 @@ private fun AppContent() {
         }
     }
 
+    // Re-fetched every time Settings opens (and on retry): the account's
+    // other devices change these figures, so a cached copy would go stale.
+    LaunchedEffect(screen, planUsageAttempt) {
+        if (screen != Screen.Settings) return@LaunchedEffect
+        planUsage = PlanUsageUiState.Loading
+        planUsage = FydeSdk.getUsage().fold(
+            onSuccess = { PlanUsageUiState.Loaded(it) },
+            onFailure = {
+                PlanUsageUiState.Failed(
+                    message = getString(Res.string.usage_load_failed, it.userMessage()),
+                    onRetry = { planUsageAttempt++ },
+                )
+            },
+        )
+    }
+
     key(language) {
         when (screen) {
             Screen.Login -> LoginScreen(
@@ -330,6 +349,7 @@ private fun AppContent() {
                 onDismissLogoutError = { logoutError = null },
                 languageError = languageError,
                 onDismissLanguageError = { languageError = null },
+                planUsage = planUsage,
             )
             Screen.Scripts -> ScriptsScreenContainer(
                 scraperRuns = scraperRuns,

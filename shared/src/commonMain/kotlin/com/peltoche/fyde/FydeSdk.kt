@@ -431,6 +431,27 @@ data class FydeOpenSession(
     val createdAt: Long,
 )
 
+/**
+ * The plan the signed-in account is on, its limits and what the account
+ * currently uses of each, mirroring the SDK's `FfiUsage`. Every figure is
+ * shared by all the account's devices. A usage figure can exceed its limit
+ * after the account moved to a smaller plan: what it stores is kept, only
+ * further writes are refused.
+ */
+data class FydePlanUsage(
+    /** A stable identifier, e.g. "free", "basic" — not display text. */
+    val planId: String,
+    val maxScripts: Int,
+    val maxSessions: Int,
+    /** In bytes. */
+    val maxSize: Long,
+    val enabledScripts: Int,
+    /** This device's session included. */
+    val openSessions: Int,
+    /** In bytes. */
+    val totalSize: Long,
+)
+
 /** What [FydeSdk.login] did, once the credentials checked out. Mirrors `fyde-sdk`'s `FfiLoginOutcome`. */
 sealed interface FydeLoginOutcome {
     /** A session was opened for this device. */
@@ -542,6 +563,13 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun isServerReachable(): Result<Boolean>
+
+    /**
+     * Fetches the signed-in account's plan, limits and current usage from
+     * the server. Mirrors [`crate::UsageService::get_usage`]; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun getUsage(): Result<FydePlanUsage>
 
     /**
      * Lists documents previously cached locally, oldest first, one page at a

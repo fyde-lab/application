@@ -25,6 +25,7 @@ import uniffi.fyde_sdk.FfiSearchOrder
 import uniffi.fyde_sdk.FfiCategory
 import uniffi.fyde_sdk.FfiSubcategory
 import uniffi.fyde_sdk.FfiStorage
+import uniffi.fyde_sdk.FfiUsage
 import uniffi.fyde_sdk.FydeClient
 import uniffi.fyde_sdk.LogListener
 import uniffi.fyde_sdk.ScraperListener
@@ -167,6 +168,10 @@ actual object FydeSdk {
 
     actual suspend fun isServerReachable(): Result<Boolean> = withClient("isServerReachable") { client ->
         client.isServerReachable()
+    }
+
+    actual suspend fun getUsage(): Result<FydePlanUsage> = withClient("getUsage") { client ->
+        client.getUsage().toFydePlanUsage()
     }
 
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> =
@@ -467,6 +472,16 @@ private fun FfiLoginOutcome.toFydeLoginOutcome(): FydeLoginOutcome = when (this)
         sessions = sessions.map(FfiOpenSession::toFydeOpenSession),
     )
 }
+
+private fun FfiUsage.toFydePlanUsage() = FydePlanUsage(
+    planId = planId,
+    maxScripts = maxScripts.toInt(),
+    maxSessions = maxSessions.toInt(),
+    maxSize = maxSize.toLong(),
+    enabledScripts = enabledScripts.toInt(),
+    openSessions = openSessions.toInt(),
+    totalSize = totalSize.toLong(),
+)
 
 private fun FfiOpenSession.toFydeOpenSession() = FydeOpenSession(
     id = id,

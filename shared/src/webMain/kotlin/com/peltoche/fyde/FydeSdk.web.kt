@@ -38,6 +38,8 @@ actual object FydeSdk {
 
     actual suspend fun isServerReachable(): Result<Boolean> = unsupported()
 
+    actual suspend fun getUsage(): Result<FydePlanUsage> = unsupported()
+
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> = unsupported()
 
     actual suspend fun searchDocuments(

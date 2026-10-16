@@ -69,7 +69,8 @@ private enum class AppLanguage(val code: String, val displayName: String) {
  * [currentLanguage], which [onLanguageChange] lets the user override via
  * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
  * where that call and [languageError] actually live), and [onLogout], which
- * ends the session.
+ * ends the session. [planUsage] shows the account's plan and how much of
+ * each of its limits it uses (see [PlanUsageSection]).
  *
  * Logging out wipes this device's copy of the account (see
  * [FydeSdk.logout]), so it asks first; [isLoggingOut] keeps the action
@@ -95,6 +96,7 @@ fun SettingsScreen(
     onDismissLogoutError: () -> Unit = {},
     languageError: String? = null,
     onDismissLanguageError: () -> Unit = {},
+    planUsage: PlanUsageUiState = PlanUsageUiState.Loading,
     modifier: Modifier = Modifier,
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
@@ -150,6 +152,7 @@ fun SettingsScreen(
                         .fillMaxWidth()
                         .padding(vertical = AppSpacing.space3),
                 )
+                PlanUsageSection(planUsage)
                 SectionTitle(stringResource(Res.string.account_section_title))
                 EncryptionBadge()
                 Spacer(Modifier.height(AppSpacing.space3))
@@ -205,7 +208,7 @@ internal fun SectionTitle(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun SettingsRow(label: String, value: String) {
+internal fun SettingsRow(label: String, value: String) {
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpacing.space3)) {
         Text(
             text = label,
