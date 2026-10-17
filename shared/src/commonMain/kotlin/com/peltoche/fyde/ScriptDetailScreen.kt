@@ -462,8 +462,8 @@ internal fun displayedParameterValue(
 }
 
 /**
- * A running script's progress: the current step's name (or "Starting…"
- * before the script names one), its latest message, and a bar —
+ * A running script's progress: the current step's localized wording (or
+ * "Starting…" before the script announces one) and a bar —
  * determinate when the script says how many items there are, indeterminate
  * otherwise.
  */
@@ -476,10 +476,6 @@ private fun RunProgressCard(step: String?, update: FydeScraperProgress.Update?) 
                 style = AppTypography.bodyEmphasis,
                 color = AppColors.text,
             )
-            update?.message?.takeIf { it.isNotBlank() }?.let { message ->
-                Spacer(Modifier.height(AppSpacing.space1))
-                Text(text = message, style = AppTypography.caption, color = AppColors.textMuted)
-            }
             Spacer(Modifier.height(AppSpacing.space3))
             if (update != null && update.total > 0) {
                 LinearProgressIndicator(

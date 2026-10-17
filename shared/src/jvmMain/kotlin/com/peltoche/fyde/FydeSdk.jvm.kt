@@ -283,8 +283,8 @@ actual object FydeSdk {
 }
 
 private fun FfiProgressEvent.toFydeScraperProgress(): FydeScraperProgress = when (this) {
-    is FfiProgressEvent.Step -> FydeScraperProgress.Step(name)
-    is FfiProgressEvent.Update -> FydeScraperProgress.Update(current, total, message)
+    is FfiProgressEvent.Step -> FydeScraperProgress.Step(message)
+    is FfiProgressEvent.Update -> FydeScraperProgress.Update(current, total)
 }
 
 private fun FfiCategory.toFydeCategory() = when (this) {

@@ -76,7 +76,7 @@ class ScraperRuns(
     override fun onProgress(progress: FydeScraperProgress) {
         when (progress) {
             is FydeScraperProgress.Step -> {
-                step = progress.name
+                step = progress.message
                 update = null
             }
             is FydeScraperProgress.Update -> update = progress

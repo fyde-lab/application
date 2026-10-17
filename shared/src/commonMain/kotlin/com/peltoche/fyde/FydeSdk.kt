@@ -402,11 +402,11 @@ data class FydeScript(
 
 /** A running scraper's progress, mirroring the SDK's `FfiProgressEvent`. */
 sealed interface FydeScraperProgress {
-    /** A named step started (e.g. "Logging in"). */
-    data class Step(val name: String) : FydeScraperProgress
+    /** A step started; [message] is its wording in the user's language (e.g. "Connexion en cours"). */
+    data class Step(val message: String) : FydeScraperProgress
 
     /** How far the current step has got; [total] is 0 when unknown. */
-    data class Update(val current: Long, val total: Long, val message: String) : FydeScraperProgress
+    data class Update(val current: Long, val total: Long) : FydeScraperProgress
 }
 
 /**
