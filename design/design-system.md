@@ -206,6 +206,16 @@ marks keyboard focus only (like `:focus-visible`): a control focused by a
 click or tap draws none — found via review that clicking a list row or a
 filter chip left a ring around it, covering a selected row's accent bar.
 
+**Every Material 3 color role is set, not just the ones this table names.**
+Found via review: `surfaceContainer`, `surfaceTint` and the `inverse*` roles
+were left unset, so they fell back to M3's own baseline palette — the
+language picker's menu opened lavender, and since M3 tints any
+`surface`-colored container by its tonal elevation with `surfaceTint`
+(`primary` by default), light-mode dialogs, menus and the bottom bar were
+washed teal. Menus fill with `surface-elevated`; `surfaceTint` is the
+surface itself, so M3's tonal tint is a no-op and elevation follows
+*Elevation* below — explicit tone steps and shadows, nothing implicit.
+
 ### Why teal, not blue or the current lime
 
 Lime-on-near-black (the current spec) reads energetic and creative-tool —
@@ -260,6 +270,18 @@ is `AppTopBarAction` in its top bar — filled with icon and label from
 Medium up, the filled icon alone (labelled for assistive tech) on Compact —
 and is the screen's only filled button: an empty state's recovery action
 on that same screen is Outlined.
+
+**Text and icon buttons too.** Found via review: `AppTextButton` (every
+dialog's confirm/cancel, Sign up, Disconnect) kept M3's own text-button
+shape, a full pill, visible as its hover/press state layer, and icon
+buttons kept M3's circle — the icon-button `radius-sm` above. Every button
+variant sets its shape explicitly, and every one draws the focus ring.
+Progress bars and meters are rectangles with `radius-xs` corners and square
+ends, not rounded pills.
+
+**Menus and popovers** — `radius-lg`, `surface-elevated`, through the one
+`AppDropdownMenu`. Found via review: the app's three menus were each styled
+by hand, two of them with M3's 2dp default corners and container color.
 
 **Inputs** — `radius-sm`, `border-strong` at rest, `primary` border on
 focus (2px), transparent-to-`surface` fill. This is the one deliberate break
@@ -534,6 +556,14 @@ tap. The rules now:
 - **Every slow action shows it's working**: its button's `loading` state,
   with the form it submits disabled — notably login/register, whose OPAQUE
   key stretching takes seconds on a phone.
+- **A failed section offers its retry as an outlined button** under its
+  error banner, starting on the content edge — not a text button, whose
+  inner padding indents its label (see *The top bar shares the content's
+  edges*).
+- **Loading placeholders (`AppSkeleton`) are filled with `border`**, which
+  reads on both `background` and `surface`. Found via review: they used
+  `surface-elevated`, the same white as the cards they sit on in light mode,
+  so the Scripts grid loaded as blank white cards.
 - **Errors shown to users are never technical.** Only fyde-sdk's own
   user-facing wording, or our own copy — never an exception message (the
   PDF engine's included).

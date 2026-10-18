@@ -22,8 +22,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,6 +47,8 @@ import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.form.AppSearchField
+import com.peltoche.fyde.components.overlay.AppDropdownMenu
+import com.peltoche.fyde.components.overlay.AppDropdownMenuItem
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.components.navigation.AppTopBarAction
 import com.peltoche.fyde.layout.AppContentContainer
@@ -467,7 +467,9 @@ private fun DocumentDetailPane(
             modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FileTypeIcon(document, size = 40.dp)
+            // Larger than a list row's (44dp), never smaller: this is the
+            // document itself, not one row of many.
+            FileTypeIcon(document, size = 48.dp)
             Spacer(Modifier.width(AppSpacing.space4))
             Column(modifier = Modifier.weight(1f)) {
                 // Unlike the list row (always 1 line — a list is scanned),
@@ -712,15 +714,11 @@ private fun <T> FilterMenuChip(
     var expanded by remember { mutableStateOf(false) }
     Box {
         AppChip(text = label, showChevron = true, selected = selected, onClick = { expanded = true })
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            containerColor = AppColors.surfaceElevated,
-        ) {
+        AppDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { (option, count) ->
-                DropdownMenuItem(
-                    text = { Text(optionLabel(option), style = AppTypography.body, color = AppColors.text) },
-                    trailingIcon = count?.let {
+                AppDropdownMenuItem(
+                    text = optionLabel(option),
+                    trailingContent = count?.let {
                         { Text(it.toString(), style = AppTypography.caption, color = AppColors.textMuted) }
                     },
                     onClick = {

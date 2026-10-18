@@ -1,8 +1,6 @@
 package com.peltoche.fyde.components.form
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -18,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.ChevronRightGlyph
+import com.peltoche.fyde.components.overlay.AppDropdownMenu
+import com.peltoche.fyde.components.overlay.AppDropdownMenuItem
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppShapes
 
@@ -71,14 +71,14 @@ fun <T> AppDropdown(
                 unfocusedTextColor = AppColors.text,
             ),
         )
-        DropdownMenu(
+        AppDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier.exposedDropdownSize(),
         ) {
             options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(optionLabel(option)) },
+                AppDropdownMenuItem(
+                    text = optionLabel(option),
                     onClick = {
                         onOptionSelected(option)
                         expanded = false

@@ -82,9 +82,26 @@ fun appLightColorScheme(): ColorScheme {
         onSurface = text,
         surfaceVariant = Color(0xFFEDEBE6),
         onSurfaceVariant = Color(0xFF6B6558),
+        surfaceContainerLowest = surface,
         surfaceContainerLow = Color(0xFFF9F8F5),
+        // What stock menus (DropdownMenu, ExposedDropdownMenu) fill
+        // themselves with — `surface-elevated`, like every other floating
+        // surface. Left unset, it fell back to M3's baseline lavender.
+        surfaceContainer = surface,
         surfaceContainerHigh = surface,
         surfaceContainerHighest = Color(0xFFE7E4DE),
+        surfaceBright = surface,
+        surfaceDim = Color(0xFFE7E4DE),
+        // M3 tints any `surface`-colored container with this at its tonal
+        // elevation (dialogs, menus, the bottom bar). design-system.md §
+        // Elevation steps tone explicitly (surface -> surface-elevated) and
+        // uses shadows for floating things, so the tint is the surface
+        // itself: a no-op. Left at its default (primary), light-mode dialogs
+        // and menus were washed teal.
+        surfaceTint = surface,
+        inverseSurface = text,
+        inverseOnSurface = background,
+        inversePrimary = Color(0xFF5FBFC4),
         // Darkened from an earlier #C9C4B8 - measured ~1.5:1 against this
         // background, well under WCAG's 3:1 minimum for a UI component
         // boundary (visually confirmed too: the search field's border was
@@ -133,9 +150,19 @@ fun appDarkColorScheme(): ColorScheme {
         onSurface = text,
         surfaceVariant = surfaceContainerHigh,
         onSurfaceVariant = Color(0xFF9B9484),
+        surfaceContainerLowest = Color(0xFF110F0B),
         surfaceContainerLow = Color(0xFF1A1712),
+        // Same as the light theme: menus are `surface-elevated`.
+        surfaceContainer = surfaceContainerHigh,
         surfaceContainerHigh = surfaceContainerHigh,
         surfaceContainerHighest = Color(0xFF332D25),
+        surfaceBright = Color(0xFF332D25),
+        surfaceDim = background,
+        // Same as the light theme: tone steps are explicit, not M3's tint.
+        surfaceTint = surface,
+        inverseSurface = text,
+        inverseOnSurface = background,
+        inversePrimary = Color(0xFF1B5E63),
         // Same fix as the light theme's outline: #4A4438 measured ~1.9:1
         // against this background. #7A7364 clears ~3.9:1.
         outline = Color(0xFF7A7364),

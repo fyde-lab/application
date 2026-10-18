@@ -27,6 +27,9 @@ object AppShapes {
     val input: Shape = AppRadius.sm
     val card: Shape = AppRadius.md
     val dialog: Shape = AppRadius.lg
+
+    /** Menus and other popovers — `radius-lg`, like dialogs, not M3's 2dp menu default. */
+    val popover: Shape = AppRadius.lg
 }
 
 /**

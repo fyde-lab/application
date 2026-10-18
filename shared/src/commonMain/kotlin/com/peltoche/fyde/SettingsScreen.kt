@@ -30,6 +30,7 @@ import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.account_section_title
 import com.peltoche.fyde.resources.cancel
+import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.resources.language_label
 import com.peltoche.fyde.resources.language_section_title
@@ -218,6 +219,22 @@ internal fun SectionTitle(text: String, modifier: Modifier = Modifier) {
         style = AppTypography.section,
         color = AppColors.text,
         modifier = modifier.padding(top = AppSpacing.space7, bottom = AppSpacing.space3),
+    )
+}
+
+/**
+ * Retries a Settings section that failed to load, below its error banner.
+ * Outlined, not a text button, so its label starts on the content edge
+ * like the rest of the section (design-system.md § Layout, "The top bar
+ * shares the content's edges").
+ */
+@Composable
+internal fun RetryButton(onClick: () -> Unit) {
+    AppButton(
+        text = stringResource(Res.string.retry),
+        onClick = onClick,
+        variant = AppButtonVariant.Outlined,
+        modifier = Modifier.padding(top = AppSpacing.space3),
     )
 }
 
