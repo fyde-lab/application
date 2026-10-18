@@ -27,7 +27,6 @@ import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.dismiss
-import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.session_limit_connected_since
 import com.peltoche.fyde.resources.sessions_current_device
 import com.peltoche.fyde.resources.sessions_disconnect
@@ -88,7 +87,7 @@ internal fun SessionsSection(
         SessionsUiState.Loading -> SessionsSkeleton()
         is SessionsUiState.Failed -> {
             AppBanner(message = state.message)
-            AppTextButton(text = stringResource(Res.string.retry), onClick = state.onRetry)
+            RetryButton(onClick = state.onRetry)
         }
         is SessionsUiState.Loaded -> Column {
             state.sessions.forEachIndexed { index, session ->

@@ -22,6 +22,9 @@ import com.peltoche.fyde.theme.appFocusRing
  * [contentDescription] is required, not optional: an icon-only control with
  * no accessible label is exactly the kind of thing screen readers can't do
  * anything with, so there's no default to silently fall back to.
+ *
+ * `radius-sm`, per design-system.md § Shape ("small/icon buttons"), not
+ * M3's circular icon button — its state layer and focus ring included.
  */
 @Composable
 fun AppIconButton(
@@ -36,10 +39,11 @@ fun AppIconButton(
     IconButton(
         onClick = onClick,
         modifier = modifier
-            .appFocusRing(interactionSource, shape = AppRadius.full)
+            .appFocusRing(interactionSource, shape = AppRadius.sm)
             .semantics { this.contentDescription = contentDescription },
         enabled = enabled,
         interactionSource = interactionSource,
+        shape = AppRadius.sm,
         colors = IconButtonDefaults.iconButtonColors(
             contentColor = tint,
             disabledContentColor = AppColors.textMuted,

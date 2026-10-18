@@ -38,11 +38,14 @@ import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.layout.contentMaxWidth
 import com.peltoche.fyde.layout.contentStartMargin
 import com.peltoche.fyde.layout.screenMargin
+import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.theme.appFocusRing
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Generalizes the top-bar shape already duplicated across three screens
@@ -94,10 +97,9 @@ fun AppTopBar(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (onBack != null) {
-                // "Back" is a last-resort fallback for a caller that forgot
-                // to pass one, never the intended copy source — pass a real
-                // localized string via backContentDescription instead.
-                AppIconButton(onClick = onBack, contentDescription = backContentDescription ?: "Back") {
+                // Localized like every other string: found via review that a
+                // caller passing nothing got a hardcoded English "Back".
+                AppIconButton(onClick = onBack, contentDescription = backContentDescription ?: stringResource(Res.string.back)) {
                     BackChevron(tint = AppColors.text)
                 }
             }

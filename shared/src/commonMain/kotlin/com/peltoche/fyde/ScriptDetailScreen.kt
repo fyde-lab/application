@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
@@ -383,7 +384,7 @@ private fun ScriptParametersDialog(
         // screen holds, and the dialog's title and buttons must stay put.
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.space3),
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.space6),
         ) {
             orderedParameters(parameters).forEach { (key, parameter) ->
                 val value = values[key].orEmpty()
@@ -483,9 +484,15 @@ private fun RunProgressCard(step: String?, update: FydeScraperProgress.Update?) 
                     modifier = Modifier.fillMaxWidth(),
                     color = AppColors.primary,
                     trackColor = AppColors.border,
+                    strokeCap = StrokeCap.Butt,
                 )
             } else {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = AppColors.primary, trackColor = AppColors.border)
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = AppColors.primary,
+                    trackColor = AppColors.border,
+                    strokeCap = StrokeCap.Butt,
+                )
             }
         }
     }

@@ -129,7 +129,7 @@ fun RegisterScreen(
                 modifier = Modifier.focusRequester(usernameFocus),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             )
-            Spacer(Modifier.height(AppSpacing.space4))
+            Spacer(Modifier.height(AppSpacing.space6))
             AppTextField(
                 enabled = !isSubmitting,
                 value = password,
@@ -138,7 +138,7 @@ fun RegisterScreen(
                 isPassword = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             )
-            Spacer(Modifier.height(AppSpacing.space4))
+            Spacer(Modifier.height(AppSpacing.space6))
             AppTextField(
                 enabled = !isSubmitting,
                 value = confirmPassword,

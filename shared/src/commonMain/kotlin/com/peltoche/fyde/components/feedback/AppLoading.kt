@@ -50,6 +50,11 @@ fun AppLoading(modifier: Modifier = Modifier, message: String? = null) {
  * several of these (sized/shaped like the real content) replaces that
  * duplication once screens adopt it. Owns its pulse animation internally:
  * that's animation progress, not state any caller needs to observe.
+ *
+ * Filled with `border`, a neutral that reads on both `background` and
+ * `surface`. Found via review: it used `surface-elevated`, which in light
+ * mode is the very white of an [com.peltoche.fyde.components.content.AppCard],
+ * so the Scripts grid's skeleton cards loaded as blank white cards.
  */
 @Composable
 fun AppSkeleton(modifier: Modifier = Modifier, shape: Shape = AppRadius.sm) {
@@ -60,5 +65,5 @@ fun AppSkeleton(modifier: Modifier = Modifier, shape: Shape = AppRadius.sm) {
         animationSpec = infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Reverse),
         label = "skeletonAlpha",
     )
-    Box(modifier = modifier.clip(shape).background(AppColors.surfaceElevated.copy(alpha = alpha)))
+    Box(modifier = modifier.clip(shape).background(AppColors.border.copy(alpha = alpha)))
 }

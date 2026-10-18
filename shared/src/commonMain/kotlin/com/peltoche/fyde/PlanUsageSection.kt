@@ -20,7 +20,6 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.resources.Res
@@ -29,7 +28,6 @@ import com.peltoche.fyde.resources.plan_name_admin
 import com.peltoche.fyde.resources.plan_name_basic
 import com.peltoche.fyde.resources.plan_name_free
 import com.peltoche.fyde.resources.plan_section_title
-import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.usage_at_limit
 import com.peltoche.fyde.resources.usage_devices_label
 import com.peltoche.fyde.resources.usage_of_limit
@@ -86,7 +84,7 @@ internal fun PlanUsageSection(state: PlanUsageUiState) {
         PlanUsageUiState.Loading -> PlanUsageSkeleton()
         is PlanUsageUiState.Failed -> {
             AppBanner(message = state.message)
-            AppTextButton(text = stringResource(Res.string.retry), onClick = state.onRetry)
+            RetryButton(onClick = state.onRetry)
         }
         is PlanUsageUiState.Loaded -> {
             val usage = state.usage
@@ -188,7 +186,7 @@ private fun MeterBar(fraction: Float, color: Color) {
         modifier = Modifier
             .fillMaxWidth()
             .height(METER_HEIGHT)
-            .clip(AppRadius.full)
+            .clip(AppRadius.xs)
             .background(AppColors.border)
             .semantics { progressBarRangeInfo = ProgressBarRangeInfo(fraction, 0f..1f) },
     ) {

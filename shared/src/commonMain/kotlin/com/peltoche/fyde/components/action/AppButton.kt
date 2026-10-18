@@ -21,11 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.button_loading
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.appFocusRing
+import org.jetbrains.compose.resources.stringResource
 
 /** Emphasis level for [AppButton] — see design-system.md § Shape/Buttons. */
 enum class AppButtonVariant { Filled, Tonal, Outlined }
@@ -60,10 +63,11 @@ fun AppButton(
 ) {
     val isEnabled = enabled && !loading
     val interactionSource = remember { MutableInteractionSource() }
+    val loadingDescription = stringResource(Res.string.button_loading)
     val buttonModifier = modifier
         .height(AppDimensions.touchTargetMin)
         .appFocusRing(interactionSource, shape = AppShapes.button)
-        .semantics { if (loading) stateDescription = "Loading" }
+        .semantics { if (loading) stateDescription = loadingDescription }
 
     val content: @Composable RowScope.() -> Unit = {
         if (loading) {

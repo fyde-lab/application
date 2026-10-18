@@ -1,14 +1,13 @@
 package com.peltoche.fyde.components.action
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,8 +16,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import com.peltoche.fyde.theme.AppColors
+import androidx.compose.ui.semantics.Role
+import com.peltoche.fyde.components.overlay.AppDropdownMenu
+import com.peltoche.fyde.components.overlay.AppDropdownMenuItem
 import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.appFocusRing
 
 /** One action in an [AppMenuButton]'s dropdown. */
 data class AppMenuAction(val label: String, val onClick: () -> Unit, val destructive: Boolean = false)
@@ -44,22 +47,30 @@ fun AppMenuButton(
     trigger: @Composable () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
 
     Box(modifier = modifier) {
         Box(
             modifier = Modifier
                 .size(AppDimensions.touchTargetMin)
+                .appFocusRing(interactionSource, shape = AppRadius.full)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                .clickable(onClickLabel = contentDescription) { expanded = true },
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = LocalIndication.current,
+                    onClickLabel = contentDescription,
+                    role = Role.Button,
+                ) { expanded = true },
             contentAlignment = Alignment.Center,
         ) {
             trigger()
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        AppDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             actions.forEach { action ->
-                DropdownMenuItem(
-                    text = { Text(action.label, color = if (action.destructive) AppColors.error else AppColors.text) },
+                AppDropdownMenuItem(
+                    text = action.label,
+                    destructive = action.destructive,
                     onClick = {
                         expanded = false
                         action.onClick()
