@@ -47,5 +47,13 @@ cargo {
 }
 
 uniffi {
+    // Left unset, the plugin installs uniffi-bindgen-kotlin-multiplatform from
+    // its repository's default branch, so each fresh checkout generated
+    // whatever main produced that day — which stopped compiling against the
+    // plugin's own runtime. Pin it to the plugin's release.
+    bindgenFromGitTag(
+        "https://github.com/UbiqueInnovation/uniffi-kotlin-multiplatform-bindings.git",
+        "v${libs.versions.uniffiKotlinMultiplatform.get()}",
+    )
     generateFromLibrary()
 }
