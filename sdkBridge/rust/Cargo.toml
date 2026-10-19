@@ -10,9 +10,10 @@ publish = false
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-# A sibling, independently-versioned repo (`../../../sdk`), not a Cargo
-# workspace member. See ../../../sdk/CLAUDE.md.
-fyde-sdk = { path = "../../../sdk" }
+# The independently-versioned `sdk` repo, tracked at its remote `master`
+# (pinned to a commit in Cargo.lock; `cargo update -p fyde-sdk` to bump it).
+# See its CLAUDE.md.
+fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master" }
 serde_json = "1.0.151"
 thiserror = "2.0.20"
 tracing = "0.1.44"
@@ -23,13 +24,13 @@ uuid = "1.26.1"
 
 [dev-dependencies]
 # `testing`: the SDK's `Fake*` builders, to test conversions against.
-fyde-sdk = { path = "../../../sdk", features = ["testing"] }
+fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master", features = ["testing"] }
 
 [features]
-# Forwards the SDK's own `tokio-console` feature (see ../../../sdk/Cargo.toml).
+# Forwards the SDK's own `tokio-console` feature (see the sdk's Cargo.toml).
 tokio-console = ["fyde-sdk/tokio-console"]
 
-# Same as ../../../sdk/Cargo.toml: Argon2id runs on every login/registration
+# Same as the sdk's Cargo.toml: Argon2id runs on every login/registration
 # and takes ~3s per call unoptimized. Profiles are only read from the crate
 # being built, so the SDK's own override doesn't apply here.
 [profile.dev.package.argon2]
