@@ -1,4 +1,9 @@
 { pkgs ? import <nixpkgs> {
+    # The Android SDK is unfree and gated behind Google's license.
+    config = {
+      allowUnfree = true;
+      android_sdk.accept_license = true;
+    };
     overlays = [
       (import (builtins.fetchTarball
         "https://github.com/oxalica/rust-overlay/archive/master.tar.gz"))
@@ -22,6 +27,19 @@ let
     extensions = [ "rust-src" "clippy" "rustfmt" "rust-analyzer" ];
     targets = [ "x86_64-unknown-linux-gnu" ] ++ androidTargets;
   };
+  # Must match gradle/libs.versions.toml (android-compileSdk, android-ndk) and
+  # AGP's default build-tools (36.0.0 for AGP 9.1.1): the nix store SDK is
+  # read-only, so AGP can't download missing components into it.
+  buildToolsVersion = "36.0.0";
+  androidComposition = pkgs.androidenv.composeAndroidPackages {
+    platformVersions = [ "37.0" ];
+    buildToolsVersions = [ buildToolsVersion ];
+    includeNDK = true;
+    ndkVersions = [ "27.2.12479018" ];
+    includeEmulator = false;
+    includeSystemImages = false;
+  };
+  androidSdk = "${androidComposition.androidsdk}/libexec/android-sdk";
 in
 pkgs.mkShell {
   packages = with pkgs; [
@@ -56,6 +74,8 @@ pkgs.mkShell {
     # nixpkgs as the separate glib-networking module — see GIO_EXTRA_MODULES
     # below and ../sdk/shell.nix's longer comment on this.
     glib-networking
+
+    androidComposition.androidsdk
 
     jdk21
     libglvnd libx11 libxext libxrender libxtst libxi libxrandr
@@ -92,8 +112,11 @@ pkgs.mkShell {
       pkgs.libxdamage pkgs.libxfixes pkgs.libxxf86vm pkgs.fontconfig pkgs.freetype
     ]}:$LD_LIBRARY_PATH"
 
-    export ANDROID_HOME="$HOME/Android/Sdk"
-    export ANDROID_SDK_ROOT="$HOME/Android/Sdk"
-    export PATH="$HOME/Android/Sdk/platform-tools:$HOME/Android/Sdk/cmdline-tools/latest/bin:$HOME/Android/Sdk/emulator:$PATH"
+    export ANDROID_HOME="${androidSdk}"
+    export ANDROID_SDK_ROOT="${androidSdk}"
+    export ANDROID_NDK_HOME="${androidSdk}/ndk-bundle"
+    # AGP otherwise runs the aapt2 it fetches from Maven, a dynamically linked
+    # binary that can't run on NixOS - use the SDK's patched one instead.
+    export GRADLE_OPTS="-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/build-tools/${buildToolsVersion}/aapt2''${GRADLE_OPTS:+ $GRADLE_OPTS}"
   '';
 }
