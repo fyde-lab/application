@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -88,6 +89,8 @@ import com.peltoche.fyde.resources.no_documents_match_filters
 import com.peltoche.fyde.resources.no_documents_title
 import com.peltoche.fyde.resources.no_matches_title
 import com.peltoche.fyde.resources.offline_banner
+import com.peltoche.fyde.resources.preview_load_failed_description
+import com.peltoche.fyde.resources.preview_load_failed_title
 import com.peltoche.fyde.resources.preview_unavailable_description
 import com.peltoche.fyde.resources.preview_unavailable_title
 import com.peltoche.fyde.resources.retry
@@ -152,6 +155,7 @@ fun DocumentListScreen(
     onUpload: () -> Unit = {},
     isUploading: Boolean = false,
     onDownload: (FydeDocument) -> Unit = {},
+    loadContent: suspend (FydeDocument) -> Result<ByteArray?> = { Result.success(null) },
     onSearchChange: (DocumentSearch) -> Unit = {},
     onOpenSettings: () -> Unit = {},
     onOpenScripts: () -> Unit = {},
@@ -169,7 +173,7 @@ fun DocumentListScreen(
             actionLabel = stringResource(Res.string.retry),
             onAction = state.onRetry,
         )
-        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onDownload, onSearchChange, onOpenSettings, onOpenScripts)
+        is DocumentListUiState.Loaded -> LoadedDocumentList(state, modifier, onUpload, isUploading, onDownload, loadContent, onSearchChange, onOpenSettings, onOpenScripts)
     }
 }
 
@@ -180,6 +184,7 @@ private fun LoadedDocumentList(
     onUpload: () -> Unit,
     isUploading: Boolean,
     onDownload: (FydeDocument) -> Unit,
+    loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     onSearchChange: (DocumentSearch) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenScripts: () -> Unit,
@@ -206,6 +211,7 @@ private fun LoadedDocumentList(
             document = selectedDocument,
             onBack = { selectedId = null },
             onDownload = { onDownload(selectedDocument) },
+            loadContent = loadContent,
             onOpenScripts = onOpenScripts,
             onOpenSettings = onOpenSettings,
         )
@@ -354,7 +360,7 @@ private fun LoadedDocumentList(
                                 icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                             )
                         } else {
-                            DocumentDetailPane(document = selectedDocument, onDownload = { onDownload(selectedDocument) })
+                            DocumentDetailPane(document = selectedDocument, onDownload = { onDownload(selectedDocument) }, loadContent = loadContent)
                         }
                     },
                 )
@@ -374,6 +380,7 @@ private fun CompactDocumentDetail(
     document: FydeDocument,
     onBack: () -> Unit,
     onDownload: () -> Unit,
+    loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -393,6 +400,7 @@ private fun CompactDocumentDetail(
         DocumentDetailPane(
             document = document,
             onDownload = onDownload,
+            loadContent = loadContent,
             scrollable = true,
             modifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background),
         )
@@ -459,6 +467,7 @@ private fun DocumentList(
 private fun DocumentDetailPane(
     document: FydeDocument,
     onDownload: () -> Unit,
+    loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     modifier: Modifier = Modifier,
     scrollable: Boolean = false,
 ) {
@@ -507,6 +516,7 @@ private fun DocumentDetailPane(
         )
         DocumentPreview(
             document = document,
+            loadContent = loadContent,
             modifier = if (scrollable) Modifier.fillMaxWidth().height(560.dp) else Modifier.fillMaxWidth().weight(1f),
         )
     }
@@ -517,14 +527,28 @@ private fun DocumentDetailPane(
  * through [PdfViewer], images decoded and drawn, anything else a plain "no
  * preview" state pointing at Download. Found via review: every document went
  * through the PDF engine, so an image or a spreadsheet showed a red engine
- * error instead.
+ * error instead. Listings carry no content, so a previewable one is fetched
+ * through [loadContent] once shown, and again only if its metadata changes.
  */
 @Composable
-private fun DocumentPreview(document: FydeDocument, modifier: Modifier = Modifier) {
-    when (document.kind) {
-        DocumentKind.PDF -> PdfViewer(pdfBytes = document.content, modifier = modifier)
-        DocumentKind.IMAGE -> {
-            val image = remember(document.id, document.content) { decodeIconBitmap(document.content) }
+private fun DocumentPreview(
+    document: FydeDocument,
+    loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
+    modifier: Modifier = Modifier,
+) {
+    if (document.kind != DocumentKind.PDF && document.kind != DocumentKind.IMAGE) {
+        PreviewUnavailable(document, modifier)
+        return
+    }
+    // null while loading.
+    val loaded by produceState<Result<ByteArray?>?>(null, document) { value = loadContent(document) }
+    val content = loaded?.getOrNull()
+    when {
+        loaded == null -> AppLoading(modifier = modifier)
+        content == null -> PreviewLoadFailed(modifier)
+        document.kind == DocumentKind.PDF -> PdfViewer(pdfBytes = content, modifier = modifier)
+        else -> {
+            val image = remember(content) { decodeIconBitmap(content) }
             if (image != null) {
                 Box(modifier = modifier.padding(horizontal = AppSpacing.space5), contentAlignment = Alignment.TopCenter) {
                     Image(bitmap = image, contentDescription = document.name, contentScale = ContentScale.Fit)
@@ -533,8 +557,17 @@ private fun DocumentPreview(document: FydeDocument, modifier: Modifier = Modifie
                 PreviewUnavailable(document, modifier)
             }
         }
-        else -> PreviewUnavailable(document, modifier)
     }
+}
+
+@Composable
+private fun PreviewLoadFailed(modifier: Modifier = Modifier) {
+    AppEmptyState(
+        modifier = modifier,
+        icon = { AlertGlyph(modifier = Modifier.size(32.dp)) },
+        title = stringResource(Res.string.preview_load_failed_title),
+        description = stringResource(Res.string.preview_load_failed_description),
+    )
 }
 
 @Composable

@@ -105,6 +105,8 @@
     <string name="document_preview_title">Aperçu du document</string>
     <string name="preview_unavailable_title">Aucun aperçu disponible</string>
     <string name="preview_unavailable_description">Les fichiers %1$s ne peuvent pas être prévisualisés ici. Téléchargez le fichier pour l’ouvrir.</string>
+    <string name="preview_load_failed_title">Impossible de charger ce document</string>
+    <string name="preview_load_failed_description">Réessayez plus tard, ou téléchargez-le.</string>
     <string name="pdf_render_failed_title">Impossible d’afficher ce PDF</string>
     <string name="pdf_render_failed_description">Le fichier est peut-être endommagé. Téléchargez-le pour l’ouvrir dans une autre application.</string>
     <string name="pdf_preview_unavailable">L’aperçu PDF n’est pas encore disponible sur le Web.</string>

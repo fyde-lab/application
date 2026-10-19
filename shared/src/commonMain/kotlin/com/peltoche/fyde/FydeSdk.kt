@@ -1,9 +1,11 @@
 package com.peltoche.fyde
 
 /**
- * A document previously cached locally by `fyde-sdk`, mirroring the SDK's
- * `Ffi*` UniFFI types without leaking `:sdkBridge`'s generated bindings into
- * `commonMain` (see `../../shared/build.gradle.kts`).
+ * The metadata of a document previously cached locally by `fyde-sdk`,
+ * mirroring the SDK's `Ffi*` UniFFI types without leaking `:sdkBridge`'s
+ * generated bindings into `commonMain` (see `../../shared/build.gradle.kts`).
+ * Listings carry no content; fetch it with [FydeSdk.getDocumentContent] once
+ * the document is shown.
  */
 data class FydeDocument(
     val id: String,
@@ -14,7 +16,6 @@ data class FydeDocument(
     val documentType: FydeDocumentType?,
     val category: FydeCategory?,
     val subcategory: FydeSubcategory?,
-    val content: ByteArray,
 )
 
 /**
@@ -168,8 +169,8 @@ enum class FydeEventType {
  * is the id of whatever the write is about: a document for
  * [FydeEventType.SAVE_DOCUMENT]/[FydeEventType.UPDATE_METADATA]/
  * [FydeEventType.DELETED], a script for [FydeEventType.INSTALL_SCRIPT].
- * [document] is only present for [FydeEventType.SAVE_DOCUMENT] events, which are
- * the only ones that carry document content and metadata today.
+ * [document] (metadata only) is only present for [FydeEventType.SAVE_DOCUMENT]
+ * events, which are the only ones that carry document content and metadata today.
  */
 data class FydeChangelogEvent(
     val id: String,
@@ -622,6 +623,13 @@ expect object FydeSdk {
      * hasn't been called yet.
      */
     suspend fun searchDocumentFacets(text: String, filters: FydeSearchFilters): Result<FydeSearchFacets>
+
+    /**
+     * The content of the document [id] previously cached locally, or `null`
+     * if there's none. Mirrors [`crate::DocumentsService::get`]; fails if
+     * [initialize] hasn't been called yet.
+     */
+    suspend fun getDocumentContent(id: String): Result<ByteArray?>
 
     /**
      * Reads the local file at [path], encrypts it and its metadata, then
