@@ -19,7 +19,8 @@ let
     "x86_64-linux-android"
   ];
 
-  # sdkBridge cross-compiles ../sdk (fyde-sdk) for Android via the
+  # sdkBridge cross-compiles its rust/ crate (fyde-sdk-bridge, and through it
+  # ../sdk) for Android via the
   # ch.ubique.uniffi.plugin cargo integration; the JVM/Desktop/Wasm targets
   # only ever need the host target.
   # ../sdk's wreq/wreq-util dependency requires rustc >=1.98 (see ../sdk/shell.nix).
@@ -63,7 +64,7 @@ pkgs.mkShell {
 
     # required (via pkg-config) to build ../sdk's wry/tao dependency, the real
     # embedded webview behind fyde.browser — see ../sdk/shell.nix. sdkBridge
-    # compiles ../sdk from source for the uniffi bindings, so this shell needs
+    # compiles ../sdk from source for its uniffi bindings, so this shell needs
     # the same system libraries sdk's own shell.nix provides.
     pkg-config
     webkitgtk_4_1

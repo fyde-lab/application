@@ -37,11 +37,12 @@ kotlin {
     }
 }
 
-// fyde-sdk (../../sdk) is a sibling, independently-versioned Rust repo — not
-// a Cargo workspace member — built here as a native library and exposed to
-// Kotlin via UniFFI. See ../../sdk/CLAUDE.md and ../../CLAUDE.md.
+// rust/ (fyde-sdk-bridge) is this app's own UniFFI layer over fyde-sdk
+// (../../sdk, a sibling, independently-versioned Rust repo it depends on by
+// path — not a Cargo workspace member), built here as a native library and
+// exposed to Kotlin via UniFFI. See ../CLAUDE.md and ../../sdk/CLAUDE.md.
 cargo {
-    packageDirectory = layout.projectDirectory.dir("../../sdk")
+    packageDirectory = layout.projectDirectory.dir("rust")
     ndkVersion = libs.versions.android.ndk.get()
 }
 

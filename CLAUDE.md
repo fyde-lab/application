@@ -1,7 +1,8 @@
 # CLAUDE.md
 
 `fyde-application` is the Kotlin Multiplatform + Compose Multiplatform client (Android, iOS,
-Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through UniFFI bindings (`sdkBridge`).
+Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through this repo's own UniFFI bindings
+(`sdkBridge`, whose `rust/` crate wraps `fyde-sdk`).
 
 ## Rules
 
@@ -14,6 +15,12 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through UniFFI bindings 
   `FfiException.SessionExpired` to `SessionExpiry` (`FydeSdkException.kt`); `App.kt` collects
   it and returns to `LoginScreen`. `App.kt` also polls `FydeSdk.isConnected` while signed in,
   since background sync can end the session without a failing call.
+- **Bindings (`sdkBridge/rust/src/lib.rs`):** every exported `FydeClient` method runs through
+  `FydeClient::localized`, so errors cross as `FfiError` worded in the user's language; never
+  add a `From<Error> for FfiError`. `FfiError` is generated from the SDK's exported
+  `fyde_sdk::for_each_error_code!`, and the `Ffi*` mirrors of SDK types must follow any SDK
+  change (e.g. a new `ProgressStep` needs an `FfiProgressStep` variant). Keep its uniffi
+  namespace `fyde_sdk` (Kotlin package `uniffi.fyde_sdk`).
 - **Visual rules:** `design/design-system.md` is the source of truth (tokens in
   `shared/.../theme/`, components in `shared/.../components/`). Root `DESIGN.md` is superseded —
   don't implement against it.
@@ -45,8 +52,12 @@ unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's na
 - `shared/` — all app code and UI, standard KMP source sets (`commonMain`, `androidMain`,
   `iosMain`, `jvmMain`, `jsMain`, `wasmJsMain`, `webMain` + matching tests). Platform APIs use
   `expect`/`actual` (template: `Platform.kt`). Android namespace `com.peltoche.fyde.shared`.
-- `sdkBridge/` — UniFFI bindings to `../sdk` (`ch.ubique.uniffi.plugin`). `FydeSdk.kt` is an
-  `expect object` with per-platform `actual`s; Web is stubbed (`fyde-sdk` can't compile to wasm).
+- `sdkBridge/` — UniFFI bindings to `../sdk` (`ch.ubique.uniffi.plugin`), generated from
+  `sdkBridge/rust/` (`fyde-sdk-bridge`): a `cdylib`/`staticlib` crate depending on `../sdk` by
+  path, holding `FydeClient` and the `Ffi*` mirror types. Test it with `cargo test` from
+  `sdkBridge/rust/` (it dev-depends on the SDK's `testing` feature for `Fake*` fixtures).
+  `FydeSdk.kt` is an `expect object` with per-platform `actual`s; Web is stubbed (`fyde-sdk`
+  can't compile to wasm).
 - `androidApp/`, `desktopApp/` (`com.peltoche.fyde.MainKt`), `webApp/`, `iosApp/` (Xcode, not
   Gradle) — thin shells bootstrapping `App()`; no business logic.
 
