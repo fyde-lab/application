@@ -7,12 +7,12 @@ import kotlin.coroutines.cancellation.CancellationException
 import uniffi.fyde_sdk.DocumentChangeListener
 import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
-import uniffi.fyde_sdk.FfiDocument
 import uniffi.fyde_sdk.FfiDocumentType
 import uniffi.fyde_sdk.FfiEventType
 import uniffi.fyde_sdk.FfiException
 import uniffi.fyde_sdk.FfiLogLevel
 import uniffi.fyde_sdk.FfiLoginOutcome
+import uniffi.fyde_sdk.FfiMetadata
 import uniffi.fyde_sdk.FfiOpenSession
 import uniffi.fyde_sdk.FfiProgressEvent
 import uniffi.fyde_sdk.FfiScript
@@ -188,7 +188,7 @@ actual object FydeSdk {
 
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> =
         withClient("listDocuments") { client ->
-            client.listDocuments(offset, limit).map(FfiDocument::toFydeDocument)
+            client.listDocuments(offset, limit).map(FfiMetadata::toFydeDocument)
         }
 
     actual suspend fun searchDocuments(
@@ -199,13 +199,17 @@ actual object FydeSdk {
         limit: Long,
     ): Result<List<FydeDocument>> = withClient("searchDocuments") { client ->
         client.searchDocuments(text, filters.toFfiSearchFilters(), order.toFfiSearchOrder(), offset, limit)
-            .map(FfiDocument::toFydeDocument)
+            .map(FfiMetadata::toFydeDocument)
     }
 
     actual suspend fun searchDocumentFacets(text: String, filters: FydeSearchFilters): Result<FydeSearchFacets> =
         withClient("searchDocumentFacets") { client ->
             client.searchDocumentFacets(text, filters.toFfiSearchFilters()).toFydeSearchFacets()
         }
+
+    actual suspend fun getDocumentContent(id: String): Result<ByteArray?> = withClient("getDocumentContent") { client ->
+        client.getDocument(id)?.content
+    }
 
     actual suspend fun uploadDocument(path: String): Result<String> = withClient("uploadDocument") { client ->
         client.uploadDocument(path)
@@ -535,16 +539,15 @@ private fun FfiScriptType.toFydeScriptType() = when (this) {
     FfiScriptType.PARSER -> FydeScriptType.PARSER
 }
 
-private fun FfiDocument.toFydeDocument() = FydeDocument(
+private fun FfiMetadata.toFydeDocument() = FydeDocument(
     id = id,
-    name = metadata.name,
-    contentType = metadata.contentType,
-    createdAt = metadata.createdAt,
-    size = metadata.size.toLong(),
-    documentType = metadata.type?.toFydeDocumentType(),
-    category = metadata.category?.toFydeCategory(),
-    subcategory = metadata.subcategory?.toFydeSubcategory(),
-    content = content,
+    name = name,
+    contentType = contentType,
+    createdAt = createdAt,
+    size = size.toLong(),
+    documentType = type?.toFydeDocumentType(),
+    category = category?.toFydeCategory(),
+    subcategory = subcategory?.toFydeSubcategory(),
 )
 
 private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
@@ -556,19 +559,5 @@ private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
         FfiEventType.INSTALL_SCRIPT -> FydeEventType.INSTALL_SCRIPT
     },
     subjectId = subjectId,
-    document = content?.let { eventContent ->
-        metadata?.let { eventMetadata ->
-            FydeDocument(
-                id = subjectId,
-                name = eventMetadata.name,
-                contentType = eventMetadata.contentType,
-                createdAt = eventMetadata.createdAt,
-                size = eventMetadata.size.toLong(),
-                documentType = eventMetadata.type?.toFydeDocumentType(),
-                category = eventMetadata.category?.toFydeCategory(),
-                subcategory = eventMetadata.subcategory?.toFydeSubcategory(),
-                content = eventContent,
-            )
-        }
-    },
+    document = content?.let { metadata?.toFydeDocument() },
 )

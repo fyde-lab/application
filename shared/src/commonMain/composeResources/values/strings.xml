@@ -105,6 +105,8 @@
     <string name="document_preview_title">Document preview</string>
     <string name="preview_unavailable_title">No preview available</string>
     <string name="preview_unavailable_description">%1$s files can’t be previewed here. Download the file to open it.</string>
+    <string name="preview_load_failed_title">Couldn’t load this document</string>
+    <string name="preview_load_failed_description">Try again later, or download it.</string>
     <string name="pdf_render_failed_title">Couldn’t display this PDF</string>
     <string name="pdf_render_failed_description">The file may be damaged. Download it to open it in another app.</string>
     <string name="pdf_preview_unavailable">PDF preview isn’t available on Web yet.</string>

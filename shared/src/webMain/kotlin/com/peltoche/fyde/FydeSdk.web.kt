@@ -57,6 +57,8 @@ actual object FydeSdk {
     actual suspend fun searchDocumentFacets(text: String, filters: FydeSearchFilters): Result<FydeSearchFacets> =
         unsupported()
 
+    actual suspend fun getDocumentContent(id: String): Result<ByteArray?> = unsupported()
+
     actual suspend fun uploadDocument(path: String): Result<String> = unsupported()
 
     actual suspend fun setLanguage(language: String): Result<Unit> = unsupported()

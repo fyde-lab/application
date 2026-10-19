@@ -634,7 +634,18 @@ private fun DocumentsScreen(
         state = (uiState as? DocumentListUiState.Loaded)?.copy(search = search) ?: uiState,
         onUpload = pickDocuments,
         isUploading = isUploading,
-        onDownload = { document -> saveDocument(document.name, document.content) },
+        // Listings carry no content: fetch it right before saving.
+        onDownload = { document ->
+            scope.launch {
+                val content = FydeSdk.getDocumentContent(document.id).getOrNull()
+                if (content != null) {
+                    saveDocument(document.name, content)
+                } else {
+                    showBanner(getString(Res.string.document_save_failed, document.name))
+                }
+            }
+        },
+        loadContent = { document -> FydeSdk.getDocumentContent(document.id) },
         onSearchChange = { search = it },
         onOpenSettings = onOpenSettings,
         onOpenScripts = onOpenScripts,
