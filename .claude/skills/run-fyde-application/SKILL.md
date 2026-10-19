@@ -11,7 +11,7 @@ agent use, drive it as a real GUI under Xvfb via
 
 All paths below are relative to `application/` (this skill's grandparent
 directory). The build itself needs `application/shell.nix` (JDK 21, the
-pinned Rust toolchain `sdkBridge` uses to cross-compile `../sdk`); the driver's
+pinned Rust toolchain `sdkBridge` uses to cross-compile `fyde-sdk`); the driver's
 X11 tooling (`xorg-server`, `xdotool`, `imagemagick`, `fluxbox`) is pulled
 from nix on demand by the script itself and is NOT part of `shell.nix`.
 
@@ -28,9 +28,9 @@ cd application
 nix-shell --run "./gradlew :desktopApp:compileKotlin --console=plain"
 ```
 
-First run triggers an `sdkBridge` cargo build of `../sdk` (~2-4 min); cached
+First run triggers an `sdkBridge` cargo build of `fyde-sdk`'s `master`, fetched into `build/sdk` (~2-4 min); cached
 after that. If this fails with an rustc-version error, `application/shell.nix`'s
-pinned Rust toolchain is out of sync with `../sdk`'s `wreq` dependency's
+pinned Rust toolchain is out of sync with `fyde-sdk`'s `wreq` dependency's
 minimum version — bump it to match `../sdk/shell.nix`.
 
 ## Run (agent path)
@@ -144,7 +144,7 @@ Opens a real window. Useless on a headless machine — use the agent path.
 ## Troubleshooting
 
 - **`rustc X.Y.Z is not supported by … wreq`** during `build`/`launch`:
-  `application/shell.nix`'s pinned rustc is older than `../sdk`'s `wreq`
+  `application/shell.nix`'s pinned rustc is older than `fyde-sdk`'s `wreq`
   dependency requires. Bump the version in `application/shell.nix` to match
   `../sdk/shell.nix`.
 - **`wait-window` times out:** check the `launch` background task's output —

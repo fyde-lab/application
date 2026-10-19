@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 `fyde-application` is the Kotlin Multiplatform + Compose Multiplatform client (Android, iOS,
-Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through UniFFI bindings (`sdkBridge`).
+Desktop/JVM, Web JS + Wasm) on top of `fyde-sdk`, reached through UniFFI bindings (`sdkBridge`).
 
 ## Rules
 
@@ -21,7 +21,7 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through UniFFI bindings 
 ## Commands
 
 Load `shell.nix` first (`nix-shell` or direnv): it provides JDK 21 (`JAVA_HOME` is otherwise
-unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's native libs.
+unset), the Rust toolchain `sdkBridge` needs to build `fyde-sdk`, and desktop's native libs.
 
 ```sh
 ./gradlew :androidApp:assembleDebug
@@ -45,7 +45,8 @@ unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's na
 - `shared/` — all app code and UI, standard KMP source sets (`commonMain`, `androidMain`,
   `iosMain`, `jvmMain`, `jsMain`, `wasmJsMain`, `webMain` + matching tests). Platform APIs use
   `expect`/`actual` (template: `Platform.kt`). Android namespace `com.peltoche.fyde.shared`.
-- `sdkBridge/` — UniFFI bindings to `../sdk` (`ch.ubique.uniffi.plugin`). `FydeSdk.kt` is an
+- `sdkBridge/` — UniFFI bindings to `fyde-sdk` (`ch.ubique.uniffi.plugin`), built from its own
+  checkout of sdk's `master` (`build/sdk`, fetched on every build), never from `../sdk`. `FydeSdk.kt` is an
   `expect object` with per-platform `actual`s; Web is stubbed (`fyde-sdk` can't compile to wasm).
 - `androidApp/`, `desktopApp/` (`com.peltoche.fyde.MainKt`), `webApp/`, `iosApp/` (Xcode, not
   Gradle) — thin shells bootstrapping `App()`; no business logic.

@@ -474,7 +474,7 @@ sealed interface FydeLoginOutcome {
 }
 
 /**
- * Cross-platform entry point to `fyde-sdk` (`../../sdk`), the Rust client
+ * Cross-platform entry point to `fyde-sdk` (sdk's master branch), the Rust client
  * library for talking to a fyde server. Implemented for Desktop (JVM),
  * Android and iOS via the UniFFI-generated bindings in `:sdkBridge`; not
  * yet wired for Web, see `../../../CLAUDE.md`.

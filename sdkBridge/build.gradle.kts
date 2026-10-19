@@ -1,5 +1,7 @@
 import ch.ubique.uniffi.plugin.model.BuildTarget
 import ch.ubique.uniffi.plugin.tasks.CargoBuildTask
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -40,11 +42,65 @@ kotlin {
     }
 }
 
-// fyde-sdk (../../sdk) is a sibling, independently-versioned Rust repo — not
-// a Cargo workspace member — built here as a native library and exposed to
-// Kotlin via UniFFI. See ../../sdk/CLAUDE.md and ../../CLAUDE.md.
+// fyde-sdk is an independently-versioned Rust repo, built here as a native
+// library and exposed to Kotlin via UniFFI. It's built from its own checkout
+// of the repo's master branch, never from the sibling ../../sdk working copy:
+// that one carries whatever is being worked on in sdk, and building it here
+// too made the two builds keep invalidating each other.
+//
+// Fetching runs in a ValueSource so it happens on every build, configuration
+// cache hit or not: Gradle re-evaluates it to check the cache, and the
+// commit it returns only invalidates the cache when master has moved. If the
+// fetch fails (offline), the existing checkout is built as is.
+abstract class SdkCheckout : ValueSource<String, SdkCheckout.Params> {
+    interface Params : ValueSourceParameters {
+        val url: Property<String>
+        val branch: Property<String>
+        val directory: DirectoryProperty
+    }
+
+    @get:Inject
+    abstract val exec: ExecOperations
+
+    private fun git(vararg args: String, ignoreFailure: Boolean = false): Pair<Boolean, String> {
+        val out = ByteArrayOutputStream()
+        val result = exec.exec {
+            commandLine("git", "-C", parameters.directory.get().asFile.path, *args)
+            standardOutput = out
+            isIgnoreExitValue = ignoreFailure
+        }
+        return (result.exitValue == 0) to out.toString().trim()
+    }
+
+    override fun obtain(): String {
+        val dir = parameters.directory.get().asFile
+        if (!dir.resolve(".git").exists()) {
+            dir.mkdirs()
+            git("init", "--quiet")
+            git("remote", "add", "origin", parameters.url.get())
+        }
+        val (fetched, _) = git("fetch", "--quiet", "--depth=1", "origin", parameters.branch.get(), ignoreFailure = true)
+        if (fetched) {
+            git("checkout", "--quiet", "--force", "--detach", "FETCH_HEAD")
+        }
+        val (hasHead, head) = git("rev-parse", "HEAD", ignoreFailure = true)
+        check(hasHead) {
+            "Could not fetch fyde-sdk's ${parameters.branch.get()} branch from ${parameters.url.get()} into $dir"
+        }
+        return head
+    }
+}
+
+val sdkDirectory = rootProject.layout.buildDirectory.dir("sdk")
+val sdkCommit = providers.of(SdkCheckout::class) {
+    parameters.url = "https://github.com/fyde-lab/sdk.git"
+    parameters.branch = "master"
+    parameters.directory = sdkDirectory
+}
+logger.info("Building fyde-sdk at commit ${sdkCommit.get()}")
+
 cargo {
-    packageDirectory = layout.projectDirectory.dir("../../sdk")
+    packageDirectory = sdkDirectory.get()
     ndkVersion = libs.versions.android.ndk.get()
 }
 
@@ -52,7 +108,7 @@ uniffi {
     generateFromLibrary()
 }
 
-// The plugin builds ../../sdk once for the host without --target (into
+// The plugin builds fyde-sdk once for the host without --target (into
 // target/debug) only to generate the bindings, then again with the host's
 // --target triple for the JVM library: two full builds of the same crate in
 // two cargo output directories. Building the bindings' library for the host

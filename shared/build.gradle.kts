@@ -146,7 +146,7 @@ kotlin {
         jsMain.dependencies {
             implementation(libs.wrappers.browser)
         }
-        // :sdkBridge wraps fyde-sdk (../../sdk) via UniFFI and targets
+        // :sdkBridge wraps fyde-sdk (sdk's master, fetched by sdkBridge) via UniFFI and targets
         // jvm/android/iOS (wired per-target below, including androidMain
         // above) but not js/wasmJs — see sdkBridge/build.gradle.kts. Kept
         // out of commonMain so js/wasmJs compilations of :shared, which have

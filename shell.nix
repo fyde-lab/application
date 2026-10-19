@@ -19,7 +19,8 @@ let
     "x86_64-linux-android"
   ];
 
-  # sdkBridge cross-compiles ../sdk (fyde-sdk) for Android via the
+  # sdkBridge cross-compiles fyde-sdk (its own checkout of sdk's master, under
+  # build/sdk - see sdkBridge/build.gradle.kts) for Android via the
   # ch.ubique.uniffi.plugin cargo integration; the JVM/Desktop/Wasm targets
   # only ever need the host target.
   # ../sdk's wreq/wreq-util dependency requires rustc >=1.98 (see ../sdk/shell.nix).
@@ -46,6 +47,9 @@ pkgs.mkShell {
     rustToolchain
     sccache
 
+    # sdkBridge/build.gradle.kts fetches fyde-sdk's master branch with git.
+    git
+
     # required by ../sdk's build.rs, which fetches its .proto files from the
     # Buf Schema Registry (`buf export buf.build/fyde-lab/api`, needs network
     # access) and compiles them with protoc — see ../sdk/CLAUDE.md.
@@ -63,7 +67,7 @@ pkgs.mkShell {
 
     # required (via pkg-config) to build ../sdk's wry/tao dependency, the real
     # embedded webview behind fyde.browser — see ../sdk/shell.nix. sdkBridge
-    # compiles ../sdk from source for the uniffi bindings, so this shell needs
+    # compiles fyde-sdk from source for the uniffi bindings, so this shell needs
     # the same system libraries sdk's own shell.nix provides.
     pkg-config
     webkitgtk_4_1
@@ -94,11 +98,9 @@ pkgs.mkShell {
     export CC="${pkgs.sccache}/bin/sccache ${pkgs.clang}/bin/clang"
     export CXX="${pkgs.sccache}/bin/sccache ${pkgs.clang}/bin/clang++"
 
-    # sdkBridge builds ../sdk with cargo: keep its artifacts out of ../sdk/target,
-    # which ../sdk's own shell.nix builds into with a different environment.
-    # Sharing it made the two invalidate each other (and the plugin's Gradle
-    # inputs pick up every generated *.rs under ../sdk/target), so each switch
-    # between working on ../sdk and running the app rebuilt the whole sdk.
+    # Keep cargo's artifacts out of sdkBridge's sdk checkout (build/sdk): the
+    # plugin's Gradle inputs cover every *.rs under it, generated ones under
+    # target/ included, which would make each build out of date.
     export CARGO_TARGET_DIR="${toString ./.}/build/cargo"
 
     # bindgenHook's flags carry a -frandom-seed derived from this shell's own

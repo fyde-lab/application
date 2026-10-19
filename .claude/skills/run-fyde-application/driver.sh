@@ -10,7 +10,7 @@
 #   build                   gradlew :desktopApp:compileKotlin (sanity-check build only)
 #   launch                  gradlew :desktopApp:run against :99, backgrounded by caller
 #   wait-window [timeout]   poll until the "Fyde" window exists (default 90s — first launch
-#                            triggers an sdkBridge cargo build of ../sdk, which is slow)
+#                            triggers an sdkBridge cargo build of fyde-sdk, which is slow)
 #   shot [name]             screenshot the app window only -> $SHOT_DIR/<name>.png
 #                            (pixel (x,y) in this image == content-relative coords for click)
 #   click X Y               move mouse to content-relative (X,Y) inside the window and click
