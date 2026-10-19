@@ -1,4 +1,4 @@
-//! The application's native bindings to `fyde-sdk` (`../../../sdk`): exposes
+//! The application's native bindings to `fyde-sdk` (the `sdk` repo's `master`): exposes
 //! the SDK to the Kotlin Multiplatform app via UniFFI-generated bindings,
 //! which `sdkBridge` (`../build.gradle.kts`) generates from this library.
 //!

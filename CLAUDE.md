@@ -53,8 +53,9 @@ unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's na
   `iosMain`, `jvmMain`, `jsMain`, `wasmJsMain`, `webMain` + matching tests). Platform APIs use
   `expect`/`actual` (template: `Platform.kt`). Android namespace `com.peltoche.fyde.shared`.
 - `sdkBridge/` — UniFFI bindings to `../sdk` (`ch.ubique.uniffi.plugin`), generated from
-  `sdkBridge/rust/` (`fyde-sdk-bridge`): a `cdylib`/`staticlib` crate depending on `../sdk` by
-  path, holding `FydeClient` and the `Ffi*` mirror types. Test it with `cargo test` from
+  `sdkBridge/rust/` (`fyde-sdk-bridge`): a `cdylib`/`staticlib` crate depending on `fyde-sdk`
+  from the remote `master` of `github.com/fyde-lab/sdk` (not the local `../sdk` checkout;
+  `Cargo.lock` pins the commit, `cargo update -p fyde-sdk` bumps it), holding `FydeClient` and the `Ffi*` mirror types. Test it with `cargo test` from
   `sdkBridge/rust/` (it dev-depends on the SDK's `testing` feature for `Fake*` fixtures).
   `FydeSdk.kt` is an `expect object` with per-platform `actual`s; Web is stubbed (`fyde-sdk`
   can't compile to wasm).
