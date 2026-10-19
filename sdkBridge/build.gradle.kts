@@ -48,3 +48,19 @@ cargo {
 uniffi {
     generateFromLibrary()
 }
+
+// Outside release builds (the plugin's `-PreleaseBuild=true`), fyde-sdk
+// serves its tokio runtime's tasks to tokio-console (127.0.0.1:6669; forward
+// it with `adb forward tcp:6669 tcp:6669` on Android). The SDK gates this on
+// `--cfg tokio_unstable` rather than a Cargo feature because this plugin can't
+// pass `--features` to the `cargo build` it runs, only environment variables.
+// Every cargo task (bindings library included) gets the same RUSTFLAGS, so
+// they don't keep invalidating each other's build cache.
+val isReleaseBuild: Boolean = providers.gradleProperty("releaseBuild").orNull == "true"
+
+if (!isReleaseBuild) {
+    val rustFlags = listOfNotNull(System.getenv("RUSTFLAGS"), "--cfg tokio_unstable").joinToString(" ")
+    tasks.withType<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>().configureEach {
+        additionalEnvironment.put("RUSTFLAGS", rustFlags)
+    }
+}
