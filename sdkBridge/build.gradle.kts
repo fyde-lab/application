@@ -1,3 +1,6 @@
+import ch.ubique.uniffi.plugin.model.BuildTarget
+import ch.ubique.uniffi.plugin.tasks.CargoBuildTask
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
@@ -47,4 +50,14 @@ cargo {
 
 uniffi {
     generateFromLibrary()
+}
+
+// The plugin builds ../../sdk once for the host without --target (into
+// target/debug) only to generate the bindings, then again with the host's
+// --target triple for the JVM library: two full builds of the same crate in
+// two cargo output directories. Building the bindings' library for the host
+// triple too makes both the same cargo invocation, so whichever runs second
+// is a no-op.
+tasks.named<CargoBuildTask>("buildLibraryForBindings") {
+    rustTarget.set(BuildTarget.RustTarget.forCurrentPlatform)
 }

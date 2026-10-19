@@ -94,6 +94,21 @@ pkgs.mkShell {
     export CC="${pkgs.sccache}/bin/sccache ${pkgs.clang}/bin/clang"
     export CXX="${pkgs.sccache}/bin/sccache ${pkgs.clang}/bin/clang++"
 
+    # sdkBridge builds ../sdk with cargo: keep its artifacts out of ../sdk/target,
+    # which ../sdk's own shell.nix builds into with a different environment.
+    # Sharing it made the two invalidate each other (and the plugin's Gradle
+    # inputs pick up every generated *.rs under ../sdk/target), so each switch
+    # between working on ../sdk and running the app rebuilt the whole sdk.
+    export CARGO_TARGET_DIR="${toString ./.}/build/cargo"
+
+    # bindgenHook's flags carry a -frandom-seed derived from this shell's own
+    # store path, which changes whenever any input of this shell does (e.g. the
+    # unpinned nixpkgs/rust-overlay above). bindgen's build script reruns when
+    # BINDGEN_EXTRA_CLANG_ARGS changes, which recompiles btls-sys (wreq's
+    # vendored BoringSSL) and everything above it - drop the seed, bindgen only
+    # parses headers with these flags.
+    export BINDGEN_EXTRA_CLANG_ARGS="$(echo "$BINDGEN_EXTRA_CLANG_ARGS" | sed -E 's/ ?-frandom-seed=[^ ]+//g')"
+
     # See the `glib-networking` comment above - GIO only looks for TLS/proxy
     # backend modules on this path, which nixpkgs never adds to a plain
     # shell's environment on its own.
