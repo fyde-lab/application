@@ -1,0 +1,39 @@
+[package]
+name = "fyde-sdk-bridge"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Built as a native library for the Kotlin side of `sdkBridge`
+# (`../build.gradle.kts`): `cdylib` for Android/Desktop, `staticlib` for iOS.
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+# A sibling, independently-versioned repo (`../../../sdk`), not a Cargo
+# workspace member. See ../../../sdk/CLAUDE.md.
+fyde-sdk = { path = "../../../sdk" }
+serde_json = "1.0.151"
+thiserror = "2.0.20"
+tracing = "0.1.44"
+# `tokio`: `FydeClient`'s methods run on a Tokio runtime
+# (`async_runtime = "tokio"`), which the SDK's sqlx pool needs.
+uniffi = { version = "=0.32.0", features = ["tokio"] }
+uuid = "1.26.1"
+
+[dev-dependencies]
+# `testing`: the SDK's `Fake*` builders, to test conversions against.
+fyde-sdk = { path = "../../../sdk", features = ["testing"] }
+
+[features]
+# Forwards the SDK's own `tokio-console` feature (see ../../../sdk/Cargo.toml).
+tokio-console = ["fyde-sdk/tokio-console"]
+
+# Same as ../../../sdk/Cargo.toml: Argon2id runs on every login/registration
+# and takes ~3s per call unoptimized. Profiles are only read from the crate
+# being built, so the SDK's own override doesn't apply here.
+[profile.dev.package.argon2]
+opt-level = 3
+
+[profile.dev.package.blake2]
+opt-level = 3

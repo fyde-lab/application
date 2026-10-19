@@ -41,6 +41,11 @@ tasks:
     desc: Run shared module tests (iOS simulator; requires Xcode/macOS)
     cmd: ./gradlew :shared:iosSimulatorArm64Test
 
+  test-bridge:
+    desc: Run the Rust tests of sdkBridge's UniFFI crate (fyde-sdk-bridge)
+    dir: sdkBridge/rust
+    cmd: cargo test
+
   test:
     desc: Run shared module tests for Android, Desktop, and Web (JS + Wasm)
     cmds:
