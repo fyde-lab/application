@@ -30,6 +30,9 @@ object AppShapes {
 
     /** Menus and other popovers — `radius-lg`, like dialogs, not M3's 2dp menu default. */
     val popover: Shape = AppRadius.lg
+
+    /** `AppIconTile` (a row's, card's or header's leading visual) and its skeleton — `radius-md`, like the card it usually sits in. */
+    val iconTile: Shape = AppRadius.md
 }
 
 /**

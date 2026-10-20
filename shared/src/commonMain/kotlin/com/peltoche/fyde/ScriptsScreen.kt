@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -34,6 +33,7 @@ import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.content.AppBadge
 import com.peltoche.fyde.components.content.AppBadgeVariant
 import com.peltoche.fyde.components.content.AppCard
+import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
@@ -64,7 +64,9 @@ import com.peltoche.fyde.resources.script_private_badge
 import com.peltoche.fyde.resources.script_version
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
@@ -137,7 +139,7 @@ fun ScriptsScreen(
         )
         is ScriptsUiState.ConnectFailed -> AppErrorState(
             modifier = modifier,
-            icon = { AlertGlyph(modifier = Modifier.size(32.dp)) },
+            icon = { AlertGlyph(modifier = Modifier.size(AppIconSize.lg)) },
             title = stringResource(Res.string.connect_failed_title),
             description = state.message,
             actionLabel = stringResource(Res.string.retry),
@@ -193,7 +195,7 @@ private fun LoadedScripts(
 
                     scripts.isEmpty() -> AppEmptyState(
                         modifier = Modifier.weight(1f),
-                        icon = { PuzzleGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                        icon = { PuzzleGlyph(modifier = Modifier.size(AppIconSize.xl), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                         title = stringResource(Res.string.scripts_empty_title),
                         description = stringResource(Res.string.scripts_empty_description),
                     )
@@ -206,13 +208,13 @@ private fun LoadedScripts(
                             placeholder = stringResource(Res.string.search_scripts_placeholder),
                             onClear = { onQueryChange("") },
                             clearContentDescription = stringResource(Res.string.clear_search),
-                            leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
+                            leadingIcon = { SearchGlyph(modifier = Modifier.size(AppIconSize.sm)) },
                         )
                         val matches = filterScripts(scripts, query)
                         if (matches.isEmpty()) {
                             AppEmptyState(
                                 modifier = Modifier.weight(1f),
-                                icon = { PuzzleGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                icon = { PuzzleGlyph(modifier = Modifier.size(AppIconSize.xl), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                                 title = stringResource(Res.string.no_matches_title),
                                 description = stringResource(Res.string.no_scripts_match, query.trim()),
                                 actionLabel = stringResource(Res.string.clear_search),
@@ -396,16 +398,9 @@ private const val ICON_GLYPH_SCALE = 0.45f
  * decoration rather than emphasis.
  */
 @Composable
-internal fun ScriptIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modifier, size: Dp = 44.dp) {
+internal fun ScriptIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modifier, size: Dp = AppDimensions.iconTile) {
     val bitmap = remember(icon) { decodeIconBitmap(icon) }
-    Box(
-        modifier = modifier
-            .size(size)
-            .clip(AppRadius.md)
-            .background(AppColors.background)
-            .border(AppDimensions.borderHairline, AppColors.border, AppRadius.md),
-        contentAlignment = Alignment.Center,
-    ) {
+    AppIconTile(modifier = modifier, size = size) {
         if (bitmap != null) {
             Image(
                 bitmap = bitmap,
@@ -438,7 +433,7 @@ private fun ScriptsSkeletonGrid(modifier: Modifier = Modifier) {
 private fun SkeletonCard() {
     AppCard(modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.Top) {
-            AppSkeleton(modifier = Modifier.size(44.dp), shape = AppRadius.md)
+            AppSkeleton(modifier = Modifier.size(AppDimensions.iconTile), shape = AppShapes.iconTile)
             Spacer(Modifier.width(AppSpacing.space4))
             Column(modifier = Modifier.weight(1f)) {
                 AppSkeleton(modifier = Modifier.padding(vertical = AppSpacing.space2).size(width = 120.dp, height = 14.dp))

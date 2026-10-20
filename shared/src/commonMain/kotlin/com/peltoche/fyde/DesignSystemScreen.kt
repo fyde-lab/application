@@ -37,10 +37,12 @@ import com.peltoche.fyde.components.content.AppBadge
 import com.peltoche.fyde.components.content.AppBadgeVariant
 import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.AppListItem
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
+import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
 import com.peltoche.fyde.components.form.AppCheckbox
@@ -61,7 +63,10 @@ import com.peltoche.fyde.layout.AppScaffold
 import com.peltoche.fyde.layout.AppTwoPaneLayout
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import kotlinx.coroutines.launch
@@ -114,6 +119,12 @@ private fun CatalogueRow(label: String, content: @Composable () -> Unit) {
         Text(text = label, style = AppTypography.caption, color = AppColors.textMuted)
         content()
     }
+}
+
+/** A list row's canonical leading content — see `AppIconTile`. */
+@Composable
+private fun CatalogueTile() {
+    AppIconTile(tint = AppColors.primary) { DocumentGlyph(tint = AppColors.primary, modifier = Modifier.size(AppIconSize.md)) }
 }
 
 @Composable
@@ -226,17 +237,25 @@ private fun ContentSection() {
         }
         CatalogueRow("AppListItem — with/without supporting text and trailing content") {
             Column {
-                AppListItem(title = "invoice-march.pdf", supportingText = "2.1 MB · 2026-08-01", leadingContent = { DotIcon() })
+                AppListItem(title = "invoice-march.pdf", supportingText = "2.1 MB · 2026-08-01", leadingContent = { CatalogueTile() })
                 AppDivider()
                 AppListItem(
                     title = "contract-final.pdf",
                     supportingText = "540 KB · 2026-07-14",
-                    leadingContent = { DotIcon() },
+                    leadingContent = { CatalogueTile() },
                     trailingContent = { AppBadge(text = "New", variant = AppBadgeVariant.Primary) },
                     onClick = {},
                 )
                 AppDivider()
-                AppListItem(title = "notes.pdf", leadingContent = { DotIcon() })
+                AppListItem(title = "notes.pdf", leadingContent = { CatalogueTile() })
+            }
+        }
+        CatalogueRow("AppIconTile — tinted (app-colored glyph) / neutral (brings its own colors)") {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                AppIconTile(tint = AppColors.primary) { DocumentGlyph(tint = AppColors.primary, modifier = Modifier.size(AppIconSize.md)) }
+                AppIconTile(tint = AppColors.secondary) { DocumentGlyph(tint = AppColors.secondary, modifier = Modifier.size(AppIconSize.md)) }
+                AppIconTile { PuzzleGlyph(tint = AppColors.textMuted, modifier = Modifier.size(AppIconSize.md)) }
+                AppSkeleton(modifier = Modifier.size(AppDimensions.iconTile), shape = AppShapes.iconTile)
             }
         }
         CatalogueRow("AppBadge — Neutral / Primary / Success / Warning / Error") {
@@ -265,12 +284,20 @@ private fun FeedbackSection() {
                 AppSkeleton(modifier = Modifier.size(width = 60.dp, height = 14.dp))
             }
         }
+        CatalogueRow("AppProgressBar — determinate / warning / error / indeterminate") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space4)) {
+                AppProgressBar(progress = 0.42f, modifier = Modifier.fillMaxWidth())
+                AppProgressBar(progress = 0.9f, color = AppColors.warning, modifier = Modifier.fillMaxWidth())
+                AppProgressBar(progress = 1f, color = AppColors.error, modifier = Modifier.fillMaxWidth())
+                AppProgressBar(progress = null, modifier = Modifier.fillMaxWidth())
+            }
+        }
         CatalogueRow("AppEmptyState") {
             AppEmptyState(
                 title = "No documents yet",
                 description = "Documents you import will show up here.",
-                modifier = Modifier.height(220.dp),
-                icon = { DotIcon() },
+                modifier = Modifier.height(260.dp),
+                icon = { DocumentGlyph(modifier = Modifier.size(AppIconSize.xl), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                 actionLabel = "Import a document",
                 onAction = {},
             )
@@ -279,8 +306,8 @@ private fun FeedbackSection() {
             AppErrorState(
                 title = "Can't reach the server",
                 description = "Check your connection and try again.",
-                modifier = Modifier.height(220.dp),
-                icon = { Text("!", color = AppColors.error) },
+                modifier = Modifier.height(260.dp),
+                icon = { AlertGlyph(modifier = Modifier.size(AppIconSize.lg)) },
                 actionLabel = "Retry",
                 onAction = {},
             )
@@ -398,11 +425,11 @@ private fun mockNavigationItems(): List<AppNavigationItem> = listOf("Documents",
 @Composable
 private fun MockDocumentList() {
     Column {
-        AppListItem(title = "invoice-march.pdf", supportingText = "2.1 MB", leadingContent = { DotIcon() })
+        AppListItem(title = "invoice-march.pdf", supportingText = "2.1 MB", leadingContent = { CatalogueTile() })
         AppDivider()
-        AppListItem(title = "contract-final.pdf", supportingText = "540 KB", leadingContent = { DotIcon() })
+        AppListItem(title = "contract-final.pdf", supportingText = "540 KB", leadingContent = { CatalogueTile() })
         AppDivider()
-        AppListItem(title = "notes.pdf", supportingText = "12 KB", leadingContent = { DotIcon() })
+        AppListItem(title = "notes.pdf", supportingText = "12 KB", leadingContent = { CatalogueTile() })
     }
 }
 

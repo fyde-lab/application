@@ -24,12 +24,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.feedback.AppBanner
+import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.form.AppSwitch
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppTopBar
@@ -63,11 +63,11 @@ import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.ui.text.input.ImeAction
 import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.resources.script_run_button
@@ -250,7 +250,7 @@ fun ScriptDetailScreen(
                                 onClick = onRun,
                                 enabled = run.canRun && !isPending,
                                 loading = run.isRunning,
-                                leadingIcon = { PlayGlyph(modifier = Modifier.size(12.dp), tint = AppColors.onPrimary) },
+                                leadingIcon = { PlayGlyph(modifier = Modifier.size(AppIconSize.xs), tint = AppColors.onPrimary) },
                                 modifier = itemModifier,
                             )
                         }
@@ -476,22 +476,10 @@ private fun RunProgressCard(step: String?, update: FydeScraperProgress.Update?) 
                 color = AppColors.text,
             )
             Spacer(Modifier.height(AppSpacing.space3))
-            if (update != null && update.total > 0) {
-                LinearProgressIndicator(
-                    progress = { (update.current.toFloat() / update.total).coerceIn(0f, 1f) },
-                    modifier = Modifier.fillMaxWidth(),
-                    color = AppColors.primary,
-                    trackColor = AppColors.border,
-                    strokeCap = StrokeCap.Butt,
-                )
-            } else {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = AppColors.primary,
-                    trackColor = AppColors.border,
-                    strokeCap = StrokeCap.Butt,
-                )
-            }
+            AppProgressBar(
+                progress = update?.takeIf { it.total > 0 }?.let { it.current.toFloat() / it.total },
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }

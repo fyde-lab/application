@@ -44,7 +44,7 @@ fun AppBanner(
             .background(
                 when (severity) {
                     AppBannerSeverity.Error -> MaterialTheme.colorScheme.errorContainer
-                    AppBannerSeverity.Warning -> AppColors.warning.copy(alpha = 0.14f)
+                    AppBannerSeverity.Warning -> AppColors.tintOf(AppColors.warning)
                 },
             )
             .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
