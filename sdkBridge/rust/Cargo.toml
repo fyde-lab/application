@@ -30,6 +30,16 @@ fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master", fea
 # Forwards the SDK's own `tokio-console` feature (see the sdk's Cargo.toml).
 tokio-console = ["fyde-sdk/tokio-console"]
 
+# Turns the SDK's `tokio-console` feature on whenever built with
+# `RUSTFLAGS="--cfg tokio_unstable"` (which that feature needs anyway to record
+# task data). This is how `../build.gradle.kts` enables it: the Gradle plugin
+# can't pass `--features` to the `cargo build` it runs, only environment variables.
+[target.'cfg(tokio_unstable)'.dependencies]
+fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master", features = ["tokio-console"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(tokio_unstable)"] }
+
 # Same as the sdk's Cargo.toml: Argon2id runs on every login/registration
 # and takes ~3s per call unoptimized. Profiles are only read from the crate
 # being built, so the SDK's own override doesn't apply here.
