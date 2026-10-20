@@ -271,6 +271,10 @@ actual object FydeSdk {
         client.listPublicScripts().map(FfiScriptMetadata::toFydeScript)
     }
 
+    actual suspend fun fetchScriptIcon(scriptId: String): Result<ByteArray> = withClient("fetchScriptIcon") { client ->
+        client.fetchScriptIcon(scriptId)
+    }
+
     actual fun setScraperHandler(handler: FydeScraperHandler?) {
         scraperHandler = handler
     }
@@ -527,7 +531,7 @@ private fun FfiScriptMetadata.toFydeScript() = FydeScript(
     description = description,
     shortDescription = shortDescription,
     isPublic = isPublic,
-    icon = icon,
+    icon = ByteArray(0),
     allowedDomains = allowedDomains,
     version = version.toLong(),
     lastUpdated = lastUpdated,
