@@ -253,6 +253,10 @@
     <string name="theme_section_title">Theme</string>
     <string name="theme_label">App theme</string>
     <string name="theme_fyde">Fyde</string>
+    <string name="appearance_label">Light or dark</string>
+    <string name="appearance_system">Same as system</string>
+    <string name="appearance_light">Light</string>
+    <string name="appearance_dark">Dark</string>
     <string name="plan_section_title">Plan</string>
     <string name="plan_label">Current plan</string>
     <string name="plan_name_free">Free</string>

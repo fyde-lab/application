@@ -26,6 +26,7 @@ import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
+import com.peltoche.fyde.theme.AppAppearance
 import com.peltoche.fyde.theme.AppTheme
 import com.peltoche.fyde.theme.AppThemeOption
 import kotlin.time.Clock
@@ -117,24 +118,35 @@ private val Screen.isSignedOut: Boolean
 @Composable
 @Preview
 fun App() {
-    // The theme picked in Settings, held here rather than in AppContent since
-    // AppTheme has to wrap every screen. Not persisted yet: fyde-sdk has no
-    // preference for it (unlike the language), and Fyde is the only theme.
+    // The theme and light/dark appearance picked in Settings, held here rather
+    // than in AppContent since AppTheme has to wrap every screen. Not persisted
+    // yet: fyde-sdk has no preference for them (unlike the language).
     var theme by remember { mutableStateOf(AppThemeOption.Default) }
-    AppTheme(theme = theme) {
+    var appearance by remember { mutableStateOf(AppAppearance.Default) }
+    AppTheme(theme = theme, darkTheme = appearance.isDark()) {
         AppWindowSizeClassProvider {
             // One host for every screen's transient confirmations, above the
             // screens themselves so a message outlives the screen raising it.
             val snackbarHostState = remember { SnackbarHostState() }
             CompositionLocalProvider(LocalAppSnackbarHostState provides snackbarHostState) {
-                AppContent(theme = theme, onThemeChange = { theme = it })
+                AppContent(
+                    theme = theme,
+                    onThemeChange = { theme = it },
+                    appearance = appearance,
+                    onAppearanceChange = { appearance = it },
+                )
             }
         }
     }
 }
 
 @Composable
-private fun AppContent(theme: AppThemeOption, onThemeChange: (AppThemeOption) -> Unit) {
+private fun AppContent(
+    theme: AppThemeOption,
+    onThemeChange: (AppThemeOption) -> Unit,
+    appearance: AppAppearance,
+    onAppearanceChange: (AppAppearance) -> Unit,
+) {
     var screen by remember { mutableStateOf<Screen>(Screen.Login) }
     var authError by remember { mutableStateOf<String?>(null) }
     // Whether a login/register call is in flight: OPAQUE's key stretching
@@ -368,6 +380,8 @@ private fun AppContent(theme: AppThemeOption, onThemeChange: (AppThemeOption) ->
             Screen.Settings -> SettingsScreen(
                 currentTheme = theme,
                 onThemeChange = onThemeChange,
+                currentAppearance = appearance,
+                onAppearanceChange = onAppearanceChange,
                 currentLanguage = language,
                 onLanguageChange = { newLanguage ->
                     applyPlatformLocale(newLanguage)
