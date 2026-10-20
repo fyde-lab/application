@@ -236,6 +236,18 @@ uses, and it pairs cleanly with the umber secondary (ink + kraft paper is a
 real, physical reference point for a document tool, not an abstract color
 pick).
 
+### Themes
+
+The palette above is the **Fyde** theme, the default and, for now, the only
+one. Themes are listed in `theme/AppThemeOption.kt` and picked in Settings
+(Theme section); `AppTheme` applies the chosen one. A theme is a palette
+only — a light and a dark value for every role in the table above (plus the
+extended `success`/`warning`/`selection` roles) — while typography, shape,
+spacing and elevation stay shared by all themes. Light/dark still follows the
+platform within whichever theme is picked. A new theme must fill every role
+and meet the same contrast floors as Fyde's (see `border-strong` above);
+screens never branch on the theme, they read `AppColors` only.
+
 ---
 
 ## Shape
