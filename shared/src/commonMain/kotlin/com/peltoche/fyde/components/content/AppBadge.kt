@@ -14,7 +14,7 @@ import com.peltoche.fyde.theme.AppTypography
 /** Semantic emphasis for [AppBadge] — kept separate from the brand accent, per design-system.md's "semantic color is separate from the accent" principle. */
 enum class AppBadgeVariant { Neutral, Primary, Success, Warning, Error }
 
-/** A small status/count label. Background is the variant color at low alpha, so no extra container tokens are needed. */
+/** A small status/count label. Background is the variant color's tinted container ([AppColors.tintOf]). */
 @Composable
 fun AppBadge(
     text: String,
@@ -34,7 +34,7 @@ fun AppBadge(
         color = color,
         modifier = modifier
             .clip(AppRadius.xs)
-            .background(color.copy(alpha = 0.15f))
+            .background(AppColors.tintOf(color))
             .padding(horizontal = AppSpacing.space3, vertical = AppSpacing.space1),
     )
 }

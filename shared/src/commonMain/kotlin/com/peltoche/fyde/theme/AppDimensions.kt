@@ -49,6 +49,15 @@ object AppDimensions {
      */
     val twoPaneListWidthExpanded: Dp = 480.dp
 
+    /**
+     * `AppIconTile`'s default size — the leading visual of a document row
+     * or script card, and the skeleton standing in for it while loading.
+     */
+    val iconTile: Dp = 44.dp
+
+    /** `AppProgressBar`'s thickness, and the skeleton standing in for one. */
+    val progressBarHeight: Dp = 6.dp
+
     /** Elevation/Shape — hairline dividers and card edges. */
     val borderHairline: Dp = 1.dp
 
@@ -77,4 +86,27 @@ object AppDimensions {
 
     /** Layout § density — desktop/pointer list rows; at/below natural row height, the tightest tier. */
     val rowHeightCompact: Dp = 56.dp
+}
+
+/**
+ * Glyph sizes — design-system.md § Iconography. The app's glyphs are drawn
+ * on a `Canvas` (see `NavGlyphs.kt`) and take their size from the caller's
+ * `Modifier.size`, so the scale lives here rather than in each glyph. A
+ * size off this scale is an optical exception and says why where it's used.
+ */
+object AppIconSize {
+    /** Inline with caption text or inside a small control: a row's trailing chevron, a button's play mark. */
+    val xs: Dp = 12.dp
+
+    /** Leading icon of a field or button, an icon button's glyph. */
+    val sm: Dp = 16.dp
+
+    /** Navigation destinations, the glyph inside an `AppIconTile`. */
+    val md: Dp = 20.dp
+
+    /** The alert glyph inside `AppErrorState`'s circle — drawn edge to edge, so smaller than [xl] to read at the same weight. */
+    val lg: Dp = 32.dp
+
+    /** The illustrative glyph inside `AppEmptyState`'s circle. */
+    val xl: Dp = 40.dp
 }

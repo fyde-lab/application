@@ -45,6 +45,7 @@ import com.peltoche.fyde.resources.nav_scripts
 import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
@@ -159,15 +160,15 @@ private fun appNavigationItems(
     // in the sidebar header, three names for one place.
     val items = mutableListOf(
         navigationItem(stringResource(Res.string.nav_documents), current == TopLevelDestination.Documents, onOpenDocuments) { tint ->
-            DocumentGlyph(tint = tint, modifier = Modifier.size(20.dp))
+            DocumentGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md))
         },
         navigationItem(stringResource(Res.string.nav_scripts), current == TopLevelDestination.Scripts, onOpenScripts) { tint ->
-            CodeGlyph(tint = tint, modifier = Modifier.size(20.dp))
+            CodeGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md))
         },
     )
     if (includeSettings) {
         items += navigationItem(stringResource(Res.string.settings), current == TopLevelDestination.Settings, onOpenSettings) { tint ->
-            GearGlyph(tint = tint, modifier = Modifier.size(20.dp))
+            GearGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md))
         }
     }
     return items
@@ -223,7 +224,7 @@ private fun BrandMark(modifier: Modifier = Modifier) {
 @Composable
 private fun SettingsButton(selected: Boolean, onClick: () -> Unit) {
     AppIconButton(onClick = onClick, contentDescription = stringResource(Res.string.settings)) {
-        GearGlyph(tint = if (selected) AppColors.primary else AppColors.textMuted, modifier = Modifier.size(20.dp))
+        GearGlyph(tint = if (selected) AppColors.primary else AppColors.textMuted, modifier = Modifier.size(AppIconSize.md))
     }
 }
 
@@ -249,7 +250,7 @@ private fun EncryptionIndicator() {
                 .semantics { contentDescription = "$title. $description" },
             contentAlignment = Alignment.Center,
         ) {
-            LockGlyph(tint = AppColors.textMuted, modifier = Modifier.size(20.dp))
+            LockGlyph(tint = AppColors.textMuted, modifier = Modifier.size(AppIconSize.md))
         }
     }
 }
@@ -290,7 +291,7 @@ internal fun EncryptionBadge(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .clip(AppRadius.md)
-            .background(AppColors.success.copy(alpha = 0.10f))
+            .background(AppColors.tintOf(AppColors.success))
             .padding(AppSpacing.space3),
         verticalAlignment = Alignment.CenterVertically,
     ) {

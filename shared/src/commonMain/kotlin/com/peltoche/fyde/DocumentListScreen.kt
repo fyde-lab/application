@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -40,6 +39,7 @@ import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppIconButton
 import com.peltoche.fyde.components.content.AppChip
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.AppListItem
 import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppBannerSeverity
@@ -101,7 +101,8 @@ import com.peltoche.fyde.resources.select_document_title
 import com.peltoche.fyde.resources.upload_document
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
-import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.AppIconSize
+import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.pluralStringResource
@@ -167,7 +168,7 @@ fun DocumentListScreen(
         )
         is DocumentListUiState.ConnectFailed -> AppErrorState(
             modifier = modifier,
-            icon = { AlertGlyph(modifier = Modifier.size(32.dp)) },
+            icon = { AlertGlyph(modifier = Modifier.size(AppIconSize.lg)) },
             title = stringResource(Res.string.connect_failed_title),
             description = state.message,
             actionLabel = stringResource(Res.string.retry),
@@ -303,7 +304,7 @@ private fun LoadedDocumentList(
                                 placeholder = stringResource(Res.string.search_documents_placeholder),
                                 onClear = { onSearchChange(search.copy(text = "")) },
                                 clearContentDescription = stringResource(Res.string.clear_search),
-                                leadingIcon = { SearchGlyph(modifier = Modifier.size(16.dp)) },
+                                leadingIcon = { SearchGlyph(modifier = Modifier.size(AppIconSize.sm)) },
                             )
 
                             if (!documents.isNullOrEmpty()) {
@@ -333,14 +334,14 @@ private fun LoadedDocumentList(
 
                                 documents.isEmpty() -> AppEmptyState(
                                     modifier = Modifier.weight(1f),
-                                    icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                    icon = { DocumentGlyph(modifier = Modifier.size(AppIconSize.xl), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                                     title = stringResource(Res.string.no_documents_title),
                                     description = stringResource(Res.string.no_documents_description),
                                 )
 
                                 visibleDocuments.isEmpty() -> AppEmptyState(
                                     modifier = Modifier.weight(1f),
-                                    icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                    icon = { DocumentGlyph(modifier = Modifier.size(AppIconSize.xl), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                                     title = stringResource(Res.string.no_matches_title),
                                     description = if (search.text.isNotBlank()) {
                                         stringResource(Res.string.no_documents_match, search.text)
@@ -371,7 +372,7 @@ private fun LoadedDocumentList(
                             AppEmptyState(
                                 title = stringResource(Res.string.select_document_title),
                                 description = stringResource(Res.string.select_document_description),
-                                icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+                                icon = { DocumentGlyph(modifier = Modifier.size(AppIconSize.xl), tint = AppColors.textMuted, strokeWidth = 2.dp) },
                             )
                         } else {
                             DocumentDetailPane(document = selectedDocument, onDownload = { onDownload(selectedDocument) }, loadContent = loadContent)
@@ -460,7 +461,7 @@ private fun DocumentList(
                 title = document.name,
                 supportingText = rowSummary(document),
                 leadingContent = { FileTypeIcon(document) },
-                trailingContent = { ChevronRightGlyph(modifier = Modifier.size(12.dp)) },
+                trailingContent = { ChevronRightGlyph(modifier = Modifier.size(AppIconSize.xs)) },
                 selected = document.id == selectedId,
                 onClick = { onClick(document) },
                 modifier = Modifier.heightIn(min = rowMinHeight),
@@ -490,8 +491,8 @@ private fun DocumentDetailPane(
             modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Larger than a list row's (44dp), never smaller: this is the
-            // document itself, not one row of many.
+            // Larger than a list row's (AppDimensions.iconTile), never
+            // smaller: this is the document itself, not one row of many.
             FileTypeIcon(document, size = 48.dp)
             Spacer(Modifier.width(AppSpacing.space4))
             Column(modifier = Modifier.weight(1f)) {
@@ -516,7 +517,7 @@ private fun DocumentDetailPane(
             // as permanently disabled icons with nothing behind them;
             // they're gone until those features exist.
             AppIconButton(onClick = onDownload, contentDescription = stringResource(Res.string.document_download)) {
-                DownloadGlyph(modifier = Modifier.size(16.dp), tint = AppColors.text)
+                DownloadGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.text)
             }
         }
         AppDivider()
@@ -576,9 +577,9 @@ private fun DocumentPreview(
 
 @Composable
 private fun PreviewLoadFailed(modifier: Modifier = Modifier) {
-    AppEmptyState(
+    AppErrorState(
         modifier = modifier,
-        icon = { AlertGlyph(modifier = Modifier.size(32.dp)) },
+        icon = { AlertGlyph(modifier = Modifier.size(AppIconSize.lg)) },
         title = stringResource(Res.string.preview_load_failed_title),
         description = stringResource(Res.string.preview_load_failed_description),
     )
@@ -588,7 +589,7 @@ private fun PreviewLoadFailed(modifier: Modifier = Modifier) {
 private fun PreviewUnavailable(document: FydeDocument, modifier: Modifier = Modifier) {
     AppEmptyState(
         modifier = modifier,
-        icon = { DocumentGlyph(modifier = Modifier.size(40.dp), tint = AppColors.textMuted, strokeWidth = 2.dp) },
+        icon = { DocumentGlyph(modifier = Modifier.size(AppIconSize.xl), tint = AppColors.textMuted, strokeWidth = 2.dp) },
         title = stringResource(Res.string.preview_unavailable_title),
         description = stringResource(Res.string.preview_unavailable_description, document.typeCode),
     )
@@ -655,16 +656,10 @@ internal fun DetailCell(label: String, value: String, modifier: Modifier = Modif
  * into this chip, where it would drop below a readable size.
  */
 @Composable
-private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, size: Dp = 44.dp) {
+private fun FileTypeIcon(document: FydeDocument, modifier: Modifier = Modifier, size: Dp = AppDimensions.iconTile) {
     val tint = document.kind.tint()
-    Box(
-        modifier = modifier
-            .size(size)
-            .clip(AppRadius.md)
-            .background(tint.copy(alpha = 0.14f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        DocumentGlyph(tint = tint, modifier = Modifier.size(20.dp))
+    AppIconTile(modifier = modifier, size = size, tint = tint) {
+        DocumentGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md))
     }
 }
 
@@ -793,7 +788,7 @@ private fun SkeletonRow() {
             .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space4),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AppSkeleton(modifier = Modifier.size(44.dp), shape = AppRadius.md)
+        AppSkeleton(modifier = Modifier.size(AppDimensions.iconTile), shape = AppShapes.iconTile)
         Spacer(Modifier.width(AppSpacing.space4))
         Column {
             AppSkeleton(modifier = Modifier.size(width = 160.dp, height = 14.dp))

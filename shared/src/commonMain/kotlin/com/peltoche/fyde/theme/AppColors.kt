@@ -212,7 +212,18 @@ object AppColors {
     val onSuccess: Color @Composable get() = LocalAppExtendedColors.current.onSuccess
     val selectionSurface: Color @Composable get() = LocalAppExtendedColors.current.selectionSurface
     val selectionTextBackground: Color @Composable get() = LocalAppExtendedColors.current.selectionTextBackground
+
+    /**
+     * design-system.md § Color — a tinted container: [accent] at one low
+     * alpha, for a small fill whose color carries meaning (a badge, a
+     * warning banner, a file-kind tile, the error state's circle). One
+     * value everywhere — found via review: the same idea was drawn at 10%,
+     * 14% and 15% depending on the file.
+     */
+    fun tintOf(accent: Color): Color = accent.copy(alpha = TINT_ALPHA)
 }
+
+private const val TINT_ALPHA = 0.15f
 
 internal fun extendedColorsFor(darkTheme: Boolean): AppExtendedColors =
     if (darkTheme) darkExtendedColors else lightExtendedColors

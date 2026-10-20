@@ -11,12 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.pdf_render_failed_description
 import com.peltoche.fyde.resources.pdf_render_failed_title
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppSpacing
 import org.jetbrains.compose.resources.stringResource
 
@@ -60,7 +60,7 @@ internal fun PdfPage(page: ImageBitmap?) {
 internal fun PdfRenderFailed(modifier: Modifier = Modifier) {
     AppErrorState(
         modifier = modifier,
-        icon = { AlertGlyph(modifier = Modifier.size(32.dp)) },
+        icon = { AlertGlyph(modifier = Modifier.size(AppIconSize.lg)) },
         title = stringResource(Res.string.pdf_render_failed_title),
         description = stringResource(Res.string.pdf_render_failed_description),
     )

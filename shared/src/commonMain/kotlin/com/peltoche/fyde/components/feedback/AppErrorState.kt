@@ -18,7 +18,7 @@ fun AppErrorState(
         title = title,
         description = description,
         modifier = modifier,
-        iconBackground = AppColors.error.copy(alpha = 0.15f),
+        iconBackground = AppColors.tintOf(AppColors.error),
         icon = icon,
         actionLabel = actionLabel,
         onAction = onAction,

@@ -1,11 +1,8 @@
 package com.peltoche.fyde
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,13 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.feedback.AppBanner
+import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.plan_label
@@ -35,7 +29,7 @@ import com.peltoche.fyde.resources.usage_over_limit
 import com.peltoche.fyde.resources.usage_scripts_label
 import com.peltoche.fyde.resources.usage_storage_label
 import com.peltoche.fyde.theme.AppColors
-import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
@@ -129,12 +123,10 @@ private fun PlanUsageSkeleton() {
             Spacer(Modifier.height(AppSpacing.space5))
             AppSkeleton(Modifier.fillMaxWidth().height(14.dp))
             Spacer(Modifier.height(AppSpacing.space2))
-            AppSkeleton(Modifier.fillMaxWidth().height(METER_HEIGHT))
+            AppSkeleton(Modifier.fillMaxWidth().height(AppDimensions.progressBarHeight))
         }
     }
 }
-
-private val METER_HEIGHT = 6.dp
 
 /**
  * One limit: its [label] and "used of limit" on one line, a bar under them,
@@ -171,26 +163,12 @@ private fun UsageMeter(
             )
         }
         Spacer(Modifier.height(AppSpacing.space2))
-        MeterBar(fraction = fraction, color = color)
+        AppProgressBar(progress = fraction, color = color, modifier = Modifier.fillMaxWidth())
         when (level) {
             UsageLevel.FULL -> MeterCaption(stringResource(Res.string.usage_at_limit), AppColors.warning)
             UsageLevel.OVER -> MeterCaption(stringResource(Res.string.usage_over_limit), AppColors.error)
             UsageLevel.NORMAL, UsageLevel.NEAR -> Unit
         }
-    }
-}
-
-@Composable
-private fun MeterBar(fraction: Float, color: Color) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(METER_HEIGHT)
-            .clip(AppRadius.xs)
-            .background(AppColors.border)
-            .semantics { progressBarRangeInfo = ProgressBarRangeInfo(fraction, 0f..1f) },
-    ) {
-        Box(modifier = Modifier.fillMaxWidth(fraction).fillMaxHeight().background(color))
     }
 }
 
