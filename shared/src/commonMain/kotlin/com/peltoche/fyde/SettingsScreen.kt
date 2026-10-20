@@ -38,8 +38,11 @@ import com.peltoche.fyde.resources.log_out
 import com.peltoche.fyde.resources.log_out_confirm_text
 import com.peltoche.fyde.resources.log_out_confirm_title
 import com.peltoche.fyde.resources.settings_title
+import com.peltoche.fyde.resources.theme_label
+import com.peltoche.fyde.resources.theme_section_title
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
+import com.peltoche.fyde.theme.AppThemeOption
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
 
@@ -64,6 +67,7 @@ private enum class AppLanguage(val code: String, val displayName: String) {
 /**
  * The Settings destination (sidebar footer on desktop, a regular nav item
  * below that — see [TopLevelScaffold]). Mostly read-only, except for
+ * [currentTheme], which [onThemeChange] swaps app-wide (see [AppThemeOption]),
  * [currentLanguage], which [onLanguageChange] lets the user override via
  * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
  * where that call and [languageError] actually live), and [onLogout], which
@@ -85,6 +89,8 @@ private enum class AppLanguage(val code: String, val displayName: String) {
  */
 @Composable
 fun SettingsScreen(
+    currentTheme: AppThemeOption = AppThemeOption.Default,
+    onThemeChange: (AppThemeOption) -> Unit = {},
     currentLanguage: String?,
     onLanguageChange: (String) -> Unit,
     onOpenDocuments: () -> Unit,
@@ -148,6 +154,19 @@ fun SettingsScreen(
                         ?: AppLanguage.ENGLISH,
                     onOptionSelected = { onLanguageChange(it.code) },
                     optionLabel = AppLanguage::displayName,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = AppSpacing.space3),
+                )
+                SectionTitle(stringResource(Res.string.theme_section_title))
+                // Resolved up front: AppDropdown's optionLabel isn't composable.
+                val themeLabels = AppThemeOption.entries.associateWith { stringResource(it.label) }
+                AppDropdown(
+                    label = stringResource(Res.string.theme_label),
+                    options = AppThemeOption.entries,
+                    selectedOption = currentTheme,
+                    onOptionSelected = onThemeChange,
+                    optionLabel = themeLabels::getValue,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = AppSpacing.space3),

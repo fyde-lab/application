@@ -250,6 +250,9 @@
     <string name="language_section_title">Langue</string>
     <string name="language_label">Langue de l’application</string>
     <string name="language_save_failed">Impossible d’enregistrer la langue : %1$s</string>
+    <string name="theme_section_title">Thème</string>
+    <string name="theme_label">Thème de l’application</string>
+    <string name="theme_fyde">Fyde</string>
     <string name="plan_section_title">Forfait</string>
     <string name="plan_label">Forfait actuel</string>
     <string name="plan_name_free">Gratuit</string>

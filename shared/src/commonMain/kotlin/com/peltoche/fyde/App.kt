@@ -27,6 +27,7 @@ import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.theme.AppTheme
+import com.peltoche.fyde.theme.AppThemeOption
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.coroutineScope
@@ -116,20 +117,24 @@ private val Screen.isSignedOut: Boolean
 @Composable
 @Preview
 fun App() {
-    AppTheme {
+    // The theme picked in Settings, held here rather than in AppContent since
+    // AppTheme has to wrap every screen. Not persisted yet: fyde-sdk has no
+    // preference for it (unlike the language), and Fyde is the only theme.
+    var theme by remember { mutableStateOf(AppThemeOption.Default) }
+    AppTheme(theme = theme) {
         AppWindowSizeClassProvider {
             // One host for every screen's transient confirmations, above the
             // screens themselves so a message outlives the screen raising it.
             val snackbarHostState = remember { SnackbarHostState() }
             CompositionLocalProvider(LocalAppSnackbarHostState provides snackbarHostState) {
-                AppContent()
+                AppContent(theme = theme, onThemeChange = { theme = it })
             }
         }
     }
 }
 
 @Composable
-private fun AppContent() {
+private fun AppContent(theme: AppThemeOption, onThemeChange: (AppThemeOption) -> Unit) {
     var screen by remember { mutableStateOf<Screen>(Screen.Login) }
     var authError by remember { mutableStateOf<String?>(null) }
     // Whether a login/register call is in flight: OPAQUE's key stretching
@@ -361,6 +366,8 @@ private fun AppContent() {
                 onOpenScripts = { screen = Screen.Scripts },
             )
             Screen.Settings -> SettingsScreen(
+                currentTheme = theme,
+                onThemeChange = onThemeChange,
                 currentLanguage = language,
                 onLanguageChange = { newLanguage ->
                     applyPlatformLocale(newLanguage)

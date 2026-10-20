@@ -250,6 +250,9 @@
     <string name="language_section_title">Language</string>
     <string name="language_label">App language</string>
     <string name="language_save_failed">Couldn’t save language: %1$s</string>
+    <string name="theme_section_title">Theme</string>
+    <string name="theme_label">App theme</string>
+    <string name="theme_fyde">Fyde</string>
     <string name="plan_section_title">Plan</string>
     <string name="plan_label">Current plan</string>
     <string name="plan_name_free">Free</string>

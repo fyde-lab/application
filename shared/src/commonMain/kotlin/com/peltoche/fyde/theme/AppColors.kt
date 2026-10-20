@@ -44,7 +44,8 @@ private val darkExtendedColors = AppExtendedColors(
 )
 
 /**
- * Changes only when the theme itself switches (light/dark) — rare and
+ * Changes only when the theme itself switches (light/dark, or another
+ * [AppThemeOption] picked in Settings) — rare and
  * coarse-grained — so `staticCompositionLocalOf` is the right call here,
  * unlike M3's own `LocalColorScheme` which is read far more granularly.
  * [AppTheme] is the only place this is provided; the default here only

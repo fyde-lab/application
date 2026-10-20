@@ -14,23 +14,23 @@ import androidx.compose.runtime.remember
  * here — they're plain objects, not part of the composition (see their own
  * doc comments for why).
  *
- * Defaults to the platform's own light/dark setting; `darkTheme` stays an
- * explicit parameter so a future in-app theme toggle only needs to pass a
+ * [theme] picks the palette (see [AppThemeOption], chosen in Settings);
+ * `darkTheme` its light or dark half, defaulting to the platform's own
+ * setting. Both stay explicit parameters so a change only needs to pass a
  * different value here, not thread one through every call site.
  */
 @Composable
 fun AppTheme(
+    theme: AppThemeOption = AppThemeOption.Default,
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = remember(darkTheme) {
-        if (darkTheme) appDarkColorScheme() else appLightColorScheme()
-    }
+    val colorScheme = remember(theme, darkTheme) { theme.colorScheme(darkTheme) }
     val bodyFontFamily = rememberBodyFontFamily()
     val dataFontFamily = rememberDataFontFamily()
     val typography = remember(bodyFontFamily) { appTypography(bodyFontFamily) }
     val dataTextStyle = remember(dataFontFamily) { appDataTextStyle(dataFontFamily) }
-    val extendedColors = remember(darkTheme) { extendedColorsFor(darkTheme) }
+    val extendedColors = remember(theme, darkTheme) { theme.extendedColors(darkTheme) }
     val shapes = remember { appShapes() }
 
     CompositionLocalProvider(
