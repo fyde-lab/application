@@ -678,7 +678,7 @@ private fun DocumentsScreen(
             scope.launch {
                 val content = FydeSdk.getDocumentContent(document.id).getOrNull()
                 if (content != null) {
-                    saveDocument(document.name, content)
+                    saveDocument(document.downloadFileName, content)
                 } else {
                     showBanner(getString(Res.string.document_save_failed, document.name))
                 }
