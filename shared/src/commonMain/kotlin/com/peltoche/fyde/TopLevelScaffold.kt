@@ -1,40 +1,50 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.components.action.AppIconButton
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
 import com.peltoche.fyde.components.navigation.AppNavigationItem
-import com.peltoche.fyde.components.navigation.AppNavigationSidebarItem
 import com.peltoche.fyde.layout.AppScaffold
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.app_title
 import com.peltoche.fyde.resources.encryption_badge_description
 import com.peltoche.fyde.resources.encryption_badge_title
-import com.peltoche.fyde.resources.nav_scripts
 import com.peltoche.fyde.resources.nav_documents
+import com.peltoche.fyde.resources.nav_scripts
 import com.peltoche.fyde.resources.settings
-import com.peltoche.fyde.resources.sidebar_app_title
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
@@ -49,7 +59,7 @@ import org.jetbrains.compose.resources.stringResource
  * peers listing and uninstalling the very same installed objects under two
  * names, so they were folded into one, Scripts (see [ScriptsScreen]).
  */
-enum class SidebarDestination { Documents, Scripts, Settings }
+enum class TopLevelDestination { Documents, Scripts, Settings }
 
 /**
  * The one snackbar host every top-level destination shows transient
@@ -66,10 +76,16 @@ val LocalAppSnackbarHostState = staticCompositionLocalOf { SnackbarHostState() }
  * ([ScriptDetailScreen], the compact document detail) compose into, so
  * navigation is one decision made once rather than re-derived per screen.
  *
- * Navigation is present at every [AppWindowSizeClass] — the sidebar at
+ * Navigation is present at every [AppWindowSizeClass] — a top bar at
  * Expanded, a bottom bar below that. Found via review: it used to be
  * desktop-only, which left Scripts unreachable below 840dp, and left it a
  * dead end (no back, no nav) if the window shrank while it was open.
+ *
+ * At Expanded the top bar carries the product's name, Documents and Scripts
+ * as tabs, then the encryption indicator, Settings and [primaryAction] at
+ * its far end. It replaced a sidebar that spent a whole column on two
+ * destinations. [primaryAction] is only drawn there: below Expanded a screen
+ * keeps its primary action in its own [topBar].
  *
  * Medium gets the bottom bar too, not `AppNavigationLayout`'s rail: the rail
  * takes ~80dp of width, and Medium's document two-pane layout (fixed 360dp
@@ -77,11 +93,12 @@ val LocalAppSnackbarHostState = staticCompositionLocalOf { SnackbarHostState() }
  */
 @Composable
 fun TopLevelScaffold(
-    current: SidebarDestination,
+    current: TopLevelDestination,
     onOpenDocuments: () -> Unit,
     onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    primaryAction: (@Composable () -> Unit)? = null,
     topBar: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -95,51 +112,66 @@ fun TopLevelScaffold(
         windowSizeClass = if (isDesktop) AppWindowSizeClass.Expanded else AppWindowSizeClass.Compact,
         navigationItems = appNavigationItems(
             current = current,
-            // The sidebar pins Settings in its footer (below the trust
-            // badge); the bar and rail have no footer, so there it's a
-            // regular item instead.
+            // The top bar has Settings as an icon at its far end; the
+            // bottom bar has no such end, so there it's a regular item.
             includeSettings = !isDesktop,
             onOpenDocuments = onOpenDocuments,
             onOpenScripts = onOpenScripts,
             onOpenSettings = onOpenSettings,
         ),
-        navigationHeader = if (isDesktop) { { SidebarHeader() } } else null,
-        navigationFooter = if (isDesktop) { { SidebarFooter(current = current, onOpenSettings = onOpenSettings) } } else null,
+        navigationHeader = if (isDesktop) { { BrandHeader() } } else null,
+        navigationTrailing = if (isDesktop) {
+            {
+                EncryptionIndicator()
+                SettingsButton(selected = current == TopLevelDestination.Settings, onClick = onOpenSettings)
+                if (primaryAction != null) {
+                    Spacer(Modifier.width(AppSpacing.space3))
+                    primaryAction()
+                }
+            }
+        } else {
+            null
+        },
         topBar = topBar,
         snackbarHost = { AppSnackbarHost(snackbarHostState) },
-        content = content,
-    )
+    ) { contentPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            content(contentPadding)
+            // Settings already shows the full badge in its Account section.
+            if (isDesktop && current != TopLevelDestination.Settings) {
+                MarginEncryptionBadge(modifier = Modifier.padding(contentPadding))
+            }
+        }
+    }
 }
 
 @Composable
 private fun appNavigationItems(
-    current: SidebarDestination,
+    current: TopLevelDestination,
     includeSettings: Boolean,
     onOpenDocuments: () -> Unit,
     onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
 ): List<AppNavigationItem> {
-    // Labelled after the destination it opens ("Documents", also its top
-    // bar's title), not after one feature of it — found via review: it was
+    // Labelled after the destination it opens ("Documents", also its
+    // title), not after one feature of it — found via review: it was
     // "Search" in the nav, "Documents" in the title bar and "My documents"
     // in the sidebar header, three names for one place.
     val items = mutableListOf(
-        navigationItem(stringResource(Res.string.nav_documents), current == SidebarDestination.Documents, onOpenDocuments) { tint ->
+        navigationItem(stringResource(Res.string.nav_documents), current == TopLevelDestination.Documents, onOpenDocuments) { tint ->
             DocumentGlyph(tint = tint, modifier = Modifier.size(20.dp))
         },
-        navigationItem(stringResource(Res.string.nav_scripts), current == SidebarDestination.Scripts, onOpenScripts) { tint ->
-            PuzzleGlyph(tint = tint, modifier = Modifier.size(20.dp))
+        navigationItem(stringResource(Res.string.nav_scripts), current == TopLevelDestination.Scripts, onOpenScripts) { tint ->
+            CodeGlyph(tint = tint, modifier = Modifier.size(20.dp))
         },
     )
-    if (includeSettings) items += settingsNavigationItem(current, onOpenSettings)
+    if (includeSettings) {
+        items += navigationItem(stringResource(Res.string.settings), current == TopLevelDestination.Settings, onOpenSettings) { tint ->
+            GearGlyph(tint = tint, modifier = Modifier.size(20.dp))
+        }
+    }
     return items
 }
-
-@Composable
-private fun settingsNavigationItem(current: SidebarDestination, onOpenSettings: () -> Unit): AppNavigationItem =
-    navigationItem(stringResource(Res.string.settings), current == SidebarDestination.Settings, onOpenSettings) { tint ->
-        GearGlyph(tint = tint, modifier = Modifier.size(20.dp))
-    }
 
 /**
  * The glyphs here draw their own color rather than reading
@@ -161,15 +193,12 @@ private fun navigationItem(
 
 /** The product's own name, not a section name — this is the app's identity, not a destination. */
 @Composable
-private fun SidebarHeader() {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space6),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+private fun BrandHeader() {
+    Row(verticalAlignment = Alignment.CenterVertically) {
         BrandMark()
         Spacer(Modifier.width(AppSpacing.space3))
         Text(
-            text = stringResource(Res.string.sidebar_app_title),
+            text = stringResource(Res.string.app_title),
             style = AppTypography.section,
             color = AppColors.text,
             maxLines = 1,
@@ -179,10 +208,10 @@ private fun SidebarHeader() {
 }
 
 /**
- * Fyde's mark: the product logo ([FydeLogo]). Found via review: the sidebar
- * header used to draw [DocumentGlyph] — the very glyph of the Documents
- * destination right below it — so the product's identity read as a
- * duplicate nav icon. Full-color rather than outlined, so it can't be
+ * Fyde's mark: the product logo ([FydeLogo]). Found via review: the
+ * navigation header used to draw [DocumentGlyph] — the very glyph of the
+ * Documents destination right beside it — so the product's identity read as
+ * a duplicate nav icon. Full-color rather than outlined, so it can't be
  * mistaken for one of the outline destination glyphs either.
  */
 @Composable
@@ -190,11 +219,70 @@ private fun BrandMark(modifier: Modifier = Modifier) {
     FydeLogo(modifier = modifier.size(28.dp))
 }
 
+/** The Settings destination at the desktop top bar's far end, tinted like a selected tab while open. */
+@Composable
+private fun SettingsButton(selected: Boolean, onClick: () -> Unit) {
+    AppIconButton(onClick = onClick, contentDescription = stringResource(Res.string.settings)) {
+        GearGlyph(tint = if (selected) AppColors.primary else AppColors.textMuted, modifier = Modifier.size(20.dp))
+    }
+}
+
+/**
+ * The top bar's compact form of [EncryptionBadge]: the lock alone, its
+ * title and description in a tooltip on hover and in its accessibility
+ * label. Not a button — it states a property of the app, there is nothing
+ * to open.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EncryptionIndicator() {
+    val title = stringResource(Res.string.encryption_badge_title)
+    val description = stringResource(Res.string.encryption_badge_description)
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
+        tooltip = { PlainTooltip { Text("$title — $description") } },
+        state = rememberTooltipState(),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(AppDimensions.touchTargetMin)
+                .semantics { contentDescription = "$title. $description" },
+            contentAlignment = Alignment.Center,
+        ) {
+            LockGlyph(tint = AppColors.textMuted, modifier = Modifier.size(20.dp))
+        }
+    }
+}
+
+/**
+ * The full [EncryptionBadge] in the window's bottom-start corner, in the
+ * margin the centered content leaves free — only when that margin is wide
+ * enough to hold it, so it never covers content on a narrower window (the
+ * top bar's [EncryptionIndicator] still says it there).
+ */
+@Composable
+private fun MarginEncryptionBadge(modifier: Modifier = Modifier) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val margin = (maxWidth - AppDimensions.maxWidthList) / 2
+        if (margin >= MarginBadgeWidth + AppSpacing.space5 * 2) {
+            EncryptionBadge(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(AppSpacing.space5)
+                    .width(MarginBadgeWidth),
+            )
+        }
+    }
+}
+
+private val MarginBadgeWidth = 240.dp
+
 /**
  * A static end-to-end-encryption trust badge (a real property of this app,
- * see the top-level design docs). Shown in the desktop sidebar's footer and
- * in Settings' Account section — found via review that it only ever
- * appeared in the sidebar, so phone and tablet users never saw it at all.
+ * see the top-level design docs). Shown in the desktop window's free margin
+ * (see [MarginEncryptionBadge]) and in Settings' Account section — found via
+ * review that it used to only appear in the desktop sidebar, so phone and
+ * tablet users never saw it at all.
  */
 @Composable
 internal fun EncryptionBadge(modifier: Modifier = Modifier) {
@@ -212,24 +300,5 @@ internal fun EncryptionBadge(modifier: Modifier = Modifier) {
             Text(stringResource(Res.string.encryption_badge_title), style = AppTypography.caption, color = AppColors.text)
             Text(stringResource(Res.string.encryption_badge_description), style = AppTypography.micro, color = AppColors.textMuted)
         }
-    }
-}
-
-/**
- * Sidebar foot: [EncryptionBadge], then the real Settings destination —
- * drawn with [AppNavigationSidebarItem], the same component as every other
- * sidebar destination. Found via review: it used to be a hand-built row
- * with its own selected fill, text color and a ~44dp height, visibly
- * different from the 56dp items above it and under the 48dp touch-target
- * minimum.
- */
-@Composable
-private fun SidebarFooter(current: SidebarDestination, onOpenSettings: () -> Unit) {
-    Column {
-        // Same inset as the nav items, so the badge's edges line up with theirs.
-        EncryptionBadge(modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding))
-        Spacer(Modifier.height(AppSpacing.space2))
-        AppNavigationSidebarItem(settingsNavigationItem(current, onOpenSettings))
-        Spacer(Modifier.height(AppSpacing.space3))
     }
 }

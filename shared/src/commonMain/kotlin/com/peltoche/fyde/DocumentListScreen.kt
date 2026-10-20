@@ -220,28 +220,33 @@ private fun LoadedDocumentList(
 
     val visibleDocuments = state.results
     val clearAll = { onSearchChange(DocumentSearch()) }
+    val uploadAction: @Composable () -> Unit = {
+        AppTopBarAction(
+            text = stringResource(Res.string.upload_document),
+            onClick = onUpload,
+            enabled = state.serverReachable,
+            loading = isUploading,
+            icon = { tint -> PlusGlyph(modifier = Modifier.size(14.dp), tint = tint) },
+            windowSizeClass = windowSizeClass,
+        )
+    }
 
     TopLevelScaffold(
-        current = SidebarDestination.Documents,
+        current = TopLevelDestination.Documents,
         // Re-selecting Documents closes an open document, like a drill-down's back.
         onOpenDocuments = { selectedId = null },
         onOpenScripts = onOpenScripts,
         onOpenSettings = onOpenSettings,
         modifier = modifier,
+        // At Expanded, Upload sits in the navigation bar and the title heads
+        // the list column below, so the detail pane runs up to the bar.
+        primaryAction = if (isDesktop) uploadAction else null,
         topBar = {
-            AppTopBar(
-                title = stringResource(Res.string.documents_title),
-                windowSizeClass = windowSizeClass,
-                sidebarAdjacent = isDesktop,
-            ) {
-                AppTopBarAction(
-                    text = stringResource(Res.string.upload_document),
-                    onClick = onUpload,
-                    enabled = state.serverReachable,
-                    loading = isUploading,
-                    icon = { tint -> PlusGlyph(modifier = Modifier.size(14.dp), tint = tint) },
+            if (!isDesktop) {
+                AppTopBar(
+                    title = stringResource(Res.string.documents_title),
                     windowSizeClass = windowSizeClass,
-                )
+                ) { uploadAction() }
             }
         },
     ) { contentPadding ->
@@ -256,7 +261,6 @@ private fun LoadedDocumentList(
                 .background(AppColors.background),
             width = AppContentWidth.List,
             windowSizeClass = windowSizeClass,
-            sidebarAdjacent = isDesktop,
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // Says why Upload is disabled, rather than leaving a greyed
@@ -282,6 +286,16 @@ private fun LoadedDocumentList(
                         // leading margin on the other side of this column, so
                         // the list doesn't run flush against the detail pane.
                         Column(modifier = Modifier.fillMaxSize().padding(end = AppSpacing.space5)) {
+                            if (isDesktop) {
+                                Spacer(Modifier.height(AppSpacing.space6))
+                                Text(
+                                    text = stringResource(Res.string.documents_title),
+                                    style = AppTypography.title,
+                                    color = AppColors.text,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
                             Spacer(Modifier.height(AppSpacing.space3))
                             AppSearchField(
                                 value = search.text,
@@ -385,7 +399,7 @@ private fun CompactDocumentDetail(
     onOpenSettings: () -> Unit,
 ) {
     TopLevelScaffold(
-        current = SidebarDestination.Documents,
+        current = TopLevelDestination.Documents,
         onOpenDocuments = onBack,
         onOpenScripts = onOpenScripts,
         onOpenSettings = onOpenSettings,

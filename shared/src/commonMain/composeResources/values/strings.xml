@@ -112,7 +112,7 @@
     <string name="pdf_preview_unavailable">PDF preview isn’t available on Web yet.</string>
 
     <!-- Navigation -->
-    <string name="sidebar_app_title">Fyde</string>
+    <string name="app_title">Fyde</string>
     <string name="nav_documents">Documents</string>
     <string name="encryption_badge_title">End-to-end encryption</string>
     <string name="encryption_badge_description">Your documents are secured</string>

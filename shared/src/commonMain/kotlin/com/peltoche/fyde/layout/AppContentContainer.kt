@@ -27,28 +27,14 @@ fun AppContentContainer(
     modifier: Modifier = Modifier,
     width: AppContentWidth = AppContentWidth.Detail,
     windowSizeClass: AppWindowSizeClass = LocalAppWindowSizeClass.current,
-    // The full screen margin exists to keep content off a bare window edge —
-    // a persistent sidebar (AppNavigationSidebar) already draws that edge,
-    // so a caller composed directly next to one passes true for a smaller
-    // leading gap instead of stacking the full margin on top of it. The
-    // trailing edge keeps its full margin regardless: it's still a bare
-    // window edge either way.
-    sidebarAdjacent: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    // Centering a width-capped box ignores asymmetric padding — on a wide
-    // enough viewport the cap kicks in and centers the box regardless of
-    // the start margin, reopening the full gap `sidebarAdjacent` trims down.
-    // Anchoring to the start instead keeps the trimmed gap next to the
-    // sidebar and pushes all the leftover width to the trailing edge.
-    val alignment = if (sidebarAdjacent) Alignment.TopStart else Alignment.TopCenter
-
-    Box(modifier = modifier.fillMaxWidth(), contentAlignment = alignment) {
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
         Box(
             modifier = Modifier
                 .widthIn(max = contentMaxWidth(width))
                 .fillMaxWidth()
-                .padding(start = contentStartMargin(windowSizeClass, sidebarAdjacent), end = screenMargin(windowSizeClass)),
+                .padding(horizontal = screenMargin(windowSizeClass)),
         ) {
             content()
         }
@@ -67,11 +53,3 @@ internal fun screenMargin(windowSizeClass: AppWindowSizeClass): Dp = when (windo
     AppWindowSizeClass.Medium -> AppSpacing.space7
     AppWindowSizeClass.Expanded -> AppSpacing.space8
 }
-
-/**
- * Where content starts: [screenMargin], or the smaller gap next to a
- * sidebar (see [AppContentContainer]'s `sidebarAdjacent`). Shared with
- * `AppTopBar`, so a screen's title starts on the same edge as its content.
- */
-internal fun contentStartMargin(windowSizeClass: AppWindowSizeClass, sidebarAdjacent: Boolean): Dp =
-    if (sidebarAdjacent) AppSpacing.space5 else screenMargin(windowSizeClass)

@@ -36,7 +36,6 @@ import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.layout.contentMaxWidth
-import com.peltoche.fyde.layout.contentStartMargin
 import com.peltoche.fyde.layout.screenMargin
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.back
@@ -58,13 +57,17 @@ import org.jetbrains.compose.resources.stringResource
  * Height grows at Medium/Expanded — design-system.md's carried-forward
  * Navigation guidance — rather than staying a fixed mobile size everywhere.
  *
- * Its edges are the content's: [width] and [sidebarAdjacent] mean what they
- * mean for the screen's `AppContentContainer` (pass the same values), so
- * the title starts where the content does and [actions] end where it ends.
- * A back chevron is pulled out by its button's inset, so the chevron itself
- * sits on that edge. Found via review: the title sat 16dp right of the
- * content edge beside the sidebar, and actions ended 8dp from the window
- * edge against the content's 32dp margin.
+ * Its edges are the content's: [width] means what it means for the
+ * screen's `AppContentContainer` (pass the same value), so the title starts
+ * where the content does and [actions] end where it ends. A back chevron is
+ * pulled out by its button's inset, so the chevron itself sits on that
+ * edge. Found via review: the title used to sit 16dp right of the content
+ * edge, and actions ended 8dp from the window edge against the content's
+ * 32dp margin.
+ *
+ * At Expanded it sits under `TopLevelScaffold`'s navigation bar, so it's
+ * drawn flat — no fill, no divider — as the page's heading rather than a
+ * second bar stacked on the first.
  */
 @Composable
 fun AppTopBar(
@@ -74,11 +77,11 @@ fun AppTopBar(
     backContentDescription: String? = null,
     windowSizeClass: AppWindowSizeClass = LocalAppWindowSizeClass.current,
     width: AppContentWidth = AppContentWidth.List,
-    sidebarAdjacent: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     val height = if (windowSizeClass == AppWindowSizeClass.Compact) AppDimensions.topBarHeight else AppDimensions.topBarHeightExpanded
-    val contentStart = contentStartMargin(windowSizeClass, sidebarAdjacent)
+    val contentStart = screenMargin(windowSizeClass)
+    val flat = windowSizeClass == AppWindowSizeClass.Expanded
     // An icon button centers its 16dp chevron in a 48dp target: 16dp inset.
     val leadingEdge = if (onBack != null) (contentStart - BackChevronInset).coerceAtLeast(0.dp) else contentStart
 
@@ -86,8 +89,8 @@ fun AppTopBar(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .background(AppColors.surfaceElevated),
-        contentAlignment = if (sidebarAdjacent) Alignment.CenterStart else Alignment.Center,
+            .background(if (flat) AppColors.background else AppColors.surfaceElevated),
+        contentAlignment = Alignment.Center,
     ) {
         Row(
             modifier = Modifier
@@ -113,7 +116,7 @@ fun AppTopBar(
             )
             actions()
         }
-        AppDivider(modifier = Modifier.align(Alignment.BottomCenter))
+        if (!flat) AppDivider(modifier = Modifier.align(Alignment.BottomCenter))
     }
 }
 
