@@ -216,6 +216,14 @@ washed teal. Menus fill with `surface-elevated`; `surfaceTint` is the
 surface itself, so M3's tonal tint is a no-op and elevation follows
 *Elevation* below — explicit tone steps and shadows, nothing implicit.
 
+**Tinted containers.** A small fill whose color carries meaning — a badge,
+a warning banner, a file-kind tile, the error state's icon circle, the
+encryption trust badge — is its accent at one alpha, `AppColors.tintOf(accent)`
+(15%), with text/glyphs in the accent itself or in `text`. Found via audit:
+the same idea was drawn at 10%, 14% and 15% depending on the file. The error
+*banner* is the exception: it fills with M3's opaque `errorContainer` (see
+`AppColors.kt`'s `containerOf`), which predates `tintOf` and reads the same.
+
 ### Why teal, not blue or the current lime
 
 Lime-on-near-black (the current spec) reads energetic and creative-tool —
@@ -277,7 +285,10 @@ shape, a full pill, visible as its hover/press state layer, and icon
 buttons kept M3's circle — the icon-button `radius-sm` above. Every button
 variant sets its shape explicitly, and every one draws the focus ring.
 Progress bars and meters are rectangles with `radius-xs` corners and square
-ends, not rounded pills.
+ends, not rounded pills — one component, `AppProgressBar` (determinate, or
+indeterminate with `progress = null`; 6dp, `border` track). Found via audit:
+the usage meters were hand-drawn to this rule while a running script's
+progress used M3's stock indicator, with its own track gap and stop dot.
 
 **Menus and popovers** — `radius-lg`, `surface-elevated`, through the one
 `AppDropdownMenu`. Found via review: the app's three menus were each styled
@@ -307,6 +318,41 @@ against the same rule. Any tappable element — icon buttons, avatar/menu
 triggers, custom row affordances — gets the full 48dp/44pt hit area
 regardless of how small its visible content is; size the glyph for how it
 should look, then center it in a target sized for how it should be tapped.
+
+---
+
+## Iconography
+
+Glyphs are drawn on a `Canvas` (`NavGlyphs.kt`, `DocumentGlyph.kt`; no icon
+font or Material Icons dependency — see *Open questions*). Each takes its
+size from the caller's `Modifier.size` and its color as a `tint` parameter
+(they don't read `LocalContentColor`), so both are always passed
+explicitly, from these tokens:
+
+| Token (`AppIconSize`) | Size | Usage |
+|---|---|---|
+| `xs` | 12dp | Inline with caption text or inside a small control — a row's trailing chevron, a button's play mark |
+| `sm` | 16dp | Leading icon of a field or button, an icon button's glyph |
+| `md` | 20dp | Navigation destinations, the glyph inside an `AppIconTile` |
+| `lg` | 32dp | `AlertGlyph` inside `AppErrorState`'s circle — drawn edge to edge, so smaller than `xl` to read at the same weight |
+| `xl` | 40dp | The illustrative glyph inside `AppEmptyState`'s circle, stroked at 2dp |
+
+Glyph tint: `textMuted` at rest, `primary` when selected/active, the
+content color of a filled control on it (`onPrimary`), and `error` only for
+`AlertGlyph`.
+
+A size off this scale is an optical exception, kept local with its reason:
+the top bar's `+` (14dp, matched to its label), the encryption badge's lock
+(18dp), the top bar's brand mark (28dp, a logo, not a glyph).
+
+**Icon tiles.** The square leading visual of a list row, card or detail
+header is `AppIconTile` — `radius-md`, `AppDimensions.iconTile` (44dp) by
+default, either *tinted* (`tint = …`: a glyph the app colors itself, e.g. a
+document's file kind) or *neutral* (no tint: `background` + `border`
+hairline, for content that brings its own colors, e.g. a script's logo). Its
+loading placeholder is an `AppSkeleton` of the same size, shaped
+`AppShapes.iconTile`. Detail headers use a larger tile (document detail
+48dp, script detail 64dp — see *Remaining inconsistencies*).
 
 ---
 
@@ -564,6 +610,12 @@ tap. The rules now:
   reads on both `background` and `surface`. Found via review: they used
   `surface-elevated`, the same white as the cards they sit on in light mode,
   so the Scripts grid loaded as blank white cards.
+- **A failure uses `AppErrorState`, not `AppEmptyState` with an alert
+  glyph.** Found via audit: a failed preview *load* rendered as a neutral
+  empty state with a red glyph while a failed PDF *render* used the
+  error-tinted circle — the same failure, two looks. `AppEmptyState` is for
+  "nothing here (yet)" — no documents, no matches, nothing selected,
+  a format with no preview.
 - **Errors shown to users are never technical.** Only fyde-sdk's own
   user-facing wording, or our own copy — never an exception message (the
   PDF engine's included).
@@ -648,11 +700,98 @@ two separate axes; only the first is asked to be uniform.
 
 ---
 
+## Component inventory
+
+Everything below lives in `shared/src/commonMain/kotlin/com/peltoche/fyde/`
+and is shown in the in-app catalogue `DesignSystemScreen.kt` (not routed from
+the app; compose it directly to inspect a component). Screens compose these
+and never style a raw Material 3 component themselves.
+
+| Package | Component | Role / variants |
+|---|---|---|
+| `theme/` | `AppTheme`, `AppColors`, `AppTypography`, `AppRadius`/`AppShapes`, `AppSpacing`, `AppDimensions`, `AppIconSize`, `Modifier.appFocusRing` | Tokens (see the sections above); `AppTheme` is the only theme entry point |
+| `layout/` | `AppScaffold`, `AppNavigationLayout`, `AppContentContainer` (`AppContentWidth` List/Detail), `AppTwoPaneLayout`, `AppWindowSizeClassProvider` | Shell, content edges and max widths, master-detail, size classes |
+| `components/action/` | `AppButton` (`AppButtonVariant` Filled/Outlined/Text, `destructive`, `loading`, `leadingIcon`), `AppTextButton`, `AppIconButton`, `AppMenuButton` | Every clickable action |
+| `components/form/` | `AppTextField`, `AppSearchField`, `AppDropdown`, `AppCheckbox`, `AppSwitch` | Inputs |
+| `components/content/` | `AppCard` (plain/`outlined`/clickable), `AppListItem` (`selected` accent bar), `AppChip`, `AppBadge` (`AppBadgeVariant`), `AppIconTile` (tinted/neutral), `AppDivider` | Data presentation |
+| `components/feedback/` | `AppBanner` (`AppBannerSeverity` Error/Warning), `AppSnackbarHost`, `AppEmptyState`, `AppErrorState`, `AppLoading`, `AppSkeleton`, `AppProgressBar` | Status, loading, empty and error states |
+| `components/navigation/` | `AppTopBar`, `AppTopBarAction`, `AppNavigationTopBar` (Expanded), `AppNavigationBar` (below Expanded), `AppNavigationRail` | Navigation chrome |
+| `components/overlay/` | `AppDialog` (`destructive` confirm), `AppDropdownMenu`/`AppDropdownMenuItem`, `AppBottomSheet` | Floating surfaces |
+
+Kept but **not used by any screen today** — retained as part of the
+system, not dead code to delete without a decision: `AppNavigationRail`
+(`TopLevelScaffold` maps Medium to the bottom bar, see *Responsive
+behavior*), `AppMenuButton`, `AppBottomSheet`.
+
+**Application-specific components stay with their screen**, built only from
+the components and tokens above: `TopLevelScaffold`/`EncryptionBadge`
+(`TopLevelScaffold.kt`), `FileTypeIcon`/`DocumentDetailPane` (`DocumentListScreen.kt`),
+`ScriptIcon`/`ScriptCard` (`ScriptsScreen.kt`), `RunProgressCard`
+(`ScriptDetailScreen.kt`), `UsageMeter` (`PlanUsageSection.kt`), the glyphs.
+They encode domain decisions (which tint a file kind gets, how a usage level
+maps to a color), not visual ones.
+
+### Extend, promote, or keep local
+
+- **Extend an existing component** when the new need is a state or variant
+  of the same role (a `loading` button, a `destructive` dialog) — add a
+  parameter or enum value to it; never fork a near-duplicate.
+- **Promote into `components/`** when the same visual pattern is hand-built
+  in two places, or is a generic role (progress, icon tile) with nothing
+  domain-specific in it. Update the catalogue and this inventory in the
+  same change.
+- **Keep it local** when its content or rules are domain-specific — and
+  then build it only from tokens and `App*` components, with no raw M3
+  styling, hex color, ad-hoc alpha or off-scale size.
+- Prefer an enum or a nullable parameter (`tint: Color?`,
+  `progress: Float?`) over overlapping booleans.
+
+## Remaining inconsistencies
+
+Found by the audit and deliberately left alone, pending a decision:
+
+- **Detail-header tile sizes differ** — document detail 48dp, script detail
+  64dp. One is a pane beside a list, the other a full page, so this may be
+  intentional; not unified without a call on it.
+- **Glyph stroke widths are per-glyph defaults** (1.4–2.2dp) and the empty
+  state passes 2dp by hand; there's no stroke token. Part of the icon-system
+  question below.
+- **`AppNavigationTopBar`'s disabled item tint** is `textMuted` at 50%;
+  every other component shows disabled as plain `textMuted`.
+- **Screens paint `background` themselves** inside `AppScaffold`, which
+  already does — redundant, harmless, not worth churn on its own.
+
+## Rules for AI coding agents
+
+1. Read this document and the source of the component you would use
+   before writing UI. Search `components/` for the role before creating
+   anything.
+2. Never use a raw Material 3 component (`Button`, `TextField`,
+   `LinearProgressIndicator`, `Card`, `AlertDialog`, `DropdownMenu`...) in a
+   screen; if no `App*` component fits, extend or add one in `components/`.
+3. No literals for design values in screens: colors come from `AppColors`
+   (tinted fills from `AppColors.tintOf`, never `.copy(alpha = …)`), text
+   from `AppTypography`, gaps from `AppSpacing`, sizes from `AppDimensions`/
+   `AppIconSize`, corners from `AppShapes`/`AppRadius`. A one-off
+   component-internal size (a skeleton line's width) is fine; a value that
+   repeats, or that the spec names, becomes a token.
+4. Every new or changed component lands in `DesignSystemScreen.kt` and in
+   the inventory above in the same commit.
+5. Pick the semantic component, not the one that looks right: a failure is
+   `AppErrorState`, a persistent problem `AppBanner`, a confirmation a
+   snackbar, an irreversible action a `destructive` `AppDialog`.
+6. Record review findings here as "Found via review/audit: …" next to the
+   rule they produced, so the reason survives the next refactor.
+7. Verify visual changes by actually rendering them (the
+   `run-fyde-application` skill) before calling them done.
+
+---
+
 ## Open questions for implementation
 
 Flagged rather than resolved here, consistent with "do not implement yet":
 
 - Exact hex values above need contrast-ratio verification once locked, not just estimated.
 - ~~Font files (Public Sans, IBM Plex Mono) need sourcing/licensing confirmation and per-platform bundling~~ — resolved: both are bundled as Compose resources (`shared/src/commonMain/composeResources/font/`), licensed per `shared/THIRD_PARTY_LICENSES.md`.
-- The audit's icon-system gap (hand-drawn `Canvas` glyphs, no Material Icons Extended dependency) is unresolved by this document — a separate decision, not a shape/color/type question.
+- The audit's icon-system gap (hand-drawn `Canvas` glyphs, no Material Icons Extended dependency) is still open — sizes are now tokenized (*Iconography*), but stroke weight and the glyph set itself are not.
 - A11y beyond contrast (dynamic type / text-scaling behavior across all three platforms) isn't covered here and should be its own pass once tokens are implemented.
