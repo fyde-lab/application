@@ -19,7 +19,7 @@ import com.peltoche.fyde.theme.AppTypography
 
 /**
  * One destination in [AppNavigationBar], [AppNavigationRail], or
- * [AppNavigationSidebar] — shared across all three since the shape
+ * [AppNavigationTopBar] — shared across all three since the shape
  * (label/icon/selected/click) is identical; only the M3 host layout differs
  * by breakpoint.
  */
@@ -62,8 +62,8 @@ fun AppNavigationBar(items: List<AppNavigationItem>, modifier: Modifier = Modifi
 
 /**
  * The selected-destination indicator behind a bar/rail item's icon, at M3's
- * own indicator size but `radius-sm` — the same shape as the sidebar's
- * selected row. M3's `NavigationBarItem`/`NavigationRailItem` draw theirs as
+ * own indicator size but `radius-sm`, in the same `selectionSurface` fill
+ * as [AppNavigationTopBar]'s selected tab. M3's `NavigationBarItem`/`NavigationRailItem` draw theirs as
  * a fixed stadium pill with no shape parameter, so their own indicator is
  * made transparent and this one drawn in its place. Found via review: the
  * pill was the one shape design-system.md § Shape forbids ("nothing is a

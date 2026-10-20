@@ -170,7 +170,7 @@ fun ScriptDetailScreen(
     }
 
     TopLevelScaffold(
-        current = SidebarDestination.Scripts,
+        current = TopLevelDestination.Scripts,
         onOpenDocuments = onOpenDocuments,
         // Re-selecting Scripts from its own drill-down returns to the grid.
         onOpenScripts = onBack,
@@ -183,7 +183,6 @@ fun ScriptDetailScreen(
                 backContentDescription = stringResource(Res.string.back),
                 windowSizeClass = windowSizeClass,
                 width = AppContentWidth.Detail,
-                sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
             )
         },
     ) { contentPadding ->
@@ -194,7 +193,6 @@ fun ScriptDetailScreen(
                 .background(AppColors.background),
             width = AppContentWidth.Detail,
             windowSizeClass = windowSizeClass,
-            sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
         ) {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 banner?.let { message ->

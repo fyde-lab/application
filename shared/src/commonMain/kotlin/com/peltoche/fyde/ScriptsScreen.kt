@@ -162,7 +162,7 @@ private fun LoadedScripts(
     val windowSizeClass = LocalAppWindowSizeClass.current
 
     TopLevelScaffold(
-        current = SidebarDestination.Scripts,
+        current = TopLevelDestination.Scripts,
         onOpenDocuments = onOpenDocuments,
         onOpenScripts = {},
         onOpenSettings = onOpenSettings,
@@ -171,7 +171,6 @@ private fun LoadedScripts(
             AppTopBar(
                 title = stringResource(Res.string.scripts_title),
                 windowSizeClass = windowSizeClass,
-                sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
             )
         },
     ) { contentPadding ->
@@ -182,7 +181,6 @@ private fun LoadedScripts(
                 .background(AppColors.background),
             width = AppContentWidth.List,
             windowSizeClass = windowSizeClass,
-            sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 state.banner?.let { message ->

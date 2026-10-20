@@ -16,7 +16,7 @@ both bundled typefaces are in place (`shared/src/commonMain/composeResources/
 font/`, licenses in `shared/THIRD_PARTY_LICENSES.md` — the font-bundling open
 question below is resolved), and most components/screens this document
 describes exist under `shared/.../components/` and the top-level screen
-files (`DocumentListScreen.kt`, `AppSidebar.kt`, etc.). This document remains
+files (`DocumentListScreen.kt`, `TopLevelScaffold.kt`, etc.). This document remains
 the source of truth for new work and for reconciling drift between the code
 and the reference screenshot, not a pre-implementation proposal only. This
 document is the next iteration of the earlier `application/DESIGN.md` spec,
@@ -407,9 +407,9 @@ element is one design-system update away from silently drifting out of
 alignment again.
 
 **The top bar shares the content's edges.** Found via review: beside the
-sidebar, the screen title started 16dp right of the content below it, and
+old sidebar, the screen title started 16dp right of the content below it, and
 the top bar's actions ended 8dp from the window edge while the content kept
-its 32dp margin. `AppTopBar` takes the same width and `sidebarAdjacent` as
+its 32dp margin. `AppTopBar` takes the same width as
 the screen's `AppContentContainer` and derives its start/end padding and
 max-width from the same functions, so the title starts on the content's
 leading edge and the primary action ends on its trailing edge; a back
@@ -456,7 +456,7 @@ panels (see Elevation); a row in a plain list is transparent until
 
 **The list column's trailing edge gets the same margin as its leading
 edge.** Found via review: the list (primary) pane in a two-pane layout had
-`AppContentContainer`'s margin before it (next to the sidebar) but ran flush
+`AppContentContainer`'s margin before it but ran flush
 against the divider/detail pane on the other side, with no equivalent
 margin at all. The column's own content — search field, filter chips,
 results count, and the list — carries a matching trailing `space-5`
@@ -583,18 +583,18 @@ against real tooling, not arbitrary web breakpoints.
 
 **One name per destination, one destination per concept.** Found via
 review: the documents destination was "Search" in the nav, "Documents" in
-its top bar and "My documents" in the sidebar header; and a separate
+its top bar and "My documents" in the (former) sidebar header; and a separate
 Scripts destination listed and uninstalled the very same installed objects
 as Add-ons under another name. Nav labels match the destination's title,
-the sidebar header carries the product name (Fyde), and scripts — public
+the navigation bar's brand carries the product name (Fyde), and scripts — public
 ones and the user's own — live in Scripts alone, named as the SDK and the
 server name them.
 
 **Every top-level destination is reachable at every breakpoint.** Found via
-review: navigation was desktop-only (the Expanded sidebar), so Scripts had
+review: navigation was desktop-only (the Expanded sidebar of the time), so Scripts had
 no route at all below 840dp, and Scripts became a dead end — no
 back, no nav — if the window shrank while it was open. Navigation is one
-adaptive surface — a bottom bar below Expanded, the sidebar at Expanded —
+adaptive surface — a bottom bar below Expanded, a top bar at Expanded —
 never present at one breakpoint and absent at another. Medium uses the
 bottom bar rather than a rail: a rail costs ~80dp of width that Medium's
 fixed 360dp list + detail split can't spare. Peer destinations share one top-bar shape: title only, no
@@ -621,6 +621,21 @@ back chevron — a back chevron belongs to drill-downs.
   always has width to spare, so the list column can show more of a title
   and its metadata per row without squeezing the detail pane the way
   Medium's narrower viewport would.
+
+  **Navigation is a top bar, not a sidebar.** A full-width `surface` bar
+  (`AppNavigationTopBar`, 64dp) above every screen: the Fyde mark and name
+  at its start, then Documents and Scripts as icon + label tabs — the
+  selected one filled with `selectionSurface`, its label and icon in
+  `primary`, and a 2dp `primary` underline on the bar's bottom edge. Its far
+  end holds the encryption lock (a tooltip, not a button), Settings as an
+  icon button, then the screen's one primary action (`AppTopBarAction`,
+  e.g. Upload document). It replaced a 240dp+ sidebar that spent a whole
+  column of the window on two destinations. Under it, a screen's own
+  `AppTopBar` is flat (no fill, no divider) — a page heading, not a second
+  bar — and Documents puts its heading at the top of the list column
+  instead, so the detail pane runs right up to the navigation bar. Content
+  is centered under the bar; the full encryption badge sits in the
+  bottom-start corner only when the side margin is wide enough to hold it.
 
 **Visual consistency is not interaction uniformity.** "Consistent across
 Android, iOS, desktop" (the brief) means one shared color/type/shape/spacing

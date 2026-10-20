@@ -107,7 +107,7 @@ fun SettingsScreen(
     var confirmingLogout by remember { mutableStateOf(false) }
 
     TopLevelScaffold(
-        current = SidebarDestination.Settings,
+        current = TopLevelDestination.Settings,
         onOpenDocuments = onOpenDocuments,
         onOpenScripts = onOpenScripts,
         onOpenSettings = {},
@@ -117,7 +117,6 @@ fun SettingsScreen(
                 title = stringResource(Res.string.settings_title),
                 windowSizeClass = windowSizeClass,
                 width = AppContentWidth.Detail,
-                sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
             )
         },
     ) { contentPadding ->
@@ -128,7 +127,6 @@ fun SettingsScreen(
                 .background(AppColors.background),
             width = AppContentWidth.Detail,
             windowSizeClass = windowSizeClass,
-            sidebarAdjacent = windowSizeClass == AppWindowSizeClass.Expanded,
         ) {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                 listOfNotNull(

@@ -14,8 +14,8 @@ import com.peltoche.fyde.theme.AppTypography
 /**
  * Side navigation for the medium breakpoint — design-system.md's Responsive
  * section names a rail as where master-detail navigation should live once a
- * screen needs it. Yields to the wider [AppNavigationSidebar] at Expanded.
- * Shares [AppNavigationItem] with [AppNavigationBar]/[AppNavigationSidebar].
+ * screen needs it. Yields to [AppNavigationTopBar] at Expanded.
+ * Shares [AppNavigationItem] with [AppNavigationBar]/[AppNavigationTopBar].
  * Not used by `TopLevelScaffold`, which keeps the bottom bar at Medium so
  * the document two-pane layout keeps its width (see its doc comment).
  */

@@ -64,7 +64,9 @@ unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's na
 
 Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 
-- Shell: `AppSidebar.kt`'s `TopLevelScaffold` hosts Documents, Scripts, Settings.
+- Shell: `TopLevelScaffold.kt` hosts Documents, Scripts, Settings — a top navigation bar
+  at Expanded (`AppNavigationTopBar`, with Settings and the screen's `primaryAction` at its
+  far end), a bottom bar below.
 - Documents: `DocumentListScreen.kt` (list, detail, preview, download), state hoisted as a
   `DocumentSearch` in `App.kt`'s `DocumentsScreen`.
 - Scripts: `ScriptsScreen.kt` / `ScriptDetailScreen.kt` (public + own scripts, install/edit/uninstall).

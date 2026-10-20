@@ -22,7 +22,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * Hand-drawn `Canvas` glyphs for the desktop sidebar and list rows, in the
+ * Hand-drawn `Canvas` glyphs for the navigation and list rows, in the
  * same vocabulary as [DocumentGlyph] — this project has no icon pack (see
  * `design/design-system.md`'s open questions), so every icon here is a
  * small geometric shape rather than a font glyph or bitmap asset.
@@ -137,7 +137,7 @@ fun CodeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
 }
 
 /**
- * A puzzle piece — the sidebar's Scripts destination and the script grid's
+ * A puzzle piece — the script grid's
  * per-card icon chip: a square body with a round knob on its top and right
  * edges, as one closed outline like every other glyph here. Found via
  * review: it used to close its right knob with a diagonal back into the
@@ -154,7 +154,7 @@ fun PuzzleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted
         // narrower than the knob itself.
         val knobOffset = size.minDimension * 0.10f
         // Body plus knobs span the whole canvas, edge to edge like
-        // [DocumentGlyph] above it in the sidebar. Found via review: inset
+        // [DocumentGlyph]. Found via review: inset
         // to 10%-90% it read visibly smaller than its neighbours.
         val reach = knobRadius + knobOffset
         val left = 0f
