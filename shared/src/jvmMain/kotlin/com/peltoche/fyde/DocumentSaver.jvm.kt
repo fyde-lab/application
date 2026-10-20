@@ -8,7 +8,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.document_download
 import java.awt.FileDialog
-import java.awt.Frame
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,10 +18,11 @@ import org.jetbrains.compose.resources.stringResource
 actual fun rememberDocumentSaver(onResult: (fileName: String, saved: Boolean?) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
     val latestOnResult by rememberUpdatedState(onResult)
     val title by rememberUpdatedState(stringResource(Res.string.document_download))
+    val window by rememberUpdatedState(LocalAppWindow.current)
     val scope = rememberCoroutineScope()
     return remember {
         { fileName, bytes ->
-            val dialog = FileDialog(null as Frame?, title, FileDialog.SAVE)
+            val dialog = ownedFileDialog(window, title, FileDialog.SAVE)
             dialog.file = fileName
             dialog.isVisible = true
             val directory = dialog.directory
