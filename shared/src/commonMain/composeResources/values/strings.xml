@@ -247,8 +247,6 @@
 
     <!-- Settings screen -->
     <string name="settings_title">Settings</string>
-    <string name="server_section_title">Server</string>
-    <string name="server_url_label">Server URL</string>
     <string name="language_section_title">Language</string>
     <string name="language_label">App language</string>
     <string name="language_save_failed">Couldn’t save language: %1$s</string>

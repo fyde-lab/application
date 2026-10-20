@@ -37,8 +37,6 @@ import com.peltoche.fyde.resources.language_section_title
 import com.peltoche.fyde.resources.log_out
 import com.peltoche.fyde.resources.log_out_confirm_text
 import com.peltoche.fyde.resources.log_out_confirm_title
-import com.peltoche.fyde.resources.server_section_title
-import com.peltoche.fyde.resources.server_url_label
 import com.peltoche.fyde.resources.settings_title
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
@@ -65,8 +63,7 @@ private enum class AppLanguage(val code: String, val displayName: String) {
 
 /**
  * The Settings destination (sidebar footer on desktop, a regular nav item
- * below that — see [TopLevelScaffold]). Mostly read-only — the server it's
- * connected to (see `BuildConfig.SERVER_URL`, set at build time) — except for
+ * below that — see [TopLevelScaffold]). Mostly read-only, except for
  * [currentLanguage], which [onLanguageChange] lets the user override via
  * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
  * where that call and [languageError] actually live), and [onLogout], which
@@ -88,7 +85,6 @@ private enum class AppLanguage(val code: String, val displayName: String) {
  */
 @Composable
 fun SettingsScreen(
-    serverUrl: String,
     currentLanguage: String?,
     onLanguageChange: (String) -> Unit,
     onOpenDocuments: () -> Unit,
@@ -141,8 +137,6 @@ fun SettingsScreen(
                 ).forEach { (message, onDismiss) ->
                     AppBanner(message = message, onDismiss = onDismiss, dismissLabel = stringResource(Res.string.dismiss))
                 }
-                SectionTitle(stringResource(Res.string.server_section_title))
-                SettingsRow(label = stringResource(Res.string.server_url_label), value = serverUrl)
                 SectionTitle(stringResource(Res.string.language_section_title))
                 AppDropdown(
                     label = stringResource(Res.string.language_label),
