@@ -33,6 +33,8 @@ import uniffi.fyde_sdk.ScraperListener
 import kotlin.concurrent.Volatile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.withLock
 
 private val logger = Logger.getLogger("FydeSdk")
@@ -75,9 +77,16 @@ private fun defaultDataDirectory(): String {
  * anything else (e.g. the native library failing to load) is logged in
  * full. Cancellation is rethrown rather than reported as a failure. A
  * `SessionExpired` failure is also reported to [SessionExpiry].
+ *
+ * [block] runs on [Dispatchers.IO], never the caller's dispatcher: uniffi
+ * resumes the coroutine awaiting a fyde-sdk future on that dispatcher at
+ * each of the future's wakeups, so called from the UI (a `LaunchedEffect`)
+ * every gRPC call would wait behind frame rendering several times over
+ * (~45ms per call on a local server), and the non-suspending fyde-sdk calls
+ * would block the UI thread outright.
  */
-private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = try {
-    Result.success(block())
+private suspend inline fun <T> sdkCall(operation: String, crossinline block: suspend () -> T): Result<T> = try {
+    Result.success(withContext(Dispatchers.IO) { block() })
 } catch (e: CancellationException) {
     throw e
 } catch (e: FfiException) {
@@ -102,7 +111,7 @@ actual object FydeSdk {
     private var scraperHandler: FydeScraperHandler? = null
 
     /** [sdkCall] against the client [initialize] created, failing if there's none yet. */
-    private inline fun <T> withClient(operation: String, block: (FydeClient) -> T): Result<T> =
+    private suspend inline fun <T> withClient(operation: String, crossinline block: suspend (FydeClient) -> T): Result<T> =
         sdkCall(operation) { block(checkNotNull(client) { "FydeSdk.initialize must be called first" }) }
 
     actual suspend fun initialize(
