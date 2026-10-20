@@ -309,6 +309,24 @@ internal val FydeDocument.typeCode: String
     }
 
 /**
+ * The file name offered when downloading a document: its name, plus the
+ * extension of its [FydeDocument.contentType] when the name has none.
+ * Found via testing: an uploaded `invoice.pdf` is listed as "invoice", and
+ * the file it downloaded to had no extension, so nothing opened it.
+ */
+internal val FydeDocument.downloadFileName: String
+    get() {
+        if (name.substringAfterLast('.', "").isNotEmpty()) return name
+        val extension = when (contentType.lowercase()) {
+            "application/pdf" -> "pdf"
+            "image/png" -> "png"
+            "image/jpeg" -> "jpg"
+            else -> return name
+        }
+        return "$name.$extension"
+    }
+
+/**
  * [FileTypeIcon]'s accent per [DocumentKind], drawn only from the app's two
  * brand accents — `primary` and `secondary`, the latter already scoped by
  * design-system.md's Color table to "folder/document-type accents" — plus

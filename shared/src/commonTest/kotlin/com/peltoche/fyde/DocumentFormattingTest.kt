@@ -26,4 +26,21 @@ class DocumentFormattingTest {
         assertEquals("1,0", formatOneDecimalBelowTen(1.0, ","))
         assertEquals("12", formatOneDecimalBelowTen(12.7, "."))
     }
+
+    @Test
+    fun downloadFileNameAddsTheContentTypeExtensionOnlyWhenMissing() {
+        fun document(name: String, contentType: String) = FydeDocument(
+            id = "id",
+            name = name,
+            contentType = contentType,
+            createdAt = 0,
+            size = 0,
+            documentType = null,
+            category = null,
+            subcategory = null,
+        )
+        assertEquals("invoice.pdf", document("invoice", "application/pdf").downloadFileName)
+        assertEquals("invoice.PDF", document("invoice.PDF", "application/pdf").downloadFileName)
+        assertEquals("notes", document("notes", "application/octet-stream").downloadFileName)
+    }
 }

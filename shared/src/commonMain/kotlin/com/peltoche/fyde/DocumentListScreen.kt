@@ -213,6 +213,8 @@ private fun LoadedDocumentList(
             onBack = { selectedId = null },
             onDownload = { onDownload(selectedDocument) },
             loadContent = loadContent,
+            banner = state.banner,
+            onDismissBanner = state.onDismissBanner,
             onOpenScripts = onOpenScripts,
             onOpenSettings = onOpenSettings,
         )
@@ -389,6 +391,8 @@ private fun LoadedDocumentList(
  * layouts show beside the list, pushed over it with a back chevron, inside
  * the same navigation shell. Rendered by [LoadedDocumentList] itself rather
  * than as a separate top-level screen, so the list's state survives it.
+ * Shows the list's [banner] too: a failed download is reported there, and
+ * used to go unseen on a phone, as if Download did nothing.
  */
 @Composable
 private fun CompactDocumentDetail(
@@ -396,6 +400,8 @@ private fun CompactDocumentDetail(
     onBack: () -> Unit,
     onDownload: () -> Unit,
     loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
+    banner: String?,
+    onDismissBanner: () -> Unit,
     onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -412,13 +418,18 @@ private fun CompactDocumentDetail(
             )
         },
     ) { contentPadding ->
-        DocumentDetailPane(
-            document = document,
-            onDownload = onDownload,
-            loadContent = loadContent,
-            scrollable = true,
-            modifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background),
-        )
+        Column(modifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background)) {
+            banner?.let { message ->
+                AppBanner(message = message, onDismiss = onDismissBanner, dismissLabel = stringResource(Res.string.dismiss))
+            }
+            DocumentDetailPane(
+                document = document,
+                onDownload = onDownload,
+                loadContent = loadContent,
+                scrollable = true,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }
 
