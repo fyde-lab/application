@@ -55,6 +55,15 @@ object AppDimensions {
      */
     val iconTile: Dp = 44.dp
 
+    /**
+     * The `AppIconTile` heading a detail view (document detail, script
+     * detail) — larger than a row's [iconTile], since it stands for the item
+     * itself, and as tall as the header's two text lines (a 28sp Title line,
+     * a `space1` gap, an 18sp Data line) so tile and text share one block.
+     * Found via review: the two detail headers used 48dp and 64dp.
+     */
+    val iconTileHeader: Dp = 48.dp
+
     /** `AppProgressBar`'s thickness, and the skeleton standing in for one. */
     val progressBarHeight: Dp = 6.dp
 

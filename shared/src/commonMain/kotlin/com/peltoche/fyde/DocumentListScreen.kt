@@ -491,9 +491,9 @@ private fun DocumentDetailPane(
             modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Larger than a list row's (AppDimensions.iconTile), never
-            // smaller: this is the document itself, not one row of many.
-            FileTypeIcon(document, size = 48.dp)
+            // Larger than a list row's: this is the document itself, not
+            // one row of many.
+            FileTypeIcon(document, size = AppDimensions.iconTileHeader)
             Spacer(Modifier.width(AppSpacing.space4))
             Column(modifier = Modifier.weight(1f)) {
                 // Unlike the list row (always 1 line — a list is scanned),
