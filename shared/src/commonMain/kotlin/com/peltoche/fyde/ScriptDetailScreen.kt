@@ -63,6 +63,7 @@ import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.dismiss
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
@@ -204,7 +205,7 @@ fun ScriptDetailScreen(
 
                 Spacer(Modifier.height(AppSpacing.space7))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    ScriptIcon(icon = script.icon, size = 64.dp)
+                    ScriptIcon(icon = script.icon, size = AppDimensions.iconTileHeader)
                     Spacer(Modifier.width(AppSpacing.space4))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(text = script.name, style = AppTypography.title, color = AppColors.text)

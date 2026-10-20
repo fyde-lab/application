@@ -351,8 +351,10 @@ default, either *tinted* (`tint = …`: a glyph the app colors itself, e.g. a
 document's file kind) or *neutral* (no tint: `background` + `border`
 hairline, for content that brings its own colors, e.g. a script's logo). Its
 loading placeholder is an `AppSkeleton` of the same size, shaped
-`AppShapes.iconTile`. Detail headers use a larger tile (document detail
-48dp, script detail 64dp — see *Remaining inconsistencies*).
+`AppShapes.iconTile`. A detail view's header (document detail, script
+detail) uses `AppDimensions.iconTileHeader` (48dp): the item itself rather
+than one row of many, and as tall as the header's two text lines. Found via
+audit: the two headers used 48dp and 64dp.
 
 ---
 
@@ -750,9 +752,6 @@ maps to a color), not visual ones.
 
 Found by the audit and deliberately left alone, pending a decision:
 
-- **Detail-header tile sizes differ** — document detail 48dp, script detail
-  64dp. One is a pane beside a list, the other a full page, so this may be
-  intentional; not unified without a call on it.
 - **Glyph stroke widths are per-glyph defaults** (1.4–2.2dp) and the empty
   state passes 2dp by hand; there's no stroke token. Part of the icon-system
   question below.
