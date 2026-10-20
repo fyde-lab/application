@@ -37,9 +37,11 @@ import com.peltoche.fyde.resources.language_section_title
 import com.peltoche.fyde.resources.log_out
 import com.peltoche.fyde.resources.log_out_confirm_text
 import com.peltoche.fyde.resources.log_out_confirm_title
+import com.peltoche.fyde.resources.appearance_label
 import com.peltoche.fyde.resources.settings_title
 import com.peltoche.fyde.resources.theme_label
 import com.peltoche.fyde.resources.theme_section_title
+import com.peltoche.fyde.theme.AppAppearance
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppThemeOption
@@ -68,6 +70,8 @@ private enum class AppLanguage(val code: String, val displayName: String) {
  * The Settings destination (sidebar footer on desktop, a regular nav item
  * below that — see [TopLevelScaffold]). Mostly read-only, except for
  * [currentTheme], which [onThemeChange] swaps app-wide (see [AppThemeOption]),
+ * [currentAppearance], which [onAppearanceChange] switches between light,
+ * dark and the platform's setting (see [AppAppearance]),
  * [currentLanguage], which [onLanguageChange] lets the user override via
  * `fyde-sdk`'s `set_language` (see `App.kt`'s `Screen.Settings` branch for
  * where that call and [languageError] actually live), and [onLogout], which
@@ -91,6 +95,8 @@ private enum class AppLanguage(val code: String, val displayName: String) {
 fun SettingsScreen(
     currentTheme: AppThemeOption = AppThemeOption.Default,
     onThemeChange: (AppThemeOption) -> Unit = {},
+    currentAppearance: AppAppearance = AppAppearance.Default,
+    onAppearanceChange: (AppAppearance) -> Unit = {},
     currentLanguage: String?,
     onLanguageChange: (String) -> Unit,
     onOpenDocuments: () -> Unit,
@@ -167,6 +173,17 @@ fun SettingsScreen(
                     selectedOption = currentTheme,
                     onOptionSelected = onThemeChange,
                     optionLabel = themeLabels::getValue,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = AppSpacing.space3),
+                )
+                val appearanceLabels = AppAppearance.entries.associateWith { stringResource(it.label) }
+                AppDropdown(
+                    label = stringResource(Res.string.appearance_label),
+                    options = AppAppearance.entries,
+                    selectedOption = currentAppearance,
+                    onOptionSelected = onAppearanceChange,
+                    optionLabel = appearanceLabels::getValue,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = AppSpacing.space3),

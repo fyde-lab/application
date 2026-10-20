@@ -70,8 +70,8 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - Documents: `DocumentListScreen.kt` (list, detail, preview, download), state hoisted as a
   `DocumentSearch` in `App.kt`'s `DocumentsScreen`.
 - Scripts: `ScriptsScreen.kt` / `ScriptDetailScreen.kt` (public + own scripts, install/edit/uninstall).
-- Settings: theme (`theme/AppThemeOption.kt`, held in `App()` above `AppTheme`; not persisted
-  yet), language, `PlanUsageSection.kt` (`FydeSdk.getUsage`, re-fetched each time Settings
+- Settings: theme and light/dark appearance (`theme/AppThemeOption.kt`, `theme/AppAppearance.kt`,
+  held in `App()` above `AppTheme`; not persisted yet), language, `PlanUsageSection.kt` (`FydeSdk.getUsage`, re-fetched each time Settings
   opens), `SessionsSection.kt` (`listSessions`; revoke another device via `revokeSession` after
   confirmation, then re-fetch sessions and usage), logout (the only way to end this device's
   session; clears local state).
