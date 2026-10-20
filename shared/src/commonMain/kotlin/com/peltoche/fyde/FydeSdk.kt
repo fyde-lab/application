@@ -385,7 +385,8 @@ enum class FydeScriptType {
  * `FfiScriptMetadata` without leaking `:sdkBridge`'s generated bindings into
  * `commonMain`. Never carries the script's content: the listings don't
  * return it (see `sdk/src/domains/scripts/models.rs`'s `ScriptMetadata`),
- * and nothing in the app reads it.
+ * and nothing in the app reads it. They don't return its [icon] either: it's
+ * empty in a listed script until filled from [FydeSdk.fetchScriptIcon].
  */
 data class FydeScript(
     val id: String,
@@ -715,6 +716,14 @@ expect object FydeSdk {
      * hasn't been called yet.
      */
     suspend fun listPublicScripts(): Result<List<FydeScript>>
+
+    /**
+     * The icon of the script [scriptId] (an encoded image, empty if it has
+     * none), which [listUserScripts]/[listPublicScripts] leave out. Mirrors
+     * [`crate::ScriptsService::fetch_script_icon`]; fails if [initialize]
+     * hasn't been called yet.
+     */
+    suspend fun fetchScriptIcon(scriptId: String): Result<ByteArray>
 
     /**
      * The parameter values each installed script was last installed with,
