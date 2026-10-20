@@ -342,7 +342,6 @@ private fun AppContent() {
                 onOpenScripts = { screen = Screen.Scripts },
             )
             Screen.Settings -> SettingsScreen(
-                serverUrl = BuildConfig.SERVER_URL,
                 currentLanguage = language,
                 onLanguageChange = { newLanguage ->
                     applyPlatformLocale(newLanguage)

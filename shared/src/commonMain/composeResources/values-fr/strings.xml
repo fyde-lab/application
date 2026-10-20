@@ -247,8 +247,6 @@
 
     <!-- Settings screen -->
     <string name="settings_title">Paramètres</string>
-    <string name="server_section_title">Serveur</string>
-    <string name="server_url_label">URL du serveur</string>
     <string name="language_section_title">Langue</string>
     <string name="language_label">Langue de l’application</string>
     <string name="language_save_failed">Impossible d’enregistrer la langue : %1$s</string>
