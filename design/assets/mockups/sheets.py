@@ -25,6 +25,10 @@ LABELS = {
     "S4": "Récupération", "S5": "Détail", "S6": "En échec", "S7": "Retirer", "M1": "Moi", "M2": "Sécurité",
     "M3": "Ce que voit le serveur", "M4": "Vérifier le mot de passe", "M5": "Appareils", "M6": "Offre et usage",
     "M7": "Apparence et langue", "M8": "Se déconnecter", "X1": "Hors ligne", "D1": "Bureau — Catégorie",
+    "DO1": "Bienvenue", "DO2": "Connexion", "DO2b": "Connexion en cours", "DO2c": "Échec de connexion",
+    "DO3": "Créer le coffre", "DO3b": "Créer — erreurs", "DO4": "Trousseau absent (connexion)",
+    "DO4b": "Trousseau absent (création)", "DO5": "Trop d’appareils", "DO6": "Kit de récupération",
+    "DO7": "Choisir ses sources", "DO8": "Notifications", "DO9": "Ouverture",
     "D2": "Bureau — Document", "D3": "Bureau — Arrivées", "D4": "Bureau — Sources", "T1": "Tablette — Coffre",
 }
 GROUPS = {"onboarding": "O", "coffre": "V", "capture-arrivees": "KR", "sources": "S", "moi": "MX"}
@@ -41,12 +45,12 @@ def font():
 
 
 def screen_id(path):
-    return re.match(r"([A-Z]\d+)", os.path.basename(path)).group(1)
+    return re.match(r"([A-Z]+\d+[a-z]?)(?=-)", os.path.basename(path)).group(1)
 
 
 def order(path):
-    sid = screen_id(path)
-    return sid[0], int(sid[1:])
+    letters, number, suffix = re.match(r"([A-Z]+)(\d+)([a-z]?)", screen_id(path)).groups()
+    return letters, int(number), suffix
 
 
 def sheet(name, files, width, per_row):
@@ -73,4 +77,5 @@ for name, prefixes in GROUPS.items():
     files = sorted((f for f in glob.glob(str(SCREENS / "*.png"))
                     if os.path.basename(f)[0] in prefixes and not os.path.basename(f).startswith("V10")), key=order)
     sheet(name, files, 390, 5)
-sheet("bureau-tablette", sorted(glob.glob(str(SCREENS / "D*.png")), key=order) + [str(SCREENS / "T1-tablette-coffre.png")], 720, 2)
+sheet("bureau-acces", sorted(glob.glob(str(SCREENS / "DO*.png")), key=order), 720, 2)
+sheet("bureau-tablette", sorted(glob.glob(str(SCREENS / "D[0-9]*.png")), key=order) + [str(SCREENS / "T1-tablette-coffre.png")], 720, 2)

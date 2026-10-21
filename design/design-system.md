@@ -22,7 +22,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 
 ## Reference screens
 
-Every screen of the app is drawn in `assets/screens/` (49 PNGs at 2×, phone frames at 390×844,
+Every screen of the app is drawn in `assets/screens/` (62 PNGs at 2×, phone frames at 390×844,
 desktop at 1440×900, tablet at 1194×834), rendered from the HTML in `assets/mockups/` by
 `render.py`; `sheets.py` assembles them into the contact sheets in `assets/sheets/`. To change a
 reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
@@ -30,7 +30,8 @@ tables below), re-render, and commit the PNGs with the source.
 
 Screen IDs are used throughout this document and in file names:
 **O** onboarding and access · **V** vault and documents · **K** capture · **R** arrivals ·
-**S** sources · **M** account (Moi) · **X** system states · **D** desktop · **T** tablet.
+**S** sources · **M** account (Moi) · **X** system states · **D** desktop · **DO** desktop
+onboarding and access · **T** tablet. A letter suffix (`DO2b`) is another state of the same screen.
 
 ![Main screens](assets/sheets/coffre.png)
 
@@ -215,6 +216,30 @@ Keyboard on desktop and web: ⌘K / Ctrl+K search, ↑↓ move the selection, En
 previews, Esc closes the detail; in Arrivées, Enter confirms the classification and moves to the
 next, E edits. Right-click opens the same actions as V8.
 
+### Onboarding and access on Medium and Expanded
+
+Without a session there's no sidebar. The window splits in two (DO1–DO9):
+
+- **Brand panel**, 520dp at Expanded, full height, `primary` fill with `onPrimary` content: the
+  Fyde mark at the top, a reassurance line at the bottom ("Votre mot de passe ne quitte jamais
+  cet ordinateur."). In between, on the sign-in path (DO1, DO2, DO4, DO5, DO9): the seal on
+  `onPrimary` (white disc, lock in `primary`, rings at 22% and 16% white), "Vos documents, sous
+  scellé." in 38/44 SemiBold and the three promises. On the vault-creation path (DO3, DO6–DO8):
+  "Créer votre coffre", "Quatre étapes, environ trois minutes." and a vertical 4-step stepper
+  (done = `success` disc with check, current = white disc, to do = outline at 35% white, joined
+  by a 2dp line at 18% white).
+- **Form pane**, `background`, the form centred horizontally and vertically in a 440dp column
+  (600dp for the recovery words and sources). Back is a 44 circle at the top left (40, 32); the
+  cross-link ("Pas encore de coffre ? Créer un coffre", or "Passer") sits at the top right.
+  Screen titles use `display`. Paired actions sit on one row, text action first, filled action
+  twice as wide.
+- **The phone's sheets become dialogs** (500dp, radius 24, actions right-aligned: Annuler ·
+  secondary · primary). Enter submits the form.
+- At **Medium** the brand panel narrows to a 96dp band at the top with only the mark and the
+  stepper's current step; the form keeps its 440dp column.
+
+![Desktop onboarding and access](assets/sheets/bureau-acces.png)
+
 ---
 
 ## Patterns
@@ -378,6 +403,31 @@ subcategories of the chosen category only, type chips.
 | D3 | Arrivées | Sidebar · queue with inline code card · preview · classification panel with C'est bon (Enter) |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, automatique) · detail panel |
 | T1 | Tablette | Sidebar · 4-column category cards · Scanner in the header · latest arrivals |
+
+### Desktop onboarding and access (DO1–DO9)
+
+Same flows, content and SDK calls as O1–O9; layout in
+[Onboarding and access on Medium and Expanded](#onboarding-and-access-on-medium-and-expanded).
+
+| ID | Screen | Content | States |
+|---|---|---|---|
+| DO1 | Bienvenue | "Bienvenue", one line on creating or opening a vault, Créer mon coffre (filled) / J'ai déjà un coffre (outlined), the server name in `caption` | — |
+| DO2 | Connexion | As O2; "Entrée pour valider" hint under the button | Session expired → warning note |
+| DO2b | Connexion en cours | Fields disabled at 55%, button spinner "Ouverture du coffre…", info note on key derivation taking a few seconds | — |
+| DO2c | Échec de connexion | Error note with the SDK's wording, password emptied and focused, button disabled until it's typed again, "Mot de passe oublié ? Utiliser mon kit de récupération" | The link needs the recovery kit (SDK) |
+| DO3 | Créer le coffre | Step 1 of 4: as O3 | — |
+| DO3b | Créer le coffre — erreurs | Username taken (field error, red 2dp border), weak password (meter in `warning`), mismatch, checkbox unticked, Continuer disabled | Errors appear on blur or submit, not while typing |
+| DO4 | Trousseau absent (connexion) | Dialog over DO2: warning tile, "Pas de trousseau système sur cet ordinateur", which keyrings were tried (GNOME Keyring, KWallet), the risk, opt-in checkbox, Annuler · Réessayer · Ouvrir quand même (enabled once ticked) | On `SecureStorageUnavailable`; Réessayer re-runs the call without the opt-in (for after installing a keyring); the confirm re-runs it with `allowInsecureStorage` |
+| DO4b | Trousseau absent (création) | Same dialog over DO3, ticked: "Créer quand même" enabled | Same |
+| DO5 | Trop d'appareils | As O5; Voir les offres · Déconnecter le MacBook Air | — |
+| DO6 | Kit de récupération | Step 2 of 4: 12 words in 4×3, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop |
+| DO7 | Choisir ses sources | Step 3 of 4: search, category chips, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
+| DO8 | Notifications | Step 4 of 4: a sample system notification at the top right of the pane, the promise, a note that on a computer Fyde notifies while it's open | — |
+| DO9 | Ouverture sur cet ordinateur | Ring with the replayed count, names this computer, Parcourir le coffre | Needs the replay total (SDK) |
+
+The missing keyring is mostly a Linux case (only the Secret Service store has been exercised by
+the SDK), so DO4 and DO4b are drawn in a Linux window; on macOS and Windows the same dialog names
+the platform store instead.
 
 ---
 
