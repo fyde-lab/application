@@ -3,7 +3,7 @@
     <!-- Shared / auth -->
     <string name="log_in">Se connecter</string>
     <string name="sign_up">S’inscrire</string>
-    <string name="username_label">Nom d’utilisateur</string>
+    <string name="username_label">Identifiant</string>
     <string name="password_label">Mot de passe</string>
 
     <!-- Welcome screen -->
@@ -16,9 +16,16 @@
     <string name="welcome_have_vault">J’ai déjà un coffre</string>
 
     <!-- Login screen -->
+    <string name="show_password">Afficher le mot de passe</string>
+    <string name="hide_password">Masquer le mot de passe</string>
+    <string name="login_title">Ouvrir mon coffre</string>
+    <string name="login_submit">Ouvrir le coffre</string>
+    <string name="login_password_help">Il ne quitte jamais cet appareil, même chiffré.</string>
+    <string name="login_no_vault">Pas encore de coffre ?</string>
+    <string name="login_create_vault">Créer un coffre</string>
     <string name="no_account_prompt">Vous n’avez pas de compte ?</string>
     <string name="auth_error_login_failed">Échec de la connexion</string>
-    <string name="session_expired">Votre session a expiré. Veuillez vous reconnecter.</string>
+    <string name="session_expired">Votre session a expiré. Reconnectez-vous pour continuer.</string>
 
     <!-- Session limit screen -->
     <string name="session_limit_title">Trop d’appareils</string>

@@ -18,6 +18,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 | ID | Screen | Code |
 |---|---|---|
 | O1 | Bienvenue | `WelcomeScreen.kt`, `SealHero` |
+| O2 | Connexion | `LoginScreen.kt`, `AppBackButton`, `AppNote`, `AppTextField` |
 
 ## Reference screens
 
@@ -298,7 +299,7 @@ subcategories of the chosen category only, type chips.
 | ID | Screen | Content | States |
 |---|---|---|---|
 | O1 | Bienvenue | Seal hero, "Vos documents, sous scellé.", three promises (fetched, encrypted, on every device), Créer mon coffre / J'ai déjà un coffre | Only without an account on the device: first screen until signed in and after logging out; Créer mon coffre → O3, J'ai déjà un coffre → O2; an expired session goes to O2 instead |
-| O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds) |
+| O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds). Failed attempt → error note. Back → O1; "Créer un coffre" → O3 |
 | O3 | Créer le coffre | Step 1/4; username; password with strength meter; confirm; warning "seule clé de votre coffre"; required "J'ai compris" | Mismatch and taken username as field errors |
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
 | O5 | Trop d'appareils | Plan limit, radio list of open sessions, "Déconnecter le MacBook Air" | Re-runs login with `replaceSessionId`; credentials kept only while open |
@@ -388,12 +389,14 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 |---|---|---|
 | `AppTheme`, `AppColors`, `AppTypography`, `AppShapes`, `AppSpacing`, `AppIconSize` | Rewrite values | Tables above; category colours as `AppCategoryColors` |
 | `AppButton` (`Filled`, `Outlined`, `Text`, `destructive`, `loading`) | Restyle | Pill, 52 / 40 |
-| `AppTextField`, `AppSearchField` | Restyle | 52 tall radius 14; search is a 48 pill |
+| `AppTextField` | Layout landed (O2) | Label above (medium), `surface` box, `borderStrong` hairline, 2 `primary` when focused, help or error flush under it; a password field carries the eye. Still M3's 56 tall (not 52) and the current input radius |
+| `AppSearchField` | Restyle | 48 pill |
+| `AppBackButton` | Landed (O2) | 44 `surface` circle, `border` hairline, chevron; "Back" for screen readers |
 | `AppChip` | Restyle | Pill 38, selected = `text` fill, optional count and chevron |
 | `AppCheckbox`, `AppRadio`, `AppSwitch` | Restyle | 22pt marks, 51×31 switch |
 | `AppBottomSheet`, `AppDialog`, `AppSnackbarHost`, `AppProgressBar` | Restyle | Patterns above |
 | `AppSegmented` | New | 2–3 options on `sunk` |
-| `AppNote` | New | Replaces inline `AppBanner` |
+| `AppNote` | Landed (O2) | `Info` / `Ok` / `Warning` / `Error`: wash, icon in the kind's colour, text; replaces inline `AppBanner`, which screens drop as they're rebuilt |
 | `AppTabBar` | New | Replaces `AppNavigationBar` |
 | `AppSidebar` | New | Replaces `AppNavigationTopBar` and `AppNavigationRail` |
 | `CategoryCard`, `CategoryBand` | New | Normal and placeholder variants |

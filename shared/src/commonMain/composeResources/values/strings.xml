@@ -16,9 +16,16 @@
     <string name="welcome_have_vault">I already have a vault</string>
 
     <!-- Login screen -->
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
+    <string name="login_title">Open my vault</string>
+    <string name="login_submit">Open the vault</string>
+    <string name="login_password_help">It never leaves this device, even encrypted.</string>
+    <string name="login_no_vault">No vault yet?</string>
+    <string name="login_create_vault">Create a vault</string>
     <string name="no_account_prompt">Don’t have an account?</string>
     <string name="auth_error_login_failed">Failed to log in</string>
-    <string name="session_expired">Your session has expired. Please log in again.</string>
+    <string name="session_expired">Your session has expired. Log in again to continue.</string>
 
     <!-- Session limit screen -->
     <string name="session_limit_title">Too many devices</string>

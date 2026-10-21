@@ -77,6 +77,9 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   session; clears local state).
 - `WelcomeScreen` (O1): the first screen without a session, and after logout; leads to
   `RegisterScreen` or `LoginScreen` (an expired session goes straight to `LoginScreen`).
+- `LoginScreen` (O2): back to `WelcomeScreen`. `App.kt` passes why the session ended as
+  `noticeMessage` (warning note, `sessionNotice`), separate from a failed attempt's
+  `errorMessage` (error note, `authError`).
 - `LoginScreen`, `RegisterScreen`, `SessionLimitScreen`: when `FydeSdk.login` returns
   `FydeLoginOutcome.SessionLimitReached`, `App.kt` shows the account's sessions, keeps the typed
   credentials in `Screen.SessionLimit` only while it's open, and re-runs login with the picked

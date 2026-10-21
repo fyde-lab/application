@@ -373,3 +373,57 @@ fun SyncGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
         drawPath(path, color = tint, style = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round))
     }
 }
+
+/** A left chevron — [com.peltoche.fyde.components.action.AppBackButton]'s mark. Traced from `i-chev-l` in `icons.svg`. */
+@Composable
+fun ChevronLeftGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.text, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val path = Path().apply {
+            moveTo(15f * unit, 6f * unit)
+            lineTo(9f * unit, 12f * unit)
+            lineTo(15f * unit, 18f * unit)
+        }
+        drawPath(path, color = tint, style = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round))
+    }
+}
+
+/** A clock face — waiting, expiry (a warning note's mark). Traced from `i-clock` in `icons.svg`. */
+@Composable
+fun ClockGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.warning, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawCircle(color = tint, radius = 8.5f * unit, center = Offset(12f * unit, 12f * unit), style = stroke)
+        val hands = Path().apply {
+            moveTo(12f * unit, 7.5f * unit)
+            lineTo(12f * unit, 12f * unit)
+            lineTo(15f * unit, 14f * unit)
+        }
+        drawPath(hands, color = tint, style = stroke)
+    }
+}
+
+/**
+ * An eye — "show password"; with [crossed], "hide password". Traced from
+ * `i-eye` in `icons.svg`, the crossed variant as that eye under `i-eye-off`'s
+ * diagonal.
+ */
+@Composable
+fun EyeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, crossed: Boolean = false, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        val outline = Path().apply {
+            moveTo(2.5f * unit, 12f * unit)
+            quadraticTo(12f * unit, -0.5f * unit, 21.5f * unit, 12f * unit)
+            quadraticTo(12f * unit, 24.5f * unit, 2.5f * unit, 12f * unit)
+            close()
+        }
+        drawPath(outline, color = tint, style = stroke)
+        drawCircle(color = tint, radius = 3f * unit, center = Offset(12f * unit, 12f * unit), style = stroke)
+        if (crossed) {
+            drawLine(color = tint, start = Offset(3f * unit, 3f * unit), end = Offset(21f * unit, 21f * unit), strokeWidth = stroke.width, cap = StrokeCap.Round)
+        }
+    }
+}
