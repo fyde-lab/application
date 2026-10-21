@@ -77,10 +77,12 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   session; clears local state).
 - `WelcomeScreen` (O1 at Compact, DO1 at Medium/Expanded): the first screen without a session,
   and after logout; leads to `RegisterScreen` or `LoginScreen` (an expired session goes straight
-  to `LoginScreen`). DO1 splits the window: `AuthBrandPanel` (`AuthBrandBand` at Medium), meant
-  for the other desktop access screens too, beside a centred form naming the build's server.
-- `LoginScreen` (O2): back to `WelcomeScreen`. `App.kt` passes why the session ended as
-  `noticeMessage` (warning note, `sessionNotice`), separate from a failed attempt's
+  to `LoginScreen`). DO1 splits the window with `SignInSplitLayout` (`SignInBrandPanel`, an
+  `AuthBrandBand` at Medium), shared with the other desktop sign-in screens, beside a centred
+  form naming the build's server.
+- `LoginScreen` (O2 at Compact, DO2 at Medium/Expanded in `SignInSplitLayout`; after a failure,
+  DO2c empties and refocuses the password): back to `WelcomeScreen`. `App.kt` passes why the
+  session ended as `noticeMessage` (warning note, `sessionNotice`), separate from a failed attempt's
   `errorMessage` (error note, `authError`).
 - `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the
   wording and the desktop's Retry): over `LoginScreen`/`RegisterScreen` when the device has no
