@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Fyde — Accueil et accès (bureau)</title>
+<link rel="stylesheet" href="base.css"><link rel="stylesheet" href="tokens.css">
+<style>
+.desktop{position:relative}
+.split{flex:1;display:flex;overflow:hidden}
+.brand{width:520px;flex:none;background:#1F4D3A;color:#fff;padding:36px 48px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.brand .logo{display:flex;align-items:center;gap:10px;font:600 18px var(--font)}
+.brand .logo span{width:30px;height:30px;border-radius:9px;background:#fff;color:#1F4D3A;display:grid;place-items:center}
+.brand .mid{flex:1;display:flex;flex-direction:column;justify-content:center}
+.brand .foot2{display:flex;align-items:center;gap:8px;font:400 14px/20px var(--font);color:rgba(255,255,255,.82)}
+.seal{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(255,255,255,.12) 0 52px,transparent 53px),radial-gradient(circle,transparent 0 62px,rgba(255,255,255,.22) 63px 64px,transparent 65px),radial-gradient(circle,transparent 0 73px,rgba(255,255,255,.16) 74px 75px,transparent 76px)}
+.seal .core{width:76px;height:76px;border-radius:50%;background:#fff;color:#1F4D3A;display:grid;place-items:center}
+.btitle{font:600 38px/44px var(--font);letter-spacing:-.02em;margin-top:28px}
+.prom{display:flex;gap:14px;align-items:flex-start;font:400 16px/23px var(--font);margin-top:18px;color:rgba(255,255,255,.92)}
+.prom .tile{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.12);color:#fff}
+.steps{margin-top:30px;display:flex;flex-direction:column}
+.stp{display:grid;grid-template-columns:32px 1fr;gap:14px;position:relative;padding-bottom:26px}
+.stp:not(:last-child)::after{content:"";position:absolute;left:15px;top:34px;bottom:4px;width:2px;background:rgba(255,255,255,.18)}
+.stp .n{width:32px;height:32px;border-radius:16px;display:grid;place-items:center;font:600 14px var(--font);border:2px solid rgba(255,255,255,.35);color:rgba(255,255,255,.75)}
+.stp.done .n{background:#8FD1AE;border-color:#8FD1AE;color:#0B2418}
+.stp.now .n{background:#fff;border-color:#fff;color:#1F4D3A}
+.stp p{font:600 16px/22px var(--font);margin-top:4px}
+.stp small{display:block;font:400 14px/20px var(--font);color:rgba(255,255,255,.72);margin-top:2px}
+.stp.todo p{color:rgba(255,255,255,.7)}
+.pane{flex:1;position:relative;display:flex;justify-content:center;align-items:center;background:var(--bg)}
+.pane .tl{position:absolute;left:40px;top:32px}
+.pane .tr{position:absolute;right:40px;top:36px;font:400 14px var(--font);color:var(--muted)}
+.form{width:440px}
+.form.wide{width:600px}
+.form .field{margin:0 0 16px}
+.form .note{margin:0 0 18px}
+.form .chk{margin:0}
+.dis{opacity:.55}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff}
+.words{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 0}
+.words span{height:46px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:0 10px;font:500 15px "Plex Mono"}
+.words span i{font-style:normal;color:var(--muted);font-size:12px;width:18px}
+.strength{display:flex;gap:4px;margin-top:8px}.strength i{flex:1;height:4px;border-radius:2px;background:var(--border)}.strength i.on{background:var(--ok)}
+.ringp{width:200px;height:200px;margin:0 auto;border-radius:50%;background:conic-gradient(var(--primary) 0 66%,var(--sunk) 66% 100%);display:grid;place-items:center}
+.ringp>div{width:176px;height:176px;border-radius:50%;background:var(--bg);display:grid;place-items:center;text-align:center}
+.srcgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.srcc{border-radius:16px;background:var(--surface);border:1px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:12px;min-height:66px}
+.srcc.on{border:2px solid var(--primary);padding:11px 13px}
+.osn{position:absolute;right:24px;top:20px;width:360px;border-radius:16px;background:rgba(250,249,246,.96);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.14);padding:12px 14px;display:flex;gap:12px}
+.dlg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:500px;z-index:11;background:var(--surface);border-radius:24px;padding:26px 26px 20px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.dlg .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.linux{height:38px;flex:none;display:flex;align-items:center;padding:0 10px 0 14px;background:#EBEBEB;border-bottom:1px solid #D6D6D6}
+.linux b{flex:1;text-align:center;font:600 13px var(--font);color:#2e2e2e}
+.linux i{width:24px;height:24px;border-radius:12px;background:#DCDCDC;display:grid;place-items:center;margin-left:8px;color:#333;font:600 12px var(--font);font-style:normal}
+.scrimd{position:absolute;inset:0;background:rgba(15,20,18,.45);z-index:10}
+</style></head><body>
+<!--ICONS-->
+
+<div class="board"><p class="caption-board">DO1 · Bienvenue</p>
+<div class="desktop fyde" data-shot="DO1-bienvenue">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <div class="seal"><div class="core"><svg class="ic" style="width:34px;height:34px"><use href="#i-lock"/></svg></div></div>
+ <p class="btitle">Vos documents,<br>sous scellé.</p>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-bolt"/></svg></span><span>Récupérés tout seuls chez vos fournisseurs, banques et administrations.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-lock"/></svg></span><span>Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-sync"/></svg></span><span>Sur tous vos appareils, même hors ligne.</span></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><div class="form">
+ <p class="h1">Bienvenue</p>
+ <p class="body" style="color:var(--muted);margin:8px 0 28px">Créez votre coffre, ou ouvrez celui que vous utilisez déjà sur un autre appareil.</p>
+ <button class="pbtn f w">Créer mon coffre</button>
+ <button class="pbtn o w" style="margin-top:10px">J’ai déjà un coffre</button>
+ <p class="t3" style="margin-top:22px;text-align:center">Serveur : doc.halium.fr</p>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO2 · Connexion</p>
+<div class="desktop fyde" data-shot="DO2-connexion">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <div class="seal"><div class="core"><svg class="ic" style="width:34px;height:34px"><use href="#i-lock"/></svg></div></div>
+ <p class="btitle">Vos documents,<br>sous scellé.</p>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-bolt"/></svg></span><span>Récupérés tout seuls chez vos fournisseurs, banques et administrations.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-lock"/></svg></span><span>Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-sync"/></svg></span><span>Sur tous vos appareils, même hors ligne.</span></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><p class="tr">Pas encore de coffre ? <b style="color:var(--primary);font-weight:600">Créer un coffre</b></p><div class="form">
+ <p class="h1">Ouvrir mon coffre</p>
+ <div class="note warn" style="margin:18px 0 22px"><svg class="ic"><use href="#i-clock"/></svg><span>Votre session a expiré. Reconnectez-vous pour continuer.</span></div>
+ <div class="field"><label>Identifiant</label><div class="in"><span class="grow">pierre</span></div></div>
+ <div class="field"><label>Mot de passe</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div><p class="help">Il ne quitte jamais cet appareil, même chiffré.</p></div>
+ <button class="pbtn f w" style="margin-top:6px">Ouvrir le coffre</button>
+ <p class="t3" style="margin-top:12px;text-align:center"><span class="kbd">Entrée</span> pour valider</p>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO2b · Connexion en cours</p>
+<div class="desktop fyde" data-shot="DO2b-connexion-en-cours">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <div class="seal"><div class="core"><svg class="ic" style="width:34px;height:34px"><use href="#i-lock"/></svg></div></div>
+ <p class="btitle">Vos documents,<br>sous scellé.</p>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-bolt"/></svg></span><span>Récupérés tout seuls chez vos fournisseurs, banques et administrations.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-lock"/></svg></span><span>Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-sync"/></svg></span><span>Sur tous vos appareils, même hors ligne.</span></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><div class="form">
+ <p class="h1">Ouvrir mon coffre</p>
+ <div style="height:22px"></div>
+ <div class="dis"><div class="field"><label>Identifiant</label><div class="in"><span class="grow">pierre</span></div></div><div class="field"><label>Mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div></div></div>
+ <button class="pbtn f w" style="margin-top:6px"><span class="spin"></span>Ouverture du coffre…</button>
+ <div class="note info" style="margin:14px 0 0"><svg class="ic"><use href="#i-key"/></svg><span>Fyde dérive votre clé à partir du mot de passe, sur cet ordinateur. Cela prend quelques secondes.</span></div>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO2c · Échec de connexion</p>
+<div class="desktop fyde" data-shot="DO2c-echec-de-connexion">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <div class="seal"><div class="core"><svg class="ic" style="width:34px;height:34px"><use href="#i-lock"/></svg></div></div>
+ <p class="btitle">Vos documents,<br>sous scellé.</p>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-bolt"/></svg></span><span>Récupérés tout seuls chez vos fournisseurs, banques et administrations.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-lock"/></svg></span><span>Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-sync"/></svg></span><span>Sur tous vos appareils, même hors ligne.</span></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><p class="tr">Pas encore de coffre ? <b style="color:var(--primary);font-weight:600">Créer un coffre</b></p><div class="form">
+ <p class="h1">Ouvrir mon coffre</p>
+ <div class="note err" style="margin:18px 0 22px"><svg class="ic"><use href="#i-alert-c"/></svg><span>Identifiant ou mot de passe incorrect. Vérifiez la saisie, puis réessayez.</span></div>
+ <div class="field"><label>Identifiant</label><div class="in"><span class="grow">pierre</span></div></div>
+ <div class="field"><label>Mot de passe</label><div class="in on"><span class="grow"></span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div></div>
+ <button class="pbtn f w" style="margin-top:6px;opacity:.38">Ouvrir le coffre</button>
+ <p class="t2" style="margin-top:16px;text-align:center">Mot de passe oublié ? <b style="color:var(--primary);font-weight:600">Utiliser mon kit de récupération</b></p>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO3 · Créer le coffre</p>
+<div class="desktop fyde" data-shot="DO3-creer-le-coffre">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp now"><span class="n">1</span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp todo"><span class="n">2</span><div><p>Kit de récupération</p><small>12 mots, votre seule issue</small></div></div><div class="stp todo"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="form">
+ <p class="h1">Votre compte</p>
+ <p class="body" style="color:var(--muted);margin:6px 0 22px">Un identifiant et un mot de passe. C’est tout ce que Fyde vous demandera.</p>
+ <div class="field"><label>Identifiant</label><div class="in"><span class="grow">pierre</span></div></div>
+ <div class="field"><label>Mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div><div class="strength"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><p class="help">Solide · 16 caractères</p></div>
+ <div class="field"><label>Confirmer le mot de passe</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg></div></div>
+ <div class="note warn"><svg class="ic"><use href="#i-key"/></svg><span><b style="font-weight:600">Ce mot de passe est la seule clé de votre coffre.</b> Fyde ne peut pas le réinitialiser : oublié, vos documents sont perdus.</span></div>
+ <div class="chk"><span class="box on"><svg class="ic sm"><use href="#i-check"/></svg></span><span>J’ai compris, je le garde en lieu sûr.</span></div>
+ <button class="pbtn f w" style="margin-top:18px">Continuer</button>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO3b · Créer le coffre — erreurs</p>
+<div class="desktop fyde" data-shot="DO3b-creer-le-coffre-erreurs">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp now"><span class="n">1</span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp todo"><span class="n">2</span><div><p>Kit de récupération</p><small>12 mots, votre seule issue</small></div></div><div class="stp todo"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="form">
+ <p class="h1">Votre compte</p>
+ <p class="body" style="color:var(--muted);margin:6px 0 22px">Un identifiant et un mot de passe. C’est tout ce que Fyde vous demandera.</p>
+ <div class="field"><label>Identifiant</label><div class="in" style="border:2px solid var(--err);padding:0 13px"><span class="grow">pierre</span></div><p class="help err">Cet identifiant est déjà pris. Essayez-en un autre.</p></div>
+ <div class="field"><label>Mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div><div class="strength"><i class="on" style="background:var(--warn)"></i><i></i><i></i><i></i></div><p class="help">Faible · ajoutez des mots ou des caractères</p></div>
+ <div class="field"><label>Confirmer le mot de passe</label><div class="in" style="border:2px solid var(--err);padding:0 13px"><span class="grow" style="letter-spacing:.2em">•••••••••</span></div><p class="help err">Les mots de passe ne correspondent pas.</p></div>
+ <div class="note warn"><svg class="ic"><use href="#i-key"/></svg><span><b style="font-weight:600">Ce mot de passe est la seule clé de votre coffre.</b> Fyde ne peut pas le réinitialiser : oublié, vos documents sont perdus.</span></div>
+ <div class="chk"><span class="box"></span><span>J’ai compris, je le garde en lieu sûr.</span></div>
+ <button class="pbtn f w" style="margin-top:18px;opacity:.38">Continuer</button>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO4 · Stockage indisponible à la connexion</p>
+<div class="desktop fyde" data-shot="DO4-stockage-indisponible-a-la-connexion">
+ <div class="linux"><span style="width:96px"></span><b>Fyde</b><i>–</i><i>□</i><i>×</i></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <div class="seal"><div class="core"><svg class="ic" style="width:34px;height:34px"><use href="#i-lock"/></svg></div></div>
+ <p class="btitle">Vos documents,<br>sous scellé.</p>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-bolt"/></svg></span><span>Récupérés tout seuls chez vos fournisseurs, banques et administrations.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-lock"/></svg></span><span>Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-sync"/></svg></span><span>Sur tous vos appareils, même hors ligne.</span></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="form">
+ <p class="h1">Ouvrir mon coffre</p><div style="height:22px"></div>
+ <div class="field"><label>Identifiant</label><div class="in"><span class="grow">pierre</span></div></div><div class="field"><label>Mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div></div>
+ <button class="pbtn f w" style="margin-top:6px">Ouvrir le coffre</button>
+</div></div></div><div class="scrimd"></div><div class="dlg">
+ <span class="tile lg" style="--cbg:var(--warnwash);--ci:var(--warn)"><svg class="ic lg"><use href="#i-alert"/></svg></span>
+ <p class="h2" style="margin-top:14px">Pas de trousseau système sur cet ordinateur</p>
+ <p class="body" style="color:var(--muted);margin-top:8px">Aucun trousseau (GNOME Keyring, KWallet) ne répond : Fyde ne peut pas y ranger les clés de votre coffre.</p>
+ <p class="body" style="color:var(--muted);margin-top:8px">Vous pouvez les garder dans la base locale de Fyde, mais quiconque lit les fichiers de cet ordinateur pourrait alors ouvrir votre coffre.</p>
+ <div class="chk" style="margin:16px 0 0"><span class="box"></span><span>Garder mes clés dans la base locale (moins sûr)</span></div>
+ <div class="acts"><button class="pbtn t sm">Annuler</button><button class="pbtn o sm"><svg class="ic sm"><use href="#i-sync"/></svg>Réessayer</button><button class="pbtn f sm" style="opacity:.38">Ouvrir quand même</button></div>
+</div>
+</div></div>
+<div class="board"><p class="caption-board">DO4b · Stockage indisponible à la création</p>
+<div class="desktop fyde" data-shot="DO4b-stockage-indisponible-a-la-creation">
+ <div class="linux"><span style="width:96px"></span><b>Fyde</b><i>–</i><i>□</i><i>×</i></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp now"><span class="n">1</span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp todo"><span class="n">2</span><div><p>Kit de récupération</p><small>12 mots, votre seule issue</small></div></div><div class="stp todo"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="form">
+ <p class="h1">Votre compte</p><div style="height:22px"></div>
+ <div class="field"><label>Identifiant</label><div class="in"><span class="grow">pierre</span></div></div><div class="field"><label>Mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div></div><div class="field"><label>Confirmer le mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span></div></div>
+ <button class="pbtn f w" style="margin-top:6px">Continuer</button>
+</div></div></div><div class="scrimd"></div><div class="dlg">
+ <span class="tile lg" style="--cbg:var(--warnwash);--ci:var(--warn)"><svg class="ic lg"><use href="#i-alert"/></svg></span>
+ <p class="h2" style="margin-top:14px">Pas de trousseau système sur cet ordinateur</p>
+ <p class="body" style="color:var(--muted);margin-top:8px">Aucun trousseau (GNOME Keyring, KWallet) ne répond : Fyde ne peut pas y ranger les clés de votre coffre.</p>
+ <p class="body" style="color:var(--muted);margin-top:8px">Vous pouvez les garder dans la base locale de Fyde, mais quiconque lit les fichiers de cet ordinateur pourrait alors ouvrir votre coffre.</p>
+ <div class="chk" style="margin:16px 0 0"><span class="box on"><svg class="ic sm"><use href="#i-check"/></svg></span><span>Garder mes clés dans la base locale (moins sûr)</span></div>
+ <div class="acts"><button class="pbtn t sm">Annuler</button><button class="pbtn o sm"><svg class="ic sm"><use href="#i-sync"/></svg>Réessayer</button><button class="pbtn f sm">Créer quand même</button></div>
+</div>
+</div></div>
+<div class="board"><p class="caption-board">DO5 · Trop d’appareils</p>
+<div class="desktop fyde" data-shot="DO5-trop-dappareils">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <div class="seal"><div class="core"><svg class="ic" style="width:34px;height:34px"><use href="#i-lock"/></svg></div></div>
+ <p class="btitle">Vos documents,<br>sous scellé.</p>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-bolt"/></svg></span><span>Récupérés tout seuls chez vos fournisseurs, banques et administrations.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-lock"/></svg></span><span>Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-sync"/></svg></span><span>Sur tous vos appareils, même hors ligne.</span></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="form">
+ <p class="h1">Trop d’appareils connectés</p>
+ <p class="body" style="color:var(--muted);margin:8px 0 20px">Votre offre permet 3 appareils à la fois. Choisissez celui à déconnecter pour ouvrir votre coffre sur cet ordinateur.</p>
+ <div class="group" style="margin:0">
+  <div class="it"><span class="radio"></span><svg class="ic lg" style="color:var(--muted)"><use href="#i-phone"/></svg><div class="grow"><p class="t1">iPhone de Pierre</p><p class="t2">Connecté depuis le 2 mai</p></div></div>
+  <div class="it"><span class="radio on"></span><svg class="ic lg" style="color:var(--muted)"><use href="#i-laptop"/></svg><div class="grow"><p class="t1">MacBook Air</p><p class="t2">Connecté depuis le 12 juin</p></div></div>
+  <div class="it"><span class="radio"></span><svg class="ic lg" style="color:var(--muted)"><use href="#i-phone"/></svg><div class="grow"><p class="t1">Pixel 8</p><p class="t2">Connecté depuis le 2 oct.</p></div></div>
+ </div>
+ <div class="note info" style="margin:14px 0 0"><svg class="ic"><use href="#i-info"/></svg><span>Il pourra se reconnecter plus tard avec votre mot de passe. Vos documents ne bougent pas.</span></div>
+ <div style="display:flex;gap:10px;margin-top:20px"><button class="pbtn t" style="flex:1">Voir les offres</button><button class="pbtn f" style="flex:2">Déconnecter le MacBook Air</button></div>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO6 · Kit de récupération</p>
+<div class="desktop fyde" data-shot="DO6-kit-de-recuperation">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp now"><span class="n">2</span><div><p>Kit de récupération</p><small>12 mots, votre seule issue</small></div></div><div class="stp todo"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="form wide">
+ <p class="h1">Votre kit de récupération</p>
+ <p class="body" style="color:var(--muted);margin-top:8px">Si vous oubliez votre mot de passe, ces 12 mots sont la seule façon de rouvrir votre coffre. Gardez-les hors ligne, sur papier.</p>
+ <div class="words">
+  <span><i>1</i>falaise</span><span><i>2</i>orgue</span><span><i>3</i>prisme</span><span><i>4</i>tilleul</span>
+  <span><i>5</i>ancre</span><span><i>6</i>basalte</span><span><i>7</i>girafe</span><span><i>8</i>moulin</span>
+  <span><i>9</i>vortex</span><span><i>10</i>cobalt</span><span><i>11</i>pivoine</span><span><i>12</i>sextant</span>
+ </div>
+ <div style="display:flex;gap:10px;margin-top:14px"><button class="pbtn o sm"><svg class="ic sm"><use href="#i-download"/></svg>Enregistrer le PDF</button><button class="pbtn o sm"><svg class="ic sm"><use href="#i-pages"/></svg>Imprimer</button></div>
+ <div class="note info" style="margin:16px 0 0"><svg class="ic"><use href="#i-eye-off"/></svg><span>Les mots ne sont jamais copiés dans le presse-papiers ni envoyés.</span></div>
+ <div style="display:flex;gap:10px;margin-top:22px"><button class="pbtn t" style="flex:1">Plus tard (déconseillé)</button><button class="pbtn f" style="flex:2">Je l’ai mis en lieu sûr</button></div>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO7 · Choisir ses sources</p>
+<div class="desktop fyde" data-shot="DO7-choisir-ses-sources">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Kit de récupération</p><small>12 mots, votre seule issue</small></div></div><div class="stp now"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><p class="tr"><b style="color:var(--primary);font-weight:600">Passer</b></p><div class="form wide">
+ <p class="h1">D’où viennent vos documents ?</p>
+ <p class="body" style="color:var(--muted);margin-top:6px">Fyde ira les chercher pour vous. Vous saisirez vos identifiants à l’étape suivante.</p>
+ <div class="search" style="margin:16px 0 0"><svg class="ic"><use href="#i-search"/></svg>EDF, Free, Ameli…</div>
+ <div class="chips" style="padding:12px 0 0"><span class="pc on">Populaires</span><span class="pc">Énergie</span><span class="pc">Banque</span><span class="pc">Santé</span><span class="pc">Impôts</span><span class="pc">Transport</span></div>
+ <div class="srcgrid"><div class="srcc on"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div class="grow"><p class="t1">EDF</p><p class="t2 trunc">Factures, échéanciers</p></div><span class="box on"><svg class="ic sm"><use href="#i-check"/></svg></span></div><div class="srcc on"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="t2 trunc">Avis, déclarations</p></div><span class="box on"><svg class="ic sm"><use href="#i-check"/></svg></span></div><div class="srcc"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="t2 trunc">Remboursements, attestations</p></div><span class="box"></span></div><div class="srcc"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">FR</span><div class="grow"><p class="t1">Free</p><p class="t2 trunc">Factures box et mobile</p></div><span class="box"></span></div><div class="srcc"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i)">PJ</span><div class="grow"><p class="t1">Pajemploi</p><p class="t2 trunc">Bulletins de paie</p></div><span class="box"></span></div><div class="srcc"><span class="tile" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)">SN</span><div class="grow"><p class="t1">SNCF Connect</p><p class="t2 trunc">Billets, factures</p></div><span class="box"></span></div><div class="srcc"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">OR</span><div class="grow"><p class="t1">Orange</p><p class="t2 trunc">Factures mobile et box</p></div><span class="box"></span></div><div class="srcc"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AL</span><div class="grow"><p class="t1">Alan</p><p class="t2 trunc">Remboursements</p></div><span class="box"></span></div></div>
+ <button class="pbtn f w" style="margin-top:20px">Connecter 2 sources</button>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO8 · Notifications</p>
+<div class="desktop fyde" data-shot="DO8-notifications">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Kit de récupération</p><small>12 mots, votre seule issue</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="stp now"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="osn"><span class="tile" style="--cbg:#1F4D3A;--ci:#fff;width:36px;height:36px"><svg class="ic"><use href="#i-lock"/></svg></span><div class="grow"><div class="row" style="justify-content:space-between"><p style="font:600 14px var(--font)">Fyde</p><span class="t3">maintenant</span></div><p style="font:600 14px/19px var(--font);margin-top:2px">impots.gouv demande un code</p><p class="t2" style="font-size:13px">Cliquez pour le saisir et continuer.</p></div></div>
+<div class="form">
+ <p class="h1">Ne ratez pas un code</p>
+ <p class="body" style="color:var(--muted);margin:8px 0 0">Certaines sources envoient un code par SMS. Fyde vous prévient pour que la récupération ne s’arrête pas, et quand une source a besoin de vous. Jamais de publicité.</p>
+ <div class="note info" style="margin:18px 0 0"><svg class="ic"><use href="#i-info"/></svg><span>Sur cet ordinateur, Fyde vous prévient tant qu’il est ouvert. Sur votre téléphone, même quand il est fermé.</span></div>
+ <div style="display:flex;gap:10px;margin-top:24px"><button class="pbtn t" style="flex:1">Plus tard</button><button class="pbtn f" style="flex:2">Autoriser les notifications</button></div>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO9 · Ouverture sur cet ordinateur</p>
+<div class="desktop fyde" data-shot="DO9-ouverture-sur-cet-ordinateur">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <div class="seal"><div class="core"><svg class="ic" style="width:34px;height:34px"><use href="#i-lock"/></svg></div></div>
+ <p class="btitle">Vos documents,<br>sous scellé.</p>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-bolt"/></svg></span><span>Récupérés tout seuls chez vos fournisseurs, banques et administrations.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-lock"/></svg></span><span>Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</span></div>
+ <div class="prom"><span class="tile"><svg class="ic"><use href="#i-sync"/></svg></span><span>Sur tous vos appareils, même hors ligne.</span></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Votre mot de passe ne quitte jamais cet ordinateur.</p></div><div class="pane"><div class="form" style="text-align:center">
+ <div class="ringp"><div><p style="font:600 40px/44px 'Plex Mono'">142</p><p class="t2">sur 214 documents</p></div></div>
+ <p class="h2" style="margin-top:28px">Ouverture de votre coffre</p>
+ <p class="body" style="color:var(--muted);margin-top:8px">Vos documents chiffrés arrivent de votre compte et sont déchiffrés ici, sur ce MacBook Air.</p>
+ <div class="note ok" style="margin:22px 0 0;text-align:left"><svg class="ic"><use href="#i-check-c"/></svg><span>Vous pouvez déjà parcourir ce qui est arrivé. Le reste suit en arrière-plan.</span></div>
+ <button class="pbtn o w" style="margin-top:20px">Parcourir le coffre</button>
+</div></div></div>
+</div></div>
+</body></html>
