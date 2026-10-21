@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.peltoche.fyde.getPlatform
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.theme.AppColors
@@ -31,10 +32,10 @@ import com.peltoche.fyde.theme.AppSpacing
  *
  * At Compact it's a modal bottom sheet, opened fully (its content is one
  * short task, never worth a half-open state), with its grab handle. At
- * Medium and Expanded it's a centred panel instead — "phone sheets become
- * inline panels" (§ Layout) — dismissed by its own actions, Esc or a click
- * outside, never by dragging: sliding a sheet away is a touch gesture, out
- * of place with a mouse.
+ * Medium and Expanded, and always on desktop, it's a centred panel instead
+ * — "phone sheets become inline panels" (§ Layout) — dismissed by its own
+ * actions, Esc or a click outside, never by dragging: sliding a sheet away
+ * is a touch gesture, out of place with a mouse.
  *
  * [content] brings its own horizontal padding; this adds the space above
  * and below it.
@@ -46,7 +47,7 @@ fun AppBottomSheet(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    if (LocalAppWindowSizeClass.current != AppWindowSizeClass.Compact) {
+    if (getPlatform().isDesktop || LocalAppWindowSizeClass.current != AppWindowSizeClass.Compact) {
         Dialog(onDismissRequest = onDismissRequest) {
             Surface(
                 modifier = modifier.widthIn(max = AppDimensions.sheetPanelMaxWidth).fillMaxWidth(),

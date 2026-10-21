@@ -19,7 +19,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 |---|---|---|
 | O1 | Bienvenue | `WelcomeScreen.kt`, `SealHero` |
 | O2 | Connexion | `LoginScreen.kt`, `AppBackButton`, `AppNote`, `AppTextField` |
-| O4 | Stockage indisponible | `InsecureStorageSheet.kt`, `AppBottomSheet`, `AlertTriangleGlyph` |
+| O4, DO4b | Stockage indisponible (phone; desktop, at creation) | `InsecureStorageSheet.kt`, `AppBottomSheet`, `AlertTriangleGlyph` |
 
 ## Reference screens
 
@@ -395,7 +395,7 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `AppBackButton` | Landed (O2) | 44 `surface` circle, `border` hairline, chevron; "Back" for screen readers |
 | `AppChip` | Restyle | Pill 38, selected = `text` fill, optional count and chevron |
 | `AppCheckbox`, `AppRadio`, `AppSwitch` | Restyle | 22pt marks, 51×31 switch |
-| `AppBottomSheet` | Layout landed (O4) | Modal bottom sheet opened fully, with grab handle, at Compact; a centred panel (`sheetPanelMaxWidth`, no drag) at Medium and Expanded. Still the current radius and surface, not `xl` / `surface` |
+| `AppBottomSheet` | Layout landed (O4) | Modal bottom sheet opened fully, with grab handle, at Compact; a centred panel (`sheetPanelMaxWidth`, no drag) at Medium and Expanded and always on desktop. Still the current radius and surface, not `xl` / `surface` |
 | `AppDialog`, `AppSnackbarHost`, `AppProgressBar` | Restyle | Patterns above |
 | `AppSegmented` | New | 2–3 options on `sunk` |
 | `AppNote` | Landed (O2) | `Info` / `Ok` / `Warning` / `Error`: wash, icon in the kind's colour, text; replaces inline `AppBanner`, which screens drop as they're rebuilt |

@@ -85,8 +85,8 @@ object AppDimensions {
     /** A large `AppIconTile` heading a sheet — O4's warning (`tile lg` in the mockups). */
     val iconTileLarge: Dp = 52.dp
 
-    /** A bottom sheet's content when shown as a centred panel at Medium and Expanded. */
-    val sheetPanelMaxWidth: Dp = 480.dp
+    /** A bottom sheet shown as a centred panel (Medium, Expanded, desktop) — DO4b's dialog. */
+    val sheetPanelMaxWidth: Dp = 500.dp
 
     /** `AppBackButton`'s circle — design-system.md § Compact: "a 44pt circular back button". */
     val backButton: Dp = 44.dp
