@@ -70,7 +70,7 @@ private const val SESSION_CHECK_INTERVAL_MS = 5_000L
 private const val SEARCH_DEBOUNCE_MS = 250L
 
 /**
- * How many [FydeSdk.fetchScriptIcon] calls [ScriptsScreenContainer] keeps in
+ * How many [FydeSdk.fetchIcon] calls [ScriptsScreenContainer] keeps in
  * flight at once: the listings leave icons out, so every script in the grid
  * needs its own call, and over a hundred at once would queue behind each
  * other on the one server connection anyway.
@@ -78,12 +78,12 @@ private const val SEARCH_DEBOUNCE_MS = 250L
 private const val SCRIPT_ICON_FETCH_CONCURRENCY = 8
 
 /**
- * Every script icon [ScriptsScreenContainer] has fetched, keyed by script id
- * and version (updating a script may change its icon), kept for the whole
- * process so reopening the Scripts screen doesn't fetch them all again. Only
- * touched from the UI thread.
+ * Every script icon [ScriptsScreenContainer] has fetched, keyed by icon id
+ * (an icon never changes once created), kept for the whole process so
+ * reopening the Scripts screen doesn't decode them from the SDK's cache
+ * again. Only touched from the UI thread.
  */
-private val scriptIcons = mutableMapOf<Pair<String, Long>, ByteArray>()
+private val scriptIcons = mutableMapOf<String, ByteArray>()
 
 /** Which top-level screen [App] is currently showing. */
 private sealed interface Screen {
@@ -751,17 +751,17 @@ private fun ScriptsScreenContainer(
             installedParameters = FydeSdk.installedScriptParameters().getOrElse { emptyMap() },
         )
 
-        // The listings leave icons out (see FydeSdk.fetchScriptIcon): the
-        // grid shows first, then each icon is filled in as it arrives. A
-        // failed fetch isn't cached and keeps ScriptIcon's placeholder glyph.
+        // The listings leave icons out (see FydeSdk.fetchIcon): the grid
+        // shows first, then each icon is filled in as it arrives. A failed
+        // fetch isn't cached and keeps ScriptIcon's placeholder glyph.
         val iconFetches = Semaphore(SCRIPT_ICON_FETCH_CONCURRENCY)
         coroutineScope {
             scripts.forEach { script ->
+                val iconId = script.iconId ?: return@forEach
                 launch {
-                    val key = script.id to script.version
-                    val icon = scriptIcons[key]
-                        ?: iconFetches.withPermit { FydeSdk.fetchScriptIcon(script.id).getOrNull() }
-                            ?.also { scriptIcons[key] = it }
+                    val icon = scriptIcons[iconId]
+                        ?: iconFetches.withPermit { FydeSdk.fetchIcon(iconId).getOrNull() }
+                            ?.also { scriptIcons[iconId] = it }
                     if (icon == null || icon.isEmpty()) return@launch
                     val latest = uiState as? ScriptsUiState.Loaded ?: return@launch
                     uiState = latest.copy(

@@ -89,7 +89,7 @@ actual object FydeSdk {
 
     actual suspend fun listPublicScripts(): Result<List<FydeScript>> = unsupported()
 
-    actual suspend fun fetchScriptIcon(scriptId: String): Result<ByteArray> = unsupported()
+    actual suspend fun fetchIcon(iconId: String): Result<ByteArray> = unsupported()
 
     actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =
         unsupported()

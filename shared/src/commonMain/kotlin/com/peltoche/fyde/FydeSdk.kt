@@ -385,8 +385,9 @@ enum class FydeScriptType {
  * `FfiScriptMetadata` without leaking `:sdkBridge`'s generated bindings into
  * `commonMain`. Never carries the script's content: the listings don't
  * return it (see `sdk/src/domains/scripts/models.rs`'s `ScriptMetadata`),
- * and nothing in the app reads it. They don't return its [icon] either: it's
- * empty in a listed script until filled from [FydeSdk.fetchScriptIcon].
+ * and nothing in the app reads it. Nor its [icon] image, only its [iconId]
+ * (`null` if it has none): [icon] stays empty until filled from
+ * [FydeSdk.fetchIcon].
  */
 data class FydeScript(
     val id: String,
@@ -394,6 +395,7 @@ data class FydeScript(
     val description: String,
     val shortDescription: String,
     val isPublic: Boolean,
+    val iconId: String? = null,
     val icon: ByteArray,
     val allowedDomains: List<String>,
     val version: Long,
@@ -718,12 +720,12 @@ expect object FydeSdk {
     suspend fun listPublicScripts(): Result<List<FydeScript>>
 
     /**
-     * The icon of the script [scriptId] (an encoded image, empty if it has
-     * none), which [listUserScripts]/[listPublicScripts] leave out. Mirrors
-     * [`crate::ScriptsService::fetch_script_icon`]; fails if [initialize]
-     * hasn't been called yet.
+     * The icon [iconId] (an encoded image, e.g. a [FydeScript.iconId]), which
+     * [listUserScripts]/[listPublicScripts] leave out. Mirrors
+     * [`crate::IconsService::fetch_icon`], which caches icons on the device;
+     * fails if [initialize] hasn't been called yet.
      */
-    suspend fun fetchScriptIcon(scriptId: String): Result<ByteArray>
+    suspend fun fetchIcon(iconId: String): Result<ByteArray>
 
     /**
      * The parameter values each installed script was last installed with,

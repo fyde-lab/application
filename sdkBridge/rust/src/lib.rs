@@ -793,7 +793,8 @@ impl From<FfiScriptParameter> for ScriptParameter {
 }
 
 /// A user-authored script, mirroring [`Script`] across the FFI boundary.
-/// `id` crosses as a string since UniFFI has no native UUID type.
+/// `id` and `icon_id` cross as strings since UniFFI has no native UUID type;
+/// fetch the icon itself with [`FydeClient::fetch_icon`].
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct FfiScript {
     pub id: String,
@@ -801,7 +802,7 @@ pub struct FfiScript {
     pub description: String,
     pub short_description: String,
     pub is_public: bool,
-    pub icon: Vec<u8>,
+    pub icon_id: Option<String>,
     pub allowed_domains: Vec<String>,
     pub version: u64,
     pub script: String,
@@ -818,7 +819,7 @@ impl From<Script> for FfiScript {
             description: script.description().to_string(),
             short_description: script.short_description().to_string(),
             is_public: script.is_public(),
-            icon: script.icon().to_vec(),
+            icon_id: script.icon_id().map(|id| id.to_string()),
             allowed_domains: script.allowed_domains().to_vec(),
             version: script.version(),
             script: script.script().to_string(),
@@ -833,10 +834,10 @@ impl From<Script> for FfiScript {
     }
 }
 
-/// A script's metadata — everything but its content and icon (see
-/// [`FydeClient::fetch_script_icon`]) — mirroring [`ScriptMetadata`] across
-/// the FFI boundary. `id` crosses as a string
-/// since UniFFI has no native UUID type.
+/// A script's metadata — everything but its content — mirroring
+/// [`ScriptMetadata`] across the FFI boundary. `id` and `icon_id` cross as
+/// strings since UniFFI has no native UUID type; fetch the icon itself with
+/// [`FydeClient::fetch_icon`].
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct FfiScriptMetadata {
     pub id: String,
@@ -844,6 +845,7 @@ pub struct FfiScriptMetadata {
     pub description: String,
     pub short_description: String,
     pub is_public: bool,
+    pub icon_id: Option<String>,
     pub allowed_domains: Vec<String>,
     pub version: u64,
     pub last_updated: i64,
@@ -859,6 +861,7 @@ impl From<ScriptMetadata> for FfiScriptMetadata {
             description: metadata.description().to_string(),
             short_description: metadata.short_description().to_string(),
             is_public: metadata.is_public(),
+            icon_id: metadata.icon_id().map(|id| id.to_string()),
             allowed_domains: metadata.allowed_domains().to_vec(),
             version: metadata.version(),
             last_updated: metadata.last_updated(),
@@ -1578,13 +1581,14 @@ impl FydeClient {
         .await
     }
 
-    /// Fetches the icon of the script matching `id` (an encoded image, empty
-    /// if it has none), which the listings leave out. Mirrors
-    /// [`fyde_sdk::ScriptsService::fetch_script_icon`].
-    pub async fn fetch_script_icon(&self, id: String) -> Result<Vec<u8>, FfiError> {
+    /// Fetches the icon matching `id` (an encoded image, e.g. a script's
+    /// `icon_id`), from the local cache if it's there. Mirrors
+    /// [`fyde_sdk::IconsService::fetch_icon`].
+    pub async fn fetch_icon(&self, id: String) -> Result<Vec<u8>, FfiError> {
         self.localized(async {
             let id = parse_uuid(&id)?;
-            self.inner.scripts().fetch_script_icon(id).await
+            let icon = self.inner.icons().fetch_icon(id).await?;
+            Ok(icon.content().to_vec())
         })
         .await
     }
@@ -1826,7 +1830,7 @@ mod tests {
         assert_eq!(ffi.description, script.description());
         assert_eq!(ffi.short_description, script.short_description());
         assert_eq!(ffi.is_public, script.is_public());
-        assert_eq!(ffi.icon, script.icon());
+        assert_eq!(ffi.icon_id, script.icon_id().map(|id| id.to_string()));
         assert_eq!(ffi.allowed_domains, script.allowed_domains());
         assert_eq!(ffi.version, script.version());
         assert_eq!(ffi.script, script.script());
