@@ -1,0 +1,44 @@
+/* Shared scaffolding for every direction's mockups. Directions set the tokens. */
+@font-face{font-family:"Public Sans";src:url(fonts/public_sans_regular.ttf);font-weight:400}
+@font-face{font-family:"Public Sans";src:url(fonts/public_sans_medium.ttf);font-weight:500}
+@font-face{font-family:"Public Sans";src:url(fonts/public_sans_semibold.ttf);font-weight:600 700}
+@font-face{font-family:"Plex Mono";src:url(fonts/plex_mono_regular.ttf);font-weight:400}
+@font-face{font-family:"Plex Mono";src:url(fonts/ibm-plex-mono-latin-500-normal.woff2);font-weight:500 600}
+@font-face{font-family:"Instrument Sans";src:url(fonts/instrument-sans-latin-400-normal.woff2);font-weight:400}
+@font-face{font-family:"Instrument Sans";src:url(fonts/instrument-sans-latin-500-normal.woff2);font-weight:500}
+@font-face{font-family:"Instrument Sans";src:url(fonts/instrument-sans-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:"Instrument Sans";src:url(fonts/instrument-sans-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:"Newsreader";src:url(fonts/newsreader-latin-400-normal.woff2);font-weight:400}
+@font-face{font-family:"Newsreader";src:url(fonts/newsreader-latin-500-normal.woff2);font-weight:500}
+@font-face{font-family:"Newsreader";src:url(fonts/newsreader-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:"Newsreader";src:url(fonts/newsreader-latin-400-italic.woff2);font-weight:400;font-style:italic}
+
+*{box-sizing:border-box}
+body{margin:0;padding:40px;background:#d9d7d2;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input{font:inherit;color:inherit}
+p,h1,h2,h3,h4{margin:0}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.sm{width:16px;height:16px}.ic.xs{width:13px;height:13px}.ic.lg{width:24px;height:24px}.ic.xl{width:28px;height:28px}
+.mono{font-family:"Plex Mono",ui-monospace,monospace;font-feature-settings:"tnum"}
+.row{display:flex;align-items:center}
+.col{display:flex;flex-direction:column}
+.grow{flex:1;min-width:0}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Device frames */
+.phone{width:390px;height:844px;position:relative;overflow:hidden;border-radius:44px;
+  box-shadow:0 0 0 10px #1b1b1b,0 30px 60px rgba(0,0,0,.25);background:var(--bg);color:var(--text);
+  font-family:var(--font);display:flex;flex-direction:column}
+.status{height:50px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 8px 36px;font:600 15px/1 -apple-system,"Public Sans",sans-serif}
+.status .dots{display:flex;gap:5px;align-items:center}
+.status .dots i{display:block;background:currentColor;border-radius:2px}
+.homebar{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--text);opacity:.85;z-index:20}
+.desktop{width:1440px;height:900px;overflow:hidden;border-radius:12px;box-shadow:0 0 0 1px rgba(0,0,0,.18),0 30px 60px rgba(0,0,0,.2);
+  background:var(--bg);color:var(--text);font-family:var(--font);display:flex;flex-direction:column}
+.chrome{height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 14px;background:#e8e6e1;border-bottom:1px solid #d3d0ca}
+.chrome i{width:12px;height:12px;border-radius:50%;display:block}
+.chrome b{flex:1;text-align:center;font:500 12px "Public Sans";color:#6b6558}
+.scroll{flex:1;overflow:hidden;position:relative}
+.caption-board{font:600 13px "Public Sans";color:#3d3a33;margin:0 0 12px 6px;letter-spacing:.02em}
+.board{display:flex;flex-direction:column}

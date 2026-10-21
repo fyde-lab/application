@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>A — Clarté</title>
+<link rel="stylesheet" href="base.css">
+<style>
+.a{--font:"Public Sans",sans-serif;--bg:#F5F4F1;--surface:#FFFFFF;--elev:#FFFFFF;--border:#E3E0DA;--bstrong:#8F8A7C;--text:#211E18;--muted:#6B6558;
+  --primary:#1B5E63;--onp:#FFFFFF;--sel:#E7EFEF;--warn:#95610A;--ok:#2E7D46;--err:#B3261E;--r-sm:6px;--r-md:10px;--r-lg:14px}
+.a.dark{--bg:#16140F;--surface:#1E1B16;--elev:#282420;--border:#35302A;--bstrong:#7A7364;--text:#EDE9E1;--muted:#A39C8C;
+  --primary:#5FBFC4;--onp:#06232A;--sel:#1F3638;--warn:#E8B34D;--ok:#7FD98A;--err:#F2938A}
+.tint{background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.a .bar{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 0;height:52px}
+.pill{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 8px;border-radius:15px;background:var(--surface);border:1px solid var(--border);font:500 13px var(--font);color:var(--muted)}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.ibtn{width:44px;height:44px;display:grid;place-items:center;border-radius:var(--r-md);color:var(--text)}
+.fbtn{width:44px;height:44px;display:grid;place-items:center;border-radius:var(--r-md);background:var(--primary);color:var(--onp)}
+.large{font:600 30px/36px var(--font);padding:2px 16px 12px;letter-spacing:-.01em}
+.search{margin:0 16px;height:44px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 12px;color:var(--muted);font:400 16px var(--font)}
+.chips{display:flex;gap:8px;padding:12px 16px 4px;overflow:hidden}
+.chip{flex:none;height:36px;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);font:500 14px var(--font);white-space:nowrap}
+.chip.on{background:var(--primary);border-color:var(--primary);color:var(--onp)}
+.sect{display:flex;justify-content:space-between;align-items:baseline;padding:18px 16px 6px;font:600 13px var(--font);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.sect a{text-transform:none;letter-spacing:0;color:var(--primary);font-weight:600;text-decoration:none;font-size:14px}
+.newcard{margin:4px 16px 0;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border);overflow:hidden}
+.newhead{display:flex;align-items:center;gap:8px;padding:12px 14px 6px;font:500 13px var(--font);color:var(--muted)}
+.newhead .ic{color:var(--primary)}
+.li{display:flex;align-items:center;gap:12px;padding:0 16px;min-height:68px}
+.li+.li{box-shadow:inset 0 1px 0 var(--border)}
+.newcard .li{padding:0 14px;min-height:64px}
+.tile{width:42px;height:42px;border-radius:var(--r-md);display:grid;place-items:center;flex:none;position:relative}
+.tile .src{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:var(--primary);color:var(--onp);display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
+.t1{font:500 16px/21px var(--font)}
+.t2{font:400 14px/19px var(--font);color:var(--muted)}
+.amt{font:500 15px/20px "Plex Mono";text-align:right}
+.dt{font:400 13px/18px "Plex Mono";color:var(--muted);text-align:right}
+.tabs{position:absolute;left:0;right:0;bottom:0;height:84px;background:color-mix(in srgb,var(--surface) 94%,transparent);border-top:1px solid var(--border);display:flex;padding:6px 8px 0}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font:500 11px var(--font);color:var(--muted);position:relative;padding-top:4px}
+.tab.on{color:var(--primary)}
+.tab .badge{position:absolute;top:0;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--warn);color:#fff;font:600 11px/18px var(--font);text-align:center;padding:0 5px}
+/* detail */
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 4px;height:48px}
+.back{display:flex;align-items:center;gap:2px;color:var(--primary);font:400 17px var(--font);height:44px;padding-right:8px}
+.page{margin:6px 16px 0;height:258px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden;display:flex;justify-content:center;padding-top:16px}
+.sheet{width:198px;height:280px;background:#fff;box-shadow:0 2px 8px rgba(33,30,24,.14);padding:14px 14px;color:#211E18;font:400 6px/1.5 var(--font)}
+.sheet .ln{height:4px;background:#E3E0DA;border-radius:1px;margin:4px 0}
+.page .open{position:absolute;right:10px;bottom:10px;height:32px;padding:0 10px;border-radius:var(--r-sm);background:color-mix(in srgb,var(--elev) 92%,transparent);border:1px solid var(--border);display:flex;align-items:center;gap:6px;font:500 13px var(--font)}
+.dtitle{font:600 22px/28px var(--font);padding:16px 16px 4px}
+.dmeta{font:400 13px "Plex Mono";color:var(--muted);padding:0 16px}
+.prov{margin:12px 16px 0;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:var(--r-md);background:var(--sel);color:var(--text);font:400 14px/19px var(--font)}
+.prov .ic{color:var(--primary)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;padding:16px 16px 4px}
+.lab{font:400 13px var(--font);color:var(--muted)}
+.val{font:500 16px/22px var(--font);margin-top:2px}
+.val.mono{font:500 16px/22px "Plex Mono"}
+.kw{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px}
+.kw span{height:28px;display:inline-flex;align-items:center;padding:0 10px;border-radius:var(--r-sm);background:color-mix(in srgb,#6B5636 13%,transparent);color:#5a4729;font:500 13px var(--font)}
+.actions{position:absolute;left:0;right:0;bottom:0;height:96px;padding:10px 16px 0;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:10px}
+.btn{height:48px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;gap:8px;font:600 15px var(--font);flex:1}
+.btn.f{background:var(--primary);color:var(--onp)}
+.btn.o{border:1px solid var(--bstrong);color:var(--text)}
+.btn.d{border:1px solid var(--err);color:var(--err)}
+/* sources */
+.sub{font:400 15px var(--font);color:var(--muted);padding:0 16px 8px;margin-top:-6px}
+.scard{margin:8px 16px 0;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border);padding:12px 14px;display:flex;gap:12px;align-items:center}
+.init{width:42px;height:42px;border-radius:var(--r-md);display:grid;place-items:center;font:600 15px var(--font);flex:none;background:var(--bg);border:1px solid var(--border)}
+.st{display:flex;align-items:center;gap:6px;font:500 13px var(--font);margin-top:2px}
+.st.ok{color:var(--ok)}.st.warn{color:var(--warn)}.st.err{color:var(--err)}.st.mut{color:var(--muted)}
+.scrim{position:absolute;inset:0;background:rgba(20,18,14,.42);z-index:10}
+.bsheet{position:absolute;left:0;right:0;bottom:0;z-index:11;background:var(--elev);border-radius:14px 14px 0 0;padding:8px 20px 34px;box-shadow:0 -8px 24px rgba(33,30,24,.18)}
+.grab{width:36px;height:5px;border-radius:3px;background:var(--border);margin:0 auto 14px}
+.steps{display:flex;gap:6px;margin:14px 0 18px}
+.step{flex:1;font:500 12px var(--font);color:var(--muted);border-top:3px solid var(--border);padding-top:6px}
+.step.done{border-color:var(--ok);color:var(--text)}.step.now{border-color:var(--warn);color:var(--text)}
+.otp{display:flex;gap:8px;justify-content:center;margin:4px 0 18px}
+.otp span{width:46px;height:56px;border-radius:var(--r-md);border:1px solid var(--bstrong);display:grid;place-items:center;font:500 24px "Plex Mono";background:var(--surface)}
+.otp span.cur{border:2px solid var(--primary)}
+/* trust */
+.card{margin:10px 16px 0;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border);padding:16px}
+.fact{display:flex;gap:10px;padding:8px 0;font:400 15px/21px var(--font)}
+.fact .ic{color:var(--primary);margin-top:1px}
+.warncard{border-color:color-mix(in srgb,var(--warn) 40%,transparent);background:color-mix(in srgb,var(--warn) 10%,var(--surface))}
+.dev{display:flex;gap:12px;align-items:center;padding:12px 0}
+.dev+.dev{box-shadow:inset 0 1px 0 var(--border)}
+/* desktop */
+.topnav{height:64px;flex:none;display:flex;align-items:center;gap:6px;padding:0 32px;background:var(--surface);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px;font:600 17px var(--font);margin-right:24px}
+.mark{width:28px;height:28px;border-radius:7px;background:var(--primary);color:var(--onp);display:grid;place-items:center}
+.ntab{height:40px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:var(--r-sm);font:500 15px var(--font);color:var(--muted);position:relative}
+.ntab.on{background:var(--sel);color:var(--primary)}
+.ntab .badge{min-width:20px;height:20px;border-radius:10px;background:var(--warn);color:#fff;font:600 12px/20px var(--font);text-align:center;padding:0 6px}
+.dbtn{height:40px;padding:0 16px;border-radius:var(--r-sm);background:var(--primary);color:var(--onp);display:flex;align-items:center;gap:8px;font:600 14px var(--font)}
+.split{flex:1;display:flex;max-width:1440px;overflow:hidden}
+.lcol{width:520px;flex:none;padding:24px 20px 0 32px;border-right:1px solid var(--border);display:flex;flex-direction:column}
+.dcol{flex:1;padding:24px 32px;overflow:hidden}
+.dli{display:flex;gap:12px;align-items:center;padding:0 12px;height:60px;border-radius:var(--r-sm)}
+.dli.sel{background:var(--sel);box-shadow:inset 3px 0 0 var(--primary)}
+.kbd{font:500 12px "Plex Mono";color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 6px;background:var(--bg)}
+</style></head><body>
+<!--ICONS-->
+
+<!-- A0 First run -->
+<div class="board"><p class="caption-board">A0 · Premier lancement</p>
+<div class="phone a" data-shot="A0-first-run-phone">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div style="padding:28px 20px 0">
+  <p style="font:500 13px var(--font);color:var(--primary);letter-spacing:.06em;text-transform:uppercase">Étape 2 sur 3</p>
+  <h1 style="font:600 28px/34px var(--font);margin-top:8px">D’où viennent vos documents ?</h1>
+  <p class="t2" style="font-size:16px;line-height:23px;margin-top:8px;color:var(--muted)">Fyde se connecte à vos comptes et rapatrie les factures, bulletins et avis, chiffrés sur cet appareil. Vos identifiants ne quittent pas vos appareils en clair.</p>
+ </div>
+ <div class="search" style="margin:18px 20px 0"><svg class="ic"><use href="#i-search"/></svg>EDF, Free, Ameli, impots.gouv…</div>
+ <p class="sect" style="padding:18px 20px 6px"><span>Les plus utilisées</span></p>
+ <div style="margin:0 20px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--border)">
+  <div class="li" style="padding:0 14px"><span class="init">ED</span><div class="grow"><p class="t1">EDF</p><p class="t2">Factures, échéanciers</p></div><span class="chip" style="height:36px;color:var(--primary);border-color:var(--primary)">Connecter</span></div>
+  <div class="li" style="padding:0 14px"><span class="init">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="t2">Avis, déclarations</p></div><span class="chip" style="height:36px;background:var(--sel);border-color:var(--sel);color:var(--ok)"><svg class="ic sm"><use href="#i-check"/></svg>Connecté</span></div>
+  <div class="li" style="padding:0 14px"><span class="init">AM</span><div class="grow"><p class="t1">Ameli</p><p class="t2">Remboursements, attestations</p></div><span class="chip" style="height:36px;color:var(--primary);border-color:var(--primary)">Connecter</span></div>
+  <div class="li" style="padding:0 14px"><span class="init">PJ</span><div class="grow"><p class="t1">Pajemploi</p><p class="t2">Bulletins de paie</p></div><span class="chip" style="height:36px;color:var(--primary);border-color:var(--primary)">Connecter</span></div>
+ </div>
+ <div style="position:absolute;left:0;right:0;bottom:0;padding:14px 20px 40px;background:var(--bg);border-top:1px solid var(--border)">
+  <button class="btn f" style="width:100%">Continuer avec 1 source</button>
+  <button class="btn" style="width:100%;color:var(--primary);margin-top:2px">Plus tard, j’importerai moi-même</button>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- A1 Home -->
+<div class="board"><p class="caption-board">A1 · Documents (accueil)</p>
+<div class="phone a" data-shot="A1-home-phone">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div class="bar">
+  <button class="pill" aria-label="État de la synchronisation et du chiffrement"><svg class="ic sm" style="color:var(--primary)"><use href="#i-lock"/></svg>Chiffré<span style="opacity:.4">·</span><span class="dot"></span>À jour</button>
+  <div class="row" style="gap:4px"><button class="ibtn" aria-label="Scanner un document"><svg class="ic lg"><use href="#i-scan"/></svg></button><button class="fbtn" aria-label="Ajouter un document"><svg class="ic lg"><use href="#i-plus"/></svg></button></div>
+ </div>
+ <h1 class="large">Documents</h1>
+ <div class="search"><svg class="ic"><use href="#i-search"/></svg>Rechercher dans 214 documents</div>
+ <div class="chips">
+  <span class="chip on">Tout</span>
+  <span class="chip"><svg class="ic sm" style="color:#95610A"><use href="#i-zap"/></svg>Énergie</span>
+  <span class="chip"><svg class="ic sm" style="color:#2F5D8A"><use href="#i-phone"/></svg>Télécom</span>
+  <span class="chip"><svg class="ic sm" style="color:#7A3E48"><use href="#i-landmark"/></svg>Impôts</span>
+  <span class="chip"><svg class="ic sm" style="color:#1B5E63"><use href="#i-brief"/></svg>Travail</span>
+ </div>
+ <div class="sect"><span>Arrivés cette semaine</span><a href="#">Tout voir</a></div>
+ <div class="newcard">
+  <div class="newhead"><svg class="ic sm"><use href="#i-bolt"/></svg>Récupérés automatiquement par 3 sources</div>
+  <div class="li"><div class="tile tint" style="--c:#95610A"><svg class="ic"><use href="#i-zap"/></svg><span class="src"><svg class="ic xs"><use href="#i-bolt"/></svg></span></div>
+   <div class="grow"><p class="t1 trunc">Facture d’électricité — octobre</p><p class="t2 trunc">EDF · Facture</p></div>
+   <div><p class="amt">84,20 €</p><p class="dt">12 oct.</p></div></div>
+  <div class="li"><div class="tile tint" style="--c:#1B5E63"><svg class="ic"><use href="#i-brief"/></svg><span class="src"><svg class="ic xs"><use href="#i-bolt"/></svg></span></div>
+   <div class="grow"><p class="t1 trunc">Bulletin de paie — septembre</p><p class="t2 trunc">Pajemploi · Bulletin de paie</p></div>
+   <div><p class="amt">1 912,44 €</p><p class="dt">10 oct.</p></div></div>
+  <div class="li"><div class="tile tint" style="--c:#2F5D8A"><svg class="ic"><use href="#i-phone"/></svg><span class="src"><svg class="ic xs"><use href="#i-bolt"/></svg></span></div>
+   <div class="grow"><p class="t1 trunc">Facture Freebox — octobre</p><p class="t2 trunc">Free · Facture</p></div>
+   <div><p class="amt">39,99 €</p><p class="dt">9 oct.</p></div></div>
+ </div>
+ <div class="sect"><span>Septembre 2026</span></div>
+ <div class="li"><div class="tile tint" style="--c:#7A3E48"><svg class="ic"><use href="#i-landmark"/></svg></div>
+  <div class="grow"><p class="t1 trunc">Avis d’impôt sur le revenu 2026</p><p class="t2 trunc">impots.gouv · Avis d’imposition</p></div>
+  <div><p class="amt">—</p><p class="dt">28 sept.</p></div></div>
+ <div class="li"><div class="tile tint" style="--c:#A23B5B"><svg class="ic"><use href="#i-heart"/></svg></div>
+  <div class="grow"><p class="t1 trunc">Décompte de remboursement</p><p class="t2 trunc">Ameli · Relevé</p></div>
+  <div><p class="amt">17,50 €</p><p class="dt">22 sept.</p></div></div>
+ <div class="tabs">
+  <div class="tab on"><svg class="ic lg"><use href="#i-doc"/></svg>Documents</div>
+  <div class="tab"><svg class="ic lg"><use href="#i-plug"/></svg>Sources<span class="badge">1</span></div>
+  <div class="tab"><svg class="ic lg"><use href="#i-gear"/></svg>Réglages</div>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- A2 Detail -->
+<div class="board"><p class="caption-board">A2 · Détail d’un document</p>
+<div class="phone a" data-shot="A2-detail-phone">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div class="navbar"><button class="back"><svg class="ic lg"><use href="#i-chev-l"/></svg>Documents</button><button class="ibtn" aria-label="Plus d’actions"><svg class="ic lg"><use href="#i-more"/></svg></button></div>
+ <div class="page">
+  <div class="sheet"><div class="row" style="justify-content:space-between"><b style="font-size:9px">Fournisseur d’énergie</b><b style="font-size:8px">FACTURE</b></div>
+   <div class="ln" style="width:40%;margin-top:10px"></div><div class="ln" style="width:55%"></div><div class="ln" style="width:35%"></div>
+   <div class="ln" style="width:100%;margin-top:16px;height:14px;background:#EEF4F4"></div><div class="ln"></div><div class="ln"></div><div class="ln" style="width:80%"></div>
+   <div class="row" style="justify-content:flex-end;margin-top:12px;gap:8px;font-size:8px"><span>Total TTC</span><b>84,20 €</b></div></div>
+  <span class="open"><svg class="ic sm"><use href="#i-doc"/></svg>Ouvrir · 2 p.</span>
+ </div>
+ <h2 class="dtitle">Facture d’électricité — octobre 2026</h2>
+ <p class="dmeta">PDF · 182 Ko · 12 oct. 2026</p>
+ <div class="prov"><svg class="ic"><use href="#i-bolt"/></svg><span>Récupéré automatiquement par <b style="font-weight:600">EDF</b> le 12 oct. à 06:02, chiffré sur cet iPhone.</span></div>
+ <div class="grid2">
+  <div><p class="lab">Montant</p><p class="val mono">84,20 €</p></div>
+  <div><p class="lab">Échéance</p><p class="val">27 oct. 2026</p></div>
+  <div><p class="lab">Émetteur</p><p class="val">EDF</p></div>
+  <div><p class="lab">Catégorie</p><p class="val">Logement · Énergie</p></div>
+ </div>
+ <div class="kw"><span>électricité</span><span>contrat 3001</span><span>octobre</span></div>
+ <div class="actions"><button class="btn o"><svg class="ic"><use href="#i-download"/></svg>Enregistrer</button><button class="btn f"><svg class="ic"><use href="#i-share"/></svg>Partager</button></div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- A3 Sources + code -->
+<div class="board"><p class="caption-board">A3 · Sources, code de vérification demandé</p>
+<div class="phone a" data-shot="A3-sources-phone">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div class="bar"><span></span><button class="fbtn" aria-label="Ajouter une source"><svg class="ic lg"><use href="#i-plus"/></svg></button></div>
+ <h1 class="large">Sources</h1>
+ <p class="sub">5 sources · 214 documents récupérés</p>
+ <div class="scard"><span class="init">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="st warn"><svg class="ic xs"><use href="#i-clock"/></svg>Attend votre code</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+ <div class="scard"><span class="init">ED</span><div class="grow"><p class="t1">EDF</p><p class="st ok"><svg class="ic xs"><use href="#i-check"/></svg>À jour · il y a 2 h · 1 nouveau</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+ <div class="scard"><span class="init">AM</span><div class="grow"><p class="t1">Ameli</p><p class="st err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+ <div class="scard"><span class="init">FR</span><div class="grow"><p class="t1">Free</p><p class="st ok"><svg class="ic xs"><use href="#i-check"/></svg>À jour · hier</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+ <div class="scrim"></div>
+ <div class="bsheet">
+  <div class="grab"></div>
+  <div class="row" style="gap:12px"><span class="init">IG</span><div class="grow"><p style="font:600 18px/24px var(--font)">impots.gouv demande un code</p><p class="t2">Envoyé par SMS au •• •• •• 42 87</p></div></div>
+  <div class="steps"><span class="step done">Connexion</span><span class="step now">Code</span><span class="step">Récupération</span></div>
+  <div class="otp" role="group" aria-label="Code à 6 chiffres"><span>4</span><span>8</span><span>2</span><span class="cur"></span><span></span><span></span></div>
+  <button class="btn f" style="width:100%">Valider</button>
+  <button class="btn" style="width:100%;color:var(--primary);margin-top:4px">Annuler la récupération</button>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- A4 Trust (dark) -->
+<div class="board"><p class="caption-board">A4 · Sécurité et appareils (sombre)</p>
+<div class="phone a dark" data-shot="A4-trust-phone-dark">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div class="navbar"><button class="back"><svg class="ic lg"><use href="#i-chev-l"/></svg>Réglages</button></div>
+ <h1 class="large" style="font-size:26px;padding-top:0">Sécurité et appareils</h1>
+ <div class="card">
+  <div class="row" style="gap:10px;margin-bottom:6px"><svg class="ic xl" style="color:var(--primary)"><use href="#i-shield"/></svg><p style="font:600 17px var(--font)">Chiffré de bout en bout</p></div>
+  <div class="fact"><svg class="ic sm"><use href="#i-lock"/></svg><span>Chaque document est chiffré sur cet iPhone avant de le quitter.</span></div>
+  <div class="fact"><svg class="ic sm"><use href="#i-eye-off"/></svg><span>Le serveur Fyde relaie des données qu’il ne peut pas lire.</span></div>
+  <div class="fact"><svg class="ic sm"><use href="#i-key"/></svg><span>Vos clés sont dans le trousseau de cet appareil.</span></div>
+ </div>
+ <div class="card warncard">
+  <div class="row" style="gap:10px"><svg class="ic" style="color:var(--warn)"><use href="#i-alert"/></svg><p style="font:600 16px var(--font)">Aucun kit de récupération</p></div>
+  <p class="t2" style="margin:6px 0 12px;color:var(--text);opacity:.85">Sans votre mot de passe, personne ne peut rouvrir vos documents, pas même Fyde.</p>
+  <button class="btn o" style="width:100%">Créer un kit de récupération</button>
+ </div>
+ <div class="sect" style="padding-top:20px"><span>Appareils · 3 sur 3</span><span class="row" style="gap:6px;text-transform:none;letter-spacing:0;color:var(--ok);font-weight:500"><svg class="ic xs"><use href="#i-sync"/></svg>Tout est synchronisé</span></div>
+ <div class="card" style="padding:4px 16px;margin-top:4px">
+  <div class="dev"><svg class="ic lg" style="color:var(--muted)"><use href="#i-phone"/></svg><div class="grow"><p class="t1">iPhone de Pierre</p><p class="t2">Cet appareil · synchronisé à l’instant</p></div></div>
+  <div class="dev"><svg class="ic lg" style="color:var(--muted)"><use href="#i-laptop"/></svg><div class="grow"><p class="t1">MacBook Air</p><p class="t2">Synchronisé il y a 3 h</p></div><button style="color:var(--err);font:500 14px var(--font);height:44px">Déconnecter</button></div>
+  <div class="dev"><svg class="ic lg" style="color:var(--muted)"><use href="#i-phone"/></svg><div class="grow"><p class="t1">Pixel 8</p><p class="t2">Synchronisé le 2 oct.</p></div><button style="color:var(--err);font:500 14px var(--font);height:44px">Déconnecter</button></div>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- A5 Desktop -->
+<div class="board"><p class="caption-board">A5 · Bureau (1440 × 900)</p>
+<div class="desktop a" data-shot="A5-documents-desktop">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="topnav">
+  <div class="brand"><span class="mark"><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div>
+  <span class="ntab on"><svg class="ic"><use href="#i-doc"/></svg>Documents</span>
+  <span class="ntab"><svg class="ic"><use href="#i-plug"/></svg>Sources<span class="badge">1</span></span>
+  <span class="grow"></span>
+  <span class="pill" style="height:34px"><svg class="ic sm" style="color:var(--primary)"><use href="#i-lock"/></svg>Chiffré<span style="opacity:.4">·</span><span class="dot"></span>À jour sur 3 appareils</span>
+  <button class="ibtn" aria-label="Réglages"><svg class="ic"><use href="#i-gear"/></svg></button>
+  <button class="dbtn"><svg class="ic sm"><use href="#i-plus"/></svg>Ajouter</button>
+ </div>
+ <div class="split">
+  <div class="lcol">
+   <div class="row" style="justify-content:space-between;margin-bottom:14px"><h1 style="font:600 22px var(--font)">Documents</h1><span class="t2">214 documents</span></div>
+   <div class="search" style="margin:0"><svg class="ic"><use href="#i-search"/></svg><span class="grow">Rechercher</span><span class="kbd">⌘K</span></div>
+   <div class="chips" style="padding:12px 0 6px;flex-wrap:wrap">
+    <span class="chip">Catégorie<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="chip">Type<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="chip">Période<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="chip">Source<svg class="ic xs"><use href="#i-chev-d"/></svg></span>
+   </div>
+   <div class="sect" style="padding:12px 12px 4px"><span>Arrivés cette semaine</span></div>
+   <div class="dli sel"><div class="tile tint" style="--c:#95610A;width:38px;height:38px"><svg class="ic"><use href="#i-zap"/></svg></div><div class="grow"><p class="t1 trunc" style="font-size:15px">Facture d’électricité — octobre</p><p class="t2" style="font-size:13px">EDF · Facture</p></div><div><p class="amt" style="font-size:14px">84,20 €</p><p class="dt">12 oct.</p></div></div>
+   <div class="dli"><div class="tile tint" style="--c:#1B5E63;width:38px;height:38px"><svg class="ic"><use href="#i-brief"/></svg></div><div class="grow"><p class="t1 trunc" style="font-size:15px">Bulletin de paie — septembre</p><p class="t2" style="font-size:13px">Pajemploi · Bulletin de paie</p></div><div><p class="amt" style="font-size:14px">1 912,44 €</p><p class="dt">10 oct.</p></div></div>
+   <div class="dli"><div class="tile tint" style="--c:#2F5D8A;width:38px;height:38px"><svg class="ic"><use href="#i-phone"/></svg></div><div class="grow"><p class="t1 trunc" style="font-size:15px">Facture Freebox — octobre</p><p class="t2" style="font-size:13px">Free · Facture</p></div><div><p class="amt" style="font-size:14px">39,99 €</p><p class="dt">9 oct.</p></div></div>
+   <div class="sect" style="padding:16px 12px 4px"><span>Septembre 2026</span></div>
+   <div class="dli"><div class="tile tint" style="--c:#7A3E48;width:38px;height:38px"><svg class="ic"><use href="#i-landmark"/></svg></div><div class="grow"><p class="t1 trunc" style="font-size:15px">Avis d’impôt sur le revenu 2026</p><p class="t2" style="font-size:13px">impots.gouv · Avis d’imposition</p></div><div><p class="amt" style="font-size:14px">—</p><p class="dt">28 sept.</p></div></div>
+   <div class="dli"><div class="tile tint" style="--c:#A23B5B;width:38px;height:38px"><svg class="ic"><use href="#i-heart"/></svg></div><div class="grow"><p class="t1 trunc" style="font-size:15px">Décompte de remboursement</p><p class="t2" style="font-size:13px">Ameli · Relevé de remboursement</p></div><div><p class="amt" style="font-size:14px">17,50 €</p><p class="dt">22 sept.</p></div></div>
+   <div class="dli"><div class="tile tint" style="--c:#4B4F9C;width:38px;height:38px"><svg class="ic"><use href="#i-train"/></svg></div><div class="grow"><p class="t1 trunc" style="font-size:15px">Billet Paris → Lyon</p><p class="t2" style="font-size:13px">SNCF Connect · Réservation</p></div><div><p class="amt" style="font-size:14px">49,00 €</p><p class="dt">18 sept.</p></div></div>
+   <div class="dli"><div class="tile tint" style="--c:#95610A;width:38px;height:38px"><svg class="ic"><use href="#i-zap"/></svg></div><div class="grow"><p class="t1 trunc" style="font-size:15px">Facture d’électricité — septembre</p><p class="t2" style="font-size:13px">EDF · Facture</p></div><div><p class="amt" style="font-size:14px">79,63 €</p><p class="dt">12 sept.</p></div></div>
+  </div>
+  <div class="dcol">
+   <div class="row" style="gap:14px"><div class="tile tint" style="--c:#95610A;width:48px;height:48px"><svg class="ic lg"><use href="#i-zap"/></svg></div>
+    <div class="grow"><h2 style="font:600 20px/26px var(--font)">Facture d’électricité — octobre 2026</h2><p class="dmeta" style="padding:0">PDF · 182 Ko · 12 oct. 2026</p></div>
+    <button class="ibtn" aria-label="Partager"><svg class="ic"><use href="#i-share"/></svg></button><button class="ibtn" aria-label="Télécharger"><svg class="ic"><use href="#i-download"/></svg></button><button class="ibtn" aria-label="Plus"><svg class="ic"><use href="#i-more"/></svg></button></div>
+   <div class="prov" style="margin:16px 0 0"><svg class="ic"><use href="#i-bolt"/></svg><span>Récupéré automatiquement par <b style="font-weight:600">EDF</b> le 12 oct. à 06:02 · chiffré, synchronisé sur 3 appareils</span></div>
+   <div style="display:grid;grid-template-columns:300px 1fr;gap:32px;margin-top:20px">
+    <div>
+     <div class="grid2" style="padding:0;grid-template-columns:1fr 1fr">
+      <div><p class="lab">Montant</p><p class="val mono">84,20 €</p></div><div><p class="lab">Échéance</p><p class="val">27 oct. 2026</p></div>
+      <div><p class="lab">Émetteur</p><p class="val">EDF</p></div><div><p class="lab">Type</p><p class="val">Facture</p></div>
+      <div><p class="lab">Catégorie</p><p class="val">Logement</p></div><div><p class="lab">Sous-catégorie</p><p class="val">Énergie</p></div>
+      <div><p class="lab">Référence</p><p class="val mono" style="font-size:14px">3001 4471 92</p></div><div><p class="lab">Période</p><p class="val">sept. – oct.</p></div>
+     </div>
+     <p class="lab" style="margin-top:22px">Mots-clés</p>
+     <div class="kw" style="padding:6px 0"><span>électricité</span><span>contrat 3001</span><span>octobre</span></div>
+    </div>
+    <div style="height:560px;overflow:hidden;border-radius:var(--r-md);background:#ECEAE5;border:1px solid var(--border);display:flex;justify-content:center;padding-top:24px">
+     <div class="sheet" style="width:420px;height:594px;font-size:11px;padding:30px">
+      <div class="row" style="justify-content:space-between"><b style="font-size:15px">Fournisseur d’énergie</b><b style="font-size:13px">FACTURE</b></div>
+      <div class="ln" style="width:40%;margin-top:22px;height:7px"></div><div class="ln" style="width:55%;height:7px"></div><div class="ln" style="width:35%;height:7px"></div>
+      <div class="ln" style="width:100%;margin-top:34px;height:26px;background:#EEF4F4"></div><div class="ln" style="height:7px"></div><div class="ln" style="height:7px"></div><div class="ln" style="width:80%;height:7px"></div><div class="ln" style="height:7px"></div><div class="ln" style="width:60%;height:7px"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:30px;gap:16px;font-size:13px"><span>Total TTC</span><b>84,20 €</b></div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</div></div>
+</body></html>

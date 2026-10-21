@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>C — Fil</title>
+<link rel="stylesheet" href="base.css">
+<style>
+.c{--font:"Public Sans",sans-serif;--serif:"Newsreader",Georgia,serif;--bg:#FBFAF7;--surface:#FFFFFF;--rule:#E4E1DA;--text:#15202E;--muted:#5E6673;
+  --primary:#24456B;--onp:#FFFFFF;--att:#A35A00;--ok:#2E7D46;--err:#B3261E;--r:4px}
+.c.dark{--bg:#10151C;--surface:#171E27;--rule:#2A3441;--text:#E6EAF0;--muted:#9AA5B4;--primary:#8FB4E0;--onp:#0C1A2B;--att:#F0B45C;--ok:#86D49B;--err:#F2938A}
+.serif{font-family:var(--serif)}
+.dateline{padding:10px 20px 0;font:500 12px var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.c h1{font:500 38px/42px var(--serif);padding:2px 20px 0;letter-spacing:-.01em}
+.lede{font:400 18px/26px var(--serif);padding:10px 20px 0}
+.lede b{font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin:16px 20px 0;border-top:1px solid var(--text);border-bottom:1px solid var(--rule)}
+.stats div{padding:10px 0 10px;font:400 12px var(--font);color:var(--muted)}
+.stats div+div{padding-left:12px;border-left:1px solid var(--rule)}
+.stats b{display:block;font:500 22px/28px "Plex Mono";color:var(--text)}
+.act{margin:14px 20px 0;display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.adot{width:10px;height:10px;border-radius:50%;background:var(--att);flex:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--att) 20%,transparent)}
+.lnk{height:40px;padding:0 14px;border:1px solid var(--text);border-radius:var(--r);display:flex;align-items:center;font:600 14px var(--font);flex:none}
+.day{padding:18px 20px 4px;font:italic 400 17px var(--serif);color:var(--muted)}
+.ev{display:grid;grid-template-columns:44px 1fr auto;gap:10px;padding:10px 20px;align-items:start}
+.ev .tm{font:400 13px/20px "Plex Mono";color:var(--muted)}
+.ev .who{font:400 13px/18px var(--font);color:var(--muted)}
+.ev .what{font:500 16px/21px var(--font)}
+.ev .amt{font:500 15px/20px "Plex Mono";text-align:right;padding-top:18px}
+.ev.sys .what{font:400 14px/19px var(--font);color:var(--muted)}
+.ev.exp .what{color:var(--muted);font-style:italic;font-family:var(--serif);font-size:16px;font-weight:400}
+.tabs{position:absolute;left:0;right:0;bottom:0;height:84px;background:var(--bg);border-top:1px solid var(--text);display:flex;padding:8px 8px 0}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font:500 11px var(--font);color:var(--muted);position:relative}
+.tab.on{color:var(--text)}
+.tab.on::before{content:"";position:absolute;top:-9px;left:30%;right:30%;height:2px;background:var(--text)}
+.tab .badge{position:absolute;top:-2px;left:calc(50% + 6px);width:9px;height:9px;border-radius:50%;background:var(--att)}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:0 8px 0 8px;height:48px}
+.ib{width:44px;height:44px;display:grid;place-items:center}
+.dh{font:500 28px/33px var(--serif);padding:6px 20px 0}
+.dm{font:400 13px "Plex Mono";color:var(--muted);padding:6px 20px 0}
+.fig{display:grid;grid-template-columns:1fr 1fr;margin:16px 20px 0;border-top:1px solid var(--text)}
+.fig div{padding:10px 0;border-bottom:1px solid var(--rule)}
+.fig div:nth-child(odd){padding-right:12px}
+.fig div:nth-child(even){padding-left:12px;border-left:1px solid var(--rule)}
+.fig span{font:400 12px var(--font);color:var(--muted)}
+.fig b{display:block;font:500 18px/24px "Plex Mono"}
+.fig b.t{font:500 16px/24px var(--font)}
+.h3{font:600 12px var(--font);letter-spacing:.12em;text-transform:uppercase;padding:20px 20px 8px;color:var(--muted);display:flex;justify-content:space-between}
+.tl{position:relative;margin:0 20px;padding-left:22px}
+.tl::before{content:"";position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:var(--rule)}
+.tli{position:relative;padding:5px 0 7px;display:grid;grid-template-columns:46px 1fr;gap:6px}
+.tli::before{content:"";position:absolute;left:-21px;top:11px;width:9px;height:9px;border-radius:50%;background:var(--bg);border:1.5px solid var(--primary)}
+.tli.done::before{background:var(--primary)}
+.tli.wait::before{border-color:var(--att)}
+.tli .tm{font:400 12px/20px "Plex Mono";color:var(--muted)}
+.tli p{font:400 14px/20px var(--font)}
+.tli small{display:block;font:400 12px/17px "Plex Mono";color:var(--muted)}
+.prev{margin:14px 20px 0;height:120px;border:1px solid var(--rule);background:var(--surface);display:flex;gap:12px;padding:12px;align-items:center}
+.mini{width:70px;height:96px;background:#fff;border:1px solid var(--rule);padding:7px;flex:none}
+.mini i{display:block;height:3px;background:#E4E1DA;margin:3px 0}
+.log{margin:6px 20px 0;border-top:1px solid var(--text)}
+.lgr{display:grid;grid-template-columns:52px 18px 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--rule);font:400 14px/20px var(--font);align-items:start}
+.lgr .tm{font:400 12px/20px "Plex Mono";color:var(--muted)}
+.code{margin:14px 20px 0;border:1.5px solid var(--att);padding:14px;border-radius:var(--r)}
+.codein{display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:2px solid var(--text);font:500 30px "Plex Mono";letter-spacing:.35em;margin-top:8px}
+.btnp{height:48px;border-radius:var(--r);background:var(--text);color:var(--bg);display:flex;align-items:center;justify-content:center;font:600 15px var(--font);margin-top:14px;width:100%}
+.tab-src{display:grid;grid-template-columns:1fr 78px 78px;gap:6px;padding:11px 0;border-bottom:1px solid var(--rule);font:400 14px var(--font);align-items:center}
+.tab-src .m{font:400 12px "Plex Mono";color:var(--muted)}
+.cols2{display:grid;grid-template-columns:1fr 1fr;margin:0 20px;border-top:1px solid var(--text)}
+.cols2>div{padding:10px 0}
+.cols2>div+div{padding-left:12px;border-left:1px solid var(--rule)}
+.cols2 p{font:400 13px/19px var(--font);margin:3px 0}
+.drow{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--rule);margin:0 20px}
+.drow .m{font:400 12px "Plex Mono";color:var(--muted);text-align:right}
+/* desktop */
+.cmd{height:60px;flex:none;display:flex;align-items:center;gap:16px;padding:0 24px;border-bottom:1px solid var(--rule);background:var(--bg)}
+.cmdbox{flex:1;max-width:640px;margin:0 auto;height:40px;border:1px solid var(--rule);background:var(--surface);border-radius:var(--r);display:flex;align-items:center;gap:10px;padding:0 12px;color:var(--muted);font:400 15px var(--font)}
+.kbd{font:500 12px "Plex Mono";color:var(--muted);border:1px solid var(--rule);border-radius:3px;padding:1px 6px}
+.dcols{flex:1;display:grid;grid-template-columns:400px 1fr 340px;overflow:hidden}
+.dcols>div{overflow:hidden;border-right:1px solid var(--rule)}
+.ev.sel{background:color-mix(in srgb,var(--primary) 9%,transparent)}
+</style></head><body>
+<!--ICONS-->
+
+<!-- C1 Fil -->
+<div class="board"><p class="caption-board">C1 · Le fil (accueil)</p>
+<div class="phone c" data-shot="C1-home-phone">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <p class="dateline">Mercredi 21 octobre</p>
+ <h1>Le fil</h1>
+ <p class="lede">Ce mois-ci, Fyde a récupéré <b>7 documents</b> depuis <b>5 sources</b>. Tout est chiffré et à jour sur vos 3 appareils.</p>
+ <div class="stats"><div><b>7</b>nouveaux</div><div><b style="color:var(--att)">1</b>action</div><div><b>214</b>au total</div></div>
+ <div class="act"><span class="adot"></span><div class="grow"><p style="font:600 15px/20px var(--font)">impots.gouv attend un code</p><p style="font:400 13px var(--font);color:var(--muted)">SMS envoyé il y a 1 min</p></div><span class="lnk">Saisir</span></div>
+ <p class="day">Bientôt</p>
+ <div class="ev exp"><span class="tm">~28</span><div><p class="what">Bulletin Pajemploi attendu vers le 28</p></div><span></span></div>
+ <p class="day">Aujourd’hui</p>
+ <div class="ev"><span class="tm">06:02</span><div><p class="who">EDF a déposé</p><p class="what">Facture d’électricité — octobre</p></div><span class="amt">84,20 €</span></div>
+ <p class="day">Hier</p>
+ <div class="ev"><span class="tm">18:40</span><div><p class="who">Pajemploi a déposé</p><p class="what">Bulletin de paie — septembre</p></div><span class="amt">1 912,44 €</span></div>
+ <div class="ev sys"><span class="tm">18:41</span><div><p class="what" style="display:flex;gap:6px;align-items:center"><svg class="ic xs"><use href="#i-sync"/></svg>Synchronisé sur MacBook Air et Pixel 8</p></div><span></span></div>
+ <p class="day">Vendredi 9</p>
+ <div class="ev"><span class="tm">07:15</span><div><p class="who">Free a déposé</p><p class="what">Facture Freebox — octobre</p></div><span class="amt">39,99 €</span></div>
+ <div class="tabs">
+  <div class="tab on"><svg class="ic lg"><use href="#i-clock"/></svg>Fil<span class="badge"></span></div>
+  <div class="tab"><svg class="ic lg"><use href="#i-search"/></svg>Recherche</div>
+  <div class="tab"><svg class="ic lg"><use href="#i-plug"/></svg>Sources</div>
+  <div class="tab"><svg class="ic lg"><use href="#i-user"/></svg>Compte</div>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- C2 Detail with provenance -->
+<div class="board"><p class="caption-board">C2 · Document et provenance</p>
+<div class="phone c" data-shot="C2-detail-phone">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div class="nav"><button class="ib" aria-label="Retour"><svg class="ic lg"><use href="#i-chev-l"/></svg></button><div class="row"><button class="ib" aria-label="Partager"><svg class="ic"><use href="#i-share"/></svg></button><button class="ib" aria-label="Plus"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+ <p class="dateline" style="padding-top:0">Logement · Énergie · Facture</p>
+ <h2 class="dh">Facture d’électricité, octobre 2026</h2>
+ <p class="dm">EDF · PDF · 2 p. · 182 Ko</p>
+ <div class="fig"><div><span>Montant</span><b>84,20 €</b></div><div><span>Échéance</span><b class="t">27 oct. 2026</b></div><div><span>Période</span><b class="t">sept. – oct.</b></div><div><span>Référence</span><b style="font-size:15px">3001 4471 92</b></div></div>
+ <div class="prev"><div class="mini"><i style="width:60%"></i><i></i><i style="width:80%"></i><i style="height:9px;background:#EEF1F5;margin-top:7px"></i><i></i><i></i><i style="width:50%"></i></div><div class="grow"><p style="font:500 15px var(--font)">Ouvrir le document</p><p style="font:400 13px var(--font);color:var(--muted)">Déchiffré à la volée sur cet appareil</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+ <p class="h3"><span>Provenance</span><span style="letter-spacing:0;text-transform:none;font-weight:500">12 oct.</span></p>
+ <div class="tl">
+  <div class="tli done"><span class="tm">06:01</span><p>Connexion à EDF depuis cet iPhone</p></div>
+  <div class="tli done"><span class="tm">06:02</span><p>Téléchargé, puis chiffré sur l’iPhone<small>AES-256-GCM · clé jamais envoyée</small></p></div>
+  <div class="tli done"><span class="tm">06:02</span><p>Classé dans Logement › Énergie</p></div>
+  <div class="tli done"><span class="tm">06:05</span><p>Synchronisé sur MacBook Air</p></div>
+  <div class="tli wait"><span class="tm">—</span><p style="color:var(--muted)">Pixel 8 le recevra à sa prochaine connexion</p></div>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- C3 Sources dark -->
+<div class="board"><p class="caption-board">C3 · Sources, journal d’une récupération (sombre)</p>
+<div class="phone c dark" data-shot="C3-sources-phone-dark">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <p class="dateline">5 sources · prochain passage 22:00</p>
+ <h1>Sources</h1>
+ <p class="h3" style="padding-top:14px"><span>impots.gouv · en cours</span><span style="letter-spacing:0;text-transform:none;font:400 12px 'Plex Mono'">09:40</span></p>
+ <div class="log">
+  <div class="lgr"><span class="tm">09:39</span><svg class="ic sm" style="color:var(--ok);margin-top:2px"><use href="#i-check"/></svg><span>Connexion</span></div>
+  <div class="lgr"><span class="tm">09:40</span><svg class="ic sm" style="color:var(--att);margin-top:2px"><use href="#i-clock"/></svg><span>Code de vérification demandé</span></div>
+  <div class="lgr" style="color:var(--muted)"><span class="tm"></span><span></span><span>Récupération des documents</span></div>
+ </div>
+ <div class="code">
+  <label style="font:500 14px var(--font)" for="otp">Code reçu par SMS au •• 42 87</label>
+  <div class="codein" id="otp"><span>482</span><span style="color:var(--muted)">___</span></div>
+  <button class="btnp">Envoyer à impots.gouv</button>
+ </div>
+ <p class="h3" style="padding-top:22px"><span>Toutes les sources</span><span style="letter-spacing:.06em">Dernier · Docs</span></p>
+ <div style="margin:0 20px;border-top:1px solid var(--text)">
+  <div class="tab-src"><span>EDF</span><span class="m">06:02</span><span class="m">38</span></div>
+  <div class="tab-src"><span>Pajemploi</span><span class="m">hier</span><span class="m">41</span></div>
+  <div class="tab-src"><span class="row" style="gap:6px;color:var(--err)"><svg class="ic xs"><use href="#i-alert-c"/></svg>Ameli</span><span class="m" style="color:var(--err)">échec</span><span class="m">33</span></div>
+ </div>
+ <div class="tabs">
+  <div class="tab"><svg class="ic lg"><use href="#i-clock"/></svg>Fil<span class="badge"></span></div>
+  <div class="tab"><svg class="ic lg"><use href="#i-search"/></svg>Recherche</div>
+  <div class="tab on"><svg class="ic lg"><use href="#i-plug"/></svg>Sources</div>
+  <div class="tab"><svg class="ic lg"><use href="#i-user"/></svg>Compte</div>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- C4 Account -->
+<div class="board"><p class="caption-board">C4 · Compte, clés et appareils</p>
+<div class="phone c" data-shot="C4-trust-phone">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <p class="dateline">pierre · offre Basic</p>
+ <h1>Compte</h1>
+ <p class="lede" style="font-size:17px;line-height:24px">Vos documents sont chiffrés avec une clé qui ne quitte jamais vos appareils. Fyde ne peut ni les lire ni réinitialiser votre mot de passe.</p>
+ <p class="h3"><span>Ce que le serveur…</span></p>
+ <div class="cols2">
+  <div><p style="font-weight:600">ne sait pas</p><p>le contenu, les noms, les montants, vos identifiants de sources</p></div>
+  <div><p style="font-weight:600">sait</p><p>votre identifiant, la taille des données, l’heure des envois, vos appareils</p></div>
+ </div>
+ <div class="act" style="margin-top:6px;border-top:1px solid var(--rule)"><span class="adot"></span><div class="grow"><p style="font:600 15px/20px var(--font)">Créez votre kit de récupération</p><p style="font:400 13px var(--font);color:var(--muted)">Sans lui, un mot de passe oublié efface tout.</p></div><span class="lnk">Créer</span></div>
+ <p class="h3"><span>Appareils · 3 sur 3</span><span style="letter-spacing:0;text-transform:none;font-weight:500">Dernier échange</span></p>
+ <div style="border-top:1px solid var(--text);margin:0 20px"></div>
+ <div class="drow"><svg class="ic" style="color:var(--muted)"><use href="#i-phone"/></svg><div><p style="font:500 15px var(--font)">iPhone de Pierre</p><p style="font:400 12px var(--font);color:var(--muted)">cet appareil</p></div><span class="m">à l’instant</span></div>
+ <div class="drow"><svg class="ic" style="color:var(--muted)"><use href="#i-laptop"/></svg><div><p style="font:500 15px var(--font)">MacBook Air</p><p style="font:400 12px var(--font);color:var(--muted)">depuis le 2 mai</p></div><span class="m">06:05</span></div>
+ <div class="drow"><svg class="ic" style="color:var(--muted)"><use href="#i-phone"/></svg><div><p style="font:500 15px var(--font)">Pixel 8</p><p style="font:400 12px var(--font);color:var(--muted)">2 docs en attente</p></div><span class="m">2 oct.</span></div>
+ <div class="tabs">
+  <div class="tab"><svg class="ic lg"><use href="#i-clock"/></svg>Fil<span class="badge"></span></div>
+  <div class="tab"><svg class="ic lg"><use href="#i-search"/></svg>Recherche</div>
+  <div class="tab"><svg class="ic lg"><use href="#i-plug"/></svg>Sources</div>
+  <div class="tab on"><svg class="ic lg"><use href="#i-user"/></svg>Compte</div>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- C5 Desktop -->
+<div class="board"><p class="caption-board">C5 · Bureau (1440 × 900)</p>
+<div class="desktop c" data-shot="C5-documents-desktop">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="cmd">
+  <span style="font:500 22px var(--serif)">Fyde</span>
+  <div class="row" style="gap:4px;font:500 14px var(--font)"><span style="padding:8px 12px;border-bottom:2px solid var(--text)">Fil</span><span style="padding:8px 12px;color:var(--muted)">Sources</span><span style="padding:8px 12px;color:var(--muted)">Compte</span></div>
+  <div class="cmdbox"><svg class="ic"><use href="#i-search"/></svg><span class="grow">Rechercher, filtrer : « EDF 2026 », « montant &gt; 100 € »…</span><span class="kbd">⌘K</span></div>
+  <span class="row" style="gap:8px;font:400 13px var(--font);color:var(--muted)"><svg class="ic sm" style="color:var(--ok)"><use href="#i-sync"/></svg>À jour · 3 appareils</span>
+ </div>
+ <div class="dcols">
+  <div>
+   <p class="dateline" style="padding-top:18px">Mercredi 21 octobre</p>
+   <h1 style="font-size:32px">Le fil</h1>
+   <p class="lede" style="font-size:16px;line-height:23px">7 documents ce mois-ci, depuis 5 sources.</p>
+   <div class="act"><span class="adot"></span><div class="grow"><p style="font:600 14px var(--font)">impots.gouv attend un code</p></div><span class="lnk" style="height:34px">Saisir</span></div>
+   <p class="day">Aujourd’hui</p>
+   <div class="ev sel"><span class="tm">06:02</span><div><p class="who">EDF</p><p class="what" style="font-size:15px">Facture d’électricité — octobre</p></div><span class="amt" style="font-size:14px">84,20 €</span></div>
+   <p class="day">Hier</p>
+   <div class="ev"><span class="tm">18:40</span><div><p class="who">Pajemploi</p><p class="what" style="font-size:15px">Bulletin de paie — septembre</p></div><span class="amt" style="font-size:14px">1 912,44 €</span></div>
+   <div class="ev sys"><span class="tm">18:41</span><div><p class="what">Synchronisé sur MacBook Air, Pixel 8</p></div><span></span></div>
+   <p class="day">Vendredi 9</p>
+   <div class="ev"><span class="tm">07:15</span><div><p class="who">Free</p><p class="what" style="font-size:15px">Facture Freebox — octobre</p></div><span class="amt" style="font-size:14px">39,99 €</span></div>
+   <div class="ev"><span class="tm">—</span><div><p class="who">Ajouté par vous</p><p class="what" style="font-size:15px">Contrat de bail — scan</p></div><span class="amt" style="font-size:14px">—</span></div>
+  </div>
+  <div style="padding:22px 36px;background:var(--surface)">
+   <p class="dateline" style="padding:0">Logement · Énergie · Facture</p>
+   <h2 class="dh" style="padding:6px 0 0;font-size:30px">Facture d’électricité, octobre 2026</h2>
+   <p class="dm" style="padding:6px 0 0">EDF · PDF · 2 p. · 182 Ko</p>
+   <div class="fig" style="margin:16px 0 0;grid-template-columns:repeat(4,1fr)"><div><span>Montant</span><b>84,20 €</b></div><div style="padding-left:12px;border-left:1px solid var(--rule)"><span>Échéance</span><b class="t">27 oct.</b></div><div style="padding-left:12px;border-left:1px solid var(--rule)"><span>Période</span><b class="t">sept.–oct.</b></div><div><span>Référence</span><b style="font-size:15px">3001 4471 92</b></div></div>
+   <div style="margin-top:20px;height:520px;background:#F1EFEA;display:flex;justify-content:center;padding-top:22px;overflow:hidden">
+    <div style="width:380px;height:540px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.12);padding:28px;font:400 11px var(--font)">
+     <div class="row" style="justify-content:space-between"><b style="font-size:14px">Fournisseur d’énergie</b><b>FACTURE</b></div>
+     <div style="height:7px;background:#E4E1DA;width:40%;margin-top:22px"></div><div style="height:7px;background:#E4E1DA;width:55%;margin-top:6px"></div>
+     <div style="height:24px;background:#EEF1F5;margin-top:30px"></div><div style="height:7px;background:#E4E1DA;margin-top:8px"></div><div style="height:7px;background:#E4E1DA;margin-top:6px;width:80%"></div><div style="height:7px;background:#E4E1DA;margin-top:6px"></div>
+     <div class="row" style="justify-content:flex-end;gap:14px;margin-top:28px;font-size:13px"><span>Total TTC</span><b>84,20 €</b></div>
+    </div>
+   </div>
+  </div>
+  <div style="border-right:0">
+   <p class="h3" style="padding-top:24px"><span>Provenance</span><span style="letter-spacing:0;text-transform:none;font-weight:500">12 oct.</span></p>
+   <div class="tl">
+    <div class="tli done"><span class="tm">06:01</span><p>Connexion à EDF depuis l’iPhone</p></div>
+    <div class="tli done"><span class="tm">06:02</span><p>Téléchargé puis chiffré<small>AES-256-GCM sur l’iPhone</small></p></div>
+    <div class="tli done"><span class="tm">06:02</span><p>Classé : Logement › Énergie</p></div>
+    <div class="tli done"><span class="tm">06:05</span><p>Reçu sur ce MacBook</p></div>
+    <div class="tli wait"><span class="tm">—</span><p style="color:var(--muted)">En attente sur Pixel 8</p></div>
+   </div>
+   <p class="h3" style="padding-top:26px"><span>Mots-clés</span></p>
+   <p style="padding:0 20px;font:400 14px/22px var(--font)">électricité · contrat 3001 · octobre</p>
+   <p class="h3" style="padding-top:26px"><span>Même source</span></p>
+   <div class="drow" style="grid-template-columns:1fr auto"><span style="font:400 14px var(--font)">Facture — septembre</span><span class="m">79,63 €</span></div>
+   <div class="drow" style="grid-template-columns:1fr auto"><span style="font:400 14px var(--font)">Facture — août</span><span class="m">71,02 €</span></div>
+   <div class="drow" style="grid-template-columns:1fr auto"><span style="font:400 14px var(--font)">Échéancier 2026</span><span class="m">—</span></div>
+  </div>
+ </div>
+</div></div>
+</body></html>
