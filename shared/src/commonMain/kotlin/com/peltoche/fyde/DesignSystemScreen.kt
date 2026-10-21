@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -478,7 +479,7 @@ private fun OverlaySection() {
         CatalogueRow("AppDialog") {
             AppButton(text = "Open dialog", onClick = { showDialog = true }, variant = AppButtonVariant.Outlined)
         }
-        CatalogueRow("AppBottomSheet — where appropriate; no screen uses one yet") {
+        CatalogueRow("AppBottomSheet — a bottom sheet at Compact, a centred panel wider (O4)") {
             AppButton(text = "Open bottom sheet", onClick = { showSheet = true }, variant = AppButtonVariant.Outlined)
         }
     }
@@ -497,8 +498,14 @@ private fun OverlaySection() {
 
     if (showSheet) {
         AppBottomSheet(onDismissRequest = { showSheet = false }) {
-            Column(modifier = Modifier.padding(AppSpacing.space5).fillMaxWidth()) {
-                Text("Bottom sheet content", style = AppTypography.section, color = AppColors.text)
+            Column(modifier = Modifier.padding(horizontal = AppSpacing.space5).fillMaxWidth()) {
+                AppIconTile(size = AppDimensions.iconTileLarge, tint = AppColors.warning) {
+                    AlertTriangleGlyph(modifier = Modifier.size(24.dp), tint = AppColors.warning)
+                }
+                Spacer(Modifier.height(AppSpacing.space4))
+                Text("Bottom sheet title", style = AppTypography.title, color = AppColors.text)
+                Spacer(Modifier.height(AppSpacing.space4))
+                AppButton(text = "Close", onClick = { showSheet = false }, modifier = Modifier.fillMaxWidth())
             }
         }
     }
