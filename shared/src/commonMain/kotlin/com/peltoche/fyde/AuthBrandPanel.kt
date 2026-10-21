@@ -92,7 +92,11 @@ fun AuthBrandBand(modifier: Modifier = Modifier) {
     }
 }
 
-/** Fyde's mark on `primary`: the lock on an `onPrimary` tile, then the product's name. */
+/**
+ * Fyde's mark on `primary`: the [FydeLogo] on an `onPrimary` tile — the
+ * full-color artwork loses contrast straight on `primary` — then the
+ * product's name.
+ */
 @Composable
 private fun AuthBrandMark() {
     Row(
@@ -107,7 +111,7 @@ private fun AuthBrandMark() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LockGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary)
+            FydeLogo(modifier = Modifier.size(22.dp))
         }
         Text(
             text = stringResource(Res.string.app_title),
