@@ -14,6 +14,11 @@
     <string name="welcome_promise_devices">Sur tous vos appareils, même hors ligne.</string>
     <string name="welcome_create_vault">Créer mon coffre</string>
     <string name="welcome_have_vault">J’ai déjà un coffre</string>
+    <string name="welcome_wide_title">Bienvenue</string>
+    <string name="welcome_wide_subtitle">Créez votre coffre, ou ouvrez celui que vous utilisez déjà sur un autre appareil.</string>
+    <string name="welcome_server">Serveur : %1$s</string>
+    <string name="auth_password_stays_computer">Votre mot de passe ne quitte jamais cet ordinateur.</string>
+    <string name="auth_password_stays_device">Votre mot de passe ne quitte jamais cet appareil.</string>
 
     <!-- Login screen -->
     <string name="show_password">Afficher le mot de passe</string>

@@ -14,6 +14,11 @@
     <string name="welcome_promise_devices">On all your devices, even offline.</string>
     <string name="welcome_create_vault">Create my vault</string>
     <string name="welcome_have_vault">I already have a vault</string>
+    <string name="welcome_wide_title">Welcome</string>
+    <string name="welcome_wide_subtitle">Create your vault, or open the one you already use on another device.</string>
+    <string name="welcome_server">Server: %1$s</string>
+    <string name="auth_password_stays_computer">Your password never leaves this computer.</string>
+    <string name="auth_password_stays_device">Your password never leaves this device.</string>
 
     <!-- Login screen -->
     <string name="show_password">Show password</string>

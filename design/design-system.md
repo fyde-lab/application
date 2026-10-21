@@ -17,7 +17,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 
 | ID | Screen | Code |
 |---|---|---|
-| O1 | Bienvenue | `WelcomeScreen.kt`, `SealHero` |
+| O1, DO1 | Bienvenue (Compact; Medium and Expanded) | `WelcomeScreen.kt`, `SealHero`, `AuthBrandPanel.kt` |
 | O2 | Connexion | `LoginScreen.kt`, `AppBackButton`, `AppNote`, `AppTextField` |
 | O4, DO4b | Stockage indisponible (phone; desktop, at creation) | `InsecureStorageSheet.kt`, `AppBottomSheet`, `AlertTriangleGlyph` |
 

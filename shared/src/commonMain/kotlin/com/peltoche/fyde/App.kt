@@ -389,6 +389,8 @@ private fun AppContent(
     key(language) {
         when (screen) {
             Screen.Welcome -> WelcomeScreen(
+                // The URL's host (and port, on a dev server), as DO1 names it.
+                serverName = BuildConfig.SERVER_URL.substringAfter("://").substringBefore('/'),
                 onCreateVault = { screen = Screen.Register },
                 onOpenVault = { screen = Screen.Login },
             )

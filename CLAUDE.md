@@ -75,8 +75,10 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   opens), `SessionsSection.kt` (`listSessions`; revoke another device via `revokeSession` after
   confirmation, then re-fetch sessions and usage), logout (the only way to end this device's
   session; clears local state).
-- `WelcomeScreen` (O1): the first screen without a session, and after logout; leads to
-  `RegisterScreen` or `LoginScreen` (an expired session goes straight to `LoginScreen`).
+- `WelcomeScreen` (O1 at Compact, DO1 at Medium/Expanded): the first screen without a session,
+  and after logout; leads to `RegisterScreen` or `LoginScreen` (an expired session goes straight
+  to `LoginScreen`). DO1 splits the window: `AuthBrandPanel` (`AuthBrandBand` at Medium), meant
+  for the other desktop access screens too, beside a centred form naming the build's server.
 - `LoginScreen` (O2): back to `WelcomeScreen`. `App.kt` passes why the session ended as
   `noticeMessage` (warning note, `sessionNotice`), separate from a failed attempt's
   `errorMessage` (error note, `authError`).
