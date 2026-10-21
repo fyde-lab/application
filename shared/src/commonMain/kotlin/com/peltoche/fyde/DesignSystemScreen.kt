@@ -39,6 +39,7 @@ import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.AppListItem
+import com.peltoche.fyde.components.content.SealHero
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
@@ -256,7 +257,12 @@ private fun ContentSection() {
                 AppIconTile(tint = AppColors.secondary) { DocumentGlyph(tint = AppColors.secondary, modifier = Modifier.size(AppIconSize.md)) }
                 AppIconTile { PuzzleGlyph(tint = AppColors.textMuted, modifier = Modifier.size(AppIconSize.md)) }
                 AppSkeleton(modifier = Modifier.size(AppDimensions.iconTile), shape = AppShapes.iconTile)
+                AppIconTile(size = AppDimensions.iconTileSmall, tint = AppColors.primary) { BoltGlyph(tint = AppColors.primary, modifier = Modifier.size(AppIconSize.md)) }
+                AppIconTile(size = AppDimensions.iconTileSmall, tint = AppColors.primary) { SyncGlyph(tint = AppColors.primary, modifier = Modifier.size(AppIconSize.md)) }
             }
+        }
+        CatalogueRow("SealHero — the seal (Welcome, Sécurité)") {
+            SealHero()
         }
         CatalogueRow("AppBadge — Neutral / Primary / Success / Warning / Error") {
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
