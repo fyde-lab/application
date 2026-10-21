@@ -1,810 +1,461 @@
 # Fyde Visual Design System
 
-## Visual reference
+Fyde is a personal document wallet: it fetches documents from the user's providers by itself,
+keeps them end-to-end encrypted and local-first, and syncs them across the user's devices. This
+document is the source of truth for how the app looks and behaves on iOS, Android, desktop and
+web. Values here win over the code; where they disagree, the code is behind.
 
-The UI must look like the reference screenshot below (`assets/design-reference.png`):
-a light, neutral-gray document search/management screen — left icon-label nav
-rail, a search bar with pill filter chips above a dense results list (file-type
-icon, title, breadcrumb path, tags, amount, date), and a right-hand detail
-panel showing extracted fields and a rendered document preview.
+## Status
 
-![Fyde design reference](assets/design-reference.png)
+**Not implemented yet.** The tokens under `shared/src/commonMain/kotlin/com/peltoche/fyde/theme/`
+and the components under `shared/.../components/` still draw the previous visual language
+(warm grays, teal accent, Public Sans, 2–10px radii, top navigation bar on desktop). Migrating
+them is tracked in [Delivery](#delivery). New UI work follows this document, not the current code.
 
-**Status: largely implemented.** Tokens (color, type, shape, spacing,
-elevation) live under `shared/src/commonMain/kotlin/com/peltoche/fyde/theme/`,
-both bundled typefaces are in place (`shared/src/commonMain/composeResources/
-font/`, licenses in `shared/THIRD_PARTY_LICENSES.md` — the font-bundling open
-question below is resolved), and most components/screens this document
-describes exist under `shared/.../components/` and the top-level screen
-files (`DocumentListScreen.kt`, `TopLevelScaffold.kt`, etc.). This document remains
-the source of truth for new work and for reconciling drift between the code
-and the reference screenshot, not a pre-implementation proposal only. This
-document is the next iteration of the earlier `application/DESIGN.md` spec,
-written against a new, more specific brief — see *Relationship to
-`DESIGN.md`* below before treating the two as agreeing with each other.
+## Reference screens
 
-## Brief
+Every screen of the app is drawn in `assets/screens/` (49 PNGs at 2×, phone frames at 390×844,
+desktop at 1440×900, tablet at 1194×834), rendered from the HTML in `assets/mockups/` by
+`render.py`; `sheets.py` assembles them into the contact sheets in `assets/sheets/`. To change a
+reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
+tables below), re-render, and commit the PNGs with the source.
 
-The application is a cross-platform **document management** tool. The UI
-should read as: professional, calm, trustworthy, information-dense without
-feeling cluttered, fast and functional, comfortable for long sessions, and
-visually consistent across Android, iOS, and desktop. Explicitly not a
-generic "modern SaaS dashboard."
+Screen IDs are used throughout this document and in file names:
+**O** onboarding and access · **V** vault and documents · **K** capture · **R** arrivals ·
+**S** sources · **M** account (Moi) · **X** system states · **D** desktop · **T** tablet.
 
-## Direction
+![Main screens](assets/sheets/coffre.png)
 
-Translating those adjectives into design consequences, in priority order:
+The copy in the reference screens is French, the product's first market; every string ships in
+French and English.
 
-1. **Neutral-first, one disciplined accent.** The palette is built from warm,
-   low-chroma grays (the "paper" of a document tool); a single accent color
-   carries all primary emphasis. No gradients, no multi-color marketing
-   flourishes — calm comes from restraint, not from added decoration.
-2. **Density is a feature, not a compromise.** Long sessions triaging many
-   documents reward tight, well-aligned information over generous marketing
-   whitespace. Hierarchy — not size — is what keeps density from reading as
-   clutter (see Typography, Layout).
-3. **Structure over ornament.** Flat tonal surfaces and hairline borders do
-   most of the "this is a separate region" work; shadows are reserved for
-   things that genuinely float above the page. Corners are barely rounded —
-   geometric and precise, not the soft pill/rounded-2xl shape language of
-   generic SaaS.
-4. **One typeface system, bundled — not borrowed from the OS.** Roboto
-   (Android) and San Francisco (iOS) have different metrics; text tuned for
-   one will not measure or wrap the same in the other. True cross-platform
-   consistency requires shipping our own type, not defaulting to the
-   platform's.
-5. **Density flexes by input method, not by platform.** "Consistent across
-   Android, iOS, desktop" means one visual language — it does not mean
-   identical row heights regardless of whether the pointer is a finger or a
-   mouse. See *Layout § density* and *Responsive behavior*.
+---
 
-### Relationship to the current `DESIGN.md`
+## Principles
 
-The existing spec is dark-only, built around a lime accent on near-black,
-with underline-style text fields and no bundled font. Given this brief, three
-things change and three carry forward:
+1. **The vault is organised the way life is.** Documents are browsed by the SDK's categories
+   (Logement, Argent, Travail, Impôts, Santé, Télécom, Transport, Achats, Famille, Abonnements,
+   Dons) and their subcategories, then by year. Search is always one tap away, but browsing is the
+   default on a phone.
+2. **The automation is visible.** Fetching documents is the reason to use Fyde, so its state is
+   on screen at all times: what arrived, which source needs the user, when the next run is.
+3. **Trust is shown, not claimed.** The encryption, the sync across devices and the single
+   unrecoverable password are explained where they matter, in plain words, with what the server
+   can and cannot see. Never a bare "secured" badge.
+4. **Mobile first, density by input method.** Layouts are designed for a phone held in one hand,
+   then reflowed for tablet and desktop, where pointer precision allows denser lists and
+   master–detail. One visual language everywhere; interaction follows each platform.
+5. **Honest UI.** Only controls that work are shown. Filter choices come from
+   `FydeSdk.searchDocumentFacets`, never from a hard-coded list. A feature the SDK can't back yet
+   is left out, not drawn disabled.
+6. **Calm, warm, personal.** A wallet for payslips and tax notices should feel like a well-kept
+   paper folder: soft paper background, category colours like file dividers, generous touch
+   targets, one deep green for action. No gradients, no illustrations beyond the seal.
 
-| Keeps | Changes | Why |
-|---|---|---|
-| Flat tonal elevation over shadows | Dark-**only** → light **and** dark | Brief requires both |
-| Non-pill, geometric corner radii | Lime `#D7EE5B` accent → a deep teal accent | Lime reads energetic/creative-tool, not calm/trustworthy/serious |
-| The 4px spacing grid's logic | System-default font → one bundled type family | Cross-platform consistency needs identical metrics, not per-OS substitutes |
-| — | Underline text fields → bordered fields | Bounded fields read as more precise/form-like for a denser, more form-heavy tool |
+---
 
-Where this document is silent on something `DESIGN.md` already covers well
-(e.g. the empty-state icon-in-circle layout), assume it still applies —
-this is a revision of the token layer, not a rewrite of every pattern.
+## Colour
+
+### Roles
+
+| Role (`AppColors`) | Light | Dark | Use |
+|---|---|---|---|
+| `background` | `#F2F0EA` | `#0F1412` | Page |
+| `surface` | `#FFFFFF` | `#18201D` | Cards, groups, sheets, dialogs, tab bar, sidebar |
+| `sunk` | `#E9E6DD` | `#202A26` | Segmented track, info notes, preview wells, progress tracks, skeletons |
+| `border` | `#E2DED4` | `#2A3430` | Hairlines between rows, card edges |
+| `borderStrong` | `#8C877B` | `#6E7C75` | Inputs, outlined buttons, unchecked controls |
+| `text` | `#1C1B17` | `#EAF0EC` | Content |
+| `textMuted` | `#66625A` | `#9AA8A1` | Secondary text, captions, placeholders |
+| `primary` | `#1F4D3A` | `#8FD1AE` | Filled buttons, selection, scan button, arrivals banner, focus ring |
+| `onPrimary` | `#FFFFFF` | `#0B2418` | Content on `primary` |
+| `primaryWash` | `#DCE8E0` | `#1D3329` | Positive notes, selected sidebar row, avatar, check discs |
+| `warning` | `#8F5B00` | `#E9B65A` | A source waiting for a code, limits reached, recovery kit missing |
+| `warningWash` | `#F6E9D2` | `#33291A` | Warning notes |
+| `error` | `#B3261E` | `#F2938A` | Failed source, destructive actions, field errors |
+| `errorWash` | `#F7DEDA` | `#3A1F1C` | Error notes |
+| `success` | `#2B6E45` | `#8FD1AE` | "À jour", "Scellé", checks |
+| `scrim` | `#0F1412` at 45% | same | Behind sheets and dialogs |
+
+Every Material 3 role is set from this table (`surfaceContainer*`, `surfaceTint` = `surface`,
+`inverse*`, `outline` = `borderStrong`, `outlineVariant` = `border`) so no M3 baseline colour or
+tonal tint ever leaks in.
+
+### Category colours
+
+Each category has a **fill** (backgrounds: category cards, passes, tiles, sidebar dots) and an
+**ink** (its icon, count and accent text on that fill). They are file dividers, not status colours:
+they never mean ok/warning/error, and they always come with the category's icon and name.
+
+| Category | Icon | Fill / ink — light | Fill / ink — dark |
+|---|---|---|---|
+| Logement | home | `#E8DCC6` / `#6E5328` | `#3A3121` / `#E3C58F` |
+| Argent | wallet | `#D7E8DA` / `#2B6E45` | `#1E3326` / `#9ED5AE` |
+| Travail | briefcase | `#D4E6E3` / `#1D5C55` | `#1B3331` / `#8FD0C6` |
+| Impôts | landmark | `#EBD8D6` / `#8A3B36` | `#3A2422` / `#EBA49E` |
+| Santé | heart | `#EFDAE3` / `#8E3459` | `#3A2230` / `#EDA3C4` |
+| Télécom | phone | `#D8E3EF` / `#2C5582` | `#1F2B3A` / `#9DBDE3` |
+| Transport | train | `#DDDBEF` / `#45428F` | `#26253B` / `#B4B1EC` |
+| Achats | bag | `#F0E1CF` / `#86501C` | `#3A2C1D` / `#E9B887` |
+| Famille | users | `#E9E3CB` / `#6A5B1E` | `#33301C` / `#DCCB8A` |
+| Abonnements | repeat | `#E3DCEC` / `#5D3F80` | `#2B2436` / `#C9B3E8` |
+| Dons | gift | `#DDE8CF` / `#4A6326` | `#26301C` / `#BCD69A` |
+| À classer | document | `#E6E3DB` / `#5B574F` | `#262A28` / `#B7B9B4` |
+
+### Contrast
+
+All text pairs meet WCAG AA (4.5:1), including small captions. Lowest pairs, so changes don't
+slip under the floor: Argent ink on its fill 4.81:1, `warning` on `warningWash` 4.78:1,
+`textMuted` on `sunk` 4.86:1, `success` on `primaryWash` 4.87:1. Dark category inks are ≥ 7:1 on
+their fills. Re-check any value you change and record the new ratio here.
+
+### Themes
+
+Light and dark are one theme, picked in Moi › Apparence et langue (Système · Clair · Sombre,
+persisted). Screens read `AppColors` only and never branch on the theme. Every screen has a dark
+twin; V11 and M2 are the dark references.
 
 ---
 
 ## Typography
 
-### Family
+Two bundled, OFL-licensed families, identical on every platform:
 
-Two typefaces, both open-licensed (OFL) and bundled as Compose resources on
-every target — no platform default is used anywhere, so text measures
-identically on Android, iOS, desktop, and web.
+- **Instrument Sans** (400, 500, 600) for all UI text.
+- **IBM Plex Mono** (400, 500) for figures that must read as exact: amounts, references, codes,
+  times, counts in meters. Tabular figures on.
 
-- **UI & body — Public Sans.** Developed for the U.S. Web Design System
-  specifically to be neutral, highly legible, and free of decorative
-  personality in official/high-trust contexts. That mandate is a near-exact
-  match for "professional, calm, trustworthy" — it carries no trend
-  signature (it is not Inter, not a geometric grotesk) and won't date the
-  way a fashionable display face would.
-- **Data & metadata — IBM Plex Mono.** Used narrowly, for a short metadata
-  line built around exact figures: file sizes, dates, page counts,
-  version/ID strings. Tabular figures on by default. Signals "this number
-  is exact" the way a ledger or invoice does. Scoped to the *line*, not to
-  individual digits in isolation — a `·` separator, a unit ("MB"), or a
-  short type code ("PDF") riding along inside that same line stays in the
-  Data role rather than splitting the line into mixed styles column
-  alignment doesn't actually need.
-
-No serif is introduced. The app never typesets long-form document *content*
-itself (PDFs render through each platform's native engine — see the audit,
-§05); a third face would be decoration with no job to do.
-
-### Scale
-
-One scale, 8 roles. Line-heights are tighter on headings (density) and more
-open on body/caption (long-session reading comfort).
-
-| Role | Size / Line height | Weight | Tracking | Usage |
-|---|---|---|---|---|
-| Display | 30 / 38sp | SemiBold | 0 | Rare — empty-state or onboarding headlines only, not screen titles |
-| Title | 22 / 28sp | SemiBold | 0 | Screen titles ("Documents", "Settings") |
-| Section | 17 / 24sp | SemiBold | 0 | Group/section headers, dialog titles |
-| Body emphasis | 15 / 22sp | Medium | 0 | Primary list content — document names, key values |
-| Body | 15 / 22sp | Regular | 0 | Standard copy, descriptions, dialog body |
-| Caption | 13 / 18sp | Regular | 0.1sp | Secondary/metadata text, helper text, timestamps |
-| Micro | 11 / 16sp | Medium | 0.3sp | Status labels, badges, overline text |
-| Data (mono) | 13 / 18sp | Regular | 0, tabular figures | A metadata line built around exact figures — size, date, type code — set as one Data-role string, not split per digit |
-
-### Weights
-
-Exactly three working weights: **Regular, Medium, SemiBold.** True Bold
-(700) is deliberately unused below Display size — bolding body/caption text
-is what makes dense UI feel like it's shouting. SemiBold is the ceiling for
-anything read at length.
-
-### Heading hierarchy & metadata text
-
-Four heading levels (Display → Title → Section) is the full depth the app
-needs — it matches the audit's finding that navigation is a shallow
-single-level stack, not a deep tree. **Metadata/secondary text always uses
-`text-muted` (see Color) and either Caption or Data role, never full `text`
-color or Body weight** — that color+role pairing is what visually separates
-"this is the content" from "this is context about the content," which is
-the actual mechanism behind "information-dense without clutter."
-
-**A scannable row's title is one line, always.** Found via review: a list
-row's headline with no `maxLines`/truncation wrapped to two lines for one
-filename and stayed one line for a shorter one in the exact same list,
-making row height inconsistent both within a list and across breakpoints
-for identical content. Any title in a row meant to be scanned (a list item,
-not a detail-pane header) truncates with an ellipsis at one line — the full
-text is always available where the item is opened, so nothing is lost.
-
-This applies to grid cards too. Found via review: script cards were allowed
-2-line names to work around truncation, which made cards in the same grid
-row different heights. The real cause was a per-card "View" button eating
-the name's width; the fix was to make the whole card the click target and
-drop the button. A card's secondary text uses a fixed line count
-(`minLines` = `maxLines`) so every card in a row is the same height.
-
----
-
-## Color
-
-Warm, low-chroma neutrals (paper, not sterile blue-gray or generic SaaS
-gray) carry the interface; one deep teal accent carries emphasis; one muted
-umber secondary carries lower-key emphasis (tags, folder affordances) without
-competing with it.
-
-| Role | Light | Dark | Usage |
+| Role (`AppTypography`) | Size / line | Weight | Use |
 |---|---|---|---|
-| `background` | `#F5F4F1` | `#16140F` | App background — the "desk" the content sits on |
-| `surface` | `#FFFFFF` | `#1E1B16` | Cards, panels — the "paper" |
-| `surface-elevated` | `#FFFFFF` | `#282420` | Menus, dialogs, popovers — see Elevation for how light mode differentiates this from `surface` |
-| `border` | `#E3E0DA` | `#35302A` | Hairline dividers, card edges |
-| `border-strong` | `#8F8A7C` | `#7A7364` | Input field outlines, anywhere a border must read as interactive, not just structural |
-| `text` | `#211E18` | `#EDE9E1` | Primary text and icons |
-| `text-muted` | `#6B6558` | `#9B9484` | Metadata, captions, placeholders, disabled content |
-| `primary` | `#1B5E63` | `#5FBFC4` | Primary actions, links, focus, selection |
-| `on-primary` | `#FFFFFF` | `#06232A` | Content on filled-primary surfaces |
-| `secondary` | `#6B5636` | `#B99569` | Lower-emphasis actions, tags, folder/document-type accents |
-| `on-secondary` | `#FFFFFF` | `#2B1B08` | Content on filled-secondary surfaces |
-| `error` | `#B3261E` | `#F2938A` | Destructive actions, invalid state |
-| `on-error` | `#FFFFFF` | `#3A0F0B` | Content on filled-error surfaces |
-| `warning` | `#95610A` | `#E8B34D` | Caution states — expiring access, unsynced changes |
-| `on-warning` | `#FFFFFF` | `#2B1C02` | Content on filled-warning surfaces |
-| `success` | `#2E7D46` | `#7FD98A` | Confirmation — upload complete, verified |
-| `on-success` | `#FFFFFF` | `#0F2A17` | Content on filled-success surfaces |
-| `selection-surface` | `#E7EFEF` | `#1F3638` | Background wash for selected rows/items (multi-select) |
-| `selection-text-bg` | `#BFE0E1` | `#2C5457` | Inline text-selection highlight |
+| `display` | 32 / 38 | SemiBold, −0.02em | Screen titles on Compact (Coffre, Arrivées, Sources, Moi) |
+| `title` | 24 / 30 | SemiBold, −0.01em | Detail and sheet titles, category band |
+| `heading` | 18 / 24 | SemiBold | Dialog titles, card titles |
+| `label` | 16 / 21 | SemiBold | Row titles, button text |
+| `body` | 16 / 23 | Regular | Copy, field values |
+| `secondary` | 14 / 19 | Regular | Row subtitles, helper text |
+| `caption` | 13 / 17 | Regular | Timestamps, footnotes |
+| `section` | 13 / 18 | SemiBold, uppercase, +0.05em | Section labels above groups |
+| `tab` | 11 / 13 | Medium | Tab bar labels only |
+| `passAmount` | 44 / 48 | SemiBold, −0.02em | The headline value of a document pass |
+| `data` | 15 / 20 | Plex Mono Medium | Amounts and references in rows |
+| `code` | 22 / 28 | Plex Mono SemiBold | One-time code boxes |
 
-Values above are proposed starting points; verify exact contrast ratios
-against final hex values before implementation. Target: WCAG AA — 4.5:1 for
-body text, 3:1 for text ≥ 18sp/14sp-bold and for icons, matching the bar the
-current spec already holds itself to.
-
-`border-strong` has been verified and corrected: the originally-proposed
-`#C9C4B8`/`#4A4438` measured ~1.5:1 / ~1.9:1 against `background` — well
-under the 3:1 a UI component boundary needs, and visually confirmed via a
-real render (the search field's outline was essentially invisible). The
-values above replace them, clearing ~3.1–3.9:1 in both themes.
-
-**`secondary` is intentionally a muted umber/olive, not amber** — close
-enough to `warning`'s orange family to feel like the same "paper/kraft"
-world, far enough in hue and saturation that the two are never confusable
-in the same screen (a tag using `secondary` must never be mistaken for a
-warning state).
-
-**Focus ring:** 2px `primary`, 2px outside the element's own border, both
-themes — the one place `primary` is allowed to outline rather than fill. It
-marks keyboard focus only (like `:focus-visible`): a control focused by a
-click or tap draws none — found via review that clicking a list row or a
-filter chip left a ring around it, covering a selected row's accent bar.
-
-**Every Material 3 color role is set, not just the ones this table names.**
-Found via review: `surfaceContainer`, `surfaceTint` and the `inverse*` roles
-were left unset, so they fell back to M3's own baseline palette — the
-language picker's menu opened lavender, and since M3 tints any
-`surface`-colored container by its tonal elevation with `surfaceTint`
-(`primary` by default), light-mode dialogs, menus and the bottom bar were
-washed teal. Menus fill with `surface-elevated`; `surfaceTint` is the
-surface itself, so M3's tonal tint is a no-op and elevation follows
-*Elevation* below — explicit tone steps and shadows, nothing implicit.
-
-**Tinted containers.** A small fill whose color carries meaning — a badge,
-a warning banner, a file-kind tile, the error state's icon circle, the
-encryption trust badge — is its accent at one alpha, `AppColors.tintOf(accent)`
-(15%), with text/glyphs in the accent itself or in `text`. Found via audit:
-the same idea was drawn at 10%, 14% and 15% depending on the file. The error
-*banner* is the exception: it fills with M3's opaque `errorContainer` (see
-`AppColors.kt`'s `containerOf`), which predates `tintOf` and reads the same.
-
-### Why teal, not blue or the current lime
-
-Lime-on-near-black (the current spec) reads energetic and creative-tool —
-right for a dev/design tool, wrong for "calm, trustworthy, serious
-document management." Generic SaaS blue (`#4F46E5`-family indigo/violet) was
-avoided deliberately — it's the single most common accent in the category
-we're explicitly not trying to look like. A deep, desaturated teal sits
-adjacent to "trustworthy blue" without being the exact blue every dashboard
-uses, and it pairs cleanly with the umber secondary (ink + kraft paper is a
-real, physical reference point for a document tool, not an abstract color
-pick).
-
-### Themes
-
-The palette above is the **Fyde** theme, the default and, for now, the only
-one. Themes are listed in `theme/AppThemeOption.kt` and picked in Settings
-(Theme section); `AppTheme` applies the chosen one. A theme is a palette
-only — a light and a dark value for every role in the table above (plus the
-extended `success`/`warning`/`selection` roles) — while typography, shape,
-spacing and elevation stay shared by all themes. Light or dark is a separate
-choice (`theme/AppAppearance.kt`, Settings' Appearance picker under Theme):
-System — the default — follows the platform, Light and Dark force a half of
-whichever theme is picked. A new theme must fill every role
-and meet the same contrast floors as Fyde's (see `border-strong` above);
-screens never branch on the theme, they read `AppColors` only.
+Rules: one line for a row title (ellipsis), full text on the detail screen. Bold (700) is not
+used. Text scales with the OS setting up to 200%: rows grow, amounts never truncate, and the tab
+bar keeps its labels by dropping to icons-only above 150%.
 
 ---
 
-## Shape
+## Shape, spacing, elevation
 
-Radii stay small on purpose — precise and structured rather than the
-soft/pill geometry of generic SaaS (which starts at 8px and often runs to
-full pills on buttons). Nothing in this system is a pill except literal
-circles.
-
-| Token | Value | Usage |
+| Token (`AppRadius`) | Value | Use |
 |---|---|---|
-| `radius-none` | 0 | Dividers, full-bleed content, PDF page edges |
-| `radius-xs` | 2px | Checkboxes, small tags/badges |
-| `radius-sm` | 4px | Input fields, small/icon buttons |
-| `radius-md` | 6px | Default buttons, cards, list-item containers |
-| `radius-lg` | 10px | Dialogs, sheets, popovers |
-| `radius-full` | circular | Avatars, status dots — nothing else |
+| `sm` | 12 | Tiles, segmented items, OTP boxes |
+| `md` | 14 | Inputs, notes |
+| `lg` | 22 | Cards, groups, passes, category cards |
+| `xl` | 24 | Sheet top corners, dialogs |
+| `full` | pill | Buttons, chips, search field, avatar, status dots |
 
-**Navigation list items** — `radius-sm`, not M3's own stadium-pill default
-for `NavigationDrawerItem`/`NavigationBarItem`. Stock M3 components default
-to a fully-rounded selected-state container; left unoverridden, that's a
-pill shape sneaking back in through a component this document didn't
-originally call out, so the shape parameter is set explicitly wherever one
-of these components is used.
+Buttons are pills: 52 tall (40 for small), 20 horizontal padding. Chips are 38-tall pills.
 
-**Buttons** — `radius-md`, never a pill. Minimum height 48dp/pt (clears both
-Android's 48dp and iOS's 44pt touch-target minimums with one shared value —
-see Direction §5 on why platform minimums, not visual style, are allowed to
-differ). Filled (primary/secondary), Outlined (`border-strong`, transparent
-fill — the default for secondary actions in a form-heavy app), Text/ghost,
-and Icon variants; no additional shape rules per variant beyond radius and
-height.
+Spacing is a 4-based scale (`AppSpacing` 4, 8, 12, 16, 20, 24, 32, 40). Screen margin 20 on
+Compact (16 for grouped lists), 24 Medium, 32 Expanded. 12 between cards, 20 above a section
+label, 10 between buttons in a row.
 
-**A screen's primary action is one component, in one place.** Found via
-review: Documents had a filled Upload button in its top bar while Scripts
-had a text-only New script link in the same slot, the full "Upload
-document" button took half a phone's top bar, and the no-results state
-added a second filled button beside Upload. A destination's primary action
-is `AppTopBarAction` in its top bar — filled with icon and label from
-Medium up, the filled icon alone (labelled for assistive tech) on Compact —
-and is the screen's only filled button: an empty state's recovery action
-on that same screen is Outlined.
+Elevation is flat: surfaces sit on `background` with a `border` hairline. Shadows only on things
+that float: the scan button (`0 6 16` primary at 35%), sheets (`0 −8 28` black at 18%), dialogs
+(`0 12 40` at 25%), snackbars (`0 8 24` at 25%).
 
-**Text and icon buttons too.** Found via review: `AppTextButton` (every
-dialog's confirm/cancel, Sign up, Disconnect) kept M3's own text-button
-shape, a full pill, visible as its hover/press state layer, and icon
-buttons kept M3's circle — the icon-button `radius-sm` above. Every button
-variant sets its shape explicitly, and every one draws the focus ring.
-Progress bars and meters are rectangles with `radius-xs` corners and square
-ends, not rounded pills — one component, `AppProgressBar` (determinate, or
-indeterminate with `progress = null`; 6dp, `border` track). Found via audit:
-the usage meters were hand-drawn to this rule while a running script's
-progress used M3's stock indicator, with its own track gap and stop dot.
+Touch targets: every tappable element is at least 44×44pt, including icon buttons, avatar,
+chips and the trailing actions of a row; size the glyph for looks and centre it in the target.
 
-**Menus and popovers** — `radius-lg`, `surface-elevated`, through the one
-`AppDropdownMenu`. Found via review: the app's three menus were each styled
-by hand, two of them with M3's 2dp default corners and container color.
+### Iconography
 
-**Inputs** — `radius-sm`, `border-strong` at rest, `primary` border on
-focus (2px), transparent-to-`surface` fill. This is the one deliberate break
-from the current spec's underline style (see *Relationship to `DESIGN.md`*):
-a document-management tool is heavier on structured forms and metadata
-fields than an auth-only v1 was, and a fully bounded field reads as more
-precise/form-like than a floating underline.
-
-**Cards** — `radius-md`, no border by default (light mode's `surface` vs
-`background` contrast already defines the edge); add a `border` hairline
-only when two cards of equal weight sit adjacent with no gap between them.
-Never combine a visible border with a shadow on the same card.
-
-**Dialogs / sheets** — `radius-lg`, always `surface-elevated`, always
-shadowed (see Elevation) — the largest radius in the system, reserved for
-the most clearly "floating above everything else" surfaces.
-
-**Touch target minimum is a rule about tap area, not about buttons
-specifically.** Found via review: an avatar-triggered menu button had
-shrunk its tappable circle to match its 18dp glyph (32dp total), well under
-the 48dp/44pt minimum above — nobody had checked a *non-button* trigger
-against the same rule. Any tappable element — icon buttons, avatar/menu
-triggers, custom row affordances — gets the full 48dp/44pt hit area
-regardless of how small its visible content is; size the glyph for how it
-should look, then center it in a target sized for how it should be tapped.
+Stroke icons, 1.7 stroke on a 24 grid, round caps and joins, drawn as `Canvas` glyphs in
+`NavGlyphs.kt` / `DocumentGlyph.kt` (no icon font). Sizes (`AppIconSize`): 13 inline, 16 in
+controls, 20 default, 24 tab bar and large tiles, 28+ only for heroes. Glyph colour is `text` at
+rest, `primary` when selected, the category ink on a category fill. The icon set in use is
+`assets/mockups/icons.svg`.
 
 ---
 
-## Iconography
+## Layout and navigation
 
-Glyphs are drawn on a `Canvas` (`NavGlyphs.kt`, `DocumentGlyph.kt`; no icon
-font or Material Icons dependency — see *Open questions*). Each takes its
-size from the caller's `Modifier.size` and its color as a `tint` parameter
-(they don't read `LocalContentColor`), so both are always passed
-explicitly, from these tokens:
+### Compact (< 600dp — phones)
 
-| Token (`AppIconSize`) | Size | Usage |
+A tab bar of **Coffre · Arrivées · [Scanner] · Sources · Moi**. The centre item is a raised 56pt
+`primary` scan button (on Android, the same action is also a FAB on Coffre and Arrivées). The
+Arrivées badge counts what needs the user: codes asked, failed sources and documents waiting for
+confirmation; hidden at 0. Drill-downs push inside their tab, with a 44pt circular back button,
+so going back restores scroll and filters. Screen titles use `display`; drill-downs put their
+title in the bar.
+
+![The vault on a phone](assets/screens/V1-coffre.png)
+
+### Medium (600–839dp) and Expanded (≥ 840dp)
+
+The tab bar becomes a sidebar: 260dp at Expanded, icons-only at Medium. From top: brand,
+Arrivées (with count), Tout le coffre, CATÉGORIES (each with dot and count), then at the bottom
+Sources and the seal ("Scellé · n appareils"). Moi moves to the avatar menu. Lists become
+master–detail: a 400dp list column and a detail pane; phone sheets become inline panels. Scanner
+becomes "Importer" (file picker, drag and drop) where there's no camera.
+
+![Desktop and tablet](assets/sheets/bureau-tablette.png)
+
+Keyboard on desktop and web: ⌘K / Ctrl+K search, ↑↓ move the selection, Enter opens, Space
+previews, Esc closes the detail; in Arrivées, Enter confirms the classification and moves to the
+next, E edits. Right-click opens the same actions as V8.
+
+---
+
+## Patterns
+
+- **Sheet** for short, contextual tasks (verification code, document actions, reclassify, import
+  from another app, insecure-storage warning). **Dialog** only to confirm something irreversible
+  (remove a source, disconnect a device, log out); its confirm button is filled `error`.
+- **Note** (`info`, `ok`, `warning`, `error`: wash fill, icon, rich text) explains a condition
+  inline, next to what it concerns. There is no full-width banner.
+- **Snackbar** (ink surface above the tab bar, optional progress and action, at most 2 stacked)
+  confirms what finished and shows background progress ("Ajout de 2 documents · 1 sur 2").
+- **Empty states** say what will appear and offer the one action that fills them; they never
+  look like errors. **Loading** uses skeletons shaped like the content (`sunk` fill).
+  **Offline** is a state, not an error (X1): everything local stays usable, additions queue.
+- **Errors** use the SDK's localized wording (`FfiError` messages) or our own copy, never an
+  exception message.
+- **One primary action per screen**, filled; every other action is outlined or text.
+
+### Source status
+
+A source (an installed scraper; parsers never appear in the UI) always shows exactly one status,
+identically in Sources, Arrivées, history and on desktop:
+
+| Status | Colour, icon | Wording |
 |---|---|---|
-| `xs` | 12dp | Inline with caption text or inside a small control — a row's trailing chevron, a button's play mark |
-| `sm` | 16dp | Leading icon of a field or button, an icon button's glyph |
-| `md` | 20dp | Navigation destinations, the glyph inside an `AppIconTile` |
-| `lg` | 32dp | `AlertGlyph` inside `AppErrorState`'s circle — drawn edge to edge, so smaller than `xl` to read at the same weight |
-| `xl` | 40dp | The illustrative glyph inside `AppEmptyState`'s circle, stroked at 2dp |
+| Running | `primary`, spinner | "Récupération… 5 / 12" |
+| Waiting for the user | `warning`, clock | "Attend votre code" + Saisir |
+| Failed | `error`, alert | The reason in user words: mot de passe refusé · site changé · captcha · code expiré |
+| Up to date | `success`, check | "Ce matin · 38 documents" |
+| Paused | `textMuted`, pause | "En pause" |
 
-Glyph tint: `textMuted` at rest, `primary` when selected/active, the
-content color of a filled control on it (`onPrimary`), and `error` only for
-`AlertGlyph`.
+### Verification code
 
-A size off this scale is an optical exception, kept local with its reason:
-the top bar's `+` (14dp, matched to its label), the encryption badge's lock
-(18dp), the top bar's brand mark (28dp, a logo, not a glyph).
+`OneTimeCodeField`: 6 boxes 52pt tall, `code` type; paste fills all boxes; backspace moves left;
+submits on the 6th digit; iOS `oneTimeCode` and Android SMS Retriever autofill; screen readers
+announce "chiffre 4 sur 6". When a source asks a free-text question, the boxes become one text
+field. Its context always shows the source, the masked destination and a step trail
+Connecté → Code → Récupération (from `FfiProgressStep`). A code request while the app is in the
+background raises a time-sensitive notification that opens straight into the field (R4).
 
-**Icon tiles.** The square leading visual of a list row, card or detail
-header is `AppIconTile` — `radius-md`, `AppDimensions.iconTile` (44dp) by
-default, either *tinted* (`tint = …`: a glyph the app colors itself, e.g. a
-document's file kind) or *neutral* (no tint: `background` + `border`
-hairline, for content that brings its own colors, e.g. a script's logo). Its
-loading placeholder is an `AppSkeleton` of the same size, shaped
-`AppShapes.iconTile`. A detail view's header (document detail, script
-detail) uses `AppDimensions.iconTileHeader` (48dp): the item itself rather
-than one row of many, and as tall as the header's two text lines. Found via
-audit: the two headers used 48dp and 64dp.
+### Document pass
 
----
+The detail of a document is a pass in its category colours: issuer and type, a headline value
+in `passAmount`, one line under it, a perforation, and up to three meta cells. Templates by
+document type, each cell shown only when its attribute is set:
 
-## Spacing
+![Pass templates](assets/screens/V10-modeles-cartes.png)
 
-One 4px-based scale. Denser at the low end than a typical marketing-site
-scale, because the tightest gaps (icon-to-label, metadata pairs) are used
-constantly in a document list; the largest step is deliberately modest,
-because this app is built from lists and forms, not hero sections.
-
-| Token | Value | Typical use |
-|---|---|---|
-| `space-1` | 2px | Icon-to-adjacent-label micro gaps |
-| `space-2` | 4px | Tight metadata pairs (label above value) |
-| `space-3` | 8px | Icon-to-text gap, chip internal padding |
-| `space-4` | 12px | List-row vertical padding (desktop density) |
-| `space-5` | 16px | List-row vertical padding (mobile density), mobile screen margin |
-| `space-6` | 20px | Form field vertical gap |
-| `space-7` | 24px | Section-to-section gap, tablet screen margin |
-| `space-8` | 32px | Desktop screen margin, dialog internal padding |
-| `space-9` | 40px | Rare — large empty-state gaps |
-| `space-10` | 56px | Rare — full-page centered-content vertical rhythm |
-
----
-
-## Elevation
-
-Three mechanisms, used for three different jobs — never interchangeably:
-
-1. **Borders** (`border`, 1px) signal *adjacency between equal-weight
-   regions* — a table row divider, a sidebar/content split. They do not mean
-   "this is above the page."
-2. **Tonal steps** (`surface` → `surface-elevated`) signal *resting
-   elevation* — content that's conceptually above the background but still
-   inline, not floating: cards, panels, persistent chrome. Dark mode steps
-   lighter at each level (`#16140F → #1E1B16 → #282420`); light mode cannot
-   step lighter than white, so `surface` and `surface-elevated` share the
-   same `#FFFFFF` and are differentiated by shadow instead (see below )— an
-   intentional asymmetry between the two themes' mechanics, not an
-   oversight.
-3. **Shadows** are reserved for content that genuinely floats and can be
-   dismissed or moved: dropdown menus, popovers, tooltips, dialogs/sheets,
-   toasts, an item mid-drag. Kept small and tight — not the diffuse glow
-   that makes generic SaaS cards look like they're hovering a centimeter
-   above the page, which would be fatiguing across a long session repeated
-   on every list row.
-
-| Level | Treatment | Shadow | Usage |
+| Document type | Headline | Line under | Meta cells |
 |---|---|---|---|
-| 0 | `background`, transparent list rows | none | Page background, plain scannable list rows |
-| 1 | `surface`, no border | none | Cards, panels |
-| 2 | `surface`, `border` hairline | none | Adjacent equal-weight cards with no gap |
-| 3 | `surface-elevated` | `shadow-sm` | Dropdown menus, popovers, tooltips |
-| 4 | `surface-elevated` | `shadow-md` | Dialogs, sheets, toasts |
+| Facture | Amount | "À régler avant le …" / "Payée le …" | Période · Référence · Reçue |
+| Bulletin de paie | Net à payer | Month | Brut · Heures · Employeur |
+| Avis d'imposition | Remboursement (+) or montant dû | Expected date | Revenus · Réf. fiscal · Parts |
+| Attestation, carte | "Valide jusqu'au …" | — | Contrat · Numéro · Reçue |
+| Réservation | Route or place | Date and time | Voiture · Place · Prix |
+| Relevé, autre | Document name | Period | Pages · Reçu |
+| À classer | Document name | "Ajouté par vous" | Pages · Ajouté |
 
-Shadow values (ink-tinted, not pure black — slightly warmer and less
-generic than a default black shadow):
+### Classification suggestion
 
-- `shadow-sm` — light `0 2px 6px rgba(33,30,24,0.14)` · dark `0 2px 6px rgba(0,0,0,0.55)`
-- `shadow-md` — light `0 8px 24px rgba(33,30,24,0.18)` · dark `0 8px 28px rgba(0,0,0,0.65)`
+Every new document, fetched or added, shows where Fyde filed it ("Rangé dans Travail › Bulletins
+de paie") with Modifier and C'est bon. Modifier opens the reclassify sheet (V9): category grid,
+subcategories of the chosen category only, type chips.
+
+### Trust
+
+- The seal line under the vault title states the sync state: "Scellé · à jour sur 3 appareils",
+  "Scellé · hors ligne", "Scellé · 7 en attente".
+- Security (M2) lists what the server can and cannot read (M3), the recovery kit, and a periodic
+  password check (M4).
+- Any screen that handles a secret says where it goes in one line (O2: the password never leaves
+  the device; S3: source credentials are encrypted with the vault).
 
 ---
 
-## Layout
+## Screens
 
-### Content max width
+### Onboarding and access (O1–O9)
 
-Two different rules, because a list and a document aren't the same shape of
-content:
+![Onboarding](assets/sheets/onboarding.png)
 
-- **List/table views** (document list, search results): fluid, no tight
-  cap — density and "see more documents at once" outrank prose measure
-  here. On very wide desktop monitors, cap at **1280px** centered so rows
-  don't stretch to absurd widths; below that, fill the available width.
-- **Detail/form views** (document detail, settings, dialogs): cap at
-  **720px** — wide enough for real metadata forms (unlike the old spec's
-  480px auth-only cap), narrow enough that a field or description never
-  becomes an uncomfortable reading line.
+| ID | Screen | Content | States |
+|---|---|---|---|
+| O1 | Bienvenue | Seal hero, "Vos documents, sous scellé.", three promises (fetched, encrypted, on every device), Créer mon coffre / J'ai déjà un coffre | Only without an account on the device |
+| O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds) |
+| O3 | Créer le coffre | Step 1/4; username; password with strength meter; confirm; warning "seule clé de votre coffre"; required "J'ai compris" | Mismatch and taken username as field errors |
+| O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
+| O5 | Trop d'appareils | Plan limit, radio list of open sessions, "Déconnecter le MacBook Air" | Re-runs login with `replaceSessionId`; credentials kept only while open |
+| O6 | Kit de récupération | Step 2/4; 12 words; Enregistrer le PDF / Imprimer; Je l'ai mis en lieu sûr / Plus tard | Screenshots blocked. Confirm asks two words back |
+| O7 | Choisir ses sources | Step 3/4; search, category chips, popular public scrapers with checkboxes | Each pick opens S3 in turn |
+| O8 | Notifications | Step 4/4; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
+| O9 | Ouverture | Ring "142 sur 214", the device's name, "Vous pouvez déjà parcourir" | Replaces an empty vault on a new device |
 
-### Screen padding (edge margin)
+### Coffre and documents (V1–V11)
 
-| Breakpoint | Margin |
+| ID | Screen | Content | States |
+|---|---|---|---|
+| V1 | Coffre | Title, search, avatar; seal line; arrivals banner; 2-column category cards (icon, count, name, latest document) ordered by count | Banner only when something needs the user; pull to refresh = sync |
+| V2 | Coffre en remplissage | Running sources with progress; filled cards for categories with documents; dashed cards for expected ones | Until each connected source ran once |
+| V3 | Catégorie | Category band; subcategory chips with counts; year chips; month groups of document rows | Sort by date, amount, name; rows swipe to Partager / Reclasser |
+| V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
+| V5 | Résultats | Facet chips Catégorie / Type / Année / Source; matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
+| V6 | Document | Pass, file row with thumbnail, facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) |
+| V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…"; web downloads |
+| V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Reclasser, Informations techniques, Supprimer de tous mes appareils | Delete confirms that it reaches every device |
+| V9 | Reclasser | Category grid, subcategories, type, Enregistrer | Invalid category/subcategory pairs can't be picked |
+| V10 | Cartes par type | Pass templates | — |
+| V11 | Coffre sombre | Dark reference | — |
+
+### Capture and arrivals (K1–K4, R1–R4)
+
+![Capture and arrivals](assets/sheets/capture-arrivees.png)
+
+| ID | Screen | Content | States |
+|---|---|---|---|
+| K1 | Scanner | Platform document scanner in Fyde chrome; edge overlay; page count; Terminer | Camera denied → explanation + settings |
+| K2 | Vérifier le scan | Crop, rotate, delete, add page; name; suggested classification; Mettre au coffre | No suggestion → "À classer" and listed in Arrivées |
+| K3 | Depuis une autre app | Share extension sheet: file, name, suggestion, "Chiffré sur cet iPhone avant d'être envoyé" | Signed out → "Ouvrez Fyde pour ajouter" |
+| K4 | Ajout en cours | Row appears at once with "Chiffrement…"; progress snackbar; duplicate → "Déjà dans le coffre · Voir" | `DuplicateDocument` is never an error |
+| R1 | Arrivées | À traiter / Historique; code card first; documents with their suggestion and Modifier / C'est bon | Swipe right = C'est bon |
+| R2 | Tout est rangé | Check disc, next run, Lancer maintenant | Badge hidden |
+| R3 | Historique | Run outcomes and user confirmations by day | — |
+| R4 | Notification de code | Lock-screen notification with the deadline; new-document notifications hide titles while locked | Expired → "Code expiré" + Relancer |
+
+### Sources (S1–S7)
+
+![Sources](assets/sheets/sources.png)
+
+| ID | Screen | Content | States |
+|---|---|---|---|
+| S1 | Sources | Next run; "Ont besoin de vous" then "À jour"; rows with initials tile and status; plan usage | Empty → Ajouter une source; limit → plan sheet |
+| S2 | Catalogue | Search, category chips, suggested then by category; Ajouter or check | User's own scripts in a last group |
+| S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch | Connect installs and runs at once (S4) |
+| S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan | Code or captcha → code sheet |
+| S5 | Détail | Status, counts, schedule switch, identifiants, sites, latest documents, Lancer, Retirer la source | — |
+| S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | Report never includes credentials |
+| S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
+
+### Moi and states (M1–M8, X1)
+
+![Account and states](assets/sheets/moi.png)
+
+| ID | Screen | Content | States |
+|---|---|---|---|
+| M1 | Moi | Profile, seal card, Sécurité (pill "Kit à créer"), Appareils, Offre et usage, Apparence et langue, Aide, Se déconnecter | — |
+| M2 | Sécurité | Seal hero, device tiles with sync dot, Kit de récupération, Vérifier mon mot de passe, Ce que voit le serveur | Dark reference |
+| M3 | Ce que voit le serveur | "Ne voit jamais" / "Voit" lists | Keep in step with the wire format |
+| M4 | Vérifier mon mot de passe | Local check, next reminder in 3 months | Wrong → link to the recovery kit |
+| M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Déconnecter | Current device can't be disconnected here |
+| M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error |
+| M7 | Apparence et langue | Theme tiles, language radios; text size follows the OS | Persisted |
+| M8 | Se déconnecter | Dialog: what is erased here, what stays; warning if no recovery kit | Wipes keys and local data even offline |
+| X1 | Hors ligne | Seal "hors ligne", info note, pending additions on cards | Never an error screen |
+
+### Desktop and tablet (D1–D4, T1)
+
+| ID | Screen | Layout |
+|---|---|---|
+| D1 | Catégorie | Sidebar · header, search, Ajouter · subcategory pills · 4-column cards with first-page thumbnails |
+| D2 | Document | Sidebar · 400dp list · pass and facts · live preview |
+| D3 | Arrivées | Sidebar · queue with inline code card · preview · classification panel with C'est bon (Enter) |
+| D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, automatique) · detail panel |
+| T1 | Tablette | Sidebar · 4-column category cards · Scanner in the header · latest arrivals |
+
+---
+
+## Components
+
+Screens compose `App*` components and never style a raw Material 3 component. Target inventory:
+
+| Component | Change | Notes |
+|---|---|---|
+| `AppTheme`, `AppColors`, `AppTypography`, `AppShapes`, `AppSpacing`, `AppIconSize` | Rewrite values | Tables above; category colours as `AppCategoryColors` |
+| `AppButton` (`Filled`, `Outlined`, `Text`, `destructive`, `loading`) | Restyle | Pill, 52 / 40 |
+| `AppTextField`, `AppSearchField` | Restyle | 52 tall radius 14; search is a 48 pill |
+| `AppChip` | Restyle | Pill 38, selected = `text` fill, optional count and chevron |
+| `AppCheckbox`, `AppRadio`, `AppSwitch` | Restyle | 22pt marks, 51×31 switch |
+| `AppBottomSheet`, `AppDialog`, `AppSnackbarHost`, `AppProgressBar` | Restyle | Patterns above |
+| `AppSegmented` | New | 2–3 options on `sunk` |
+| `AppNote` | New | Replaces inline `AppBanner` |
+| `AppTabBar` | New | Replaces `AppNavigationBar` |
+| `AppSidebar` | New | Replaces `AppNavigationTopBar` and `AppNavigationRail` |
+| `CategoryCard`, `CategoryBand` | New | Normal and placeholder variants |
+| `DocumentRow` | New | Thumbnail or tile, title, issuer · type, amount, date, highlight, pending |
+| `DocumentPass` | New | Templates by type |
+| `ArrivalsBanner`, `ClassificationSuggestion` | New | — |
+| `OneTimeCodeField` | New | See [Verification code](#verification-code) |
+| `SourceRow`, `SourceStatus`, `RunStepper` | New | See [Source status](#source-status) |
+| `SealHero`, `DeviceTile`, `UsageMeter` | New / restyle | — |
+
+Every new or changed component lands in `DesignSystemScreen.kt` in the same change.
+
+---
+
+## SDK dependencies
+
+Some screens need capabilities `fyde-sdk` doesn't expose yet; until they exist, those parts are
+left out (principle 5), not faked.
+
+| Capability | Screens |
 |---|---|
-| Compact (mobile) | `space-5` (16px) |
-| Medium (tablet) | `space-7` (24px) |
-| Expanded (desktop) | `space-8` (32px), then the max-width cap absorbs the rest on ultra-wide |
+| Per-source run record: last run, outcome, failure kind, new count | S1, S5, S6, R3, D4 |
+| Scheduled runs and background execution | S3, S5, R2 |
+| Provenance on document metadata (source script, device, fetched at) | V5 Source facet, V6, S5 |
+| Unconfirmed-classification flag | R1, D3, Arrivées badge |
+| Delete-document event | V8 |
+| Recovery kit and local password check | O6, M2, M4 |
+| Replay progress and per-device last seen | O9, M5, M2 |
+| First-page thumbnails | V3, D1, D2 |
 
-**The content container wraps a screen's entire content, not just its list
-or its primary pane.** Found via review: a search field and a status banner
-sat outside `AppContentContainer` while the list below them sat inside it,
-so at Medium/Expanded — where the container's margin and max-width cap
-actually engage — the search field's edge visibly drifted out of alignment
-with the list edge beneath it. A screen composes exactly one content
-container around its whole column (banner + search/filter row + list/empty/
-error state, in order), never one around the list alone with sibling
-elements left outside — otherwise every sibling above or below the wrapped
-element is one design-system update away from silently drifting out of
-alignment again.
+## Delivery
 
-**The top bar shares the content's edges.** Found via review: beside the
-old sidebar, the screen title started 16dp right of the content below it, and
-the top bar's actions ended 8dp from the window edge while the content kept
-its 32dp margin. `AppTopBar` takes the same width as
-the screen's `AppContentContainer` and derives its start/end padding and
-max-width from the same functions, so the title starts on the content's
-leading edge and the primary action ends on its trailing edge; a back
-chevron is pulled out by its button's inset so the chevron itself sits on
-that edge. The same goes for actions inside the content: a lone action
-that should start on the content edge is an outlined button, not a text
-button whose inner padding indents its label.
-
-### List spacing & density
-
-Desktop is mouse/pointer-precise and has more vertical room to spend on
-*showing more rows*; mobile needs touch-safe targets. Rather than one row
-height everywhere (which either wastes desktop screen space or makes mobile
-rows too small to tap), density is explicit and platform-driven:
-
-| Density | Row min-height | Vertical padding | Where |
-|---|---|---|---|
-| Comfortable | 56px | `space-5` (16px) | Compact (mobile, touch) |
-| Standard | 48px | `space-4`–`space-5` | Medium (tablet) |
-| Compact | 40px | `space-4` (12px) | Expanded (desktop, pointer) |
-
-Icon-to-text gap within a row is `space-3`/`space-4` regardless of density.
-
-**These row-min-heights are floors, verify them against real content before
-trusting them.** Found via review: the original 56/48/40dp progression never
-actually bound at any density — a row's natural height (icon/avatar chip +
-headline + supporting text + `ListItem`'s own content padding) already comes
-to ~60dp, so Standard and Compact sat *under* natural size and did nothing,
-while only Comfortable's 56dp was even in the right neighborhood. Corrected
-to 72/64/56dp so Comfortable (mobile/touch) adds real breathing room above
-natural size, and Standard/Compact sit at/near it rather than below it. A
-`heightIn(min = ...)` floor can only grow a row, never shrink one — when
-adding or changing a density tier, measure the natural height of the actual
-content first, or the new value will silently be a no-op exactly like the
-old ones were.
-
-**A plain scannable list row has no container fill — it sits directly on
-`background`, not on its own `surface` card.** `AppListItem` originally
-painted every unselected row with `surface` (white in light mode), which
-reads as a stack of individual white cards on a gray page rather than one
-continuous list. Reserve `surface` for things that are actually cards or
-panels (see Elevation); a row in a plain list is transparent until
-`selected` gives it `selectionSurface`.
-
-**The list column's trailing edge gets the same margin as its leading
-edge.** Found via review: the list (primary) pane in a two-pane layout had
-`AppContentContainer`'s margin before it but ran flush
-against the divider/detail pane on the other side, with no equivalent
-margin at all. The column's own content — search field, filter chips,
-results count, and the list — carries a matching trailing `space-5`
-padding so both edges read the same.
-
-### List toolbar
-
-A results count sits above the list itself: a document count (or, while a
-search query is active, "N results for "query""). An earlier iteration of
-this toolbar also drew a static "Sort by: Relevance" control and a
-list/grid view toggle, but both were purely decorative — there is no grid
-layout and results are always relevance-ordered — and a non-functional
-control that looks clickable reads as broken, not as restraint, once a user
-actually tries it. Removed rather than kept as inert chrome; re-add only
-once the underlying feature (a real sort order, a real grid layout) exists
-to back it.
-
-**The same rule now covers filter chips: only real filters are shown.** The
-chip row used to follow a "visible, non-functional placeholder" pattern —
-Type, Issuer, Period, Amount and "+ More filters", all permanently disabled
-— on the theory that a dimmed chip reads as "not yet" rather than broken.
-Found via review that five inert controls on the app's main screen read as
-broken anyway, and that Type and Period were answerable all along from each
-document's content type and creation date. The row is now Type (only the
-file kinds present in the list) and Period (any time, last 30 days, this
-year, last year), each a working chip that opens its choices and shows the
-active one; Issuer/Amount return when the document model carries those
-fields. Lists are newest first.
-
-A row's supporting line says what the document *is* — purpose and source
-("Invoice · Telecom"), from the classifier — falling back to type code and
-size when unclassified, then the date, in the Caption role (it's built
-around words now, not figures; the Data role stays for figure-only lines
-like the detail header's "PDF · 1.9 MB · Oct 12, 2026"). Search matches the
-name, keywords and (in the UI language) the classification, not the file
-name alone. Dates, sizes and classification labels are always localized:
-never a fixed `YYYY-MM-DD`, an integer-truncated size, or an English enum
-name in the French UI.
-
-### Detail panes
-
-A record detail pane (document detail today; any future equivalent) is
-three stacked sections, each full-bleed with `space-5` internal padding and
-separated by a `border` hairline divider:
-
-1. **Header** — leading type icon, name + metadata caption, trailing action
-   icons right-aligned on the same row — only actions that work (Download
-   today; favorite/more return with the features behind them).
-2. **Information grid** — known fields as a 2-column grid, each cell a muted
-   `caption` label stacked above a `body` value, rather than one
-   label-left/value-right column per row — this fits roughly twice the
-   fields in the same vertical space, in keeping with density-is-a-feature.
-   A field that's naturally multi-valued (tags, subjects, keywords) does not
-   belong in this grid — it breaks the one-value-per-cell shape — and gets
-   its own section instead (next).
-3. **Keywords / tags** — a wrapped row of `AppBadge` pills under a section
-   heading, for any multi-valued field. Falls back to the standard "—"
-   unset value when there's nothing to show rather than an unexplained empty
-   section.
-
-A **selected row** in an adjacent list additionally gets a 3dp
-`primary`-colored accent bar on its leading edge, layered on top of the
-existing `selectionSurface` tint — the tint alone reads too weakly as "this
-is the item open in the detail pane," the same affordance list/mail
-master-detail UIs (Mail, Files) converge on. This is part of `AppListItem`
-itself, so it applies to every selectable list in the app, not just the
-document list.
-
-### Section spacing
-
-Gap between major page sections (e.g. filter bar → list, list → pagination
-footer): `space-7` (24px) on mobile, `space-8` (32px) at medium/expanded —
-enough to separate without opening a marketing-page gulf between them.
+1. **New shell, no SDK change:** tokens, fonts, `AppTabBar` / `AppSidebar`, V1, V3–V7, V9, V11,
+   S1–S4 with live run state only, M1, M5–M8, O1–O5, O7, O8, X1, code sheet, K1–K4.
+2. **Automation visible:** run records and scheduling → S5, S6, R2–R4, V2, statuses everywhere.
+3. **Trust:** recovery kit, password check, last seen → O6, O9, M2–M4.
+4. **Triage:** provenance, unconfirmed flag, delete → R1 and D3 triage, Source facet, V8 delete,
+   thumbnails.
 
 ---
 
-### Feedback & confirmation
+## Accessibility and platforms
 
-Found via review: the component library had `AppDialog` and
-`AppSnackbarHost`, but no screen used either — so nothing confirmed an
-upload or an install, and uninstalling or logging out happened on a single
-tap. The rules now:
-
-- **Anything that can't be undone asks first**, in an `AppDialog` whose
-  confirm action is `destructive` (`error`-colored): logging out (it wipes
-  this device's keys and decrypted cache) and uninstalling a script. The
-  button that opens that prompt is `destructive` too (an `error` outline
-  and label), never styled like the harmless actions beside it — found via
-  review that Uninstall looked exactly like Edit parameters next to it.
-- **A finished action is confirmed with a snackbar** ("Uploaded 3
-  documents", "Installed “…”", "Saved “…”"), from the one app-wide host so a
-  message outlives the screen that raised it.
-- **A failure stays visible as a banner** above the content it concerns
-  (`AppBanner`, error severity), dismissible. **A degraded condition that
-  clears on its own** — being offline — is a warning-severity banner with no
-  dismiss, explaining whatever it disables (Upload).
-- **Every slow action shows it's working**: its button's `loading` state,
-  with the form it submits disabled — notably login/register, whose OPAQUE
-  key stretching takes seconds on a phone.
-- **A failed section offers its retry as an outlined button** under its
-  error banner, starting on the content edge — not a text button, whose
-  inner padding indents its label (see *The top bar shares the content's
-  edges*).
-- **Loading placeholders (`AppSkeleton`) are filled with `border`**, which
-  reads on both `background` and `surface`. Found via review: they used
-  `surface-elevated`, the same white as the cards they sit on in light mode,
-  so the Scripts grid loaded as blank white cards.
-- **A failure uses `AppErrorState`, not `AppEmptyState` with an alert
-  glyph.** Found via audit: a failed preview *load* rendered as a neutral
-  empty state with a red glyph while a failed PDF *render* used the
-  error-tinted circle — the same failure, two looks. `AppEmptyState` is for
-  "nothing here (yet)" — no documents, no matches, nothing selected,
-  a format with no preview.
-- **Errors shown to users are never technical.** Only fyde-sdk's own
-  user-facing wording, or our own copy — never an exception message (the
-  PDF engine's included).
-
-## Responsive behavior
-
-Breakpoints match Compose Multiplatform's own `WindowSizeClass` — implemented
-against real tooling, not arbitrary web breakpoints.
-
-- **Compact (< 600dp — phones).** Single-column, one screen at a time,
-  with a bottom navigation bar for the top-level destinations (Documents,
-  Scripts, Settings) — the audit's "no bottom nav until 3+ peer top-level
-  destinations" threshold is met. Drill-downs (document detail, script
-  detail) push over the content with a back chevron, *inside* their
-  destination, so going back restores its query, filters and scroll
-  position. Comfortable density.
-
-**One name per destination, one destination per concept.** Found via
-review: the documents destination was "Search" in the nav, "Documents" in
-its top bar and "My documents" in the (former) sidebar header; and a separate
-Scripts destination listed and uninstalled the very same installed objects
-as Add-ons under another name. Nav labels match the destination's title,
-the navigation bar's brand carries the product name (Fyde), and scripts — public
-ones and the user's own — live in Scripts alone, named as the SDK and the
-server name them.
-
-**Every top-level destination is reachable at every breakpoint.** Found via
-review: navigation was desktop-only (the Expanded sidebar of the time), so Scripts had
-no route at all below 840dp, and Scripts became a dead end — no
-back, no nav — if the window shrank while it was open. Navigation is one
-adaptive surface — a bottom bar below Expanded, a top bar at Expanded —
-never present at one breakpoint and absent at another. Medium uses the
-bottom bar rather than a rail: a rail costs ~80dp of width that Medium's
-fixed 360dp list + detail split can't spare. Peer destinations share one top-bar shape: title only, no
-back chevron — a back chevron belongs to drill-downs.
-- **Medium (600–839dp — tablets, small desktop windows).** Enough width for
-  a **list + detail split view** to become viable — introduce master-detail
-  here rather than waiting for expanded, since a document manager's core
-  workflow (browse → inspect) benefits immediately. Standard density. Forms
-  may lay out in two columns. The list pane's width is **fixed** (`360dp`),
-  not a proportion of window width — found via review that a percentage
-  split let the list column balloon on wide monitors well past what
-  titles/metadata need while starving the detail pane; a fixed list-column
-  width is what master-detail reference UIs (Mail, Files) converge on, and
-  it's what any two-pane layout in this app should use, not just the
-  document list. Kept at `360dp` rather than Expanded's wider value (next)
-  because Medium's viewport tops out at 839dp, where a wider fixed column
-  would leave too little room for the detail pane at the low end.
-- **Expanded (≥ 840dp — desktop).** Master-detail persists; compact density
-  for lists (more rows visible — see Layout § density); the 1280px list cap
-  and 720px detail cap engage; hover states and tooltips become meaningful
-  (pointer-only affordances); keyboard shortcuts surfaced in the UI where
-  relevant. The list pane widens to a **fixed** `480dp` (still not a
-  proportion of window width, same rationale as Medium's `360dp`) — Expanded
-  always has width to spare, so the list column can show more of a title
-  and its metadata per row without squeezing the detail pane the way
-  Medium's narrower viewport would.
-
-  **Navigation is a top bar, not a sidebar.** A full-width `surface` bar
-  (`AppNavigationTopBar`, 64dp) above every screen: the Fyde mark and name
-  at its start, then Documents and Scripts as icon + label tabs — the
-  selected one filled with `selectionSurface`, its label and icon in
-  `primary`, and a 2dp `primary` underline on the bar's bottom edge. Its far
-  end holds the encryption lock (a tooltip, not a button), Settings as an
-  icon button, then the screen's one primary action (`AppTopBarAction`,
-  e.g. Upload document). It replaced a 240dp+ sidebar that spent a whole
-  column of the window on two destinations. Under it, a screen's own
-  `AppTopBar` is flat (no fill, no divider) — a page heading, not a second
-  bar — and Documents puts its heading at the top of the list column
-  instead, so the detail pane runs right up to the navigation bar. Content
-  is centered under the bar; the full encryption badge sits in the
-  bottom-start corner only when the side margin is wide enough to hold it.
-
-**Visual consistency is not interaction uniformity.** "Consistent across
-Android, iOS, desktop" (the brief) means one shared color/type/shape/spacing
-language — it does not mean forcing identical gestures onto fundamentally
-different input models. A trailing overflow-menu action and an iOS
-swipe-to-delete gesture can trigger the exact same operation, styled from
-the exact same token set, while still respecting each platform's own
-interaction conventions. Treat visual identity and interaction pattern as
-two separate axes; only the first is asked to be uniform.
-
----
-
-## Component inventory
-
-Everything below lives in `shared/src/commonMain/kotlin/com/peltoche/fyde/`
-and is shown in the in-app catalogue `DesignSystemScreen.kt` (not routed from
-the app; compose it directly to inspect a component). Screens compose these
-and never style a raw Material 3 component themselves.
-
-| Package | Component | Role / variants |
-|---|---|---|
-| `theme/` | `AppTheme`, `AppColors`, `AppTypography`, `AppRadius`/`AppShapes`, `AppSpacing`, `AppDimensions`, `AppIconSize`, `Modifier.appFocusRing` | Tokens (see the sections above); `AppTheme` is the only theme entry point |
-| `layout/` | `AppScaffold`, `AppNavigationLayout`, `AppContentContainer` (`AppContentWidth` List/Detail), `AppTwoPaneLayout`, `AppWindowSizeClassProvider` | Shell, content edges and max widths, master-detail, size classes |
-| `components/action/` | `AppButton` (`AppButtonVariant` Filled/Outlined/Text, `destructive`, `loading`, `leadingIcon`), `AppTextButton`, `AppIconButton`, `AppMenuButton` | Every clickable action |
-| `components/form/` | `AppTextField`, `AppSearchField`, `AppDropdown`, `AppCheckbox`, `AppSwitch` | Inputs |
-| `components/content/` | `AppCard` (plain/`outlined`/clickable), `AppListItem` (`selected` accent bar), `AppChip`, `AppBadge` (`AppBadgeVariant`), `AppIconTile` (tinted/neutral), `AppDivider` | Data presentation |
-| `components/feedback/` | `AppBanner` (`AppBannerSeverity` Error/Warning), `AppSnackbarHost`, `AppEmptyState`, `AppErrorState`, `AppLoading`, `AppSkeleton`, `AppProgressBar` | Status, loading, empty and error states |
-| `components/navigation/` | `AppTopBar`, `AppTopBarAction`, `AppNavigationTopBar` (Expanded), `AppNavigationBar` (below Expanded), `AppNavigationRail` | Navigation chrome |
-| `components/overlay/` | `AppDialog` (`destructive` confirm), `AppDropdownMenu`/`AppDropdownMenuItem`, `AppBottomSheet` | Floating surfaces |
-
-Kept but **not used by any screen today** — retained as part of the
-system, not dead code to delete without a decision: `AppNavigationRail`
-(`TopLevelScaffold` maps Medium to the bottom bar, see *Responsive
-behavior*), `AppMenuButton`, `AppBottomSheet`.
-
-**Application-specific components stay with their screen**, built only from
-the components and tokens above: `TopLevelScaffold`/`EncryptionBadge`
-(`TopLevelScaffold.kt`), `FileTypeIcon`/`DocumentDetailPane` (`DocumentListScreen.kt`),
-`ScriptIcon`/`ScriptCard` (`ScriptsScreen.kt`), `RunProgressCard`
-(`ScriptDetailScreen.kt`), `UsageMeter` (`PlanUsageSection.kt`), the glyphs.
-They encode domain decisions (which tint a file kind gets, how a usage level
-maps to a color), not visual ones.
-
-### Extend, promote, or keep local
-
-- **Extend an existing component** when the new need is a state or variant
-  of the same role (a `loading` button, a `destructive` dialog) — add a
-  parameter or enum value to it; never fork a near-duplicate.
-- **Promote into `components/`** when the same visual pattern is hand-built
-  in two places, or is a generic role (progress, icon tile) with nothing
-  domain-specific in it. Update the catalogue and this inventory in the
-  same change.
-- **Keep it local** when its content or rules are domain-specific — and
-  then build it only from tokens and `App*` components, with no raw M3
-  styling, hex color, ad-hoc alpha or off-scale size.
-- Prefer an enum or a nullable parameter (`tint: Color?`,
-  `progress: Float?`) over overlapping booleans.
-
-## Remaining inconsistencies
-
-Found by the audit and deliberately left alone, pending a decision:
-
-- **Glyph stroke widths are per-glyph defaults** (1.4–2.2dp) and the empty
-  state passes 2dp by hand; there's no stroke token. Part of the icon-system
-  question below.
-- **`AppNavigationTopBar`'s disabled item tint** is `textMuted` at 50%;
-  every other component shows disabled as plain `textMuted`.
-- **Screens paint `background` themselves** inside `AppScaffold`, which
-  already does — redundant, harmless, not worth churn on its own.
+- WCAG AA contrast for all text (see [Contrast](#contrast)); colour never carries meaning alone.
+- 44×44pt minimum targets; focus ring 2dp `primary` for keyboard focus only.
+- Screen-reader labels on every icon-only button; a category card reads "Logement, 38 documents,
+  dernier : Facture EDF du 12 octobre".
+- Dynamic type to 200% (see [Typography](#typography)).
+- iOS: large titles collapse on scroll, swipe back, haptic on code accepted, share extension.
+- Android: predictive back, SMS Retriever, ML Kit document scanner, share target, autofill hints.
+- Desktop and web: keyboard shortcuts above, hover states, right-click menus; web has no PDF
+  preview yet and offers a download instead.
 
 ## Rules for AI coding agents
 
-1. Read this document and the source of the component you would use
-   before writing UI. Search `components/` for the role before creating
-   anything.
-2. Never use a raw Material 3 component (`Button`, `TextField`,
-   `LinearProgressIndicator`, `Card`, `AlertDialog`, `DropdownMenu`...) in a
-   screen; if no `App*` component fits, extend or add one in `components/`.
-3. No literals for design values in screens: colors come from `AppColors`
-   (tinted fills from `AppColors.tintOf`, never `.copy(alpha = …)`), text
-   from `AppTypography`, gaps from `AppSpacing`, sizes from `AppDimensions`/
-   `AppIconSize`, corners from `AppShapes`/`AppRadius`. A one-off
-   component-internal size (a skeleton line's width) is fine; a value that
-   repeats, or that the spec names, becomes a token.
-4. Every new or changed component lands in `DesignSystemScreen.kt` and in
-   the inventory above in the same commit.
-5. Pick the semantic component, not the one that looks right: a failure is
-   `AppErrorState`, a persistent problem `AppBanner`, a confirmation a
-   snackbar, an irreversible action a `destructive` `AppDialog`.
-6. Record review findings here as "Found via review/audit: …" next to the
-   rule they produced, so the reason survives the next refactor.
-7. Verify visual changes by actually rendering them (the
-   `run-fyde-application` skill) before calling them done.
+1. Read this document and the reference screen of the screen you're touching before writing UI;
+   search `components/` before creating anything.
+2. Never use a raw Material 3 component in a screen; extend or add an `App*` component.
+3. No literal design values in screens: colours from `AppColors` / `AppCategoryColors`, text
+   from `AppTypography`, gaps from `AppSpacing`, sizes from `AppDimensions` / `AppIconSize`,
+   corners from `AppShapes`.
+4. Filters, counts and category lists come from the SDK's search facets; never compute them in
+   the app.
+5. Every new or changed component lands in `DesignSystemScreen.kt` and in [Components](#components)
+   in the same commit; a changed screen updates its reference HTML and PNG.
+6. Verify visual changes by rendering them (`run-fyde-application` skill) and comparing with the
+   reference screen.
 
----
+## Open questions
 
-## Open questions for implementation
-
-Flagged rather than resolved here, consistent with "do not implement yet":
-
-- Exact hex values above need contrast-ratio verification once locked, not just estimated.
-- ~~Font files (Public Sans, IBM Plex Mono) need sourcing/licensing confirmation and per-platform bundling~~ — resolved: both are bundled as Compose resources (`shared/src/commonMain/composeResources/font/`), licensed per `shared/THIRD_PARTY_LICENSES.md`.
-- The audit's icon-system gap (hand-drawn `Canvas` glyphs, no Material Icons Extended dependency) is still open — sizes are now tokenized (*Iconography*), but stroke weight and the glyph set itself are not.
-- A11y beyond contrast (dynamic type / text-scaling behavior across all three platforms) isn't covered here and should be its own pass once tokens are implemented.
+- Bundling Instrument Sans in `composeResources/font/` and removing Public Sans.
+- Category icons for Dons and Famille are not yet drawn as `Canvas` glyphs.
+- Android-specific reference screens, tablet portrait and web are not drawn yet.
