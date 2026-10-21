@@ -1,7 +1,6 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
@@ -42,8 +39,6 @@ import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.login_create_vault
-import com.peltoche.fyde.resources.login_enter_hint
-import com.peltoche.fyde.resources.login_enter_key
 import com.peltoche.fyde.resources.login_key_derivation_computer
 import com.peltoche.fyde.resources.login_key_derivation_device
 import com.peltoche.fyde.resources.login_no_vault
@@ -56,7 +51,6 @@ import com.peltoche.fyde.resources.username_label
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
-import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
@@ -205,8 +199,8 @@ private fun CompactLogin(
  * the top right, both hidden while the vault opens (DO2b), around the form
  * centred in an [AppDimensions.authFormColumn] column.
  *
- * Under the button, "Enter to submit" on a computer; while submitting, an
- * info note on the key derivation that makes it take seconds (DO2b). A
+ * While submitting, an info note under the button explains the key
+ * derivation that makes it take seconds (DO2b). A
  * failed attempt (DO2c) empties the password and puts the cursor back in
  * it, so the button stays disabled until it's typed again.
  */
@@ -274,9 +268,6 @@ private fun WideLoginPane(
                         kind = AppNoteKind.Info,
                         icon = { tint -> KeyGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
                     )
-                } else if (isDesktop) {
-                    Spacer(Modifier.height(AppSpacing.space4))
-                    EnterToSubmitHint(Modifier.align(Alignment.CenterHorizontally))
                 }
             }
         }
@@ -365,27 +356,3 @@ private fun NoVaultLink(onNavigateToRegister: () -> Unit, enabled: Boolean) {
     )
 }
 
-/** DO2's "[Enter] to submit": the key as a keycap, in the mono face, then the hint. */
-@Composable
-private fun EnterToSubmitHint(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = stringResource(Res.string.login_enter_key),
-            style = AppTypography.data.copy(fontSize = 12.sp),
-            color = AppColors.textMuted,
-            modifier = Modifier
-                .border(1.dp, AppColors.border, AppRadius.sm)
-                .background(AppColors.background, AppRadius.sm)
-                .padding(horizontal = 6.dp, vertical = 1.dp),
-        )
-        Text(
-            text = stringResource(Res.string.login_enter_hint),
-            style = AppTypography.caption,
-            color = AppColors.textMuted,
-        )
-    }
-}
