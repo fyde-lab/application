@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppIconButton
@@ -43,6 +44,8 @@ import com.peltoche.fyde.components.content.SealHero
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
+import com.peltoche.fyde.components.feedback.AppNote
+import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
@@ -163,6 +166,12 @@ private fun ActionsSection(onShowSnackbar: () -> Unit) {
                 AppTextButton(text = "Disabled", onClick = {}, enabled = false)
             }
         }
+        CatalogueRow("AppBackButton — enabled / disabled") {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                AppBackButton(onClick = {})
+                AppBackButton(onClick = {}, enabled = false)
+            }
+        }
     }
 }
 
@@ -178,9 +187,10 @@ private fun FormsSection() {
     var selectedOption by remember { mutableStateOf<String?>(null) }
 
     CatalogueSection("Forms") {
-        CatalogueRow("AppTextField — normal / error / disabled") {
+        CatalogueRow("AppTextField — normal / password with help / error / disabled") {
             Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
                 AppTextField(value = textValue, onValueChange = { textValue = it }, label = "Document name")
+                AppTextField(value = "hunter2", onValueChange = {}, label = "Password", isPassword = true, supportingText = "It never leaves this device.")
                 AppTextField(value = "", onValueChange = {}, label = "Document name", errorText = "This field is required.")
                 AppTextField(value = "Locked", onValueChange = {}, label = "Document name", enabled = false)
             }
@@ -281,6 +291,14 @@ private fun ContentSection() {
 @Composable
 private fun FeedbackSection() {
     CatalogueSection("Feedback") {
+        CatalogueRow("AppNote — Info / Ok / Warning / Error") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                AppNote(message = "Search runs on this device.", kind = AppNoteKind.Info, icon = { tint -> SearchGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) })
+                AppNote(message = "Sealed and up to date.", kind = AppNoteKind.Ok, icon = { tint -> LockGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) })
+                AppNote(message = "Your session has expired.", kind = AppNoteKind.Warning, icon = { tint -> ClockGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) })
+                AppNote(message = "Wrong password.", kind = AppNoteKind.Error, icon = { tint -> AlertGlyph(modifier = Modifier.size(AppIconSize.sm), tint = tint) })
+            }
+        }
         CatalogueRow("AppLoading") {
             AppLoading(modifier = Modifier.height(120.dp), message = "Connecting…")
         }

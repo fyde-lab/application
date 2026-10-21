@@ -82,6 +82,9 @@ object AppDimensions {
      */
     val iconTileSmall: Dp = 36.dp
 
+    /** `AppBackButton`'s circle — design-system.md § Compact: "a 44pt circular back button". */
+    val backButton: Dp = 44.dp
+
     /** `SealHero`'s outer diameter, out to its outermost ring (O1, M2). */
     val sealHero: Dp = 168.dp
 

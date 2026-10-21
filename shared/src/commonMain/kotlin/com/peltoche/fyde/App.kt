@@ -151,6 +151,9 @@ private fun AppContent(
 ) {
     var screen by remember { mutableStateOf<Screen>(Screen.Welcome) }
     var authError by remember { mutableStateOf<String?>(null) }
+    // Why LoginScreen opened by itself (the session ended), shown as a
+    // warning rather than as an error: nothing the user did failed.
+    var sessionNotice by remember { mutableStateOf<String?>(null) }
     // Whether a login/register call is in flight: OPAQUE's key stretching
     // (Argon2id, 64 MiB) takes noticeable time, longest on a phone, so the
     // form shows it's working and can't be submitted a second time.
@@ -212,6 +215,7 @@ private fun AppContent(
     // there to disconnect in favor of this device.
     fun logIn(username: String, password: String, allowInsecureStorage: Boolean, replaceSessionId: String? = null) {
         authError = null
+        sessionNotice = null
         isAuthenticating = true
         scope.launch {
             authenticate(username, password) { user, pass ->
@@ -259,7 +263,8 @@ private fun AppContent(
     // whichever signed-in screen was open.
     suspend fun returnToLogin(message: String?) {
         if (screen.isSignedOut) return
-        authError = message ?: getString(Res.string.session_expired)
+        authError = null
+        sessionNotice = message ?: getString(Res.string.session_expired)
         screen = Screen.Login
     }
 
@@ -337,6 +342,7 @@ private fun AppContent(
                 onOpenVault = { screen = Screen.Login },
             )
             Screen.Login -> LoginScreen(
+                noticeMessage = sessionNotice,
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
                 isSecureStorageAvailable = isSecureStorageAvailable,
@@ -345,7 +351,13 @@ private fun AppContent(
                 },
                 onNavigateToRegister = {
                     authError = null
+                    sessionNotice = null
                     screen = Screen.Register
+                },
+                onBack = {
+                    authError = null
+                    sessionNotice = null
+                    screen = Screen.Welcome
                 },
             )
             is Screen.SessionLimit -> {
