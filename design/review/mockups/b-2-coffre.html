@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>B — Coffre, documents, capture</title>
+<link rel="stylesheet" href="base.css"><link rel="stylesheet" href="b.css">
+<style>
+.ghost{border:1.5px dashed var(--border);background:transparent!important}
+.ghost .n,.ghost .l{color:var(--muted)}
+.band{margin:4px 16px 0;border-radius:var(--rl);background:var(--cbg);padding:16px;display:flex;gap:14px;align-items:center}
+.band .tile{background:rgba(255,255,255,.6)}
+mark{background:#F3E2A9;color:inherit;border-radius:3px;padding:0 2px}
+.kb{position:absolute;left:0;right:0;bottom:0;height:291px;background:#D3D1CB;padding:8px 3px 0;display:flex;flex-direction:column;gap:11px}
+.kb .r{display:flex;gap:6px;justify-content:center}
+.kb .r span{width:33px;height:42px;border-radius:5px;background:#fff;display:grid;place-items:center;font:400 22px -apple-system,var(--font);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.viewer{background:#121413;color:#F1F1EE}
+.cam{background:#0d0d0c;color:#fff}
+.paper{position:absolute;left:52px;top:150px;width:290px;height:400px;background:#F4F2EC;clip-path:polygon(4% 3%,97% 0%,100% 97%,1% 100%)}
+.edge{position:absolute;left:52px;top:150px;width:290px;height:400px;border:3px solid #8FD1AE;border-radius:6px;transform:skew(-.6deg,.4deg)}
+.shutter{width:76px;height:76px;border-radius:38px;border:4px solid #fff;display:grid;place-items:center}
+.shutter i{display:block;width:62px;height:62px;border-radius:31px;background:#fff}
+.passmini{border-radius:20px;background:var(--cbg);padding:16px;margin:0 16px 14px}
+.passmini .top{display:flex;justify-content:space-between;font:600 14px var(--font);color:var(--ci)}
+.passmini .big{font:600 34px/40px var(--font);letter-spacing:-.02em;margin-top:12px}
+.passmini .meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font:400 12px var(--font);opacity:.85;border-top:2px dashed color-mix(in srgb,var(--ci) 40%,transparent);margin:12px -16px 0;padding:10px 16px 0}
+.passmini .meta b{display:block;font:600 13px var(--font);margin-top:2px}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 20px}
+.cgrid span{height:64px;border-radius:14px;background:var(--cbg);color:var(--ci);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:600 12px var(--font)}
+.cgrid span.on{outline:2.5px solid var(--primary);outline-offset:1px}
+</style></head><body>
+<!--ICONS-->
+
+<!-- V2 -->
+<div class="board"><p class="caption-board">V2 · Coffre en remplissage</p>
+<div class="phone b" data-shot="b/V2-coffre-remplissage">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Coffre</p><div class="row" style="gap:8px"><button class="circ" aria-label="Rechercher"><svg class="ic"><use href="#i-search"/></svg></button><span class="avatar">PP</span></div></div>
+ <span class="seal"><svg class="ic sm"><use href="#i-shield"/></svg>Scellé · cet iPhone</span>
+ <div class="card" style="margin-top:16px">
+  <div class="row" style="gap:12px"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div class="grow"><p class="t1">EDF récupère vos documents</p><p class="t2">12 trouvés · téléchargement 5 sur 12</p></div></div>
+  <div class="prog" style="margin-top:12px"><i style="width:42%"></i></div>
+  <div class="row" style="gap:12px;margin-top:14px"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="t2">En attente · démarre après EDF</p></div></div>
+ </div>
+ <div class="cats">
+  <div class="cat" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-home"/></svg></span><span class="cnt">5</span></div><div><p class="n">Logement</p><p class="l trunc">Facture EDF · à l’instant</p></div></div>
+  <div class="cat ghost"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-landmark"/></svg></span></div><div><p class="n">Impôts</p><p class="l">Bientôt, via impots.gouv</p></div></div>
+  <div class="cat ghost"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-brief"/></svg></span></div><div><p class="n">Travail</p><p class="l">Ajouter une source</p></div></div>
+  <div class="cat ghost"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-heart"/></svg></span></div><div><p class="n">Santé</p><p class="l">Ajouter une source</p></div></div>
+ </div>
+ <p class="t2" style="text-align:center;margin:16px 30px 0">Un document papier ? Touchez <b style="color:var(--primary)">l’appareil photo</b> pour le scanner.</p>
+ <!--TABS:coffre:-->
+ <!--HB-->
+</div></div>
+
+<!-- V3 -->
+<div class="board"><p class="caption-board">V3 · Catégorie</p>
+<div class="phone b" data-shot="b/V3-categorie">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><div class="row" style="gap:8px"><button class="circ" aria-label="Rechercher dans Logement"><svg class="ic"><use href="#i-search"/></svg></button><button class="circ" aria-label="Trier"><svg class="ic"><use href="#i-sort"/></svg></button></div></div>
+ <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-home"/></svg></span><div><p class="h2">Logement</p><p class="t2" style="color:var(--text);opacity:.75">38 documents · 3 sources</p></div></div>
+ <div class="chips"><span class="pc on">Tout · 38</span><span class="pc">Énergie · 14</span><span class="pc">Internet · 11</span><span class="pc">Assurance · 7</span></div>
+ <div class="chips" style="padding-top:8px"><span class="pc" style="height:32px;font-size:13px;background:var(--pwash);border-color:var(--pwash);color:var(--primary)">2026</span><span class="pc" style="height:32px;font-size:13px">2025</span><span class="pc" style="height:32px;font-size:13px">2024</span><span class="pc" style="height:32px;font-size:13px">Avant</span></div>
+ <div class="mhead"><span>Octobre</span><span>3</span></div>
+ <div class="group">
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i><i style="width:70%"></i></div><div class="grow"><p class="t1 trunc">Facture d’électricité</p><p class="t2">EDF · Facture</p></div><div><p class="amt">84,20 €</p><p class="t3" style="text-align:right">12 oct.</p></div></div>
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i><i style="width:70%"></i></div><div class="grow"><p class="t1 trunc">Facture Freebox</p><p class="t2">Free · Facture</p></div><div><p class="amt">39,99 €</p><p class="t3" style="text-align:right">9 oct.</p></div></div>
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i><i style="width:70%"></i></div><div class="grow"><p class="t1 trunc">Attestation d’assurance habitation</p><p class="t2">MAIF · Attestation</p></div><div><p class="amt">—</p><p class="t3" style="text-align:right">1 oct.</p></div></div>
+ </div>
+ <div class="mhead"><span>Septembre</span><span>4</span></div>
+ <div class="group">
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i><i style="width:70%"></i></div><div class="grow"><p class="t1 trunc">Facture d’eau — T3</p><p class="t2">Eau de Paris · Facture</p></div><div><p class="amt">62,10 €</p><p class="t3" style="text-align:right">28 sept.</p></div></div>
+ </div>
+ <!--TABS:coffre-->
+ <!--HB-->
+</div></div>
+
+<!-- V4 -->
+<div class="board"><p class="caption-board">V4 · Recherche</p>
+<div class="phone b" data-shot="b/V4-recherche">
+ <!--SB-->
+ <div class="row" style="gap:8px;padding:8px 16px 0 0"><div class="search on grow" style="margin:0 0 0 16px"><svg class="ic"><use href="#i-search"/></svg><span>|</span><span class="ph" style="color:var(--muted)">Rechercher</span></div><button class="pbtn t sm">Annuler</button></div>
+ <p class="sec">Récentes</p>
+ <div class="group">
+  <div class="it" style="min-height:52px"><svg class="ic" style="color:var(--muted)"><use href="#i-clock"/></svg><span class="grow body">EDF 2025</span><svg class="ic sm" style="color:var(--muted)"><use href="#i-x"/></svg></div>
+  <div class="it" style="min-height:52px"><svg class="ic" style="color:var(--muted)"><use href="#i-clock"/></svg><span class="grow body">attestation assurance</span><svg class="ic sm" style="color:var(--muted)"><use href="#i-x"/></svg></div>
+ </div>
+ <p class="sec">Par type de document</p>
+ <div class="chips" style="flex-wrap:wrap;padding-top:0"><span class="pc">Factures</span><span class="pc">Bulletins de paie</span><span class="pc">Avis d’imposition</span><span class="pc">Attestations</span><span class="pc">Relevés</span></div>
+ <div class="kb">
+  <div class="r"><span>a</span><span>z</span><span>e</span><span>r</span><span>t</span><span>y</span><span>u</span><span>i</span><span>o</span><span>p</span></div>
+  <div class="r"><span>q</span><span>s</span><span>d</span><span>f</span><span>g</span><span>h</span><span>j</span><span>k</span><span>l</span><span>m</span></div>
+  <div class="r"><span style="width:44px;background:#B8B6AF">⇧</span><span>w</span><span>x</span><span>c</span><span>v</span><span>b</span><span>n</span><span style="width:44px;background:#B8B6AF">⌫</span></div>
+  <div class="r"><span style="width:86px;background:#B8B6AF;font-size:15px">123</span><span style="width:180px"></span><span style="width:86px;background:#B8B6AF;font-size:15px">Ok</span></div>
+ </div>
+</div></div>
+
+<!-- V5 -->
+<div class="board"><p class="caption-board">V5 · Résultats</p>
+<div class="phone b" data-shot="b/V5-resultats">
+ <!--SB-->
+ <div class="row" style="gap:8px;padding:8px 16px 0 0"><div class="search grow" style="margin:0 0 0 16px;color:var(--text)"><svg class="ic" style="color:var(--muted)"><use href="#i-search"/></svg><span class="grow">attestation</span><svg class="ic sm" style="color:var(--muted)"><use href="#i-x"/></svg></div><button class="pbtn t sm">Annuler</button></div>
+ <div class="chips"><span class="pc on">Toutes catégories<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Type<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Année<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Source<svg class="ic xs"><use href="#i-chev-d"/></svg></span></div>
+ <p class="t2" style="padding:14px 20px 8px">6 résultats pour « attestation »</p>
+ <div class="group">
+  <div class="doc"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> d’assurance habitation</p><p class="t2">Logement · MAIF · 1 oct. 2026</p></div></div>
+  <div class="doc"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)"><svg class="ic"><use href="#i-heart"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> de droits</p><p class="t2">Santé · Ameli · 14 sept. 2026</p></div></div>
+  <div class="doc"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i)"><svg class="ic"><use href="#i-brief"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> employeur</p><p class="t2">Travail · ajouté par vous · 3 mars 2026</p></div></div>
+  <div class="doc"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><svg class="ic"><use href="#i-landmark"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> fiscale — dons 2025</p><p class="t2">Impôts · impots.gouv · 12 févr. 2026</p></div></div>
+  <div class="doc"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> d’assurance habitation</p><p class="t2">Logement · MAIF · 2 oct. 2025</p></div></div>
+ </div>
+ <p class="t3" style="padding:12px 20px">Recherche faite sur cet appareil, dans le texte des documents.</p>
+ <!--TABS:coffre-->
+ <!--HB-->
+</div></div>
+
+<!-- V7 -->
+<div class="board"><p class="caption-board">V7 · Lecteur</p>
+<div class="phone b viewer" data-shot="b/V7-lecteur" style="--bg:#121413;--text:#F1F1EE;--surface:#1E211F;--border:#2E322F">
+ <!--SB-->
+ <div class="navb"><button class="circ" style="background:#1E211F;border-color:#2E322F;color:#F1F1EE" aria-label="Fermer"><svg class="ic"><use href="#i-x"/></svg></button><span class="ttl">Facture EDF — octobre</span><button class="circ" style="background:#1E211F;border-color:#2E322F;color:#F1F1EE" aria-label="Partager"><svg class="ic"><use href="#i-share"/></svg></button></div>
+ <div style="margin:18px 22px 0;height:488px;background:#fff;color:#1C1B17;padding:24px 22px;font:400 10px var(--font)">
+  <div class="row" style="justify-content:space-between"><b style="font-size:14px">Fournisseur d’énergie</b><b style="font-size:12px">FACTURE</b></div>
+  <div style="height:6px;background:#E2DED4;width:45%;margin-top:18px"></div><div style="height:6px;background:#E2DED4;width:60%;margin-top:5px"></div><div style="height:6px;background:#E2DED4;width:38%;margin-top:5px"></div>
+  <div style="height:22px;background:#EEF2EF;margin-top:28px"></div>
+  <div style="height:6px;background:#E2DED4;margin-top:8px"></div><div style="height:6px;background:#E2DED4;margin-top:6px;width:84%"></div><div style="height:6px;background:#E2DED4;margin-top:6px"></div><div style="height:6px;background:#E2DED4;margin-top:6px;width:66%"></div>
+  <div class="row" style="justify-content:flex-end;gap:12px;margin-top:26px;font-size:12px"><span>Total TTC</span><b>84,20 €</b></div>
+ </div>
+ <p style="text-align:center;font:500 13px 'Plex Mono';color:#B9BDB9;margin-top:12px">1 / 2</p>
+ <div class="row" style="gap:10px;justify-content:center;margin-top:12px"><div style="width:44px;height:60px;background:#fff;outline:2px solid #8FD1AE;outline-offset:2px"></div><div style="width:44px;height:60px;background:#fff;opacity:.55"></div></div>
+ <p style="text-align:center;font:400 12px var(--font);color:#B9BDB9;margin-top:14px" class="row"><span style="margin:auto" class="row"><svg class="ic xs" style="margin-right:6px"><use href="#i-lock"/></svg>Déchiffré sur cet appareil</span></p>
+ <!--HB-->
+</div></div>
+
+<!-- V8 -->
+<div class="board"><p class="caption-board">V8 · Actions du document</p>
+<div class="phone b" data-shot="b/V8-actions">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Logement · Énergie</span><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div>
+ <div class="pass" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-zap"/></svg>EDF</span><span style="font:500 13px var(--font)">Facture</span></div><p class="big">84,20 €</p><p class="due">À régler avant le 27 octobre</p></div>
+ <div class="scrim"></div>
+ <div class="sheet">
+  <div class="grab"></div>
+  <div class="row" style="gap:12px;padding:0 20px 12px"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1">Facture d’électricité — octobre 2026</p><p class="t2">PDF · 2 pages · 182 Ko</p></div></div>
+  <div class="group">
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-share"/></svg><span class="grow body">Partager</span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-download"/></svg><span class="grow body">Enregistrer dans Fichiers</span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-pencil"/></svg><span class="grow body">Renommer</span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-folder"/></svg><span class="grow body">Reclasser</span><span class="t2">Logement › Énergie</span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-info"/></svg><span class="grow body">Informations techniques</span></div>
+  </div>
+  <div class="group" style="margin-top:10px"><div class="it" style="min-height:54px;color:var(--err)"><svg class="ic"><use href="#i-trash"/></svg><span class="grow body">Supprimer de tous mes appareils</span></div></div>
+ </div>
+ <!--HB-->
+</div></div>
+
+<!-- V9 -->
+<div class="board"><p class="caption-board">V9 · Reclasser</p>
+<div class="phone b" data-shot="b/V9-reclasser">
+ <!--SB-->
+ <div class="scrim" style="background:rgba(15,20,18,.3)"></div>
+ <div class="sheet" style="top:60px;padding-bottom:0">
+  <div class="grab"></div>
+  <div class="row" style="justify-content:space-between;padding:0 12px 6px 20px"><p class="h3">Reclasser</p><button class="pbtn t sm">Annuler</button></div>
+  <p class="sec" style="padding-top:8px">Catégorie</p>
+  <div class="cgrid">
+   <span class="on" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg>Logement</span>
+   <span style="--cbg:var(--c-money);--ci:var(--c-money-i)"><svg class="ic"><use href="#i-wallet"/></svg>Argent</span>
+   <span style="--cbg:var(--c-work);--ci:var(--c-work-i)"><svg class="ic"><use href="#i-brief"/></svg>Travail</span>
+   <span style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><svg class="ic"><use href="#i-landmark"/></svg>Impôts</span>
+   <span style="--cbg:var(--c-health);--ci:var(--c-health-i)"><svg class="ic"><use href="#i-heart"/></svg>Santé</span>
+   <span style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><svg class="ic"><use href="#i-phone"/></svg>Télécom</span>
+  </div>
+  <p class="t3" style="padding:8px 20px 0">+ 5 autres catégories</p>
+  <p class="sec">Sous-catégorie</p>
+  <div class="group">
+   <div class="it" style="min-height:50px"><span class="grow body">Énergie</span><span class="radio on"></span></div>
+   <div class="it" style="min-height:50px"><span class="grow body">Eau</span><span class="radio"></span></div>
+   <div class="it" style="min-height:50px"><span class="grow body">Internet</span><span class="radio"></span></div>
+   <div class="it" style="min-height:50px"><span class="grow body">Assurance habitation</span><span class="radio"></span></div>
+  </div>
+  <p class="sec">Type de document</p>
+  <div class="chips" style="padding-top:0"><span class="pc on">Facture</span><span class="pc">Contrat</span><span class="pc">Échéancier</span><span class="pc">Autre</span></div>
+  <div style="padding:18px 20px 40px"><button class="pbtn f w">Enregistrer</button></div>
+ </div>
+</div></div>
+
+<!-- V10 -->
+<div class="board"><p class="caption-board">V10 · Modèles de cartes par type</p>
+<div class="b" data-shot="b/V10-modeles-cartes" style="width:390px;padding:20px 0 6px;background:var(--bg);font-family:var(--font);color:var(--text);border-radius:24px">
+ <div class="passmini" style="--cbg:var(--c-work);--ci:var(--c-work-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-brief"/></svg>Pajemploi</span><span style="font-weight:500">Bulletin de paie</span></div><p class="big">1 912,44 €</p><p style="font:500 14px var(--font)">Net à payer · septembre 2026</p><div class="meta"><div>Brut<b>2 450,00 €</b></div><div>Heures<b>151,67</b></div><div>Employeur<b>M. Martin</b></div></div></div>
+ <div class="passmini" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-landmark"/></svg>impots.gouv</span><span style="font-weight:500">Avis d’imposition</span></div><p class="big">+ 312 €</p><p style="font:500 14px var(--font)">Remboursement prévu fin août</p><div class="meta"><div>Revenus<b>2025</b></div><div>Réf. fiscal<b>41 280 €</b></div><div>Parts<b>2</b></div></div></div>
+ <div class="passmini" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-shield"/></svg>MAIF</span><span style="font-weight:500">Attestation</span></div><p class="big" style="font-size:26px;line-height:32px">Valide jusqu’au<br>31 déc. 2026</p><div class="meta"><div>Contrat<b>Habitation</b></div><div>N°<b>3712 99</b></div><div>Reçue<b>1 oct.</b></div></div></div>
+ <div class="passmini" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-train"/></svg>SNCF Connect</span><span style="font-weight:500">Réservation</span></div><p class="big" style="font-size:28px">Paris → Lyon</p><p style="font:500 14px var(--font)">Jeu. 18 sept. · 08:04</p><div class="meta"><div>Voiture<b>12</b></div><div>Place<b>64</b></div><div>Prix<b>49,00 €</b></div></div></div>
+ <div class="passmini" style="--cbg:var(--c-none);--ci:var(--c-none-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-doc"/></svg>Ajouté par vous</span><span style="font-weight:500">À classer</span></div><p class="big" style="font-size:24px;line-height:30px">Contrat de bail — scan</p><div class="meta" style="grid-template-columns:1fr 1fr"><div>Pages<b>6</b></div><div>Ajouté<b>9 oct.</b></div></div></div>
+</div></div>
+
+<!-- V11 -->
+<div class="board"><p class="caption-board">V11 · Coffre (sombre)</p>
+<div class="phone b dark" data-shot="b/V11-coffre-sombre">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Coffre</p><div class="row" style="gap:8px"><button class="circ"><svg class="ic"><use href="#i-search"/></svg></button><span class="avatar">PP</span></div></div>
+ <span class="seal"><svg class="ic sm"><use href="#i-shield"/></svg>Scellé · à jour sur 3 appareils</span>
+ <div class="inbox"><div class="stack"><span style="left:0;top:0;transform:rotate(-8deg)"></span><span style="left:11px;top:0;transform:rotate(2deg)"></span><span style="left:22px;top:0;transform:rotate(9deg)"></span></div><div class="grow"><p style="font:600 17px/22px var(--font)">4 documents arrivés</p><p style="font:400 14px/19px var(--font);opacity:.82">Rangés pour vous, à confirmer</p></div><span class="cta">Voir</span></div>
+ <div class="cats">
+  <div class="cat" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-home"/></svg></span><span class="cnt">38</span></div><div><p class="n">Logement</p><p class="l trunc">Facture EDF · 12 oct.</p></div></div>
+  <div class="cat" style="--cbg:var(--c-money);--ci:var(--c-money-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-wallet"/></svg></span><span class="cnt">51</span></div><div><p class="n">Argent</p><p class="l trunc">Relevé de compte · 1 oct.</p></div></div>
+  <div class="cat" style="--cbg:var(--c-work);--ci:var(--c-work-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-brief"/></svg></span><span class="cnt">41</span></div><div><p class="n">Travail</p><p class="l trunc">Bulletin de paie · 10 oct.</p></div></div>
+  <div class="cat" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-landmark"/></svg></span><span class="cnt">12</span></div><div><p class="n">Impôts</p><p class="l trunc">Avis d’impôt 2026</p></div></div>
+  <div class="cat" style="--cbg:var(--c-health);--ci:var(--c-health-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-heart"/></svg></span><span class="cnt">33</span></div><div><p class="n">Santé</p><p class="l trunc">Remboursement · 22 sept.</p></div></div>
+  <div class="cat" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-phone"/></svg></span><span class="cnt">24</span></div><div><p class="n">Télécom</p><p class="l trunc">Facture Free · 9 oct.</p></div></div>
+ </div>
+ <!--TABS:coffre-->
+ <!--HB-->
+</div></div>
+
+<!-- K1 -->
+<div class="board"><p class="caption-board">K1 · Scanner</p>
+<div class="phone b cam" data-shot="b/K1-scanner" style="--text:#fff">
+ <!--SB-->
+ <div class="row" style="justify-content:space-between;padding:6px 16px"><button class="circ" style="background:rgba(255,255,255,.14);border:0;color:#fff" aria-label="Fermer"><svg class="ic"><use href="#i-x"/></svg></button><span class="pc" style="background:rgba(255,255,255,.14);border:0;color:#fff;height:34px">Auto</span><button class="circ" style="background:rgba(255,255,255,.14);border:0;color:#fff" aria-label="Flash"><svg class="ic"><use href="#i-flash"/></svg></button></div>
+ <div class="paper"></div><div class="edge"></div>
+ <div style="position:absolute;top:574px;left:0;right:0;text-align:center"><span class="pc" style="background:#8FD1AE;border:0;color:#0B2418;height:34px;font-weight:600">Document détecté · ne bougez pas</span></div>
+ <div style="position:absolute;bottom:56px;left:24px;right:24px;display:flex;align-items:center;justify-content:space-between">
+  <div style="position:relative;width:52px;height:64px"><div style="position:absolute;inset:0;background:#F4F2EC;border-radius:4px;transform:rotate(-6deg)"></div><div style="position:absolute;inset:0;background:#F4F2EC;border-radius:4px"></div><span style="position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:11px;background:#8FD1AE;color:#0B2418;font:700 12px/22px var(--font);text-align:center">2</span></div>
+  <div class="shutter"><i></i></div>
+  <button class="pbtn sm" style="background:#fff;color:#1C1B17">Terminer</button>
+ </div>
+ <!--HB-->
+</div></div>
+
+<!-- K2 -->
+<div class="board"><p class="caption-board">K2 · Vérifier le scan</p>
+<div class="phone b" data-shot="b/K2-verifier-scan">
+ <!--SB-->
+ <div class="navb"><button class="pbtn t sm">Reprendre</button><span class="ttl">2 pages</span><button class="pbtn t sm">Annuler</button></div>
+ <div style="margin:4px 70px 0;height:276px;background:#fff;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,.12);padding:20px 18px">
+  <b style="font:600 11px var(--font)">CONTRAT DE BAIL</b><div style="height:4px;background:#E2DED4;margin-top:12px"></div><div style="height:4px;background:#E2DED4;margin-top:5px;width:80%"></div><div style="height:4px;background:#E2DED4;margin-top:5px"></div><div style="height:4px;background:#E2DED4;margin-top:5px;width:60%"></div><div style="height:4px;background:#E2DED4;margin-top:14px"></div><div style="height:4px;background:#E2DED4;margin-top:5px;width:90%"></div><div style="height:4px;background:#E2DED4;margin-top:5px"></div>
+ </div>
+ <div class="row" style="justify-content:center;gap:10px;margin-top:12px"><button class="circ" aria-label="Recadrer"><svg class="ic"><use href="#i-crop"/></svg></button><button class="circ" aria-label="Pivoter"><svg class="ic"><use href="#i-rotate"/></svg></button><button class="circ" aria-label="Supprimer la page"><svg class="ic"><use href="#i-trash"/></svg></button><button class="circ" aria-label="Ajouter une page"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+ <div class="field" style="margin-top:18px"><label>Nom</label><div class="in">Contrat de bail — scan</div></div>
+ <div class="card" style="margin:0 20px;padding:12px 14px"><div class="row" style="gap:12px"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t3">Classement suggéré</p><p class="t1">Logement · Contrat</p></div><button class="pbtn t sm">Modifier</button></div></div>
+ <div class="foot"><button class="pbtn f w"><svg class="ic"><use href="#i-lock"/></svg>Mettre au coffre</button></div>
+ <!--HB-->
+</div></div>
+
+<!-- K3 -->
+<div class="board"><p class="caption-board">K3 · Ajouter depuis une autre app</p>
+<div class="phone b" data-shot="b/K3-partage" style="--bg:#ECECEF">
+ <!--SB-->
+ <div style="padding:16px 20px;font:400 15px/21px -apple-system,var(--font);color:#333">
+  <p style="font:600 18px var(--font)">Votre facture Orange</p><p class="t2" style="margin-top:4px">Orange · hier</p>
+  <div style="height:8px;background:#D9D9DE;margin-top:20px;width:80%;border-radius:2px"></div><div style="height:8px;background:#D9D9DE;margin-top:8px;border-radius:2px"></div>
+ </div>
+ <div class="scrim" style="background:rgba(0,0,0,.25)"></div>
+ <div class="sheet" style="top:110px;padding-bottom:0;--bg:#F2F0EA">
+  <div class="row" style="justify-content:space-between;padding:6px 12px 10px 20px"><button class="pbtn t sm" style="padding:0">Annuler</button><p class="t1">Ajouter à Fyde</p><span style="width:62px"></span></div>
+  <div class="card" style="margin:0 16px;padding:12px"><div class="row" style="gap:12px"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Facture_Orange_09-2026.pdf</p><p class="t2">PDF · 245 Ko</p></div></div></div>
+  <div class="field" style="margin-top:16px"><label>Nom</label><div class="in">Facture Orange — septembre</div></div>
+  <div class="card" style="margin:0 20px;padding:12px 14px"><div class="row" style="gap:12px"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><svg class="ic"><use href="#i-phone"/></svg></span><div class="grow"><p class="t3">Classement suggéré</p><p class="t1">Télécom › Mobile</p></div><button class="pbtn t sm">Modifier</button></div></div>
+  <div class="note ok" style="margin:16px 20px 0"><svg class="ic"><use href="#i-lock"/></svg><span>Chiffré sur cet iPhone avant d’être envoyé.</span></div>
+  <div style="padding:22px 20px 0"><button class="pbtn f w">Ajouter au coffre</button></div>
+ </div>
+ <!--HB-->
+</div></div>
+
+<!-- K4 -->
+<div class="board"><p class="caption-board">K4 · Ajout en cours</p>
+<div class="phone b" data-shot="b/K4-ajout-en-cours">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-home"/></svg></span><div><p class="h2">Logement</p><p class="t2" style="color:var(--text);opacity:.75">39 documents</p></div></div>
+ <div class="mhead"><span>Octobre</span><span>4</span></div>
+ <div class="group">
+  <div class="doc" style="opacity:.6"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Contrat de bail — scan</p><p class="t2 row" style="gap:6px"><svg class="ic xs"><use href="#i-sync"/></svg>Chiffrement…</p></div></div>
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Facture d’électricité</p><p class="t2">EDF · Facture</p></div><div><p class="amt">84,20 €</p><p class="t3" style="text-align:right">12 oct.</p></div></div>
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Facture Freebox</p><p class="t2">Free · Facture</p></div><div><p class="amt">39,99 €</p><p class="t3" style="text-align:right">9 oct.</p></div></div>
+ </div>
+ <div class="snack" style="bottom:166px;flex-direction:column;align-items:stretch;gap:8px"><div class="row" style="gap:10px"><svg class="ic" style="color:#E9B65A"><use href="#i-info"/></svg><span class="grow">Déjà dans le coffre : Facture_EDF_10.pdf</span><span style="color:#8FD1AE;font-weight:600">Voir</span></div></div>
+ <div class="snack"><svg class="ic" style="color:#8FD1AE"><use href="#i-lock"/></svg><div class="grow"><p>Ajout de 2 documents · 1 sur 2</p><div class="prog" style="margin-top:6px;background:#3a3934"><i style="width:50%;background:#8FD1AE"></i></div></div></div>
+ <!--TABS:coffre-->
+ <!--HB-->
+</div></div>
+</body></html>

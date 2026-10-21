@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>B — Arrivées, sources, Moi, états</title>
+<link rel="stylesheet" href="base.css"><link rel="stylesheet" href="b.css">
+<style>
+.src{display:flex;align-items:center;gap:12px;padding:0 16px;min-height:68px}
+.src+.src{border-top:1px solid var(--border)}
+.sl{display:flex;align-items:center;gap:5px;font:500 13px var(--font);margin-top:2px}
+.sl.ok{color:var(--ok)}.sl.warn{color:var(--warn)}.sl.err{color:var(--err)}.sl.mut{color:var(--muted)}
+.lock{background:#22302A;color:#fff}
+.glass{margin:0 10px 8px;border-radius:22px;background:rgba(245,245,242,.86);color:#1C1B17;padding:12px 14px;display:flex;gap:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin:12px 16px 0;border-radius:var(--rl);background:var(--surface);border:1px solid var(--border)}
+.stats div{padding:12px 14px}.stats div+div{border-left:1px solid var(--border)}
+.stats b{display:block;font:600 18px/24px var(--font)}
+.meter{margin-top:8px}
+.big{width:96px;height:96px;border-radius:48px;margin:70px auto 0;display:grid;place-items:center;background:var(--pwash);color:var(--ok)}
+.ul{margin:8px 0 0;padding:0;list-style:none}
+.ul li{display:flex;gap:10px;align-items:flex-start;font:400 15px/21px var(--font);padding:5px 0}
+.prev{flex:1;border-radius:14px;border:1px solid var(--border);overflow:hidden;height:92px}
+.prev.on{outline:2.5px solid var(--primary);outline-offset:1px}
+</style></head><body>
+<!--ICONS-->
+
+<!-- R2 -->
+<div class="board"><p class="caption-board">R2 · Arrivées — tout est rangé</p>
+<div class="phone b" data-shot="b/R2-tout-range">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Arrivées</p><button class="circ" aria-label="Lancer toutes les sources"><svg class="ic"><use href="#i-sync"/></svg></button></div>
+ <div class="seg"><span class="on">À traiter</span><span>Historique</span></div>
+ <div class="big"><svg class="ic" style="width:44px;height:44px"><use href="#i-check"/></svg></div>
+ <p class="h2" style="text-align:center;margin-top:20px">Tout est rangé</p>
+ <p class="body" style="text-align:center;color:var(--muted);margin:8px 40px 0">Vos 6 sources repasseront ce soir vers 22&nbsp;h. Les nouveaux documents arriveront ici.</p>
+ <div style="display:flex;justify-content:center;margin-top:22px"><button class="pbtn o sm"><svg class="ic sm"><use href="#i-sync"/></svg>Lancer maintenant</button></div>
+ <!--TABS:arrivees:-->
+ <!--HB-->
+</div></div>
+
+<!-- R3 -->
+<div class="board"><p class="caption-board">R3 · Arrivées — historique</p>
+<div class="phone b" data-shot="b/R3-historique">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Arrivées</p><button class="circ" aria-label="Lancer toutes les sources"><svg class="ic"><use href="#i-sync"/></svg></button></div>
+ <div class="seg"><span>À traiter · 5</span><span class="on">Historique</span></div>
+ <div class="mhead"><span>Aujourd’hui</span></div>
+ <div class="group">
+  <div class="src"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div class="grow"><p class="t1">EDF</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>1 nouveau document</p></div><span class="t3 mono">06:02</span></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="sl warn"><svg class="ic xs"><use href="#i-clock"/></svg>Attend votre code</p></div><span class="t3 mono">09:40</span></div>
+ </div>
+ <div class="mhead"><span>Hier</span></div>
+ <div class="group">
+  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="sl err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</p></div><span class="t3 mono">22:01</span></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i)">PJ</span><div class="grow"><p class="t1">Pajemploi</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>1 nouveau document</p></div><span class="t3 mono">18:40</span></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">FR</span><div class="grow"><p class="t1">Free</p><p class="sl mut">Rien de nouveau</p></div><span class="t3 mono">22:00</span></div>
+  <div class="src"><span class="tile"><svg class="ic"><use href="#i-check-c"/></svg></span><div class="grow"><p class="t1">Vous avez confirmé 3 classements</p><p class="sl mut">Travail, Télécom, Santé</p></div><span class="t3 mono">08:15</span></div>
+ </div>
+ <!--TABS:arrivees-->
+ <!--HB-->
+</div></div>
+
+<!-- R4 -->
+<div class="board"><p class="caption-board">R4 · Notification de code (écran verrouillé)</p>
+<div class="phone b lock" data-shot="b/R4-notification-code" style="--text:#fff">
+ <!--SB-->
+ <p style="text-align:center;font:500 17px -apple-system,var(--font);margin-top:20px;opacity:.9">Mercredi 21 octobre</p>
+ <p style="text-align:center;font:600 86px/96px -apple-system,var(--font);letter-spacing:-2px">9:41</p>
+ <div style="position:absolute;left:0;right:0;bottom:120px">
+  <div class="glass"><span class="tile" style="--cbg:#1F4D3A;--ci:#fff;width:38px;height:38px"><svg class="ic"><use href="#i-lock"/></svg></span><div class="grow"><div class="row" style="justify-content:space-between"><p style="font:600 14px var(--font)">FYDE</p><span style="font:400 13px var(--font);color:#555">maintenant</span></div><p style="font:600 15px/20px var(--font);margin-top:2px">impots.gouv demande un code</p><p style="font:400 14px/19px var(--font);color:#3a3a36">Saisissez le code reçu par SMS avant 9:46 pour continuer la récupération.</p></div></div>
+  <div class="glass" style="opacity:.92"><span class="tile" style="--cbg:#1F4D3A;--ci:#fff;width:38px;height:38px"><svg class="ic"><use href="#i-lock"/></svg></span><div class="grow"><div class="row" style="justify-content:space-between"><p style="font:600 14px var(--font)">FYDE</p><span style="font:400 13px var(--font);color:#555">06:03</span></div><p style="font:600 15px/20px var(--font);margin-top:2px">1 nouveau document</p><p style="font:400 14px/19px var(--font);color:#3a3a36">Rangé dans Logement. Contenu masqué tant que l’iPhone est verrouillé.</p></div></div>
+ </div>
+ <!--HB-->
+</div></div>
+
+<!-- S1 -->
+<div class="board"><p class="caption-board">S1 · Sources</p>
+<div class="phone b" data-shot="b/S1-sources">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Sources</p><button class="circ" aria-label="Ajouter une source"><svg class="ic"><use href="#i-plus"/></svg></button></div>
+ <p class="t2 pad row" style="gap:6px"><svg class="ic xs"><use href="#i-clock"/></svg>Prochain passage ce soir vers 22 h</p>
+ <p class="sec">Ont besoin de vous</p>
+ <div class="group">
+  <div class="src"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="sl warn"><svg class="ic xs"><use href="#i-clock"/></svg>Attend votre code</p></div><button class="pbtn f sm">Saisir</button></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="sl err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <p class="sec">À jour</p>
+ <div class="group">
+  <div class="src"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div class="grow"><p class="t1">EDF</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>Ce matin · 38 documents</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i)">PJ</span><div class="grow"><p class="t1">Pajemploi</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>Hier · 41 documents</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">FR</span><div class="grow"><p class="t1">Free</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>Hier · 24 documents</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">MA</span><div class="grow"><p class="t1">MAIF</p><p class="sl mut"><svg class="ic xs"><use href="#i-pause"/></svg>En pause</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <p class="t3" style="text-align:center;margin-top:12px">6 sources sur 8 avec l’offre Basic</p>
+ <!--TABS:sources-->
+ <!--HB-->
+</div></div>
+
+<!-- S2 -->
+<div class="board"><p class="caption-board">S2 · Catalogue des sources</p>
+<div class="phone b" data-shot="b/S2-catalogue">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Ajouter une source</span><span style="width:44px"></span></div>
+ <div class="search"><svg class="ic"><use href="#i-search"/></svg>Fournisseur, banque, administration</div>
+ <div class="chips"><span class="pc on">Tout</span><span class="pc">Énergie</span><span class="pc">Banque</span><span class="pc">Santé</span><span class="pc">Transport</span></div>
+ <p class="sec">Souvent ajoutées avec les vôtres</p>
+ <div class="group">
+  <div class="src"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">OR</span><div class="grow"><p class="t1">Orange</p><p class="t2">Factures mobile et box</p></div><button class="pbtn o sm">Ajouter</button></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)">SN</span><div class="grow"><p class="t1">SNCF Connect</p><p class="t2">Billets, factures</p></div><button class="pbtn o sm">Ajouter</button></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">EP</span><div class="grow"><p class="t1">Eau de Paris</p><p class="t2">Factures d’eau</p></div><button class="pbtn o sm">Ajouter</button></div>
+ </div>
+ <p class="sec">Santé</p>
+ <div class="group">
+  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AL</span><div class="grow"><p class="t1">Alan</p><p class="t2">Remboursements, cartes de tiers payant</p></div><button class="pbtn o sm">Ajouter</button></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="t2">Déjà ajoutée</p></div><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg></div>
+ </div>
+ <p class="t2" style="text-align:center;margin-top:14px">Il manque votre fournisseur ? <b style="color:var(--primary)">Le proposer</b></p>
+ <!--HB-->
+</div></div>
+
+<!-- S3 -->
+<div class="board"><p class="caption-board">S3 · Connecter une source</p>
+<div class="phone b" data-shot="b/S3-connecter">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <div class="row pad" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div><p class="h2">EDF</p><p class="t2">Factures et échéanciers d’électricité</p></div></div>
+ <div class="note info" style="margin:16px 20px 16px"><svg class="ic"><use href="#i-globe"/></svg><span>Fyde se connectera uniquement à <b style="font-weight:600">edf.fr</b> et <b style="font-weight:600">particulier.edf.fr</b>, depuis vos appareils.</span></div>
+ <div class="field"><label>Adresse e-mail EDF</label><div class="in">pierre.p@exemple.fr</div></div>
+ <div class="field"><label>Mot de passe EDF</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div></div>
+ <div class="note ok" style="margin:0 20px 14px"><svg class="ic"><use href="#i-lock"/></svg><span>Identifiants chiffrés avec votre coffre : le serveur Fyde ne les voit jamais.</span></div>
+ <div class="row" style="gap:12px;margin:0 20px"><div class="grow"><p class="t1" style="font-weight:500">Récupérer automatiquement</p><p class="t2">Chaque jour, vers 22 h</p></div><span class="sw on"></span></div>
+ <div class="foot"><button class="pbtn f w">Connecter EDF</button></div>
+ <!--HB-->
+</div></div>
+
+<!-- S4 -->
+<div class="board"><p class="caption-board">S4 · Récupération en cours</p>
+<div class="phone b" data-shot="b/S4-recuperation">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">EDF</span><span style="width:44px"></span></div>
+ <p class="h1 pad">Récupération en cours</p>
+ <div class="card">
+  <div class="stepper">
+   <div class="st done"><span class="dot"><svg class="ic xs"><use href="#i-check"/></svg></span><span>Connexion</span><span class="t3 mono">06:01</span></div>
+   <div class="st done"><span class="dot"><svg class="ic xs"><use href="#i-check"/></svg></span><span>Recherche des documents</span><span class="t3">12 trouvés</span></div>
+   <div class="st now"><span class="dot"></span><span>Téléchargement</span><span class="t3 mono">5 / 12</span></div>
+   <div style="margin:0 0 8px 38px" class="prog"><i style="width:42%"></i></div>
+   <div class="st idle"><span class="dot"></span><span>Rangement dans le coffre</span><span></span></div>
+  </div>
+ </div>
+ <p class="sec">Déjà arrivés</p>
+ <div class="group">
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Facture d’électricité — octobre</p><p class="t2">Logement › Énergie</p></div><p class="amt">84,20 €</p></div>
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Échéancier 2026</p><p class="t2">Logement › Énergie</p></div><p class="amt">—</p></div>
+ </div>
+ <div class="foot"><button class="pbtn o w">Continuer en arrière-plan</button></div>
+ <!--HB-->
+</div></div>
+
+<!-- S5 -->
+<div class="board"><p class="caption-board">S5 · Détail d’une source</p>
+<div class="phone b" data-shot="b/S5-detail-source">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><button class="pbtn o sm"><svg class="ic sm"><use href="#i-sync"/></svg>Lancer</button></div>
+ <div class="row pad" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div><p class="h2">EDF</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>À jour · ce matin à 06:02</p></div></div>
+ <div class="stats"><div><span class="t3">Documents</span><b>38</b></div><div><span class="t3">Depuis</span><b>mars 2024</b></div><div><span class="t3">Dernier</span><b>12 oct.</b></div></div>
+ <p class="sec">Réglages</p>
+ <div class="group">
+  <div class="it"><div class="grow"><p class="body">Récupération automatique</p><p class="t2">Chaque jour, vers 22 h</p></div><span class="sw on"></span></div>
+  <div class="it"><div class="grow"><p class="body">Identifiants</p><p class="t2">pierre.p@exemple.fr</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><div class="grow"><p class="body">Sites consultés</p><p class="t2">edf.fr, particulier.edf.fr</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <p class="sec">Derniers documents</p>
+ <div class="group">
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Facture d’électricité — octobre</p><p class="t2">12 oct.</p></div><p class="amt">84,20 €</p></div>
+ </div>
+ <div style="padding:14px 16px 0"><button class="pbtn do w">Retirer la source</button></div>
+ <!--HB-->
+</div></div>
+
+<!-- S6 -->
+<div class="board"><p class="caption-board">S6 · Source en échec</p>
+<div class="phone b" data-shot="b/S6-source-echec">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <div class="row pad" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div><p class="h2">Ameli</p><p class="sl err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</p></div></div>
+ <div class="note err" style="margin:16px 20px 18px"><svg class="ic"><use href="#i-alert-c"/></svg><span>Ameli a refusé votre mot de passe hier à 22:01. Rien n’a été récupéré depuis le 13 octobre.</span></div>
+ <div class="field"><label>Numéro de sécurité sociale</label><div class="in">1 85 •• •• ••• ••• 42</div></div>
+ <div class="field"><label>Nouveau mot de passe Ameli</label><div class="in on"><span class="grow" style="letter-spacing:.2em">•••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div><p class="help">Celui que vous utilisez sur ameli.fr, pas celui de Fyde.</p></div>
+ <div style="padding:4px 20px 0"><button class="pbtn f w">Mettre à jour et relancer</button></div>
+ <p class="t2" style="text-align:center;margin:18px 30px 0">Le mot de passe est bon ? Le site a peut-être changé. <b style="color:var(--primary)">Signaler un problème</b></p>
+ <!--HB-->
+</div></div>
+
+<!-- S7 -->
+<div class="board"><p class="caption-board">S7 · Retirer une source</p>
+<div class="phone b" data-shot="b/S7-retirer">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <div class="row pad" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div><p class="h2">EDF</p><p class="sl ok">À jour · ce matin à 06:02</p></div></div>
+ <div class="stats"><div><span class="t3">Documents</span><b>38</b></div><div><span class="t3">Depuis</span><b>mars 2024</b></div><div><span class="t3">Dernier</span><b>12 oct.</b></div></div>
+ <div class="scrim"></div>
+ <div class="dialog">
+  <p class="h3">Retirer EDF ?</p>
+  <p class="body" style="color:var(--muted);margin-top:8px">Les 38 documents déjà récupérés restent dans votre coffre. Fyde arrête de se connecter à EDF et efface vos identifiants EDF de tous vos appareils.</p>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-top:18px"><button class="pbtn d w">Retirer</button><button class="pbtn t w">Annuler</button></div>
+ </div>
+ <!--HB-->
+</div></div>
+
+<!-- M1 -->
+<div class="board"><p class="caption-board">M1 · Moi</p>
+<div class="phone b" data-shot="b/M1-moi">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Moi</p></div>
+ <div class="card row" style="gap:14px"><span class="avatar" style="width:56px;height:56px;font-size:18px;background:var(--pwash);color:var(--primary);border:0">PP</span><div class="grow"><p class="h3">pierre</p><p class="t2">Offre Basic · membre depuis mars 2024</p></div></div>
+ <div class="card row" style="gap:12px;background:var(--pwash);border-color:var(--pwash)"><svg class="ic lg" style="color:var(--ok)"><use href="#i-shield"/></svg><div class="grow"><p class="t1">Coffre scellé</p><p class="t2" style="color:var(--text);opacity:.75">À jour sur 3 appareils</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ <div class="group" style="margin-top:14px">
+  <div class="it"><svg class="ic"><use href="#i-key"/></svg><span class="grow body">Sécurité</span><span class="pc" style="height:26px;font-size:12px;background:var(--warnwash);border:0;color:var(--warn);padding:0 10px">Kit à créer</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><svg class="ic"><use href="#i-laptop"/></svg><span class="grow body">Appareils</span><span class="t2">3 sur 3</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><svg class="ic"><use href="#i-sliders"/></svg><span class="grow body">Offre et usage</span><span class="t2">1,2 Go</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><svg class="ic"><use href="#i-sun"/></svg><span class="grow body">Apparence et langue</span><span class="t2">Système</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><svg class="ic"><use href="#i-help"/></svg><span class="grow body">Aide</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <div class="group" style="margin-top:12px"><div class="it" style="color:var(--err)"><svg class="ic"><use href="#i-logout"/></svg><span class="grow body">Se déconnecter de cet iPhone</span></div></div>
+ <!--TABS:moi-->
+ <!--HB-->
+</div></div>
+
+<!-- M3 -->
+<div class="board"><p class="caption-board">M3 · Ce que voit le serveur</p>
+<div class="phone b" data-shot="b/M3-ce-que-voit-le-serveur">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Sécurité</span><span style="width:44px"></span></div>
+ <p class="h1 pad">Ce que voit le serveur</p>
+ <p class="body pad" style="color:var(--muted);margin-top:6px">Le serveur Fyde relaie vos données chiffrées entre vos appareils. Voici, sans détour, ce qu’il peut et ne peut pas lire.</p>
+ <div class="card"><p class="t1 row" style="gap:8px;color:var(--ok)"><svg class="ic"><use href="#i-eye-off"/></svg>Ne voit jamais</p>
+  <ul class="ul"><li>Le contenu de vos documents</li><li>Leurs noms, montants et catégories</li><li>Vos identifiants de sources (EDF, Ameli…)</li><li>Votre mot de passe Fyde</li></ul></div>
+ <div class="card"><p class="t1 row" style="gap:8px"><svg class="ic"><use href="#i-eye"/></svg>Voit</p>
+  <ul class="ul"><li>Votre identifiant et votre offre</li><li>La taille de vos données chiffrées</li><li>L’heure des envois et des synchronisations</li><li>Le nom de vos appareils connectés</li></ul></div>
+ <!--HB-->
+</div></div>
+
+<!-- M4 -->
+<div class="board"><p class="caption-board">M4 · Vérifier mon mot de passe</p>
+<div class="phone b" data-shot="b/M4-verifier-mdp">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Sécurité</span><span style="width:44px"></span></div>
+ <p class="h1 pad">Vérifier mon mot de passe</p>
+ <p class="body pad" style="color:var(--muted);margin:6px 0 20px">Retapez-le pour vous assurer que vous le connaissez toujours. La vérification se fait sur cet appareil, rien n’est envoyé.</p>
+ <div class="field"><label>Mot de passe Fyde</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg></div></div>
+ <div class="note ok" style="margin:0 20px"><svg class="ic"><use href="#i-check-c"/></svg><span><b style="font-weight:600">C’est le bon.</b> Fyde vous le redemandera dans 3 mois, pour ne pas l’oublier.</span></div>
+ <div class="foot"><button class="pbtn o w">Terminé</button></div>
+ <!--HB-->
+</div></div>
+
+<!-- M5 -->
+<div class="board"><p class="caption-board">M5 · Appareils</p>
+<div class="phone b" data-shot="b/M5-appareils">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Moi</span><span style="width:44px"></span></div>
+ <p class="h1 pad">Appareils</p>
+ <p class="body pad" style="color:var(--muted);margin-top:6px">3 sur 3 avec l’offre Basic. Chaque appareil garde une copie chiffrée complète de votre coffre.</p>
+ <div class="group" style="margin-top:16px">
+  <div class="it" style="min-height:72px"><svg class="ic lg" style="color:var(--muted)"><use href="#i-phone"/></svg><div class="grow"><p class="t1">iPhone de Pierre</p><p class="t2">Cet appareil · synchronisé à l’instant</p></div></div>
+  <div class="it" style="min-height:72px"><svg class="ic lg" style="color:var(--muted)"><use href="#i-laptop"/></svg><div class="grow"><p class="t1">MacBook Air</p><p class="t2">Synchronisé ce matin à 06:05</p></div><button class="pbtn t sm" style="color:var(--err)">Déconnecter</button></div>
+  <div class="it" style="min-height:72px"><svg class="ic lg" style="color:var(--muted)"><use href="#i-phone"/></svg><div class="grow"><p class="t1">Pixel 8</p><p class="sl warn" style="font-weight:400"><svg class="ic xs"><use href="#i-clock"/></svg>Pas vu depuis le 2 oct. · 7 en attente</p></div><button class="pbtn t sm" style="color:var(--err)">Déconnecter</button></div>
+ </div>
+ <div class="note info" style="margin:14px 16px 0"><svg class="ic"><use href="#i-info"/></svg><span>Un appareil perdu ? Déconnectez-le : il efface ses clés dès qu’il se reconnecte au réseau.</span></div>
+ <!--HB-->
+</div></div>
+
+<!-- M6 -->
+<div class="board"><p class="caption-board">M6 · Offre et usage</p>
+<div class="phone b" data-shot="b/M6-offre">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Moi</span><span style="width:44px"></span></div>
+ <p class="h1 pad">Offre et usage</p>
+ <div class="card"><p class="t3">Votre offre</p><p class="h2">Basic</p></div>
+ <div class="card">
+  <div class="row" style="justify-content:space-between"><p class="t1">Stockage</p><p class="amt">1,2 Go / 5 Go</p></div><div class="prog meter"><i style="width:24%"></i></div>
+  <div class="row" style="justify-content:space-between;margin-top:18px"><p class="t1">Appareils</p><p class="amt">3 / 3</p></div><div class="prog meter"><i style="width:100%;background:var(--warn)"></i></div><p class="sl warn" style="font-weight:400;margin-top:6px">Limite atteinte</p>
+  <div class="row" style="justify-content:space-between;margin-top:18px"><p class="t1">Sources actives</p><p class="amt">6 / 8</p></div><div class="prog meter"><i style="width:75%"></i></div>
+ </div>
+ <div class="foot"><button class="pbtn o w">Voir les offres</button></div>
+ <!--HB-->
+</div></div>
+
+<!-- M7 -->
+<div class="board"><p class="caption-board">M7 · Apparence et langue</p>
+<div class="phone b" data-shot="b/M7-apparence">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Moi</span><span style="width:44px"></span></div>
+ <p class="h1 pad">Apparence et langue</p>
+ <p class="sec">Thème</p>
+ <div class="row" style="gap:10px;padding:0 20px">
+  <div style="flex:1;text-align:center"><div class="prev on" style="background:linear-gradient(90deg,#F2F0EA 50%,#0F1412 50%)"></div><p class="t2" style="margin-top:6px;color:var(--text)">Système</p></div>
+  <div style="flex:1;text-align:center"><div class="prev" style="background:#F2F0EA"></div><p class="t2" style="margin-top:6px">Clair</p></div>
+  <div style="flex:1;text-align:center"><div class="prev" style="background:#0F1412"></div><p class="t2" style="margin-top:6px">Sombre</p></div>
+ </div>
+ <p class="sec">Langue</p>
+ <div class="group">
+  <div class="it"><span class="grow body">Français</span><span class="radio on"></span></div>
+  <div class="it"><span class="grow body">English</span><span class="radio"></span></div>
+ </div>
+ <p class="t3" style="padding:12px 20px 0">La taille du texte suit le réglage de votre iPhone.</p>
+ <!--HB-->
+</div></div>
+
+<!-- M8 -->
+<div class="board"><p class="caption-board">M8 · Se déconnecter</p>
+<div class="phone b" data-shot="b/M8-deconnexion">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Moi</p></div>
+ <div class="card row" style="gap:14px"><span class="avatar" style="width:56px;height:56px;font-size:18px;background:var(--pwash);color:var(--primary);border:0">PP</span><div class="grow"><p class="h3">pierre</p><p class="t2">Offre Basic</p></div></div>
+ <div class="scrim"></div>
+ <div class="dialog">
+  <p class="h3">Se déconnecter de cet iPhone ?</p>
+  <p class="body" style="color:var(--muted);margin-top:8px">Vos documents et vos clés seront effacés de cet appareil. Ils restent dans votre coffre : reconnectez-vous avec votre mot de passe pour les retrouver.</p>
+  <div class="note warn" style="margin:12px 0 0"><svg class="ic"><use href="#i-key"/></svg><span>Vous n’avez pas de kit de récupération. Vérifiez que vous connaissez votre mot de passe.</span></div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-top:16px"><button class="pbtn d w">Se déconnecter</button><button class="pbtn t w">Annuler</button></div>
+ </div>
+ <!--TABS:moi-->
+ <!--HB-->
+</div></div>
+
+<!-- X1 -->
+<div class="board"><p class="caption-board">X1 · Hors ligne</p>
+<div class="phone b" data-shot="b/X1-hors-ligne">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Coffre</p><div class="row" style="gap:8px"><button class="circ"><svg class="ic"><use href="#i-search"/></svg></button><span class="avatar">PP</span></div></div>
+ <span class="seal" style="color:var(--muted)"><svg class="ic sm"><use href="#i-cloud-off"/></svg>Scellé · hors ligne</span>
+ <div class="note info" style="margin-top:14px"><svg class="ic"><use href="#i-cloud-off"/></svg><span>Pas de réseau. Tout votre coffre reste consultable ; vos ajouts partiront au retour de la connexion.</span></div>
+ <div class="cats">
+  <div class="cat" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-home"/></svg></span><span class="cnt">39</span></div><div><p class="n">Logement</p><p class="l trunc">1 ajout en attente</p></div></div>
+  <div class="cat" style="--cbg:var(--c-money);--ci:var(--c-money-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-wallet"/></svg></span><span class="cnt">51</span></div><div><p class="n">Argent</p><p class="l trunc">Relevé de compte · 1 oct.</p></div></div>
+  <div class="cat" style="--cbg:var(--c-work);--ci:var(--c-work-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-brief"/></svg></span><span class="cnt">41</span></div><div><p class="n">Travail</p><p class="l trunc">Bulletin de paie · 10 oct.</p></div></div>
+  <div class="cat" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-landmark"/></svg></span><span class="cnt">12</span></div><div><p class="n">Impôts</p><p class="l trunc">Avis d’impôt 2026</p></div></div>
+ </div>
+ <!--TABS:coffre-->
+ <!--HB-->
+</div></div>
+</body></html>
