@@ -27,11 +27,19 @@ import com.peltoche.fyde.theme.AppDimensions
  * Proportions come from `design/assets/mockups/onboarding.html`'s `.hero`,
  * on its [AppDimensions.sealHero] diameter of 168: a 116 wash, rings at
  * radius 72 and 84, an 84 disc holding a 38 lock.
+ *
+ * [onPrimary] draws it on a `primary` fill instead — the desktop brand panel
+ * (DO1, `design/assets/mockups/desktop-auth.html`'s `.seal`): an `onPrimary`
+ * disc holding a `primary` lock, an `onPrimary` wash, and rings at 22% and
+ * 16% `onPrimary`.
  */
 @Composable
-fun SealHero(modifier: Modifier = Modifier, contentDescription: String? = null) {
-    val wash = AppColors.tintOf(AppColors.primary)
-    val ring = AppColors.border
+fun SealHero(modifier: Modifier = Modifier, contentDescription: String? = null, onPrimary: Boolean = false) {
+    val wash = if (onPrimary) AppColors.onPrimary.copy(alpha = 0.12f) else AppColors.tintOf(AppColors.primary)
+    val innerRing = if (onPrimary) AppColors.onPrimary.copy(alpha = 0.22f) else AppColors.border
+    val outerRing = if (onPrimary) AppColors.onPrimary.copy(alpha = 0.16f) else AppColors.border
+    val disc = if (onPrimary) AppColors.onPrimary else AppColors.primary
+    val lock = if (onPrimary) AppColors.primary else AppColors.onPrimary
     Box(
         modifier = modifier
             .size(AppDimensions.sealHero)
@@ -41,19 +49,19 @@ fun SealHero(modifier: Modifier = Modifier, contentDescription: String? = null) 
         Canvas(modifier = Modifier.fillMaxSize()) {
             val unit = size.minDimension / 168f
             val hairline = Stroke(width = AppDimensions.borderHairline.toPx())
-            drawCircle(color = ring, radius = 83.5f * unit, style = hairline)
-            drawCircle(color = ring, radius = 71.5f * unit, style = hairline)
+            drawCircle(color = outerRing, radius = 83.5f * unit, style = hairline)
+            drawCircle(color = innerRing, radius = 71.5f * unit, style = hairline)
             drawCircle(color = wash, radius = 58f * unit)
         }
         Box(
             modifier = Modifier
                 .size(84.dp)
                 .clip(CircleShape)
-                .background(AppColors.primary),
+                .background(disc),
             contentAlignment = Alignment.Center,
         ) {
             // The icon set's 1.7 stroke on its 24-unit grid, drawn at 38.
-            LockGlyph(modifier = Modifier.size(38.dp), tint = AppColors.onPrimary, strokeWidth = 2.7.dp)
+            LockGlyph(modifier = Modifier.size(38.dp), tint = lock, strokeWidth = 2.7.dp)
         }
     }
 }

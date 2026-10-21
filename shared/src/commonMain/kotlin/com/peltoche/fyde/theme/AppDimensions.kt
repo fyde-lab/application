@@ -94,6 +94,15 @@ object AppDimensions {
     /** `SealHero`'s outer diameter, out to its outermost ring (O1, M2). */
     val sealHero: Dp = 168.dp
 
+    /** The brand panel beside the onboarding and access forms at Expanded (DO1–DO9). */
+    val authBrandPanel: Dp = 520.dp
+
+    /** The brand panel narrowed to a band above the onboarding and access forms at Medium. */
+    val authBrandBand: Dp = 96.dp
+
+    /** The centred form column of the onboarding and access screens at Medium and Expanded (DO1–DO9). */
+    val authFormColumn: Dp = 440.dp
+
     /**
      * Layout § density — list-row minimum heights, applied via
      * `Modifier.heightIn(min = ...)`. These are floors, not targets: a row's
