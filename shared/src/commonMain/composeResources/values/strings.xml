@@ -31,8 +31,6 @@
     <string name="login_submitting">Opening the vault…</string>
     <string name="login_key_derivation_computer">Fyde derives your key from your password, on this computer. This takes a few seconds.</string>
     <string name="login_key_derivation_device">Fyde derives your key from your password, on this device. This takes a few seconds.</string>
-    <string name="login_enter_key">Enter</string>
-    <string name="login_enter_hint">to submit</string>
     <string name="no_account_prompt">Don’t have an account?</string>
     <string name="auth_error_login_failed">Failed to log in</string>
     <string name="session_expired">Your session has expired. Log in again to continue.</string>
