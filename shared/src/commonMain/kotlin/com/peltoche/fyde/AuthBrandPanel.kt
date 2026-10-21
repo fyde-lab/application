@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -21,10 +23,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.peltoche.fyde.components.content.SealHero
+import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
 import com.peltoche.fyde.resources.auth_password_stays_computer
 import com.peltoche.fyde.resources.auth_password_stays_device
+import com.peltoche.fyde.resources.welcome_seal_description
+import com.peltoche.fyde.resources.welcome_title
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
@@ -67,6 +75,48 @@ fun AuthBrandPanel(modifier: Modifier = Modifier, content: @Composable ColumnSco
                 style = AppTypography.caption,
                 color = muted,
             )
+        }
+    }
+}
+
+/**
+ * [AuthBrandPanel] on the sign-in path (DO1, DO2, DO4, DO5, DO9): the seal on
+ * `onPrimary`, "Your documents, under seal." at 38/44, and Welcome's three
+ * promises.
+ */
+@Composable
+fun SignInBrandPanel(modifier: Modifier = Modifier) {
+    AuthBrandPanel(modifier) {
+        SealHero(contentDescription = stringResource(Res.string.welcome_seal_description), onPrimary = true)
+        Spacer(Modifier.height(AppSpacing.space7))
+        Text(
+            text = stringResource(Res.string.welcome_title),
+            // The brand panel's title, 38/44 — larger than `display`, which heads the form beside it.
+            style = AppTypography.display.copy(fontSize = 38.sp, lineHeight = 44.sp),
+            color = AppColors.onPrimary,
+        )
+        Spacer(Modifier.height(AppSpacing.space7))
+        WelcomePromises(textColor = AppColors.onPrimary.copy(alpha = 0.92f), accent = AppColors.onPrimary)
+    }
+}
+
+/**
+ * A sign-in screen's window at Medium and Expanded: [SignInBrandPanel] beside
+ * the form pane at Expanded, an [AuthBrandBand] above it at Medium. [form]
+ * gets the modifier that sizes its pane. Compact has no split; callers draw
+ * their phone layout there instead.
+ */
+@Composable
+fun SignInSplitLayout(modifier: Modifier = Modifier, form: @Composable (Modifier) -> Unit) {
+    if (LocalAppWindowSizeClass.current == AppWindowSizeClass.Expanded) {
+        Row(modifier = modifier.fillMaxSize().background(AppColors.background)) {
+            SignInBrandPanel()
+            form(Modifier.weight(1f).fillMaxHeight())
+        }
+    } else {
+        Column(modifier = modifier.fillMaxSize().background(AppColors.background)) {
+            AuthBrandBand()
+            form(Modifier.weight(1f).fillMaxWidth())
         }
     }
 }

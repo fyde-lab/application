@@ -453,3 +453,25 @@ fun AlertTriangleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.wa
         drawPath(mark, color = tint, style = stroke)
     }
 }
+
+/**
+ * A key — the user's key, derived from their password (DO2b's info note).
+ * Traced from `i-key` in `icons.svg`.
+ */
+@Composable
+fun KeyGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawCircle(color = tint, radius = 4f * unit, center = Offset(8f * unit, 15f * unit), style = stroke)
+        val shaft = Path().apply {
+            moveTo(11f * unit, 12f * unit)
+            lineTo(19.5f * unit, 3.5f * unit)
+            moveTo(16.5f * unit, 6.5f * unit)
+            lineTo(19f * unit, 9f * unit)
+            moveTo(14f * unit, 9f * unit)
+            lineTo(16f * unit, 11f * unit)
+        }
+        drawPath(shaft, color = tint, style = stroke)
+    }
+}

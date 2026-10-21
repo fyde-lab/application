@@ -42,7 +42,9 @@ enum class AppButtonVariant { Filled, Tonal, Outlined }
  *
  * `loading` disables the button and swaps its content for a spinner rather
  * than adding a second boolean the caller has to reason about alongside
- * `enabled`.
+ * `enabled`. With [loadingText], the spinner is followed by that text and a
+ * filled button keeps its colours while it spins (DO2b's "Opening the
+ * vault…"), so the wait reads as progress rather than as a disabled action.
  *
  * [destructive] swaps the variant's accent for `error` (design-system.md §
  * Color: `error` is for destructive actions), like [AppTextButton]'s
@@ -60,6 +62,7 @@ fun AppButton(
     loading: Boolean = false,
     leadingIcon: (@Composable () -> Unit)? = null,
     destructive: Boolean = false,
+    loadingText: String? = null,
 ) {
     val isEnabled = enabled && !loading
     val interactionSource = remember { MutableInteractionSource() }
@@ -76,6 +79,10 @@ fun AppButton(
                 strokeWidth = 2.dp,
                 color = LocalContentColor.current,
             )
+            if (loadingText != null) {
+                Spacer(Modifier.width(AppSpacing.space3))
+                Text(loadingText)
+            }
         } else {
             if (leadingIcon != null) {
                 leadingIcon()
@@ -95,7 +102,13 @@ fun AppButton(
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (destructive) AppColors.error else AppColors.primary,
                 contentColor = if (destructive) AppColors.onError else AppColors.onPrimary,
-            ),
+            ).let { colors ->
+                if (loading && loadingText != null) {
+                    colors.copy(disabledContainerColor = colors.containerColor, disabledContentColor = colors.contentColor)
+                } else {
+                    colors
+                }
+            },
             content = content,
         )
         AppButtonVariant.Tonal -> FilledTonalButton(

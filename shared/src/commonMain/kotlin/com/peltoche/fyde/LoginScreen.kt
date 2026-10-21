@@ -1,6 +1,7 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,34 +30,50 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.form.AppTextField
+import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.login_create_vault
+import com.peltoche.fyde.resources.login_enter_hint
+import com.peltoche.fyde.resources.login_enter_key
+import com.peltoche.fyde.resources.login_key_derivation_computer
+import com.peltoche.fyde.resources.login_key_derivation_device
 import com.peltoche.fyde.resources.login_no_vault
 import com.peltoche.fyde.resources.login_password_help
 import com.peltoche.fyde.resources.login_submit
+import com.peltoche.fyde.resources.login_submitting
 import com.peltoche.fyde.resources.login_title
 import com.peltoche.fyde.resources.password_label
 import com.peltoche.fyde.resources.username_label
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
+import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Connexion (O2, `design/assets/screens/O2-connexion.png`): back to
- * [WelcomeScreen], "Open my vault", the username and password (with its
- * eye, and a line saying it never leaves the device), then Open the vault;
- * a link to [RegisterScreen] stays pinned at the bottom. Pure presentation
- * — no `FydeSdk` import — so it can be redesigned without touching auth
+ * Connexion: back to [WelcomeScreen], "Open my vault", the username and
+ * password (with its eye, and a line saying it never leaves the device),
+ * then Open the vault, and a link to [RegisterScreen]. Pure presentation —
+ * no `FydeSdk` import — so it can be redesigned without touching auth
  * wiring.
+ *
+ * At Compact it's O2 (`design/assets/screens/O2-connexion.png`), the link
+ * pinned at the bottom. At Medium and Expanded it's DO2
+ * (`design/assets/screens/DO2-connexion.png`): [SignInSplitLayout]'s brand
+ * panel beside a centred form, back at the pane's top left and the link at
+ * its top right. The typed username and password live here, above both, so
+ * resizing the window across Compact keeps them.
  *
  * [noticeMessage] says why the user is here when it isn't by choice (the
  * session expired), as a warning note; [errorMessage] says why the last
@@ -64,7 +81,7 @@ import org.jetbrains.compose.resources.stringResource
  * disabled and the button spins: key stretching takes seconds.
  *
  * A device without an OS credential store is handled by `App.kt`, which
- * covers this form with [InsecureStorageSheet] (O4) on submit.
+ * covers this form with [InsecureStorageSheet] (O4, DO4b) on submit.
  */
 @Composable
 fun LoginScreen(
@@ -78,10 +95,52 @@ fun LoginScreen(
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val usernameFocus = remember { FocusRequester() }
+    val form = LoginFormState(
+        username = username,
+        onUsernameChange = { username = it },
+        password = password,
+        onPasswordChange = { password = it },
+        noticeMessage = noticeMessage,
+        errorMessage = errorMessage,
+        isSubmitting = isSubmitting,
+        onLogIn = onLogIn,
+    )
 
-    val canSubmit = !isSubmitting && username.isNotBlank() && password.isNotBlank()
-    val submit = { if (canSubmit) onLogIn(username, password) }
+    when (LocalAppWindowSizeClass.current) {
+        AppWindowSizeClass.Compact -> CompactLogin(form, onNavigateToRegister, onBack, modifier)
+        AppWindowSizeClass.Medium, AppWindowSizeClass.Expanded -> SignInSplitLayout(modifier) { paneModifier ->
+            WideLoginPane(form, onNavigateToRegister, onBack, paneModifier)
+        }
+    }
+}
+
+/** What both layouts of [LoginScreen] show and edit, and when the form can be submitted. */
+private class LoginFormState(
+    val username: String,
+    val onUsernameChange: (String) -> Unit,
+    val password: String,
+    val onPasswordChange: (String) -> Unit,
+    val noticeMessage: String?,
+    val errorMessage: String?,
+    val isSubmitting: Boolean,
+    private val onLogIn: (username: String, password: String) -> Unit,
+) {
+    val canSubmit: Boolean get() = !isSubmitting && username.isNotBlank() && password.isNotBlank()
+
+    fun submit() {
+        if (canSubmit) onLogIn(username, password)
+    }
+}
+
+/** O2. The fields scroll when the window is too short; the link to [RegisterScreen] stays pinned at the bottom. */
+@Composable
+private fun CompactLogin(
+    form: LoginFormState,
+    onNavigateToRegister: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier,
+) {
+    val usernameFocus = remember { FocusRequester() }
 
     // Land the cursor in the first field on arrival, so the form can be
     // filled and submitted from the keyboard alone.
@@ -107,54 +166,22 @@ fun LoginScreen(
                     .padding(horizontal = AppSpacing.space6),
             ) {
                 Spacer(Modifier.height(AppSpacing.space2))
-                AppBackButton(onClick = onBack, enabled = !isSubmitting)
+                AppBackButton(onClick = onBack, enabled = !form.isSubmitting)
                 Spacer(Modifier.height(AppSpacing.space4))
                 Text(
                     text = stringResource(Res.string.login_title),
                     style = AppTypography.display,
                     color = AppColors.text,
                 )
-                if (noticeMessage != null) {
-                    Spacer(Modifier.height(AppSpacing.space5))
-                    AppNote(message = noticeMessage, kind = AppNoteKind.Warning, icon = { tint ->
-                        ClockGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint)
-                    })
-                }
-                if (errorMessage != null) {
-                    Spacer(Modifier.height(AppSpacing.space5))
-                    AppNote(message = errorMessage, kind = AppNoteKind.Error, icon = { tint ->
-                        AlertGlyph(modifier = Modifier.size(AppIconSize.sm), tint = tint)
-                    })
-                }
+                LoginNotes(form)
                 Spacer(Modifier.height(AppSpacing.space6))
-                // Enter (or the soft keyboard's action key) moves on to the
-                // next field, then submits from the last one — but only once
-                // the form is complete, same as the button's `enabled` state.
-                AppTextField(
-                    enabled = !isSubmitting,
-                    value = username,
-                    onValueChange = { username = it },
-                    label = stringResource(Res.string.username_label),
-                    modifier = Modifier.focusRequester(usernameFocus),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                )
-                Spacer(Modifier.height(AppSpacing.space5))
-                AppTextField(
-                    enabled = !isSubmitting,
-                    value = password,
-                    onValueChange = { password = it },
-                    label = stringResource(Res.string.password_label),
-                    supportingText = stringResource(Res.string.login_password_help),
-                    isPassword = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-                    keyboardActions = KeyboardActions(onGo = { submit() }),
-                )
+                LoginFields(form, usernameFocus, showPasswordHelp = true)
                 Spacer(Modifier.height(AppSpacing.space6))
                 AppButton(
                     text = stringResource(Res.string.login_submit),
-                    onClick = submit,
-                    enabled = canSubmit,
-                    loading = isSubmitting,
+                    onClick = form::submit,
+                    enabled = form.canSubmit,
+                    loading = form.isSubmitting,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(AppSpacing.space6))
@@ -167,17 +194,198 @@ fun LoginScreen(
                     .padding(horizontal = AppSpacing.space6)
                     .padding(bottom = AppSpacing.space5),
             ) {
-                Text(
-                    text = stringResource(Res.string.login_no_vault),
-                    style = AppTypography.body,
-                    color = AppColors.textMuted,
-                )
-                AppTextButton(
-                    text = stringResource(Res.string.login_create_vault),
-                    onClick = onNavigateToRegister,
-                    enabled = !isSubmitting,
-                )
+                NoVaultLink(onNavigateToRegister, enabled = !form.isSubmitting)
             }
         }
+    }
+}
+
+/**
+ * DO2's form pane: back at the top left and the link to [RegisterScreen] at
+ * the top right, both hidden while the vault opens (DO2b), around the form
+ * centred in an [AppDimensions.authFormColumn] column.
+ *
+ * Under the button, "Enter to submit" on a computer; while submitting, an
+ * info note on the key derivation that makes it take seconds (DO2b). A
+ * failed attempt (DO2c) empties the password and puts the cursor back in
+ * it, so the button stays disabled until it's typed again.
+ */
+@Composable
+private fun WideLoginPane(
+    form: LoginFormState,
+    onNavigateToRegister: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier,
+) {
+    val usernameFocus = remember { FocusRequester() }
+    val passwordFocus = remember { FocusRequester() }
+    val isDesktop = getPlatform().isDesktop
+
+    LaunchedEffect(Unit) { usernameFocus.requestFocus() }
+    // Keyed on both so it runs once per failure, after the fields are
+    // enabled again — a disabled field can't take focus.
+    LaunchedEffect(form.errorMessage, form.isSubmitting) {
+        if (form.errorMessage != null && !form.isSubmitting) {
+            form.onPasswordChange("")
+            passwordFocus.requestFocus()
+        }
+    }
+
+    Box(modifier = modifier.background(AppColors.background).safeContentPadding()) {
+        CenteredScrollColumn(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Column(
+                modifier = Modifier
+                    .widthIn(max = AppDimensions.authFormColumn)
+                    .fillMaxWidth()
+                    // Clears the back button and the link above the form when the window is short.
+                    .padding(horizontal = AppSpacing.space7, vertical = AppSpacing.space10 + AppSpacing.space8),
+            ) {
+                Text(
+                    text = stringResource(Res.string.login_title),
+                    style = AppTypography.display,
+                    color = AppColors.text,
+                )
+                LoginNotes(form)
+                Spacer(Modifier.height(AppSpacing.space6))
+                LoginFields(
+                    form,
+                    usernameFocus,
+                    passwordFocus = passwordFocus,
+                    showPasswordHelp = form.errorMessage == null && !form.isSubmitting,
+                )
+                Spacer(Modifier.height(AppSpacing.space6))
+                AppButton(
+                    text = stringResource(Res.string.login_submit),
+                    onClick = form::submit,
+                    enabled = form.canSubmit,
+                    loading = form.isSubmitting,
+                    loadingText = stringResource(Res.string.login_submitting),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                if (form.isSubmitting) {
+                    Spacer(Modifier.height(AppSpacing.space4))
+                    AppNote(
+                        message = stringResource(
+                            if (isDesktop) Res.string.login_key_derivation_computer else Res.string.login_key_derivation_device,
+                        ),
+                        kind = AppNoteKind.Info,
+                        icon = { tint -> KeyGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+                    )
+                } else if (isDesktop) {
+                    Spacer(Modifier.height(AppSpacing.space4))
+                    EnterToSubmitHint(Modifier.align(Alignment.CenterHorizontally))
+                }
+            }
+        }
+        if (!form.isSubmitting) {
+            AppBackButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = AppSpacing.space9, top = AppSpacing.space8),
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = AppSpacing.space9, top = AppSpacing.space8),
+            ) {
+                NoVaultLink(onNavigateToRegister, enabled = true)
+            }
+        }
+    }
+}
+
+/** Why the user is here (a warning note) and why the last attempt failed (an error note), when they apply. */
+@Composable
+private fun LoginNotes(form: LoginFormState) {
+    if (form.noticeMessage != null) {
+        Spacer(Modifier.height(AppSpacing.space5))
+        AppNote(message = form.noticeMessage, kind = AppNoteKind.Warning, icon = { tint ->
+            ClockGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint)
+        })
+    }
+    if (form.errorMessage != null) {
+        Spacer(Modifier.height(AppSpacing.space5))
+        AppNote(message = form.errorMessage, kind = AppNoteKind.Error, icon = { tint ->
+            AlertGlyph(modifier = Modifier.size(AppIconSize.sm), tint = tint)
+        })
+    }
+}
+
+/**
+ * The username and password fields. Enter (or the soft keyboard's action
+ * key) moves on to the next field, then submits from the last one — but
+ * only once the form is complete, same as the button's `enabled` state.
+ */
+@Composable
+private fun LoginFields(
+    form: LoginFormState,
+    usernameFocus: FocusRequester,
+    showPasswordHelp: Boolean,
+    passwordFocus: FocusRequester? = null,
+) {
+    AppTextField(
+        enabled = !form.isSubmitting,
+        value = form.username,
+        onValueChange = form.onUsernameChange,
+        label = stringResource(Res.string.username_label),
+        modifier = Modifier.focusRequester(usernameFocus),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+    )
+    Spacer(Modifier.height(AppSpacing.space5))
+    AppTextField(
+        enabled = !form.isSubmitting,
+        value = form.password,
+        onValueChange = form.onPasswordChange,
+        label = stringResource(Res.string.password_label),
+        supportingText = if (showPasswordHelp) stringResource(Res.string.login_password_help) else null,
+        isPassword = true,
+        modifier = if (passwordFocus != null) Modifier.focusRequester(passwordFocus) else Modifier,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+        keyboardActions = KeyboardActions(onGo = { form.submit() }),
+    )
+}
+
+/** "No vault yet? Create a vault", to [RegisterScreen]. */
+@Composable
+private fun NoVaultLink(onNavigateToRegister: () -> Unit, enabled: Boolean) {
+    Text(
+        text = stringResource(Res.string.login_no_vault),
+        style = AppTypography.body,
+        color = AppColors.textMuted,
+    )
+    AppTextButton(
+        text = stringResource(Res.string.login_create_vault),
+        onClick = onNavigateToRegister,
+        enabled = enabled,
+    )
+}
+
+/** DO2's "[Enter] to submit": the key as a keycap, in the mono face, then the hint. */
+@Composable
+private fun EnterToSubmitHint(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(Res.string.login_enter_key),
+            style = AppTypography.data.copy(fontSize = 12.sp),
+            color = AppColors.textMuted,
+            modifier = Modifier
+                .border(1.dp, AppColors.border, AppRadius.sm)
+                .background(AppColors.background, AppRadius.sm)
+                .padding(horizontal = 6.dp, vertical = 1.dp),
+        )
+        Text(
+            text = stringResource(Res.string.login_enter_hint),
+            style = AppTypography.caption,
+            color = AppColors.textMuted,
+        )
     }
 }

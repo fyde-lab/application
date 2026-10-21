@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppTextButton
@@ -55,8 +53,8 @@ import org.jetbrains.compose.resources.stringResource
  *
  * At Compact it's O1 (`design/assets/screens/O1-bienvenue.png`). At Medium
  * and Expanded it's DO1 (`design/assets/screens/DO1-bienvenue.png`): the
- * seal and promises move to [AuthBrandPanel] (a mark-only [AuthBrandBand] at
- * Medium), and the form pane greets, offers both ways in and names
+ * seal and promises move to [SignInBrandPanel] (a mark-only [AuthBrandBand]
+ * at Medium), and the form pane greets, offers both ways in and names
  * [serverName], the server this build talks to.
  */
 @Composable
@@ -68,24 +66,8 @@ fun WelcomeScreen(
 ) {
     when (LocalAppWindowSizeClass.current) {
         AppWindowSizeClass.Compact -> CompactWelcome(onCreateVault, onOpenVault, modifier)
-        AppWindowSizeClass.Medium -> Column(modifier = modifier.fillMaxSize().background(AppColors.background)) {
-            AuthBrandBand()
-            WideWelcomeForm(serverName, onCreateVault, onOpenVault, Modifier.weight(1f).fillMaxWidth())
-        }
-        AppWindowSizeClass.Expanded -> Row(modifier = modifier.fillMaxSize().background(AppColors.background)) {
-            AuthBrandPanel {
-                SealHero(contentDescription = stringResource(Res.string.welcome_seal_description), onPrimary = true)
-                Spacer(Modifier.height(AppSpacing.space7))
-                Text(
-                    text = stringResource(Res.string.welcome_title),
-                    // The brand panel's title, 38/44 — larger than `display`, which heads the form beside it.
-                    style = AppTypography.display.copy(fontSize = 38.sp, lineHeight = 44.sp),
-                    color = AppColors.onPrimary,
-                )
-                Spacer(Modifier.height(AppSpacing.space7))
-                WelcomePromises(textColor = AppColors.onPrimary.copy(alpha = 0.92f), accent = AppColors.onPrimary)
-            }
-            WideWelcomeForm(serverName, onCreateVault, onOpenVault, Modifier.weight(1f).fillMaxHeight())
+        AppWindowSizeClass.Medium, AppWindowSizeClass.Expanded -> SignInSplitLayout(modifier) { formModifier ->
+            WideWelcomeForm(serverName, onCreateVault, onOpenVault, formModifier)
         }
     }
 }
@@ -212,9 +194,12 @@ private fun WideWelcomeForm(
     }
 }
 
-/** Welcome's three promises, in [textColor] beside glyphs in [accent] on [accent]-tinted tiles. */
+/**
+ * Welcome's three promises, in [textColor] beside glyphs in [accent] on
+ * [accent]-tinted tiles — under O1's seal, and in [SignInBrandPanel].
+ */
 @Composable
-private fun WelcomePromises(textColor: Color, accent: Color) {
+internal fun WelcomePromises(textColor: Color, accent: Color) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.space6),

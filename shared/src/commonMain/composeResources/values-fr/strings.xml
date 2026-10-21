@@ -28,6 +28,11 @@
     <string name="login_password_help">Il ne quitte jamais cet appareil, même chiffré.</string>
     <string name="login_no_vault">Pas encore de coffre ?</string>
     <string name="login_create_vault">Créer un coffre</string>
+    <string name="login_submitting">Ouverture du coffre…</string>
+    <string name="login_key_derivation_computer">Fyde dérive votre clé à partir du mot de passe, sur cet ordinateur. Cela prend quelques secondes.</string>
+    <string name="login_key_derivation_device">Fyde dérive votre clé à partir du mot de passe, sur cet appareil. Cela prend quelques secondes.</string>
+    <string name="login_enter_key">Entrée</string>
+    <string name="login_enter_hint">pour valider</string>
     <string name="no_account_prompt">Vous n’avez pas de compte ?</string>
     <string name="auth_error_login_failed">Échec de la connexion</string>
     <string name="session_expired">Votre session a expiré. Reconnectez-vous pour continuer.</string>
