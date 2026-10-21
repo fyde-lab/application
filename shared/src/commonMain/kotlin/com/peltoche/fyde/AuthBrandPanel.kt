@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
@@ -29,7 +28,6 @@ import com.peltoche.fyde.resources.auth_password_stays_device
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
-import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
@@ -92,27 +90,14 @@ fun AuthBrandBand(modifier: Modifier = Modifier) {
     }
 }
 
-/**
- * Fyde's mark on `primary`: the [FydeLogo] on an `onPrimary` tile — the
- * full-color artwork loses contrast straight on `primary` — then the
- * product's name.
- */
+/** Fyde's mark on `primary`: the [FydeLogo], sized as in the signed-in top bar, then the product's name. */
 @Composable
 private fun AuthBrandMark() {
     Row(
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            modifier = Modifier
-                .size(30.dp)
-                .clip(AppShapes.iconTile)
-                .background(AppColors.onPrimary),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            FydeLogo(modifier = Modifier.size(22.dp))
-        }
+        FydeLogo(modifier = Modifier.size(28.dp))
         Text(
             text = stringResource(Res.string.app_title),
             style = AppTypography.section,
