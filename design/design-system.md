@@ -12,6 +12,13 @@ and the components under `shared/.../components/` still draw the previous visual
 (warm grays, teal accent, Public Sans, 2–10px radii, top navigation bar on desktop). Migrating
 them is tracked in [Delivery](#delivery). New UI work follows this document, not the current code.
 
+Screens built so far to a reference screen, on the current tokens until they're migrated (so in
+the old palette and type, with the reference's layout, copy and proportions):
+
+| ID | Screen | Code |
+|---|---|---|
+| O1 | Bienvenue | `WelcomeScreen.kt`, `SealHero` |
+
 ## Reference screens
 
 Every screen of the app is drawn in `assets/screens/` (49 PNGs at 2×, phone frames at 390×844,
@@ -172,7 +179,8 @@ chips and the trailing actions of a row; size the glyph for looks and centre it 
 ### Iconography
 
 Stroke icons, 1.7 stroke on a 24 grid, round caps and joins, drawn as `Canvas` glyphs in
-`NavGlyphs.kt` / `DocumentGlyph.kt` (no icon font). Sizes (`AppIconSize`): 13 inline, 16 in
+`NavGlyphs.kt` / `DocumentGlyph.kt` (no icon font), traced from the matching `icons.svg` symbol
+on its 24-unit grid (e.g. `BoltGlyph` ← `i-bolt`, `SyncGlyph` ← `i-sync`). Sizes (`AppIconSize`): 13 inline, 16 in
 controls, 20 default, 24 tab bar and large tiles, 28+ only for heroes. Glyph colour is `text` at
 rest, `primary` when selected, the category ink on a category fill. The icon set in use is
 `assets/mockups/icons.svg`.
@@ -289,7 +297,7 @@ subcategories of the chosen category only, type chips.
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| O1 | Bienvenue | Seal hero, "Vos documents, sous scellé.", three promises (fetched, encrypted, on every device), Créer mon coffre / J'ai déjà un coffre | Only without an account on the device |
+| O1 | Bienvenue | Seal hero, "Vos documents, sous scellé.", three promises (fetched, encrypted, on every device), Créer mon coffre / J'ai déjà un coffre | Only without an account on the device: first screen until signed in and after logging out; Créer mon coffre → O3, J'ai déjà un coffre → O2; an expired session goes to O2 instead |
 | O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds) |
 | O3 | Créer le coffre | Step 1/4; username; password with strength meter; confirm; warning "seule clé de votre coffre"; required "J'ai compris" | Mismatch and taken username as field errors |
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
@@ -394,7 +402,9 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `ArrivalsBanner`, `ClassificationSuggestion` | New | — |
 | `OneTimeCodeField` | New | See [Verification code](#verification-code) |
 | `SourceRow`, `SourceStatus`, `RunStepper` | New | See [Source status](#source-status) |
-| `SealHero`, `DeviceTile`, `UsageMeter` | New / restyle | — |
+| `SealHero` | Landed (O1) | `primary` disc and lock, `primaryWash` disc, two `border` rings at 168 (`AppDimensions.sealHero`); reused by M2 |
+| `DeviceTile`, `UsageMeter` | New / restyle | — |
+| `AppIconTile` | Restyle | 44 default; 36 (`AppDimensions.iconTileSmall`) beside body text, as in O1's promises |
 
 Every new or changed component lands in `DesignSystemScreen.kt` in the same change.
 

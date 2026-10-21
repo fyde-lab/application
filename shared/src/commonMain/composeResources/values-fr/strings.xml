@@ -6,6 +6,15 @@
     <string name="username_label">Nom d’utilisateur</string>
     <string name="password_label">Mot de passe</string>
 
+    <!-- Welcome screen -->
+    <string name="welcome_title">Vos documents,\nsous scellé.</string>
+    <string name="welcome_seal_description">Coffre scellé</string>
+    <string name="welcome_promise_fetched">Récupérés tout seuls chez vos fournisseurs, banques et administrations.</string>
+    <string name="welcome_promise_encrypted">Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</string>
+    <string name="welcome_promise_devices">Sur tous vos appareils, même hors ligne.</string>
+    <string name="welcome_create_vault">Créer mon coffre</string>
+    <string name="welcome_have_vault">J’ai déjà un coffre</string>
+
     <!-- Login screen -->
     <string name="no_account_prompt">Vous n’avez pas de compte ?</string>
     <string name="auth_error_login_failed">Échec de la connexion</string>

@@ -87,6 +87,8 @@ private val scriptIcons = mutableMapOf<String, ByteArray>()
 
 /** Which top-level screen [App] is currently showing. */
 private sealed interface Screen {
+    /** No account open on this device: [WelcomeScreen], leading to [Register] or [Login]. */
+    data object Welcome : Screen
     data object Login : Screen
     data object Register : Screen
 
@@ -113,7 +115,7 @@ private sealed interface Screen {
 
 /** Whether [this] is shown with no session open, before signing in. */
 private val Screen.isSignedOut: Boolean
-    get() = this == Screen.Login || this == Screen.Register || this is Screen.SessionLimit
+    get() = this == Screen.Welcome || this == Screen.Login || this == Screen.Register || this is Screen.SessionLimit
 
 @Composable
 @Preview
@@ -147,7 +149,7 @@ private fun AppContent(
     appearance: AppAppearance,
     onAppearanceChange: (AppAppearance) -> Unit,
 ) {
-    var screen by remember { mutableStateOf<Screen>(Screen.Login) }
+    var screen by remember { mutableStateOf<Screen>(Screen.Welcome) }
     var authError by remember { mutableStateOf<String?>(null) }
     // Whether a login/register call is in flight: OPAQUE's key stretching
     // (Argon2id, 64 MiB) takes noticeable time, longest on a phone, so the
@@ -330,6 +332,10 @@ private fun AppContent(
 
     key(language) {
         when (screen) {
+            Screen.Welcome -> WelcomeScreen(
+                onCreateVault = { screen = Screen.Register },
+                onOpenVault = { screen = Screen.Login },
+            )
             Screen.Login -> LoginScreen(
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
@@ -405,7 +411,8 @@ private fun AppContent(
                         FydeSdk.logout()
                             .onSuccess {
                                 authError = null
-                                screen = Screen.Login
+                                // Logging out wipes this device's account, so it's back to Welcome.
+                                screen = Screen.Welcome
                             }
                             .onFailure { logoutError = getString(Res.string.log_out_failed, it.userMessage()) }
                         isLoggingOut = false

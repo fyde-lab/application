@@ -77,6 +77,15 @@ object AppDimensions {
     val authLogo: Dp = 56.dp
 
     /**
+     * A small `AppIconTile` beside a line or two of body text — Welcome's
+     * promises (`design/assets/screens/O1-bienvenue.png`).
+     */
+    val iconTileSmall: Dp = 36.dp
+
+    /** `SealHero`'s outer diameter, out to its outermost ring (O1, M2). */
+    val sealHero: Dp = 168.dp
+
+    /**
      * Layout § density — list-row minimum heights, applied via
      * `Modifier.heightIn(min = ...)`. These are floors, not targets: a row's
      * *natural* height (icon + two lines of text + default content padding)

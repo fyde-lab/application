@@ -324,3 +324,52 @@ fun AlertGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.error, str
         drawCircle(color = tint, radius = stroke.width * 0.6f, center = Offset(cx, size.height * 0.88f))
     }
 }
+
+/**
+ * A lightning bolt — Welcome's "fetched by itself" promise. Traced from
+ * `i-bolt` in `design/assets/mockups/icons.svg`, on its 24-unit grid.
+ */
+@Composable
+fun BoltGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val path = Path().apply {
+            moveTo(13f * unit, 2.5f * unit)
+            lineTo(4.5f * unit, 13.5f * unit)
+            lineTo(11f * unit, 13.5f * unit)
+            lineTo(10f * unit, 21.5f * unit)
+            lineTo(18.5f * unit, 10.5f * unit)
+            lineTo(12f * unit, 10.5f * unit)
+            close()
+        }
+        drawPath(path, color = tint, style = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round))
+    }
+}
+
+/**
+ * Two arrows chasing each other round a circle — sync across devices
+ * (Welcome's "on every device" promise). Traced from `i-sync` in
+ * `design/assets/mockups/icons.svg`, on its 24-unit grid.
+ */
+@Composable
+fun SyncGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val circle = Rect(Offset(12f * unit, 12f * unit), 8f * unit)
+        val path = Path().apply {
+            // Upper arc, right to left, ending in the top-left arrowhead.
+            arcTo(circle, startAngleDegrees = -7f, sweepAngleDegrees = -132f, forceMoveTo = true)
+            lineTo(4f * unit, 8.5f * unit)
+            moveTo(4f * unit, 4f * unit)
+            lineTo(4f * unit, 8.5f * unit)
+            lineTo(8.5f * unit, 8.5f * unit)
+            // Lower arc, left to right, ending in the bottom-right arrowhead.
+            arcTo(circle, startAngleDegrees = 173f, sweepAngleDegrees = -132f, forceMoveTo = true)
+            lineTo(20f * unit, 15.5f * unit)
+            moveTo(20f * unit, 20f * unit)
+            lineTo(20f * unit, 15.5f * unit)
+            lineTo(15.5f * unit, 15.5f * unit)
+        }
+        drawPath(path, color = tint, style = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round))
+    }
+}
