@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Fyde — Accueil et accès</title>
+<link rel="stylesheet" href="base.css"><link rel="stylesheet" href="tokens.css">
+<style>
+.hero{width:168px;height:168px;margin:40px auto 0;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,var(--pwash) 0 58px,transparent 59px),radial-gradient(circle,transparent 0 70px,var(--border) 71px 72px,transparent 73px),radial-gradient(circle,transparent 0 82px,var(--border) 83px 84px,transparent 85px)}
+.hero .core{width:84px;height:84px;border-radius:50%;background:var(--primary);color:var(--onp);display:grid;place-items:center}
+.promise{display:flex;gap:14px;align-items:flex-start;padding:10px 28px;font:400 16px/22px var(--font)}
+.promise .tile{width:36px;height:36px;border-radius:11px;background:var(--pwash);color:var(--primary)}
+.words{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:18px 20px 0}
+.words span{height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:0 10px;font:500 15px "Plex Mono"}
+.words span i{font-style:normal;color:var(--muted);font-size:12px;width:16px}
+.notifmock{margin:44px 20px 0;border-radius:20px;background:var(--surface);border:1px solid var(--border);padding:12px 14px;display:flex;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+.ringp{width:200px;height:200px;margin:60px auto 0;border-radius:50%;background:conic-gradient(var(--primary) 0 66%,var(--sunk) 66% 100%);display:grid;place-items:center}
+.ringp>div{width:176px;height:176px;border-radius:50%;background:var(--bg);display:grid;place-items:center;text-align:center}
+.strength{display:flex;gap:4px;margin-top:8px}.strength i{flex:1;height:4px;border-radius:2px;background:var(--border)}.strength i.on{background:var(--ok)}
+</style></head><body>
+<!--ICONS-->
+
+<div class="board"><p class="caption-board">O1 · Bienvenue</p>
+<div class="phone fyde" data-shot="O1-bienvenue">
+ <!--SB-->
+ <div class="hero"><div class="core"><svg class="ic" style="width:38px;height:38px"><use href="#i-lock"/></svg></div></div>
+ <p class="h1" style="text-align:center;margin:28px 28px 0">Vos documents,<br>sous scellé.</p>
+ <div style="margin-top:22px">
+  <div class="promise"><span class="tile"><svg class="ic"><use href="#i-bolt"/></svg></span><span>Récupérés tout seuls chez vos fournisseurs, banques et administrations.</span></div>
+  <div class="promise"><span class="tile"><svg class="ic"><use href="#i-lock"/></svg></span><span>Chiffrés sur vos appareils. Personne d’autre ne peut les lire, pas même nous.</span></div>
+  <div class="promise"><span class="tile"><svg class="ic"><use href="#i-sync"/></svg></span><span>Sur tous vos appareils, même hors ligne.</span></div>
+ </div>
+ <div class="foot"><button class="pbtn f w">Créer mon coffre</button><button class="pbtn t w">J’ai déjà un coffre</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O2 · Connexion (session expirée)</p>
+<div class="phone fyde" data-shot="O2-connexion">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <p class="h1 pad">Ouvrir mon coffre</p>
+ <div class="note warn" style="margin:16px 20px 18px"><svg class="ic"><use href="#i-clock"/></svg><span>Votre session a expiré. Reconnectez-vous pour continuer.</span></div>
+ <div class="field"><label for="u">Identifiant</label><div class="in" id="u">pierre</div></div>
+ <div class="field"><label for="pw">Mot de passe</label><div class="in on" id="pw"><span class="grow" style="letter-spacing:.2em">••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div>
+  <p class="help">Il ne quitte jamais cet appareil, même chiffré.</p></div>
+ <div style="padding:6px 20px 0"><button class="pbtn f w">Ouvrir le coffre</button></div>
+ <div class="foot"><p class="t2" style="text-align:center">Pas encore de coffre ? <b style="color:var(--primary);font-weight:600">Créer un coffre</b></p></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O3 · Créer le coffre</p>
+<div class="phone fyde" data-shot="O3-creer">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="dots3"><i class="on"></i><i></i><i></i><i></i></div><span style="width:44px"></span></div>
+ <p class="h1 pad">Créer votre coffre</p>
+ <p class="body pad" style="color:var(--muted);margin:6px 0 18px">Un identifiant et un mot de passe. C’est tout ce que Fyde vous demandera.</p>
+ <div class="field"><label>Identifiant</label><div class="in">pierre</div></div>
+ <div class="field"><label>Mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div>
+  <div class="strength"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><p class="help">Solide · 16 caractères</p></div>
+ <div class="field"><label>Confirmer le mot de passe</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg></div></div>
+ <div class="note warn" style="margin:2px 20px 14px"><svg class="ic"><use href="#i-key"/></svg><span><b style="font-weight:600">Ce mot de passe est la seule clé de votre coffre.</b> Fyde ne peut pas le réinitialiser : oublié, vos documents sont perdus.</span></div>
+ <div class="chk"><span class="box on"><svg class="ic sm"><use href="#i-check"/></svg></span><span>J’ai compris, je le garde en lieu sûr.</span></div>
+ <div class="foot"><button class="pbtn f w">Continuer</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O4 · Stockage sécurisé indisponible</p>
+<div class="phone fyde" data-shot="O4-stockage-indisponible">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="dots3"><i class="on"></i><i></i><i></i><i></i></div><span style="width:44px"></span></div>
+ <p class="h1 pad">Créer votre coffre</p>
+ <div class="field" style="margin-top:20px"><label>Identifiant</label><div class="in">pierre</div></div>
+ <div class="scrim"></div>
+ <div class="sheet">
+  <div class="grab"></div>
+  <div class="pad"><span class="tile lg" style="--cbg:var(--warnwash);--ci:var(--warn)"><svg class="ic lg"><use href="#i-alert"/></svg></span>
+  <p class="h2" style="margin-top:14px">Pas de coffre-fort système sur cet appareil</p>
+  <p class="body" style="margin-top:8px;color:var(--muted)">Vos clés ne peuvent pas être rangées dans le trousseau de l’appareil. Vous pouvez les garder dans la base locale de Fyde, mais quiconque lit les fichiers de cet appareil pourrait alors ouvrir votre coffre.</p></div>
+  <div class="chk" style="margin-top:16px"><span class="box"></span><span>Garder mes clés dans la base locale (moins sûr)</span></div>
+  <div style="padding:14px 20px 0;display:flex;flex-direction:column;gap:6px"><button class="pbtn f w" style="opacity:.38">Continuer quand même</button><button class="pbtn t w">Annuler</button></div>
+ </div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O5 · Trop d’appareils</p>
+<div class="phone fyde" data-shot="O5-trop-appareils">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <p class="h1 pad">Trop d’appareils connectés</p>
+ <p class="body pad" style="color:var(--muted);margin:8px 0 18px">Votre offre permet 3 appareils à la fois. Choisissez celui à déconnecter pour ouvrir votre coffre ici.</p>
+ <div class="group">
+  <div class="it"><span class="radio"></span><svg class="ic lg" style="color:var(--muted)"><use href="#i-phone"/></svg><div class="grow"><p class="t1">iPhone de Pierre</p><p class="t2">Connecté depuis le 2 mai</p></div></div>
+  <div class="it"><span class="radio on"></span><svg class="ic lg" style="color:var(--muted)"><use href="#i-laptop"/></svg><div class="grow"><p class="t1">MacBook Air</p><p class="t2">Connecté depuis le 12 juin</p></div></div>
+  <div class="it"><span class="radio"></span><svg class="ic lg" style="color:var(--muted)"><use href="#i-phone"/></svg><div class="grow"><p class="t1">Pixel 8</p><p class="t2">Connecté depuis le 2 oct.</p></div></div>
+ </div>
+ <div class="note info" style="margin:14px 16px 0"><svg class="ic"><use href="#i-info"/></svg><span>Il pourra se reconnecter plus tard avec votre mot de passe. Vos documents ne bougent pas.</span></div>
+ <div class="foot"><button class="pbtn f w">Déconnecter le MacBook Air</button><button class="pbtn t w">Voir les offres</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O6 · Kit de récupération</p>
+<div class="phone fyde" data-shot="O6-kit-recuperation">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="dots3"><i></i><i class="on"></i><i></i><i></i></div><span style="width:44px"></span></div>
+ <p class="h1 pad">Votre kit de récupération</p>
+ <p class="body pad" style="color:var(--muted);margin-top:8px">Si vous oubliez votre mot de passe, ces 12 mots sont la seule façon de rouvrir votre coffre. Gardez-les hors ligne, sur papier.</p>
+ <div class="words">
+  <span><i>1</i>falaise</span><span><i>2</i>orgue</span><span><i>3</i>prisme</span><span><i>4</i>tilleul</span><span><i>5</i>ancre</span><span><i>6</i>basalte</span>
+  <span><i>7</i>girafe</span><span><i>8</i>moulin</span><span><i>9</i>vortex</span><span><i>10</i>cobalt</span><span><i>11</i>pivoine</span><span><i>12</i>sextant</span>
+ </div>
+ <div class="btns" style="margin-top:14px"><button class="pbtn o sm"><svg class="ic sm"><use href="#i-download"/></svg>Enregistrer le PDF</button><button class="pbtn o sm"><svg class="ic sm"><use href="#i-pages"/></svg>Imprimer</button></div>
+ <div class="note info" style="margin:14px 16px 0"><svg class="ic"><use href="#i-eye-off"/></svg><span>Captures d’écran désactivées sur cet écran.</span></div>
+ <div class="foot"><button class="pbtn f w">Je l’ai mis en lieu sûr</button><button class="pbtn t w">Plus tard (déconseillé)</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O7 · Choisir ses sources</p>
+<div class="phone fyde" data-shot="O7-sources">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="dots3"><i></i><i></i><i class="on"></i><i></i></div><button class="pbtn t sm">Passer</button></div>
+ <p class="h1 pad">D’où viennent vos documents ?</p>
+ <p class="body pad" style="color:var(--muted);margin-top:6px">Fyde ira les chercher pour vous. Vous saisirez vos identifiants à l’étape suivante.</p>
+ <div class="search" style="margin-top:14px"><svg class="ic"><use href="#i-search"/></svg>EDF, Free, Ameli…</div>
+ <div class="chips"><span class="pc on">Populaires</span><span class="pc">Énergie</span><span class="pc">Banque</span><span class="pc">Santé</span><span class="pc">Impôts</span></div>
+ <div class="group" style="margin-top:10px">
+  <div class="it"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div class="grow"><p class="t1">EDF</p><p class="t2">Factures, échéanciers</p></div><span class="box on"><svg class="ic sm"><use href="#i-check"/></svg></span></div>
+  <div class="it"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="t2">Avis, déclarations</p></div><span class="box on"><svg class="ic sm"><use href="#i-check"/></svg></span></div>
+  <div class="it"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="t2">Remboursements, attestations</p></div><span class="box"></span></div>
+  <div class="it"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">FR</span><div class="grow"><p class="t1">Free</p><p class="t2">Factures box et mobile</p></div><span class="box"></span></div>
+  <div class="it"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i)">PJ</span><div class="grow"><p class="t1">Pajemploi</p><p class="t2">Bulletins de paie</p></div><span class="box"></span></div>
+ </div>
+ <div class="foot"><button class="pbtn f w">Connecter 2 sources</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O8 · Notifications</p>
+<div class="phone fyde" data-shot="O8-notifications">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="dots3"><i></i><i></i><i></i><i class="on"></i></div><span style="width:44px"></span></div>
+ <div class="notifmock"><span class="tile" style="--cbg:var(--primary);--ci:var(--onp)"><svg class="ic"><use href="#i-lock"/></svg></span><div class="grow"><div class="row" style="justify-content:space-between"><p class="t1" style="font-size:15px">Fyde</p><span class="t3">maintenant</span></div><p style="font:600 15px/20px var(--font);margin-top:2px">impots.gouv demande un code</p><p class="t2">Touchez pour le saisir et continuer.</p></div></div>
+ <div class="notifmock" style="margin-top:10px;opacity:.6;transform:scale(.96)"><span class="tile" style="--cbg:var(--primary);--ci:var(--onp)"><svg class="ic"><use href="#i-lock"/></svg></span><div class="grow"><p style="font:600 15px/20px var(--font)">Ameli : mot de passe refusé</p><p class="t2">Mettez-le à jour pour reprendre.</p></div></div>
+ <p class="h1 pad" style="margin-top:36px">Ne ratez pas un code</p>
+ <p class="body pad" style="color:var(--muted);margin-top:8px">Certaines sources envoient un code par SMS. Fyde vous prévient pour que la récupération ne s’arrête pas, et quand une source a besoin de vous. Jamais de publicité.</p>
+ <div class="foot"><button class="pbtn f w">Autoriser les notifications</button><button class="pbtn t w">Plus tard</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O9 · Ouverture sur un nouvel appareil</p>
+<div class="phone fyde" data-shot="O9-ouverture">
+ <!--SB-->
+ <div class="ringp"><div><p style="font:600 40px/44px 'Plex Mono'">142</p><p class="t2">sur 214 documents</p></div></div>
+ <p class="h2" style="text-align:center;margin:28px 28px 0">Ouverture de votre coffre</p>
+ <p class="body" style="text-align:center;color:var(--muted);margin:8px 32px 0">Vos documents chiffrés arrivent de votre compte et sont déchiffrés ici, sur ce Pixel 8.</p>
+ <div class="note ok" style="margin:26px 20px 0"><svg class="ic"><use href="#i-check-c"/></svg><span>Vous pouvez déjà parcourir ce qui est arrivé. Le reste suit en arrière-plan.</span></div>
+ <div class="foot"><button class="pbtn o w">Parcourir le coffre</button></div>
+ <!--HB-->
+</div></div>
+</body></html>

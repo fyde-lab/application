@@ -1,13 +1,9 @@
 # Fyde Design System
 
 > **Superseded by [`design/design-system.md`](design/design-system.md)** —
-> kept here for history only. That document is dark-**and**-light, built
-> around a teal accent and bordered fields, and is implemented (mostly) under
-> `shared/src/commonMain/kotlin/com/peltoche/fyde/theme/`; this one is
-> dark-only, lime-accented, and describes underline-style fields that no
-> longer match the app. See `design/design-system.md`'s own *Relationship to
-> `DESIGN.md`* section for exactly what changed and why. Do not implement
-> against this file.
+> kept here for history only. This file describes an early dark-only,
+> lime-accented spec that no longer matches the app or the current design
+> system. Do not implement against this file.
 
 This document defines the visual language for `fyde-application` (Kotlin
 Multiplatform + Compose Multiplatform, targeting Android, iOS, Desktop, Web).
