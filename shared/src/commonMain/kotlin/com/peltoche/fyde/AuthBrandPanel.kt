@@ -31,6 +31,7 @@ import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
 import com.peltoche.fyde.resources.auth_password_stays_computer
 import com.peltoche.fyde.resources.auth_password_stays_device
+import com.peltoche.fyde.resources.register_brand_title
 import com.peltoche.fyde.resources.welcome_seal_description
 import com.peltoche.fyde.resources.welcome_title
 import com.peltoche.fyde.theme.AppColors
@@ -108,9 +109,43 @@ fun SignInBrandPanel(modifier: Modifier = Modifier) {
  */
 @Composable
 fun SignInSplitLayout(modifier: Modifier = Modifier, form: @Composable (Modifier) -> Unit) {
+    AuthSplitLayout(brandPanel = { SignInBrandPanel() }, modifier = modifier, form = form)
+}
+
+/**
+ * [AuthBrandPanel] on the vault-creation path (DO3, DO6–DO8): "Create your
+ * vault" at 38/44, then Welcome's three promises. The design's 4-step
+ * stepper is left out until the steps after the account (recovery kit,
+ * sources, notifications) exist: creating the account opens the vault
+ * straight away.
+ */
+@Composable
+fun VaultCreationBrandPanel(modifier: Modifier = Modifier) {
+    AuthBrandPanel(modifier) {
+        Text(
+            text = stringResource(Res.string.register_brand_title),
+            style = AppTypography.display.copy(fontSize = 38.sp, lineHeight = 44.sp),
+            color = AppColors.onPrimary,
+        )
+        Spacer(Modifier.height(AppSpacing.space8))
+        WelcomePromises(textColor = AppColors.onPrimary.copy(alpha = 0.92f), accent = AppColors.onPrimary)
+    }
+}
+
+/**
+ * An onboarding or access screen's window at Medium and Expanded: [brandPanel]
+ * beside the form pane at Expanded, an [AuthBrandBand] above it at Medium.
+ * [form] gets the modifier that sizes its pane.
+ */
+@Composable
+fun AuthSplitLayout(
+    brandPanel: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    form: @Composable (Modifier) -> Unit,
+) {
     if (LocalAppWindowSizeClass.current == AppWindowSizeClass.Expanded) {
         Row(modifier = modifier.fillMaxSize().background(AppColors.background)) {
-            SignInBrandPanel()
+            brandPanel()
             form(Modifier.weight(1f).fillMaxHeight())
         }
     } else {

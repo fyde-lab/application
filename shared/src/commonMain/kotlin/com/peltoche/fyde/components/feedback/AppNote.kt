@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppShapes
@@ -39,6 +40,17 @@ enum class AppNoteKind { Info, Ok, Warning, Error }
 @Composable
 fun AppNote(
     message: String,
+    kind: AppNoteKind,
+    icon: @Composable (tint: Color) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AppNote(AnnotatedString(message), kind, icon, modifier)
+}
+
+/** An [AppNote] whose [message] carries its own styles, e.g. a SemiBold lead sentence (O3's key warning). */
+@Composable
+fun AppNote(
+    message: AnnotatedString,
     kind: AppNoteKind,
     icon: @Composable (tint: Color) -> Unit,
     modifier: Modifier = Modifier,

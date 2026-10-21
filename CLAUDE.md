@@ -84,6 +84,10 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   DO2c empties and refocuses the password): back to `WelcomeScreen`. `App.kt` passes why the
   session ended as `noticeMessage` (warning note, `sessionNotice`), separate from a failed attempt's
   `errorMessage` (error note, `authError`).
+- `RegisterScreen` (the original form at Compact, DO3 at Medium/Expanded in `AuthSplitLayout`
+  with `VaultCreationBrandPanel`; DO3b's mismatch error shows on blur or submit): back to
+  `WelcomeScreen`. DO3 requires ticking the key-warning acknowledgement; its strength meter
+  (`passwordStrength`, by length) only advises — the server sets no password rule.
 - `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the
   wording and the desktop's Retry): over `LoginScreen`/`RegisterScreen` when the device has no
   OS credential store (`FydeSdk.isSecureStorageAvailable`, checked as each form opens and again
