@@ -47,6 +47,10 @@
     <string name="insecure_storage_title">Pas de coffre-fort système sur cet appareil</string>
     <string name="insecure_storage_message">Vos clés ne peuvent pas être rangées dans le trousseau de l’appareil. Vous pouvez les garder dans la base locale de Fyde, mais quiconque lit les fichiers de cet appareil pourrait alors ouvrir votre coffre.</string>
     <string name="insecure_storage_continue">Continuer quand même</string>
+    <string name="insecure_storage_desktop_title">Pas de trousseau système sur cet ordinateur</string>
+    <string name="insecure_storage_desktop_message">Aucun trousseau (GNOME Keyring, KWallet) ne répond : Fyde ne peut pas y ranger les clés de votre coffre.</string>
+    <string name="insecure_storage_desktop_risk">Vous pouvez les garder dans la base locale de Fyde, mais quiconque lit les fichiers de cet ordinateur pourrait alors ouvrir votre coffre.</string>
+    <string name="insecure_storage_create_anyway">Créer quand même</string>
     <string name="allow_insecure_storage_label">Garder mes clés dans la base locale (moins sûr)</string>
 
     <!-- Connection -->

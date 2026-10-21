@@ -112,6 +112,18 @@ private sealed interface Screen {
     data object Scripts : Screen
 }
 
+/**
+ * A sign-in ([isRegistration] `false`) or registration waiting on
+ * [InsecureStorageSheet]: [attempt] reruns it, allowed to keep the keys in
+ * the local database or not. Captures the typed credentials, so it lives
+ * only while the sheet is open — a plain class, so they never end up in a
+ * generated `toString`.
+ */
+private class PendingStorageConsent(
+    val isRegistration: Boolean,
+    val attempt: (allowInsecureStorage: Boolean) -> Unit,
+)
+
 /** Whether [this] is shown with no session open, before signing in. */
 private val Screen.isSignedOut: Boolean
     get() = this == Screen.Welcome || this == Screen.Login || this == Screen.Register || this is Screen.SessionLimit
@@ -165,7 +177,9 @@ private fun AppContent(
     // The sign-in or registration InsecureStorageSheet is open for, rerun
     // with allowInsecureStorage once the user accepts. Holds the typed
     // credentials only while the sheet is open, like Screen.SessionLimit.
-    var insecureStorageRetry by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var storageConsent by remember { mutableStateOf<PendingStorageConsent?>(null) }
+    // Whether the sheet's Retry is looking for the keyring again.
+    var isRecheckingStorage by remember { mutableStateOf(false) }
     // The device's persisted language preference (see
     // FydeSdk.setLanguage/getLanguage), or `null` if never set (in which case
     // the platform's own locale is left alone). Wrapping the `when` below in
@@ -216,8 +230,8 @@ private fun AppContent(
     // Runs [attempt] at once where the device has secure storage; otherwise
     // opens InsecureStorageSheet, which runs it allowed to fall back to the
     // local database once the user accepts.
-    fun withStorageConsent(attempt: (allowInsecureStorage: Boolean) -> Unit) {
-        if (isSecureStorageAvailable) attempt(false) else insecureStorageRetry = { attempt(true) }
+    fun withStorageConsent(isRegistration: Boolean, attempt: (allowInsecureStorage: Boolean) -> Unit) {
+        if (isSecureStorageAvailable) attempt(false) else storageConsent = PendingStorageConsent(isRegistration, attempt)
     }
 
     // fyde-sdk refuses to open a session without secure storage unless
@@ -256,7 +270,9 @@ private fun AppContent(
                 }
                 .onFailure {
                     if (lostSecureStorage(allowInsecureStorage)) {
-                        insecureStorageRetry = { logIn(username, password, true, replaceSessionId) }
+                        storageConsent = PendingStorageConsent(isRegistration = false) { allow ->
+                            logIn(username, password, allow, replaceSessionId)
+                        }
                         isAuthenticating = false
                         return@launch
                     }
@@ -279,7 +295,9 @@ private fun AppContent(
                 .onSuccess { screen = Screen.Documents }
                 .onFailure {
                     if (lostSecureStorage(allowInsecureStorage)) {
-                        insecureStorageRetry = { register(username, password, true) }
+                        storageConsent = PendingStorageConsent(isRegistration = true) { allow ->
+                            register(username, password, allow)
+                        }
                     } else {
                         authError = it.userMessage(Res.string.auth_error_register_failed)
                     }
@@ -323,7 +341,7 @@ private fun AppContent(
     LaunchedEffect(screen) {
         // InsecureStorageSheet belongs to the form it was opened over:
         // leaving that form drops it, and the credentials it holds.
-        insecureStorageRetry = null
+        storageConsent = null
         if (screen == Screen.Register || screen == Screen.Login) {
             isSecureStorageAvailable = FydeSdk.initialize(BuildConfig.SERVER_URL)
                 .mapCatching { FydeSdk.isSecureStorageAvailable().getOrThrow() }
@@ -379,7 +397,7 @@ private fun AppContent(
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
                 onLogIn = { username, password ->
-                    withStorageConsent { allowInsecureStorage -> logIn(username, password, allowInsecureStorage) }
+                    withStorageConsent(isRegistration = false) { allow -> logIn(username, password, allow) }
                 },
                 onNavigateToRegister = {
                     authError = null
@@ -412,7 +430,7 @@ private fun AppContent(
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
                 onRegister = { username, password ->
-                    withStorageConsent { allowInsecureStorage -> register(username, password, allowInsecureStorage) }
+                    withStorageConsent(isRegistration = true) { allow -> register(username, password, allow) }
                 },
                 onNavigateToLogin = {
                     authError = null
@@ -496,13 +514,29 @@ private fun AppContent(
         }
 
         // Over the login or registration form it was opened from.
-        insecureStorageRetry?.let { retry ->
+        storageConsent?.let { pending ->
             InsecureStorageSheet(
+                isRegistration = pending.isRegistration,
+                isRetrying = isRecheckingStorage,
                 onContinue = {
-                    insecureStorageRetry = null
-                    retry()
+                    storageConsent = null
+                    pending.attempt(true)
                 },
-                onDismiss = { insecureStorageRetry = null },
+                // A keyring found this time runs the attempt as it would
+                // have gone without one missing; none, and the sheet stays.
+                onRetry = {
+                    scope.launch {
+                        isRecheckingStorage = true
+                        val available = FydeSdk.isSecureStorageAvailable().getOrDefault(false)
+                        isRecheckingStorage = false
+                        if (available && storageConsent === pending) {
+                            isSecureStorageAvailable = true
+                            storageConsent = null
+                            pending.attempt(false)
+                        }
+                    }
+                },
+                onDismiss = { storageConsent = null },
             )
         }
 

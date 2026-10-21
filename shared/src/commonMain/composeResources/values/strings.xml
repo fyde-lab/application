@@ -47,6 +47,10 @@
     <string name="insecure_storage_title">No system keychain on this device</string>
     <string name="insecure_storage_message">Your keys can’t be kept in this device’s keychain. You can keep them in Fyde’s local database instead, but anyone who can read this device’s files could then open your vault.</string>
     <string name="insecure_storage_continue">Continue anyway</string>
+    <string name="insecure_storage_desktop_title">No system keyring on this computer</string>
+    <string name="insecure_storage_desktop_message">No keyring (GNOME Keyring, KWallet) is responding: Fyde can’t keep your vault’s keys in it.</string>
+    <string name="insecure_storage_desktop_risk">You can keep them in Fyde’s local database instead, but anyone who can read this computer’s files could then open your vault.</string>
+    <string name="insecure_storage_create_anyway">Create anyway</string>
     <string name="allow_insecure_storage_label">Keep my keys in the local database (less secure)</string>
 
     <!-- Connection -->

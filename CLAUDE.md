@@ -80,11 +80,13 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - `LoginScreen` (O2): back to `WelcomeScreen`. `App.kt` passes why the session ended as
   `noticeMessage` (warning note, `sessionNotice`), separate from a failed attempt's
   `errorMessage` (error note, `authError`).
-- `InsecureStorageSheet` (O4): over `LoginScreen`/`RegisterScreen` when the device has no OS
-  credential store (`FydeSdk.isSecureStorageAvailable`, checked as each form opens and again
+- `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the
+  wording and the desktop's Retry): over `LoginScreen`/`RegisterScreen` when the device has no
+  OS credential store (`FydeSdk.isSecureStorageAvailable`, checked as each form opens and again
   after a failed attempt). Submitting opens it; once the user accepts, `App.kt` reruns the
   attempt with `allowInsecureStorage` (fyde-sdk refuses with `SecureStorageUnavailable`
-  otherwise). The screens themselves know nothing of it.
+  otherwise); Retry re-checks and, if a keyring answers now, runs it without. The screens
+  themselves know nothing of it.
 - `LoginScreen`, `RegisterScreen`, `SessionLimitScreen`: when `FydeSdk.login` returns
   `FydeLoginOutcome.SessionLimitReached`, `App.kt` shows the account's sessions, keeps the typed
   credentials in `Screen.SessionLimit` only while it's open, and re-runs login with the picked
