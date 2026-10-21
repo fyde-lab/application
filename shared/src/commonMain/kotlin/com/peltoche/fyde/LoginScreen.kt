@@ -34,17 +34,14 @@ import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
-import com.peltoche.fyde.components.form.AppCheckbox
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.allow_insecure_storage_label
 import com.peltoche.fyde.resources.login_create_vault
 import com.peltoche.fyde.resources.login_no_vault
 import com.peltoche.fyde.resources.login_password_help
 import com.peltoche.fyde.resources.login_submit
 import com.peltoche.fyde.resources.login_title
 import com.peltoche.fyde.resources.password_label
-import com.peltoche.fyde.resources.secure_storage_unavailable_login_warning
 import com.peltoche.fyde.resources.username_label
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
@@ -66,32 +63,25 @@ import org.jetbrains.compose.resources.stringResource
  * attempt failed, as an error note. While [isSubmitting], the fields are
  * disabled and the button spins: key stretching takes seconds.
  *
- * When [isSecureStorageAvailable] is `false`, it explains the risk and
- * offers the same checkbox as [RegisterScreen] to keep the session's keys
- * in the local database instead; the form can only be submitted once it's
- * checked. Found via review: only registration offered it, so on such a
- * device an existing account could never log in — fyde-sdk refused, and
- * the form offered no way forward.
+ * A device without an OS credential store is handled by `App.kt`, which
+ * covers this form with [InsecureStorageSheet] (O4) on submit.
  */
 @Composable
 fun LoginScreen(
-    onLogIn: (username: String, password: String, allowInsecureStorage: Boolean) -> Unit,
+    onLogIn: (username: String, password: String) -> Unit,
     onNavigateToRegister: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     noticeMessage: String? = null,
     errorMessage: String? = null,
     isSubmitting: Boolean = false,
-    isSecureStorageAvailable: Boolean = true,
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var allowInsecureStorage by remember { mutableStateOf(false) }
     val usernameFocus = remember { FocusRequester() }
 
-    val storageAccepted = isSecureStorageAvailable || allowInsecureStorage
-    val canSubmit = !isSubmitting && username.isNotBlank() && password.isNotBlank() && storageAccepted
-    val submit = { if (canSubmit) onLogIn(username, password, !isSecureStorageAvailable && allowInsecureStorage) }
+    val canSubmit = !isSubmitting && username.isNotBlank() && password.isNotBlank()
+    val submit = { if (canSubmit) onLogIn(username, password) }
 
     // Land the cursor in the first field on arrival, so the form can be
     // filled and submitted from the keyboard alone.
@@ -159,21 +149,6 @@ fun LoginScreen(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
                     keyboardActions = KeyboardActions(onGo = { submit() }),
                 )
-                if (!isSecureStorageAvailable) {
-                    Spacer(Modifier.height(AppSpacing.space4))
-                    Text(
-                        text = stringResource(Res.string.secure_storage_unavailable_login_warning),
-                        style = AppTypography.caption,
-                        color = AppColors.textMuted,
-                    )
-                    Spacer(Modifier.height(AppSpacing.space2))
-                    AppCheckbox(
-                        checked = allowInsecureStorage,
-                        onCheckedChange = { allowInsecureStorage = it },
-                        enabled = !isSubmitting,
-                        label = stringResource(Res.string.allow_insecure_storage_label),
-                    )
-                }
                 Spacer(Modifier.height(AppSpacing.space6))
                 AppButton(
                     text = stringResource(Res.string.login_submit),

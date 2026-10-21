@@ -427,3 +427,29 @@ fun EyeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, c
         }
     }
 }
+
+/**
+ * A warning triangle with an exclamation mark — a risk the user has to
+ * accept (O4's insecure-storage sheet). Traced from `i-alert` in `icons.svg`.
+ */
+@Composable
+fun AlertTriangleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.warning, strokeWidth: Dp = 1.7.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        val triangle = Path().apply {
+            moveTo(12f * unit, 3.5f * unit)
+            lineTo(2.5f * unit, 20f * unit)
+            lineTo(21.5f * unit, 20f * unit)
+            close()
+        }
+        drawPath(triangle, color = tint, style = stroke)
+        val mark = Path().apply {
+            moveTo(12f * unit, 10f * unit)
+            lineTo(12f * unit, 14.5f * unit)
+            moveTo(12f * unit, 17.3f * unit)
+            lineTo(12f * unit, 17.5f * unit)
+        }
+        drawPath(mark, color = tint, style = stroke)
+    }
+}

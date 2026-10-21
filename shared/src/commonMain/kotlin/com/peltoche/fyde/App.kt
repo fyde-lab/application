@@ -36,7 +36,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
@@ -159,10 +158,14 @@ private fun AppContent(
     // form shows it's working and can't be submitted a second time.
     var isAuthenticating by remember { mutableStateOf(false) }
     // Whether this device has secure storage for the account's keys - when it
-    // doesn't, RegisterScreen asks the user to accept keeping them in the
-    // local database instead. Assumed available until checked, so the
-    // checkbox never flashes on a device that doesn't need it.
+    // doesn't, signing in or registering first asks the user to accept
+    // keeping them in the local database instead (InsecureStorageSheet, O4).
+    // Assumed available until checked.
     var isSecureStorageAvailable by remember { mutableStateOf(true) }
+    // The sign-in or registration InsecureStorageSheet is open for, rerun
+    // with allowInsecureStorage once the user accepts. Holds the typed
+    // credentials only while the sheet is open, like Screen.SessionLimit.
+    var insecureStorageRetry by remember { mutableStateOf<(() -> Unit)?>(null) }
     // The device's persisted language preference (see
     // FydeSdk.setLanguage/getLanguage), or `null` if never set (in which case
     // the platform's own locale is left alone). Wrapping the `when` below in
@@ -210,6 +213,24 @@ private fun AppContent(
         }
     }
 
+    // Runs [attempt] at once where the device has secure storage; otherwise
+    // opens InsecureStorageSheet, which runs it allowed to fall back to the
+    // local database once the user accepts.
+    fun withStorageConsent(attempt: (allowInsecureStorage: Boolean) -> Unit) {
+        if (isSecureStorageAvailable) attempt(false) else insecureStorageRetry = { attempt(true) }
+    }
+
+    // fyde-sdk refuses to open a session without secure storage unless
+    // allowed (SecureStorageUnavailable); the keyring may have gone away
+    // (locked, stopped) since the form checked. Re-checked after a failed
+    // attempt that wasn't allowed, so the user gets the sheet rather than
+    // that error.
+    suspend fun lostSecureStorage(allowInsecureStorage: Boolean): Boolean {
+        if (allowInsecureStorage || FydeSdk.isSecureStorageAvailable().getOrNull() != false) return false
+        isSecureStorageAvailable = false
+        return true
+    }
+
     // Shows SessionLimitScreen instead of signing in when the account is at
     // its plan's session limit; [replaceSessionId] is the session picked
     // there to disconnect in favor of this device.
@@ -234,6 +255,11 @@ private fun AppContent(
                     }
                 }
                 .onFailure {
+                    if (lostSecureStorage(allowInsecureStorage)) {
+                        insecureStorageRetry = { logIn(username, password, true, replaceSessionId) }
+                        isAuthenticating = false
+                        return@launch
+                    }
                     val fallback = if (replaceSessionId == null) {
                         Res.string.auth_error_login_failed
                     } else {
@@ -245,18 +271,22 @@ private fun AppContent(
         }
     }
 
-    fun authenticateWith(credentialCall: suspend (String, String) -> Result<Unit>, fallback: StringResource) =
-        { username: String, password: String ->
-            authError = null
-            isAuthenticating = true
-            scope.launch {
-                authenticate(username, password, credentialCall)
-                    .onSuccess { screen = Screen.Documents }
-                    .onFailure { authError = it.userMessage(fallback) }
-                isAuthenticating = false
-            }
-            Unit
+    fun register(username: String, password: String, allowInsecureStorage: Boolean) {
+        authError = null
+        isAuthenticating = true
+        scope.launch {
+            authenticate(username, password) { user, pass -> FydeSdk.register(user, pass, allowInsecureStorage) }
+                .onSuccess { screen = Screen.Documents }
+                .onFailure {
+                    if (lostSecureStorage(allowInsecureStorage)) {
+                        insecureStorageRetry = { register(username, password, true) }
+                    } else {
+                        authError = it.userMessage(Res.string.auth_error_register_failed)
+                    }
+                }
+            isAuthenticating = false
         }
+    }
 
     // fyde-sdk logs out by itself once the server rejects the session token
     // (expired, revoked, ...): back to the login form, saying why, from
@@ -289,8 +319,11 @@ private fun AppContent(
 
     // Re-checked every time the login or registration form opens, so a
     // keyring started or unlocked in the meantime is picked up; both offer
-    // the local-database fallback when there's none.
+    // the local-database fallback (InsecureStorageSheet) when there's none.
     LaunchedEffect(screen) {
+        // InsecureStorageSheet belongs to the form it was opened over:
+        // leaving that form drops it, and the credentials it holds.
+        insecureStorageRetry = null
         if (screen == Screen.Register || screen == Screen.Login) {
             isSecureStorageAvailable = FydeSdk.initialize(BuildConfig.SERVER_URL)
                 .mapCatching { FydeSdk.isSecureStorageAvailable().getOrThrow() }
@@ -345,9 +378,8 @@ private fun AppContent(
                 noticeMessage = sessionNotice,
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
-                isSecureStorageAvailable = isSecureStorageAvailable,
-                onLogIn = { username, password, allowInsecureStorage ->
-                    logIn(username, password, allowInsecureStorage)
+                onLogIn = { username, password ->
+                    withStorageConsent { allowInsecureStorage -> logIn(username, password, allowInsecureStorage) }
                 },
                 onNavigateToRegister = {
                     authError = null
@@ -379,12 +411,8 @@ private fun AppContent(
             Screen.Register -> RegisterScreen(
                 errorMessage = authError,
                 isSubmitting = isAuthenticating,
-                isSecureStorageAvailable = isSecureStorageAvailable,
-                onRegister = { username, password, allowInsecureStorage ->
-                    authenticateWith(
-                        { user, pass -> FydeSdk.register(user, pass, allowInsecureStorage) },
-                        Res.string.auth_error_register_failed,
-                    )(username, password)
+                onRegister = { username, password ->
+                    withStorageConsent { allowInsecureStorage -> register(username, password, allowInsecureStorage) }
                 },
                 onNavigateToLogin = {
                     authError = null
@@ -464,6 +492,17 @@ private fun AppContent(
                 scraperRuns = scraperRuns,
                 onOpenDocuments = { screen = Screen.Documents },
                 onOpenSettings = { screen = Screen.Settings },
+            )
+        }
+
+        // Over the login or registration form it was opened from.
+        insecureStorageRetry?.let { retry ->
+            InsecureStorageSheet(
+                onContinue = {
+                    insecureStorageRetry = null
+                    retry()
+                },
+                onDismiss = { insecureStorageRetry = null },
             )
         }
 

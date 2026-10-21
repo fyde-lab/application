@@ -28,7 +28,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.allow_insecure_storage_label
 import com.peltoche.fyde.resources.confirm_password_label
 import com.peltoche.fyde.resources.create_account_title
 import com.peltoche.fyde.resources.has_account_prompt
@@ -36,10 +35,8 @@ import com.peltoche.fyde.resources.log_in
 import com.peltoche.fyde.resources.password_label
 import com.peltoche.fyde.resources.passwords_mismatch
 import com.peltoche.fyde.resources.register_password_warning
-import com.peltoche.fyde.resources.secure_storage_unavailable_warning
 import com.peltoche.fyde.resources.sign_up
 import com.peltoche.fyde.resources.username_label
-import com.peltoche.fyde.components.form.AppCheckbox
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
@@ -55,33 +52,25 @@ import org.jetbrains.compose.resources.stringResource
  * presentation — no `FydeSdk` import — so it can be redesigned without
  * touching auth wiring.
  *
- * When [isSecureStorageAvailable] is `false` (the device has no Keychain,
- * Secret Service, ...), it also explains the risk and offers a checkbox to
- * keep the account's keys in the local database instead; the form can only
- * be submitted once it's checked, since fyde-sdk refuses to register on such
- * a device otherwise. Its value is passed to [onRegister] as
- * `allowInsecureStorage`.
+ * A device without an OS credential store is handled by `App.kt`, which
+ * covers this form with [InsecureStorageSheet] (O4) on submit.
  */
 @Composable
 fun RegisterScreen(
-    onRegister: (username: String, password: String, allowInsecureStorage: Boolean) -> Unit,
+    onRegister: (username: String, password: String) -> Unit,
     onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier,
     errorMessage: String? = null,
     isSubmitting: Boolean = false,
-    isSecureStorageAvailable: Boolean = true,
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val usernameFocus = remember { FocusRequester() }
     var confirmPassword by remember { mutableStateOf("") }
-    var allowInsecureStorage by remember { mutableStateOf(false) }
 
     val passwordsMatch = password == confirmPassword
-    val storageAccepted = isSecureStorageAvailable || allowInsecureStorage
-    val canSubmit = !isSubmitting && username.isNotBlank() && password.isNotBlank() && passwordsMatch &&
-        storageAccepted
-    val submit = { if (canSubmit) onRegister(username, password, !isSecureStorageAvailable && allowInsecureStorage) }
+    val canSubmit = !isSubmitting && username.isNotBlank() && password.isNotBlank() && passwordsMatch
+    val submit = { if (canSubmit) onRegister(username, password) }
 
     // Land the cursor in the first field on arrival, so the form can be
     // filled and submitted from the keyboard alone.
@@ -158,21 +147,6 @@ fun RegisterScreen(
                     null
                 },
             )
-            if (!isSecureStorageAvailable) {
-                Spacer(Modifier.height(AppSpacing.space4))
-                Text(
-                    text = stringResource(Res.string.secure_storage_unavailable_warning),
-                    style = AppTypography.caption,
-                    color = AppColors.textMuted,
-                )
-                Spacer(Modifier.height(AppSpacing.space2))
-                AppCheckbox(
-                    checked = allowInsecureStorage,
-                    onCheckedChange = { allowInsecureStorage = it },
-                    enabled = !isSubmitting,
-                    label = stringResource(Res.string.allow_insecure_storage_label),
-                )
-            }
             if (errorMessage != null) {
                 Spacer(Modifier.height(AppSpacing.space3))
                 Text(
