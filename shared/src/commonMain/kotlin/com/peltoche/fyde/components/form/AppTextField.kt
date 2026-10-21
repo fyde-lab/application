@@ -45,7 +45,8 @@ import org.jetbrains.compose.resources.stringResource
  *
  * An [isPassword] field masks its value and carries an eye button to show
  * it (design-system.md O2: "Mot de passe (eye)"), in place of any
- * [trailingIcon].
+ * [trailingIcon] — unless [revealable] is false, as on O3's confirmation
+ * field, which shows its [trailingIcon] (a check once it matches) instead.
  *
  * No hardcoded copy: every user-visible string is a required parameter, so
  * callers always supply their own localized string. [textStyle] overrides
@@ -63,6 +64,7 @@ fun AppTextField(
     errorText: String? = null,
     enabled: Boolean = true,
     isPassword: Boolean = false,
+    revealable: Boolean = true,
     singleLine: Boolean = true,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
@@ -71,7 +73,7 @@ fun AppTextField(
     textStyle: TextStyle? = null,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
-    val passwordToggle: (@Composable () -> Unit)? = if (isPassword) {
+    val passwordToggle: (@Composable () -> Unit)? = if (isPassword && revealable) {
         {
             AppIconButton(
                 onClick = { passwordVisible = !passwordVisible },

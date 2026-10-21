@@ -438,6 +438,10 @@ private fun AppContent(
                     authError = null
                     screen = Screen.Login
                 },
+                onBack = {
+                    authError = null
+                    screen = Screen.Welcome
+                },
             )
             Screen.Documents -> DocumentsScreen(
                 onOpenSettings = { screen = Screen.Settings },

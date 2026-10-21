@@ -388,6 +388,20 @@ fun ChevronLeftGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.text
     }
 }
 
+/** A check mark — a field whose value is confirmed (O3's matching password). Traced from `i-check` in `icons.svg`. */
+@Composable
+fun CheckGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.success, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val path = Path().apply {
+            moveTo(5f * unit, 12.5f * unit)
+            lineTo(9.5f * unit, 17f * unit)
+            lineTo(19f * unit, 7.5f * unit)
+        }
+        drawPath(path, color = tint, style = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round))
+    }
+}
+
 /** A clock face — waiting, expiry (a warning note's mark). Traced from `i-clock` in `icons.svg`. */
 @Composable
 fun ClockGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.warning, strokeWidth: Dp = 1.6.dp) {
