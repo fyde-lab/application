@@ -24,7 +24,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 
 ## Reference screens
 
-Every screen of the app is drawn in `assets/screens/` (62 PNGs at 2×, phone frames at 390×844,
+Every screen of the app is drawn in `assets/screens/` (68 PNGs at 2×, phone frames at 390×844,
 desktop at 1440×900, tablet at 1194×834), rendered from the HTML in `assets/mockups/` by
 `render.py`; `sheets.py` assembles them into the contact sheets in `assets/sheets/`. To change a
 reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
@@ -226,7 +226,7 @@ Without a session there's no sidebar. The window splits in two (DO1–DO9):
   Fyde mark at the top, a reassurance line at the bottom ("Votre mot de passe ne quitte jamais
   cet ordinateur."). In between, on the sign-in path (DO1, DO2, DO4, DO5, DO9): the seal on
   `onPrimary` (white disc, lock in `primary`, rings at 22% and 16% white), "Vos documents, sous
-  scellé." in 38/44 SemiBold and the three promises. On the vault-creation path (DO3, DO6–DO8):
+  scellé." in 38/44 SemiBold and the three promises. On the vault-creation path (DO3, DO6–DO8, DO7b–DO7g):
   "Créer votre coffre", "Quatre étapes, environ trois minutes." and a vertical 4-step stepper
   (done = `success` disc with check, current = white disc, to do = outline at 35% white, joined
   by a 2dp line at 18% white).
@@ -282,6 +282,20 @@ field. Its context always shows the source, the masked destination and a step tr
 Connecté → Code → Récupération (from `FfiProgressStep`). A code request while the app is in the
 background raises a time-sensitive notification that opens straight into the field (R4).
 
+The card says how the code was sent, because the user has to go and fetch it:
+
+- **SMS** — "Code reçu par SMS", "Envoyé au •• •• •• 42 87". On phones the OS offers it above
+  the keyboard (iOS `oneTimeCode`, Android SMS Retriever); on desktop it's typed or pasted.
+- **E-mail** — "Code reçu par e-mail", "Envoyé à p•••@exemple.fr · regardez aussi dans les
+  indésirables", and a line asking to copy the code from the mailbox and paste it. No autofill
+  on any platform; Fyde never reads the user's mailbox.
+- **Anything else** (an authenticator app, a question) — the provider's own wording as the
+  title, one text field.
+
+Which one it is, and the masked destination, come from the scraper's question; until the SDK
+passes them as structured data (channel, destination, length), the card shows the question text
+as its title and a single field.
+
 ### Document pass
 
 The detail of a document is a pass in its category colours: issuer and type, a headline value
@@ -331,7 +345,7 @@ subcategories of the chosen category only, type chips.
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
 | O5 | Trop d'appareils | Plan limit, radio list of open sessions, "Déconnecter le MacBook Air" | Re-runs login with `replaceSessionId`; credentials kept only while open |
 | O6 | Kit de récupération | Step 2/4; 12 words; Enregistrer le PDF / Imprimer; Je l'ai mis en lieu sûr / Plus tard | Screenshots blocked. Confirm asks two words back |
-| O7 | Choisir ses sources | Step 3/4; search, category chips, popular public scrapers with checkboxes | Each pick opens S3 in turn |
+| O7 | Choisir ses sources | Step 3/4; search, category chips, popular public scrapers with checkboxes | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
 | O8 | Notifications | Step 4/4; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
 | O9 | Ouverture | Ring "142 sur 214", the device's name, "Vous pouvez déjà parcourir" | Replaces an empty vault on a new device |
 
@@ -424,6 +438,12 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO5 | Trop d'appareils | As O5; Voir les offres · Déconnecter le MacBook Air | — |
 | DO6 | Kit de récupération | Step 2 of 4: 12 words in 4×3, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop |
 | DO7 | Choisir ses sources | Step 3 of 4: search, category chips, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
+| DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 3 with their state | Connect installs the script and starts its first run |
+| DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel |
+| DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Annuler / Valider | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
+| DO7e | Code reçu par e-mail | Same card for an e-mail code: destination, spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Same |
+| DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
+| DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, or skipped with Réessayer), Continuer → DO8, "Ajouter une autre source" | — |
 | DO8 | Notifications | Step 4 of 4: a sample system notification at the top right of the pane, the promise, a note that on a computer Fyde notifies while it's open | — |
 | DO9 | Ouverture sur cet ordinateur | Ring with the replayed count, names this computer, Parcourir le coffre | Needs the replay total (SDK) |
 

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Fyde — Connecter ses sources (bureau)</title>
+<link rel="stylesheet" href="base.css"><link rel="stylesheet" href="tokens.css">
+<style>
+.desktop{position:relative}
+.split{flex:1;display:flex;overflow:hidden}
+.brand{width:520px;flex:none;background:#1F4D3A;color:#fff;padding:36px 48px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.brand .logo{display:flex;align-items:center;gap:10px;font:600 18px var(--font)}
+.brand .logo span{width:30px;height:30px;border-radius:9px;background:#fff;color:#1F4D3A;display:grid;place-items:center}
+.brand .mid{flex:1;display:flex;flex-direction:column;justify-content:center}
+.brand .foot2{display:flex;align-items:center;gap:8px;font:400 14px/20px var(--font);color:rgba(255,255,255,.82)}
+.seal{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,rgba(255,255,255,.12) 0 52px,transparent 53px),radial-gradient(circle,transparent 0 62px,rgba(255,255,255,.22) 63px 64px,transparent 65px),radial-gradient(circle,transparent 0 73px,rgba(255,255,255,.16) 74px 75px,transparent 76px)}
+.seal .core{width:76px;height:76px;border-radius:50%;background:#fff;color:#1F4D3A;display:grid;place-items:center}
+.btitle{font:600 38px/44px var(--font);letter-spacing:-.02em;margin-top:28px}
+.prom{display:flex;gap:14px;align-items:flex-start;font:400 16px/23px var(--font);margin-top:18px;color:rgba(255,255,255,.92)}
+.prom .tile{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.12);color:#fff}
+.steps{margin-top:30px;display:flex;flex-direction:column}
+.stp{display:grid;grid-template-columns:32px 1fr;gap:14px;position:relative;padding-bottom:26px}
+.stp:not(:last-child)::after{content:"";position:absolute;left:15px;top:34px;bottom:4px;width:2px;background:rgba(255,255,255,.18)}
+.stp .n{width:32px;height:32px;border-radius:16px;display:grid;place-items:center;font:600 14px var(--font);border:2px solid rgba(255,255,255,.35);color:rgba(255,255,255,.75)}
+.stp.done .n{background:#8FD1AE;border-color:#8FD1AE;color:#0B2418}
+.stp.now .n{background:#fff;border-color:#fff;color:#1F4D3A}
+.stp p{font:600 16px/22px var(--font);margin-top:4px}
+.stp small{display:block;font:400 14px/20px var(--font);color:rgba(255,255,255,.72);margin-top:2px}
+.stp.todo p{color:rgba(255,255,255,.7)}
+.pane{flex:1;position:relative;display:flex;justify-content:center;align-items:center;background:var(--bg)}
+.pane .tl{position:absolute;left:40px;top:32px}
+.pane .tr{position:absolute;right:40px;top:36px;font:400 14px var(--font);color:var(--muted)}
+.form{width:440px}
+.form.wide{width:600px}
+.form .field{margin:0 0 16px}
+.form .note{margin:0 0 18px}
+.form .chk{margin:0}
+.dis{opacity:.55}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff}
+.words{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 0}
+.words span{height:46px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:0 10px;font:500 15px "Plex Mono"}
+.words span i{font-style:normal;color:var(--muted);font-size:12px;width:18px}
+.strength{display:flex;gap:4px;margin-top:8px}.strength i{flex:1;height:4px;border-radius:2px;background:var(--border)}.strength i.on{background:var(--ok)}
+.ringp{width:200px;height:200px;margin:0 auto;border-radius:50%;background:conic-gradient(var(--primary) 0 66%,var(--sunk) 66% 100%);display:grid;place-items:center}
+.ringp>div{width:176px;height:176px;border-radius:50%;background:var(--bg);display:grid;place-items:center;text-align:center}
+.srcgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.srcc{border-radius:16px;background:var(--surface);border:1px solid var(--border);padding:12px 14px;display:flex;align-items:center;gap:12px;min-height:66px}
+.srcc.on{border:2px solid var(--primary);padding:11px 13px}
+.osn{position:absolute;right:24px;top:20px;width:360px;border-radius:16px;background:rgba(250,249,246,.96);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.14);padding:12px 14px;display:flex;gap:12px}
+.dlg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:500px;z-index:11;background:var(--surface);border-radius:24px;padding:26px 26px 20px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.dlg .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.linux{height:38px;flex:none;display:flex;align-items:center;padding:0 10px 0 14px;background:#EBEBEB;border-bottom:1px solid #D6D6D6}
+.linux b{flex:1;text-align:center;font:600 13px var(--font);color:#2e2e2e}
+.linux i{width:24px;height:24px;border-radius:12px;background:#DCDCDC;display:grid;place-items:center;margin-left:8px;color:#333;font:600 12px var(--font);font-style:normal}
+.scrimd{position:absolute;inset:0;background:rgba(15,20,18,.45);z-index:10}
+</style><style>
+.subs{margin:-14px 0 18px 46px;display:flex;flex-direction:column;gap:8px}
+.sub{display:flex;align-items:center;gap:10px;font:500 14px var(--font);color:rgba(255,255,255,.88)}
+.sub .d{width:18px;height:18px;border-radius:9px;display:grid;place-items:center;flex:none;border:1.5px solid rgba(255,255,255,.4)}
+.sub.ok .d{background:#8FD1AE;border-color:#8FD1AE;color:#0B2418}
+.sub.now .d{background:#fff;border-color:#fff}
+.sub.wait .d{background:#E9B65A;border-color:#E9B65A;color:#2B1C02}
+.sub.err .d{background:#F2938A;border-color:#F2938A;color:#3A0F0B}
+.sub.todo{color:rgba(255,255,255,.6)}
+.sub small{margin-left:auto;font:400 13px var(--font);color:rgba(255,255,255,.68)}
+.srchead{display:flex;gap:14px;align-items:center}
+.count{font:500 13px var(--font);color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
+.codecard{border-radius:22px;background:var(--surface);border:1px solid color-mix(in srgb,var(--warn) 45%,var(--border));padding:18px 18px 16px;margin-top:16px}
+.otp span{height:58px;font-size:24px}
+.row2{display:flex;gap:10px;margin-top:20px}
+.row2 .pbtn.t{flex:none;white-space:nowrap}.row2 .pbtn.f,.row2 .pbtn.o{flex:2}
+.mailmock{border-radius:14px;border:1px solid var(--border);background:var(--surface);padding:10px 12px;display:flex;gap:10px;align-items:center;margin-top:12px}
+.summ .it{min-height:64px}
+</style>
+</head><body>
+<!--ICONS-->
+
+<div class="board"><p class="caption-board">DO7b · Connecter une source</p>
+<div class="desktop fyde" data-shot="DO7b-connecter-une-source">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Kit de récupération</p><small>Votre seule issue</small></div></div><div class="stp now"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="subs"><div class="sub now"><span class="d"></span>EDF<small>identifiants</small></div><div class="sub todo"><span class="d"></span>impots.gouv<small>ensuite</small></div><div class="sub todo"><span class="d"></span>Ameli<small>ensuite</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Vos identifiants de sources sont chiffrés sur cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><p class="tr"><b style="color:var(--primary);font-weight:600">Passer cette source</b></p><div class="form">
+ <p class="count">Source 1 sur 3</p>
+ <div class="srchead"><span class="tile lg" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div><p class="h2">EDF</p><p class="t2">Factures et échéanciers d’électricité</p></div></div>
+ <div class="note info" style="margin:18px 0 18px"><svg class="ic"><use href="#i-globe"/></svg><span>Fyde se connectera uniquement à <b style="font-weight:600">edf.fr</b> et <b style="font-weight:600">particulier.edf.fr</b>, depuis vos appareils.</span></div>
+ <div class="field"><label>Adresse e-mail EDF</label><div class="in"><span class="grow">pierre.p@exemple.fr</span></div></div>
+ <div class="field"><label>Mot de passe EDF</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div><p class="help">Celui de votre espace client EDF, pas celui de Fyde.</p></div>
+ <div class="note ok" style="margin:0 0 16px"><svg class="ic"><use href="#i-lock"/></svg><span>Chiffrés avec votre coffre : le serveur Fyde ne les voit jamais.</span></div>
+ <div class="row" style="gap:12px"><div class="grow"><p class="t1" style="font-weight:500">Récupérer automatiquement</p><p class="t2">Chaque jour, vers 22 h</p></div><span class="sw on"></span></div>
+ <button class="pbtn f w" style="margin-top:20px">Connecter EDF</button>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO7c · Récupération en cours</p>
+<div class="desktop fyde" data-shot="DO7c-recuperation-en-cours">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Kit de récupération</p><small>Votre seule issue</small></div></div><div class="stp now"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="subs"><div class="sub now"><span class="d"></span>EDF<small>récupération</small></div><div class="sub todo"><span class="d"></span>impots.gouv<small>ensuite</small></div><div class="sub todo"><span class="d"></span>Ameli<small>ensuite</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Vos identifiants de sources sont chiffrés sur cet ordinateur.</p></div><div class="pane"><div class="form">
+ <p class="count">Source 1 sur 3</p>
+ <div class="srchead"><span class="tile lg" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div><p class="h2">EDF récupère vos documents</p><p class="t2">Première récupération · environ une minute</p></div></div>
+ <div class="card" style="margin:18px 0 0">
+  <div class="stepper">
+   <div class="st done"><span class="dot"><svg class="ic xs"><use href="#i-check"/></svg></span><span>Connexion</span><span class="t3 mono">14:58</span></div>
+   <div class="st done"><span class="dot"><svg class="ic xs"><use href="#i-check"/></svg></span><span>Recherche des documents</span><span class="t3">12 trouvés</span></div>
+   <div class="st now"><span class="dot"></span><span>Téléchargement</span><span class="t3 mono">5 / 12</span></div>
+   <div style="margin:0 0 8px 38px" class="prog"><i style="width:42%"></i></div>
+   <div class="st idle"><span class="dot"></span><span>Rangement dans le coffre</span><span></span></div>
+  </div>
+ </div>
+ <div class="note info" style="margin:14px 0 0"><svg class="ic"><use href="#i-info"/></svg><span>Vous pouvez continuer : la récupération se poursuit en arrière-plan, et Fyde vous préviendra si EDF demande un code.</span></div>
+ <div class="row2"><button class="pbtn t">Attendre ici</button><button class="pbtn f">Source suivante</button></div>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO7d · Code reçu par SMS</p>
+<div class="desktop fyde" data-shot="DO7d-code-sms">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Kit de récupération</p><small>Votre seule issue</small></div></div><div class="stp now"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="subs"><div class="sub ok"><span class="d"><svg class="ic xs"><use href="#i-check"/></svg></span>EDF<small>12 documents</small></div><div class="sub wait"><span class="d"></span>impots.gouv<small>attend un code</small></div><div class="sub todo"><span class="d"></span>Ameli<small>ensuite</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Vos identifiants de sources sont chiffrés sur cet ordinateur.</p></div><div class="pane"><div class="form">
+ <p class="count">Source 2 sur 3</p>
+ <div class="srchead"><span class="tile lg" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div><p class="h2">impots.gouv demande un code</p><p class="t2">Pour confirmer que c’est bien vous</p></div></div>
+ <div class="codecard">
+  <p class="t1">Code reçu par SMS</p>
+  <p class="t2" style="margin-top:2px">Envoyé au •• •• •• 42 87 il y a 30 s</p>
+  <div class="otp" role="group" aria-label="Code à 6 chiffres"><span>4</span><span>8</span><span>2</span><span class="cur"></span><span></span><span></span></div>
+  <div class="row" style="gap:8px;font:500 13px var(--font);color:var(--muted)"><svg class="ic xs"><use href="#i-check"/></svg>Connexion<span style="opacity:.5">→</span><b style="color:var(--warn);font-weight:600">Code</b><span style="opacity:.5">→</span>Récupération</div>
+ </div>
+ <p class="t3" style="margin-top:10px">Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre.</p>
+ <div class="row2"><button class="pbtn t">Annuler</button><button class="pbtn f" style="opacity:.38">Valider</button></div>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO7e · Code reçu par e-mail</p>
+<div class="desktop fyde" data-shot="DO7e-code-email">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Kit de récupération</p><small>Votre seule issue</small></div></div><div class="stp now"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="subs"><div class="sub ok"><span class="d"><svg class="ic xs"><use href="#i-check"/></svg></span>EDF<small>12 documents</small></div><div class="sub ok"><span class="d"><svg class="ic xs"><use href="#i-check"/></svg></span>impots.gouv<small>en cours</small></div><div class="sub wait"><span class="d"></span>Ameli<small>attend un code</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Vos identifiants de sources sont chiffrés sur cet ordinateur.</p></div><div class="pane"><div class="form">
+ <p class="count">Source 3 sur 3</p>
+ <div class="srchead"><span class="tile lg" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div><p class="h2">Ameli demande un code</p><p class="t2">Pour confirmer que c’est bien vous</p></div></div>
+ <div class="codecard">
+  <p class="t1">Code reçu par e-mail</p>
+  <p class="t2" style="margin-top:2px">Envoyé à p•••@exemple.fr · regardez aussi dans les indésirables</p>
+  <div class="otp" role="group" aria-label="Code à 6 chiffres"><span class="cur"></span><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="row" style="gap:8px;font:500 13px var(--font);color:var(--muted)"><svg class="ic xs"><use href="#i-check"/></svg>Connexion<span style="opacity:.5">→</span><b style="color:var(--warn);font-weight:600">Code</b><span style="opacity:.5">→</span>Récupération</div>
+ </div>
+ <p class="t3" style="margin-top:10px">Ouvrez votre messagerie, copiez le code et collez-le ici : les 6 cases se remplissent d’un coup.</p>
+ <div class="row2"><button class="pbtn t">Annuler</button><button class="pbtn f" style="opacity:.38">Valider</button></div>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO7f · Mot de passe refusé</p>
+<div class="desktop fyde" data-shot="DO7f-mot-de-passe-refuse">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Kit de récupération</p><small>Votre seule issue</small></div></div><div class="stp now"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="subs"><div class="sub ok"><span class="d"><svg class="ic xs"><use href="#i-check"/></svg></span>EDF<small>12 documents</small></div><div class="sub ok"><span class="d"><svg class="ic xs"><use href="#i-check"/></svg></span>impots.gouv<small>en cours</small></div><div class="sub err"><span class="d"><svg class="ic xs"><use href="#i-x"/></svg></span>Ameli<small>refusé</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Vos identifiants de sources sont chiffrés sur cet ordinateur.</p></div><div class="pane"><div class="form">
+ <p class="count">Source 3 sur 3</p>
+ <div class="srchead"><span class="tile lg" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div><p class="h2">Ameli</p><p class="t2">Remboursements, attestations</p></div></div>
+ <div class="note err" style="margin:18px 0 18px"><svg class="ic"><use href="#i-alert-c"/></svg><span>Ameli a refusé ces identifiants. Vérifiez-les sur ameli.fr si besoin, puis réessayez.</span></div>
+ <div class="field"><label>Numéro de sécurité sociale</label><div class="in"><span class="grow">1 85 •• •• ••• ••• 42</span></div></div>
+ <div class="field"><label>Mot de passe Ameli</label><div class="in on"><span class="grow"></span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div></div>
+ <div class="row2" style="margin-top:6px"><button class="pbtn t">Passer cette source</button><button class="pbtn f" style="opacity:.38">Réessayer</button></div>
+ <p class="t2" style="text-align:center;margin-top:14px">Vous pourrez la reconnecter plus tard depuis <b style="font-weight:600">Sources</b>.</p>
+</div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO7g · Sources connectées</p>
+<div class="desktop fyde" data-shot="DO7g-sources-connectees">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Quatre étapes, environ trois minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Kit de récupération</p><small>Votre seule issue</small></div></div><div class="stp now"><span class="n">3</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="subs"><div class="sub ok"><span class="d"><svg class="ic xs"><use href="#i-check"/></svg></span>EDF<small>12 documents</small></div><div class="sub ok"><span class="d"><svg class="ic xs"><use href="#i-check"/></svg></span>impots.gouv<small>en cours</small></div><div class="sub err"><span class="d"><svg class="ic xs"><use href="#i-x"/></svg></span>Ameli<small>passée</small></div></div><div class="stp todo"><span class="n">4</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Vos identifiants de sources sont chiffrés sur cet ordinateur.</p></div><div class="pane"><div class="form">
+ <p class="h1">Vos sources sont prêtes</p>
+ <p class="body" style="color:var(--muted);margin:8px 0 20px">Les premiers documents arrivent déjà dans votre coffre. Fyde repassera chaque soir.</p>
+ <div class="group summ" style="margin:0">
+  <div class="it"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div class="grow"><p class="t1">EDF</p><p class="sl ok" style="font:500 13px var(--font);color:var(--ok)">12 documents récupérés</p></div></div>
+  <div class="it"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p style="font:500 13px var(--font);color:var(--primary)">Récupération en cours · 3 / 9</p></div></div>
+  <div class="it"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="t2">Passée · à reconnecter depuis Sources</p></div><button class="pbtn t sm">Réessayer</button></div>
+ </div>
+ <button class="pbtn f w" style="margin-top:22px">Continuer</button>
+ <p class="t2" style="text-align:center;margin-top:12px"><b style="color:var(--primary);font-weight:600">Ajouter une autre source</b></p>
+</div></div></div>
+</div></div>
+</body></html>
