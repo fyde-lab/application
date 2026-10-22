@@ -186,6 +186,10 @@ actual object FydeSdk {
         client.revokeSession(sessionId)
     }
 
+    actual suspend fun generateRecoveryKey(): Result<List<String>> = withClient("generateRecoveryKey") { client ->
+        client.generateRecoveryKey().split(' ')
+    }
+
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> =
         withClient("listDocuments") { client ->
             client.listDocuments(offset, limit).map(FfiMetadata::toFydeDocument)

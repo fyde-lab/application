@@ -1328,6 +1328,15 @@ impl FydeClient {
             .await
     }
 
+    /// Generates a new recovery key for the signed-in account, replacing any
+    /// previous one, and returns it once for the user to write down: 24
+    /// English BIP39 words separated by single spaces, stored nowhere.
+    /// Mirrors [`fyde_sdk::UsersService::generate_recovery_key`].
+    pub async fn generate_recovery_key(&self) -> Result<String, FfiError> {
+        self.localized(self.inner.users().generate_recovery_key())
+            .await
+    }
+
     /// Persists `token` as the session token attached to every subsequent
     /// authenticated request, overwriting any token already stored.
     /// `create_user`/`login` already do this as part of opening a session;

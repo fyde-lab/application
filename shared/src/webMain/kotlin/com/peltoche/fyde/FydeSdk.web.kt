@@ -44,6 +44,8 @@ actual object FydeSdk {
 
     actual suspend fun revokeSession(sessionId: String): Result<Unit> = unsupported()
 
+    actual suspend fun generateRecoveryKey(): Result<List<String>> = unsupported()
+
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> = unsupported()
 
     actual suspend fun searchDocuments(

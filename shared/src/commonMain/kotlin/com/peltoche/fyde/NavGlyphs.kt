@@ -535,3 +535,26 @@ fun InfoGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
         drawLine(tint, Offset(12f * unit, 7.7f * unit), Offset(12f * unit, 7.9f * unit), stroke.width, StrokeCap.Round)
     }
 }
+
+/** Two stacked pages — printing the recovery kit (O6, DO6). Traced from `i-pages` in `icons.svg`. */
+@Composable
+fun PagesGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(7.5f * unit, 3.5f * unit),
+            size = Size(12f * unit, 15f * unit),
+            cornerRadius = CornerRadius(1.5f * unit),
+            style = stroke,
+        )
+        val back = Path().apply {
+            moveTo(4.5f * unit, 7f * unit)
+            lineTo(4.5f * unit, 19f * unit)
+            quadraticTo(4.5f * unit, 20.5f * unit, 6f * unit, 20.5f * unit)
+            lineTo(16f * unit, 20.5f * unit)
+        }
+        drawPath(back, color = tint, style = stroke)
+    }
+}
