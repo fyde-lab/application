@@ -107,6 +107,12 @@ private sealed interface Screen {
         val sessions: List<FydeOpenSession>,
     ) : Screen
 
+    /**
+     * The account was just created: [RecoveryKitScreen] shows its new
+     * recovery key, for [username]'s vault, before the vault opens.
+     */
+    class RecoveryKit(val username: String) : Screen
+
     data object Documents : Screen
     data object Settings : Screen
     data object Scripts : Screen
@@ -200,6 +206,10 @@ private fun AppContent(
     var sessionsAttempt by remember { mutableStateOf(0) }
     var disconnectingSessionId by remember { mutableStateOf<String?>(null) }
     var disconnectSessionError by remember { mutableStateOf<String?>(null) }
+    // The recovery key's words while Screen.RecoveryKit is open, dropped as
+    // soon as it closes.
+    var recoveryKit by remember { mutableStateOf<RecoveryKitUiState>(RecoveryKitUiState.Generating) }
+    var recoveryKitAttempt by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
     // App-lifetime, so a scraper run outlives the screen that started it.
@@ -292,7 +302,7 @@ private fun AppContent(
         isAuthenticating = true
         scope.launch {
             authenticate(username, password) { user, pass -> FydeSdk.register(user, pass, allowInsecureStorage) }
-                .onSuccess { screen = Screen.Documents }
+                .onSuccess { screen = Screen.RecoveryKit(username) }
                 .onFailure {
                     if (lostSecureStorage(allowInsecureStorage)) {
                         storageConsent = PendingStorageConsent(isRegistration = true) { allow ->
@@ -386,6 +396,21 @@ private fun AppContent(
         sessions = fetchSessions()
     }
 
+    // Generated once as the recovery kit opens (and on retry): each call
+    // replaces the account's previous key, so it isn't asked for again
+    // while the screen stays open.
+    LaunchedEffect(screen, recoveryKitAttempt) {
+        if (screen !is Screen.RecoveryKit) {
+            recoveryKit = RecoveryKitUiState.Generating
+            return@LaunchedEffect
+        }
+        recoveryKit = RecoveryKitUiState.Generating
+        recoveryKit = FydeSdk.generateRecoveryKey().fold(
+            onSuccess = { RecoveryKitUiState.Ready(it) },
+            onFailure = { RecoveryKitUiState.Failed(message = it.userMessage(), onRetry = { recoveryKitAttempt++ }) },
+        )
+    }
+
     key(language) {
         when (screen) {
             Screen.Welcome -> WelcomeScreen(
@@ -442,6 +467,14 @@ private fun AppContent(
                     authError = null
                     screen = Screen.Welcome
                 },
+            )
+            is Screen.RecoveryKit -> RecoveryKitScreen(
+                state = recoveryKit,
+                username = (screen as Screen.RecoveryKit).username,
+                // "Later" opens the vault too, keeping the key: the user may
+                // have saved the PDF before choosing it.
+                onDone = { screen = Screen.Documents },
+                onLater = { screen = Screen.Documents },
             )
             Screen.Documents -> DocumentsScreen(
                 onOpenSettings = { screen = Screen.Settings },

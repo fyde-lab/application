@@ -84,10 +84,19 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   DO2c empties and refocuses the password): back to `WelcomeScreen`. `App.kt` passes why the
   session ended as `noticeMessage` (warning note, `sessionNotice`), separate from a failed attempt's
   `errorMessage` (error note, `authError`).
-- `RegisterScreen` (the original form at Compact, DO3 at Medium/Expanded in `AuthSplitLayout`
-  with `VaultCreationBrandPanel`; DO3b's mismatch error shows on blur or submit): back to
-  `WelcomeScreen`. DO3 requires ticking the key-warning acknowledgement; its strength meter
+- `RegisterScreen` (the original form at Compact, DO3 at Medium/Expanded in
+  `VaultCreationSplitLayout`; DO3b's mismatch error shows on blur or submit): back to
+  `WelcomeScreen`; on success, `RecoveryKitScreen`. DO3 requires ticking the key-warning acknowledgement; its strength meter
   (`passwordStrength`, by length) only advises — the server sets no password rule.
+- `RecoveryKitScreen` (O6 at Compact, DO6 at Medium/Expanded): the vault-creation step after
+  the account. `App.kt` calls `FydeSdk.generateRecoveryKey` as it opens (each call replaces the
+  account's key, so only once per visit, plus Retry) and keeps the 24 words only while it's open.
+  Save the PDF (`recoveryKitPdf`, a hand-written one-page PDF, through `rememberDocumentSaver`)
+  everywhere; Print (`rememberPdfPrinter`) on desktop (PDFBox) and Android (`PrintManager`) only;
+  Android keeps the screen out of screenshots (`ScreenshotGuard`, `FLAG_SECURE`). Both "I've put
+  it somewhere safe" and "Later" open the vault, keeping the key. `VaultCreationStep` drives
+  `VaultCreationBrandPanel`'s stepper and the phone's `VaultStepDots`: list only steps that have
+  screens (sources and notifications don't yet).
 - `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the
   wording and the desktop's Retry): over `LoginScreen`/`RegisterScreen` when the device has no
   OS credential store (`FydeSdk.isSecureStorageAvailable`, checked as each form opens and again

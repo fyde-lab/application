@@ -67,6 +67,31 @@
     <string name="register_acknowledge">J’ai compris, je le garde en lieu sûr.</string>
     <string name="register_submit">Continuer</string>
     <string name="register_submitting">Création du coffre…</string>
+    <string name="vault_steps_summary">Deux étapes, environ deux minutes.</string>
+    <string name="vault_step_progress">Étape %1$d sur %2$d</string>
+    <string name="vault_step_account_subtitle">Identifiant et mot de passe</string>
+    <string name="vault_step_recovery_title">Kit de récupération</string>
+    <string name="vault_step_recovery_subtitle">24 mots, votre seule issue</string>
+
+    <!-- Kit de récupération (O6, DO6) -->
+    <string name="recovery_kit_title">Votre kit de récupération</string>
+    <string name="recovery_kit_explanation">Si vous oubliez votre mot de passe, ces %1$d mots sont la seule façon de rouvrir votre coffre. Gardez-les hors ligne, sur papier.</string>
+    <string name="recovery_kit_word">Mot %1$d : %2$s</string>
+    <string name="recovery_kit_save_pdf">Enregistrer le PDF</string>
+    <string name="recovery_kit_print">Imprimer</string>
+    <string name="recovery_kit_never_copied">Les mots ne sont jamais copiés dans le presse-papiers ni envoyés.</string>
+    <string name="recovery_kit_screenshots_blocked">Captures d’écran désactivées sur cet écran.</string>
+    <string name="recovery_kit_confirm">Je l’ai mis en lieu sûr</string>
+    <string name="recovery_kit_later">Plus tard (déconseillé)</string>
+    <string name="recovery_kit_generating">Création de votre kit de récupération…</string>
+    <string name="recovery_kit_failed">Impossible de créer votre kit de récupération : %1$s</string>
+    <string name="recovery_kit_saved">Kit de récupération enregistré</string>
+    <string name="recovery_kit_save_failed">Impossible d’enregistrer le kit de récupération</string>
+    <string name="recovery_kit_print_failed">Impossible d’imprimer le kit de récupération</string>
+    <string name="recovery_kit_pdf_file_name">fyde-kit-de-recuperation.pdf</string>
+    <string name="recovery_kit_pdf_title">Kit de récupération Fyde</string>
+    <string name="recovery_kit_pdf_account">Compte : %1$s</string>
+    <string name="recovery_kit_pdf_warning">Quiconque détient ces mots et votre identifiant peut définir un nouveau mot de passe et ouvrir votre coffre. Gardez cette feuille hors ligne, en lieu sûr, et ne saisissez ces mots que dans Fyde.</string>
     <string name="password_strength_weak">Faible · ajoutez des mots ou des caractères</string>
     <string name="password_strength_fair">Moyen · %1$d caractères</string>
     <string name="password_strength_strong">Solide · %1$d caractères</string>

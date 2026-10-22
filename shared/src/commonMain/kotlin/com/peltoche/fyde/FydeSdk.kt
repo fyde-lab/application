@@ -596,6 +596,15 @@ expect object FydeSdk {
     suspend fun revokeSession(sessionId: String): Result<Unit>
 
     /**
+     * Generates a new recovery key for the signed-in account, replacing any
+     * previous one, and returns its words (24 English BIP39 words, in
+     * order) for the user to write down: they're stored nowhere, so they
+     * can't be shown again. Mirrors
+     * [`crate::UsersService::generate_recovery_key`].
+     */
+    suspend fun generateRecoveryKey(): Result<List<String>>
+
+    /**
      * Lists documents previously cached locally, oldest first, one page at a
      * time. Mirrors [`crate::DocumentsService::list`]; fails if
      * [initialize] hasn't been called yet.

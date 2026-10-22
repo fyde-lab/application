@@ -120,8 +120,8 @@ fun RegisterScreen(
 
     when (LocalAppWindowSizeClass.current) {
         AppWindowSizeClass.Compact -> CompactRegister(form, onNavigateToLogin, modifier)
-        AppWindowSizeClass.Medium, AppWindowSizeClass.Expanded -> AuthSplitLayout(
-            brandPanel = { VaultCreationBrandPanel() },
+        AppWindowSizeClass.Medium, AppWindowSizeClass.Expanded -> VaultCreationSplitLayout(
+            currentStep = VaultCreationStep.Account,
             modifier = modifier,
         ) { paneModifier ->
             WideRegisterPane(form, onBack, paneModifier)
