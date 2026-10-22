@@ -17,7 +17,7 @@ OUT.mkdir(exist_ok=True)
 LABELS = {
     "O1": "Bienvenue", "O2": "Connexion", "O3": "Créer le coffre", "O4": "Stockage indisponible",
     "O5": "Trop d’appareils", "O6": "Kit de récupération", "O7": "Choisir ses sources", "O8": "Notifications",
-    "O9": "Ouverture", "V1": "Coffre", "V2": "Coffre en remplissage", "V3": "Catégorie", "V4": "Recherche",
+    "O7b": "Limite de l’offre", "O9": "Ouverture", "V1": "Coffre", "V2": "Coffre en remplissage", "V3": "Catégorie", "V4": "Recherche",
     "V5": "Résultats", "V6": "Document", "V7": "Lecteur", "V8": "Actions", "V9": "Reclasser",
     "V10": "Cartes par type", "V11": "Coffre sombre", "K1": "Scanner", "K2": "Vérifier le scan",
     "K3": "Depuis une autre app", "K4": "Ajout en cours", "R1": "Arrivées", "R2": "Tout est rangé",
@@ -30,7 +30,7 @@ LABELS = {
     "DO4b": "Trousseau absent (création)", "DO5": "Trop d’appareils", "DO6": "Kit de récupération",
     "DO7": "Choisir ses sources", "DO7b": "Connecter une source", "DO7c": "Récupération en cours",
     "DO7d": "Code reçu par SMS", "DO7e": "Code reçu par e-mail", "DO7f": "Mot de passe refusé",
-    "DO7g": "Sources connectées", "DO8": "Notifications", "DO9": "Ouverture",
+    "DO7g": "Sources connectées", "DO7h": "Limite de l’offre", "DO8": "Notifications", "DO9": "Ouverture",
     "D2": "Bureau — Document", "D3": "Bureau — Arrivées", "D4": "Bureau — Sources", "T1": "Tablette — Coffre",
 }
 GROUPS = {"onboarding": "O", "coffre": "V", "capture-arrivees": "KR", "sources": "S", "moi": "MX"}
