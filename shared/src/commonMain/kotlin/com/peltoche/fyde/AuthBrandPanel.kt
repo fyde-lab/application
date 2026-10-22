@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +43,8 @@ import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
 import com.peltoche.fyde.resources.auth_password_stays_computer
 import com.peltoche.fyde.resources.auth_password_stays_device
+import com.peltoche.fyde.resources.auth_source_credentials_computer
+import com.peltoche.fyde.resources.auth_source_credentials_device
 import com.peltoche.fyde.resources.register_account_title
 import com.peltoche.fyde.resources.register_brand_title
 import com.peltoche.fyde.resources.vault_step_account_subtitle
@@ -50,6 +53,11 @@ import com.peltoche.fyde.resources.vault_step_recovery_subtitle
 import com.peltoche.fyde.resources.vault_step_recovery_title
 import com.peltoche.fyde.resources.vault_step_sources_subtitle
 import com.peltoche.fyde.resources.vault_step_sources_title
+import com.peltoche.fyde.resources.vault_source_connected
+import com.peltoche.fyde.resources.vault_source_current
+import com.peltoche.fyde.resources.vault_source_next
+import com.peltoche.fyde.resources.vault_source_running
+import com.peltoche.fyde.resources.vault_source_skipped
 import com.peltoche.fyde.resources.vault_steps_summary
 import com.peltoche.fyde.resources.welcome_seal_description
 import com.peltoche.fyde.resources.welcome_title
@@ -65,11 +73,15 @@ import org.jetbrains.compose.resources.stringResource
  * (design-system.md § Onboarding and access on Medium and Expanded,
  * `design/assets/mockups/desktop-auth.html`'s `.brand`): a full-height
  * `primary` column with the Fyde mark at the top, [content] centred in
- * between, and the reassurance that the password stays on this device at
- * the bottom. Its content is `onPrimary`.
+ * between, and a reassurance at the bottom: [footer], or by default that
+ * the password stays on this device. Its content is `onPrimary`.
  */
 @Composable
-fun AuthBrandPanel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+fun AuthBrandPanel(
+    modifier: Modifier = Modifier,
+    footer: String? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Column(
         modifier = modifier
             .width(AppDimensions.authBrandPanel)
@@ -89,7 +101,7 @@ fun AuthBrandPanel(modifier: Modifier = Modifier, content: @Composable ColumnSco
             val muted = AppColors.onPrimary.copy(alpha = 0.82f)
             LockGlyph(modifier = Modifier.size(AppIconSize.sm), tint = muted)
             Text(
-                text = stringResource(
+                text = footer ?: stringResource(
                     if (getPlatform().isDesktop) Res.string.auth_password_stays_computer else Res.string.auth_password_stays_device,
                 ),
                 style = AppTypography.caption,
@@ -140,14 +152,48 @@ fun SignInSplitLayout(modifier: Modifier = Modifier, form: @Composable (Modifier
  */
 enum class VaultCreationStep { Account, RecoveryKit, Sources }
 
+/** Where a ticked source is in being connected during vault creation, as the brand panel lists it (DO7b–DO7g). */
+enum class VaultSourceState {
+    /** Its credentials are being asked for (DO7b). */
+    Current,
+
+    /** Still to come. */
+    Next,
+
+    /** Connected, its first run going or waiting its turn. */
+    Running,
+
+    /** Connected, its first run over. */
+    Connected,
+
+    /** Passed over without connecting it. */
+    Skipped,
+}
+
+/** One ticked source under [VaultCreationBrandPanel]'s sources step: its [name] and [state]. */
+data class VaultSource(val name: String, val state: VaultSourceState)
+
 /**
  * [AuthBrandPanel] on the vault-creation path (DO3, DO6–DO8): "Create your
  * vault" at 38/44, how long it takes, and a vertical stepper of the
- * [VaultCreationStep]s with [currentStep] lit.
+ * [VaultCreationStep]s with [currentStep] lit. While the ticked [sources]
+ * are connected (DO7b–DO7g) they're listed under the sources step with
+ * their state, and the footer says their credentials are encrypted here.
  */
 @Composable
-fun VaultCreationBrandPanel(currentStep: VaultCreationStep, modifier: Modifier = Modifier) {
-    AuthBrandPanel(modifier) {
+fun VaultCreationBrandPanel(
+    currentStep: VaultCreationStep,
+    modifier: Modifier = Modifier,
+    sources: List<VaultSource> = emptyList(),
+) {
+    val footer = if (sources.isEmpty()) {
+        null
+    } else {
+        stringResource(
+            if (getPlatform().isDesktop) Res.string.auth_source_credentials_computer else Res.string.auth_source_credentials_device,
+        )
+    }
+    AuthBrandPanel(modifier, footer = footer) {
         Text(
             text = stringResource(Res.string.register_brand_title),
             style = AppTypography.display.copy(fontSize = 38.sp, lineHeight = 44.sp),
@@ -161,24 +207,31 @@ fun VaultCreationBrandPanel(currentStep: VaultCreationStep, modifier: Modifier =
         )
         Spacer(Modifier.height(AppSpacing.space8))
         VaultCreationStep.entries.forEach { step ->
-            VaultStepRow(step, currentStep, isLast = step == VaultCreationStep.entries.last())
+            VaultStepRow(
+                step = step,
+                currentStep = currentStep,
+                isLast = step == VaultCreationStep.entries.last(),
+                sources = if (step == VaultCreationStep.Sources) sources else emptyList(),
+            )
         }
     }
 }
 
 /**
  * A vault-creation screen's window at Medium and Expanded:
- * [VaultCreationBrandPanel] beside the form pane at Expanded, an
- * [AuthBrandBand] naming [currentStep] above it at Medium.
+ * [VaultCreationBrandPanel] (listing [sources] under the sources step)
+ * beside the form pane at Expanded, an [AuthBrandBand] naming [currentStep]
+ * above it at Medium.
  */
 @Composable
 fun VaultCreationSplitLayout(
     currentStep: VaultCreationStep,
     modifier: Modifier = Modifier,
+    sources: List<VaultSource> = emptyList(),
     form: @Composable (Modifier) -> Unit,
 ) {
     AuthSplitLayout(
-        brandPanel = { VaultCreationBrandPanel(currentStep) },
+        brandPanel = { VaultCreationBrandPanel(currentStep, sources = sources) },
         band = { AuthBrandBand { VaultStepBadge(currentStep) } },
         modifier = modifier,
         form = form,
@@ -242,9 +295,17 @@ private val StepDoneInk = Color(0xFF0B2418)
 
 private enum class StepState { Done, Current, ToDo }
 
-/** One step of [VaultCreationBrandPanel]'s stepper: its disc, joined to the next by a 2dp line, then its name and what it asks. */
+/**
+ * One step of [VaultCreationBrandPanel]'s stepper: its disc, joined to the
+ * next by a 2dp line, then its name and what it asks, and [sources] under them.
+ */
 @Composable
-private fun VaultStepRow(step: VaultCreationStep, currentStep: VaultCreationStep, isLast: Boolean) {
+private fun VaultStepRow(
+    step: VaultCreationStep,
+    currentStep: VaultCreationStep,
+    isLast: Boolean,
+    sources: List<VaultSource>,
+) {
     val state = when {
         step.ordinal < currentStep.ordinal -> StepState.Done
         step == currentStep -> StepState.Current
@@ -275,7 +336,64 @@ private fun VaultStepRow(step: VaultCreationStep, currentStep: VaultCreationStep
                 style = AppTypography.body,
                 color = AppColors.onPrimary.copy(alpha = 0.72f),
             )
+            if (sources.isNotEmpty()) {
+                Spacer(Modifier.height(AppSpacing.space4))
+                Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                    sources.forEach { VaultSourceRow(it) }
+                }
+            }
         }
+    }
+}
+
+/**
+ * A ticked source under the sources step (`desktop-sources.html`'s `.sub`):
+ * an 18dp disc — white for the current one, [StepDoneFill] with a check once
+ * connected, an outline otherwise — its name, and its state at the far end.
+ */
+@Composable
+private fun VaultSourceRow(source: VaultSource) {
+    val connected = source.state == VaultSourceState.Running || source.state == VaultSourceState.Connected
+    val dimmed = source.state == VaultSourceState.Next || source.state == VaultSourceState.Skipped
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(18.dp)
+                .clip(CircleShape)
+                .then(
+                    when {
+                        source.state == VaultSourceState.Current -> Modifier.background(AppColors.onPrimary)
+                        connected -> Modifier.background(StepDoneFill)
+                        else -> Modifier.border(1.5.dp, AppColors.onPrimary.copy(alpha = 0.4f), CircleShape)
+                    },
+                ),
+        ) {
+            if (connected) CheckGlyph(modifier = Modifier.size(AppIconSize.xs), tint = StepDoneInk, strokeWidth = 2.dp)
+        }
+        Spacer(Modifier.width(AppSpacing.space3))
+        Text(
+            text = source.name,
+            style = AppTypography.body.copy(fontWeight = FontWeight.Medium),
+            color = AppColors.onPrimary.copy(alpha = if (dimmed) 0.6f else 0.88f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(Modifier.width(AppSpacing.space3))
+        Text(
+            text = stringResource(
+                when (source.state) {
+                    VaultSourceState.Current -> Res.string.vault_source_current
+                    VaultSourceState.Next -> Res.string.vault_source_next
+                    VaultSourceState.Running -> Res.string.vault_source_running
+                    VaultSourceState.Connected -> Res.string.vault_source_connected
+                    VaultSourceState.Skipped -> Res.string.vault_source_skipped
+                },
+            ),
+            style = AppTypography.caption,
+            color = AppColors.onPrimary.copy(alpha = 0.68f),
+        )
     }
 }
 

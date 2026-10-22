@@ -104,7 +104,15 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   fails): at the limit unticked sources dim and can't be ticked. On desktop the cards scroll inside a
   fixed-height grid so the connect button stays under them. No back button (it would
   regenerate the recovery key) and no category chips (scripts have no category yet). Passer →
-  Documents; Connecter → Scripts until the per-source connect steps (DO7b–DO7g) exist.
+  Documents; Connecter → `ConnectSourceScreen`, keeping the ticks for its back button.
+- `ConnectSourceScreen` (S3 inside onboarding at Compact, DO7b at Medium/Expanded in
+  `VaultCreationSplitLayout`, whose brand panel lists the ticked sources as `VaultSource`s):
+  each ticked source in turn, `App.kt` holding the queue (`connectQueue`/`connectIndex`). One
+  field per script parameter (`ScriptParameterField`, shared with Scripts' install dialog);
+  Connecter installs and enables it, then `ScraperRuns.runOnceInstalled` queues its first run
+  until the installation has synced to this device. Passer cette source / back move along the
+  queue; after the last source → Documents until DO7c–DO7g and DO8 exist. No "Récupérer
+  automatiquement" switch: fyde-sdk has no scheduled runs.
 - `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the
   wording and the desktop's Retry): over `LoginScreen`/`RegisterScreen` when the device has no
   OS credential store (`FydeSdk.isSecureStorageAvailable`, checked as each form opens and again

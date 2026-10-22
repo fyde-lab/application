@@ -3,6 +3,7 @@ package com.peltoche.fyde
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.peltoche.fyde.resources.Res
@@ -10,7 +11,9 @@ import com.peltoche.fyde.resources.script_run_failed
 import com.peltoche.fyde.resources.script_run_finished
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.getString
 
 /** A question a running script is waiting on; completing [answer] hands the reply back to it. */
@@ -29,6 +32,10 @@ class PendingQuestion(val text: String, val answer: CompletableDeferred<String>)
  * [step]/[update], and a question parks the script on [question] until
  * [answer] is called. A finished run is confirmed with a snackbar; a failed
  * one is kept in [failure] for the script's page to show as a banner.
+ *
+ * Sources connected during onboarding ([ConnectSourceScreen]) each start
+ * their first run through [runOnceInstalled]: they wait in [queued] for the
+ * one in progress, and for their installation to reach this device.
  */
 @Stable
 class ScraperRuns(
@@ -48,20 +55,59 @@ class ScraperRuns(
     var failure by mutableStateOf<Pair<String, String>?>(null)
         private set
 
+    private val queue = mutableStateListOf<FydeScript>()
+
+    /** Scripts waiting for [running] to finish before their own run, in order. */
+    val queued: List<FydeScript> get() = queue
+
+    /** Whether [scriptId] is running or waiting its turn. */
+    fun isPending(scriptId: String): Boolean = running?.id == scriptId || queue.any { it.id == scriptId }
+
     fun run(script: FydeScript) {
         if (running != null) return
+        failure = null
+        start(script, awaitInstallation = false)
+    }
+
+    /**
+     * Runs [script], just installed, once its installation has synced to
+     * this device ([FydeSdk.installScript] only publishes it) — after the
+     * run in progress and those already [queued]. Does nothing if it's
+     * already running or queued.
+     */
+    fun runOnceInstalled(script: FydeScript) {
+        if (isPending(script.id)) return
+        if (running == null) start(script, awaitInstallation = true) else queue += script
+    }
+
+    private fun start(script: FydeScript, awaitInstallation: Boolean) {
         running = script
         step = null
         update = null
-        failure = null
         scope.launch {
+            if (awaitInstallation) awaitInstallation(script.id)
             val result = FydeSdk.runInstalledScript(script.id)
             running = null
             step = null
             update = null
+            // Before the snackbar, which suspends until it's dismissed.
+            queue.removeFirstOrNull()?.let { start(it, awaitInstallation = true) }
             result
                 .onSuccess { snackbarHostState.showSnackbar(getString(Res.string.script_run_finished, script.name)) }
                 .onFailure { failure = script.id to getString(Res.string.script_run_failed, script.name, it.userMessage()) }
+        }
+    }
+
+    /**
+     * Waits until [scriptId]'s installation shows among this device's, or
+     * [INSTALL_SYNC_TIMEOUT_MS] passes — the run then fails with the SDK's
+     * own wording rather than hanging.
+     */
+    private suspend fun awaitInstallation(scriptId: String) {
+        withTimeoutOrNull(INSTALL_SYNC_TIMEOUT_MS) {
+            while (FydeSdk.installedScriptParameters().getOrNull()?.containsKey(scriptId) != true) {
+                delay(INSTALL_SYNC_POLL_MS)
+            }
         }
     }
 
@@ -93,3 +139,9 @@ class ScraperRuns(
         }
     }
 }
+
+/** How often [ScraperRuns.runOnceInstalled] checks whether the installation has synced. */
+private const val INSTALL_SYNC_POLL_MS = 500L
+
+/** How long [ScraperRuns.runOnceInstalled] waits for it before running anyway. */
+private const val INSTALL_SYNC_TIMEOUT_MS = 30_000L

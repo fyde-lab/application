@@ -123,6 +123,25 @@
     </plurals>
     <string name="sources_limit_compact_more">More sources: Me › Plan and usage, once your vault is created.</string>
     <string name="sources_limit_wide">Untick a source to choose another. You can move to a bigger plan later, from Me › Plan and usage.</string>
+
+    <!-- Connect a source (S3 in onboarding, DO7b) -->
+    <string name="connect_source_position">Source %1$d of %2$d</string>
+    <string name="connect_source_skip">Skip this source</string>
+    <string name="connect_source_domains">Fyde will only connect to %1$s, from your devices.</string>
+    <string name="connect_source_list_and">%1$s and %2$s</string>
+    <string name="connect_source_secret_help">The one for your %1$s account, not your Fyde one.</string>
+    <string name="connect_source_encrypted">Credentials encrypted with your vault: the Fyde server never sees them.</string>
+    <string name="connect_source_encrypted_short">Encrypted with your vault: the Fyde server never sees them.</string>
+    <string name="connect_source_submit">Connect %1$s</string>
+    <string name="connect_source_submitting">Connecting %1$s…</string>
+    <string name="connect_source_failed">Couldn’t connect %1$s: %2$s</string>
+    <string name="auth_source_credentials_computer">Your source credentials are encrypted on this computer.</string>
+    <string name="auth_source_credentials_device">Your source credentials are encrypted on this device.</string>
+    <string name="vault_source_current">credentials</string>
+    <string name="vault_source_next">next</string>
+    <string name="vault_source_running">fetching</string>
+    <string name="vault_source_connected">connected</string>
+    <string name="vault_source_skipped">skipped</string>
     <string name="password_strength_weak">Weak · add words or characters</string>
     <string name="password_strength_fair">Fair · %1$d characters</string>
     <string name="password_strength_strong">Strong · %1$d characters</string>

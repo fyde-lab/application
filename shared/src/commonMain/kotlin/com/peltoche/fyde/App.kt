@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.connect_source_failed
 import com.peltoche.fyde.resources.script_installed
 import com.peltoche.fyde.resources.script_toggle_failed
 import com.peltoche.fyde.resources.script_uninstalled
@@ -142,6 +143,12 @@ private sealed interface Screen {
      */
     data object Sources : Screen
 
+    /**
+     * Then each source ticked there in turn: [ConnectSourceScreen] asks for
+     * its credentials, installs it and starts its first run.
+     */
+    data object ConnectSource : Screen
+
     data object Documents : Screen
     data object Settings : Screen
     data object Scripts : Screen
@@ -245,6 +252,13 @@ private fun AppContent(
     var sourcesAttempt by remember { mutableStateOf(0) }
     var sourceSelection by remember { mutableStateOf<Set<String>>(emptySet()) }
     var sourcesQuery by remember { mutableStateOf("") }
+    // The ticked sources ConnectSourceScreen connects one by one (in ticking
+    // order), which one is up, and those passed over on the way.
+    var connectQueue by remember { mutableStateOf<List<FydeScript>>(emptyList()) }
+    var connectIndex by remember { mutableStateOf(0) }
+    var skippedSourceIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var connectError by remember { mutableStateOf<String?>(null) }
+    var isConnectingSource by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
     // App-lifetime, so a scraper run outlives the screen that started it.
@@ -470,6 +484,43 @@ private fun AppContent(
         }
     }
 
+    // On to the next ticked source, or, after the last, into the vault
+    // (DO7g's summary and the notifications step don't exist yet).
+    fun nextSource() {
+        connectError = null
+        if (connectIndex + 1 < connectQueue.size) {
+            connectIndex++
+            return
+        }
+        connectQueue = emptyList()
+        skippedSourceIds = emptySet()
+        sourceSelection = emptySet()
+        sourcesQuery = ""
+        screen = Screen.Documents
+    }
+
+    // Installs [script] with what was typed (publishing the values, encrypted,
+    // to the account's devices) and enables it, then starts its first run in
+    // the background once the installation has synced here, and moves on.
+    fun connectSource(script: FydeScript, parameters: Map<String, FydeScriptParameterValue>) {
+        connectError = null
+        isConnectingSource = true
+        scope.launch {
+            val result = FydeSdk.installScript(script.id, parameters)
+                .mapCatching { FydeSdk.enableScript(script.id).getOrThrow() }
+            isConnectingSource = false
+            // The session may have ended meanwhile, back to the login form.
+            if (screen != Screen.ConnectSource) return@launch
+            result
+                .onSuccess {
+                    skippedSourceIds = skippedSourceIds - script.id
+                    scraperRuns.runOnceInstalled(script)
+                    nextSource()
+                }
+                .onFailure { connectError = getString(Res.string.connect_source_failed, script.name, it.userMessage()) }
+        }
+    }
+
     key(language) {
         when (screen) {
             Screen.Welcome -> WelcomeScreen(
@@ -547,13 +598,17 @@ private fun AppContent(
                 },
                 query = sourcesQuery,
                 onQueryChange = { sourcesQuery = it },
-                // Connecting each ticked source in turn inside onboarding
-                // (DO7b onwards) isn't built yet: until then they're
-                // installed, with their credentials, from Scripts.
+                // Each ticked source is then connected in turn (S3, DO7b);
+                // the selection stays, for coming back from the first.
                 onConnect = {
-                    sourceSelection = emptySet()
-                    sourcesQuery = ""
-                    screen = Screen.Scripts
+                    val listed = (sources as? SourcesUiState.Loaded)?.sources.orEmpty().associateBy { it.id }
+                    connectQueue = sourceSelection.mapNotNull { listed[it] }
+                    if (connectQueue.isNotEmpty()) {
+                        connectIndex = 0
+                        skippedSourceIds = emptySet()
+                        connectError = null
+                        screen = Screen.ConnectSource
+                    }
                 },
                 onSkip = {
                     sourceSelection = emptySet()
@@ -561,6 +616,38 @@ private fun AppContent(
                     screen = Screen.Documents
                 },
             )
+            Screen.ConnectSource -> connectQueue.getOrNull(connectIndex)?.let { script ->
+                ConnectSourceScreen(
+                    script = script,
+                    position = connectIndex + 1,
+                    count = connectQueue.size,
+                    sources = connectQueue.mapIndexed { index, source ->
+                        VaultSource(
+                            name = source.name,
+                            state = when {
+                                index == connectIndex -> VaultSourceState.Current
+                                index > connectIndex -> VaultSourceState.Next
+                                source.id in skippedSourceIds -> VaultSourceState.Skipped
+                                scraperRuns.isPending(source.id) -> VaultSourceState.Running
+                                else -> VaultSourceState.Connected
+                            },
+                        )
+                    },
+                    errorMessage = connectError,
+                    isSubmitting = isConnectingSource,
+                    onConnect = { parameters -> connectSource(script, parameters) },
+                    onSkip = {
+                        skippedSourceIds = skippedSourceIds + script.id
+                        nextSource()
+                    },
+                    // Back to the previous source, or from the first to the
+                    // picker, ticks kept.
+                    onBack = {
+                        connectError = null
+                        if (connectIndex > 0) connectIndex-- else screen = Screen.Sources
+                    },
+                )
+            }
             Screen.Documents -> DocumentsScreen(
                 onOpenSettings = { screen = Screen.Settings },
                 onOpenScripts = { screen = Screen.Scripts },
