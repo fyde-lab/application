@@ -36,13 +36,20 @@
     <string name="session_expired">Your session has expired. Log in again to continue.</string>
 
     <!-- Session limit screen -->
-    <string name="session_limit_title">Too many devices</string>
-    <plurals name="session_limit_explanation">
-        <item quantity="one">Your plan allows %1$d connected device at a time. Pick the device to disconnect to continue on this one.</item>
-        <item quantity="other">Your plan allows %1$d connected devices at a time. Pick a device to disconnect to continue on this one.</item>
+    <string name="session_limit_title">Too many connected devices</string>
+    <plurals name="session_limit_explanation_computer">
+        <item quantity="one">Your plan allows %1$d device at a time. Disconnect it to open your vault on this computer.</item>
+        <item quantity="other">Your plan allows %1$d devices at a time. Choose the one to disconnect to open your vault on this computer.</item>
+    </plurals>
+    <plurals name="session_limit_explanation_device">
+        <item quantity="one">Your plan allows %1$d device at a time. Disconnect it to open your vault here.</item>
+        <item quantity="other">Your plan allows %1$d devices at a time. Choose the one to disconnect to open your vault here.</item>
     </plurals>
     <string name="session_limit_connected_since">Connected since %1$s</string>
-    <string name="session_limit_replace">Disconnect it and continue</string>
+    <string name="session_limit_reconnect_note">It can sign back in later with your password. Your documents stay where they are.</string>
+    <string name="session_limit_disconnect">Disconnect %1$s</string>
+    <string name="session_limit_pick">Choose a device</string>
+    <string name="session_limit_see_plans">See plans</string>
     <string name="session_limit_failed">Failed to disconnect the device</string>
 
     <!-- Register screen -->

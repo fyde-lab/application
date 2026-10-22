@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.button_loading
@@ -81,14 +82,16 @@ fun AppButton(
             )
             if (loadingText != null) {
                 Spacer(Modifier.width(AppSpacing.space3))
-                Text(loadingText)
+                Text(loadingText, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         } else {
             if (leadingIcon != null) {
                 leadingIcon()
                 Spacer(Modifier.width(AppSpacing.space2))
             }
-            Text(text)
+            // One line: the button is a fixed-height pill, so a wrapped label
+            // would be clipped (a long device name in DO5's "Disconnect …").
+            Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 
