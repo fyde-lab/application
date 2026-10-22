@@ -98,7 +98,10 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - `LoginScreen`, `RegisterScreen`, `SessionLimitScreen`: when `FydeSdk.login` returns
   `FydeLoginOutcome.SessionLimitReached`, `App.kt` shows the account's sessions, keeps the typed
   credentials in `Screen.SessionLimit` only while it's open, and re-runs login with the picked
-  session as `replaceSessionId` (the server's login exchange is single-use).
+  session as `replaceSessionId` (the server's login exchange is single-use). `SessionLimitScreen`
+  is O5 at Compact and DO5 at Medium/Expanded (in `SignInSplitLayout`): a radio group of the
+  sessions, a phone or laptop glyph guessed from the session's device name. Its "See plans"
+  shows only given `onSeePlans`, which `App.kt` doesn't pass yet (no plans page before sign-in).
 
 Toolchain versions are pinned in `gradle/libs.versions.toml` (Kotlin 2.4.20, Compose MP 1.12.0,
 AGP 9.1.1); JDK 21 via Foojay (`gradle/gradle-daemon-jvm.properties`).

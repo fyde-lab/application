@@ -445,7 +445,8 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `AppSearchField` | Restyle | 48 pill |
 | `AppBackButton` | Landed (O2) | 44 `surface` circle, `border` hairline, chevron; "Back" for screen readers |
 | `AppChip` | Restyle | Pill 38, selected = `text` fill, optional count and chevron |
-| `AppCheckbox`, `AppRadio`, `AppSwitch` | Restyle | 22pt marks, 51×31 switch |
+| `AppCheckbox`, `AppSwitch` | Restyle | 22pt marks, 51×31 switch |
+| `AppRadio` | Landed (O5) | 22 mark: 1.5 `borderStrong` ring, selected = 7 `primary` ring around a `surface` dot. Mark only — the row is the `selectable` target |
 | `AppBottomSheet` | Layout landed (O4) | Modal bottom sheet opened fully, with grab handle, at Compact; a centred panel (`sheetPanelMaxWidth`, no drag) at Medium and Expanded and always on desktop. Still the current radius and surface, not `xl` / `surface` |
 | `AppDialog`, `AppSnackbarHost`, `AppProgressBar` | Restyle | Patterns above |
 | `AppSegmented` | New | 2–3 options on `sunk` |

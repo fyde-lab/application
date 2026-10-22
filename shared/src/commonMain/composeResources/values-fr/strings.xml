@@ -36,13 +36,20 @@
     <string name="session_expired">Votre session a expiré. Reconnectez-vous pour continuer.</string>
 
     <!-- Session limit screen -->
-    <string name="session_limit_title">Trop d’appareils</string>
-    <plurals name="session_limit_explanation">
-        <item quantity="one">Votre offre permet %1$d appareil connecté à la fois. Choisissez l’appareil à déconnecter pour continuer sur celui-ci.</item>
-        <item quantity="other">Votre offre permet %1$d appareils connectés à la fois. Choisissez un appareil à déconnecter pour continuer sur celui-ci.</item>
+    <string name="session_limit_title">Trop d’appareils connectés</string>
+    <plurals name="session_limit_explanation_computer">
+        <item quantity="one">Votre offre permet %1$d appareil à la fois. Déconnectez-le pour ouvrir votre coffre sur cet ordinateur.</item>
+        <item quantity="other">Votre offre permet %1$d appareils à la fois. Choisissez celui à déconnecter pour ouvrir votre coffre sur cet ordinateur.</item>
+    </plurals>
+    <plurals name="session_limit_explanation_device">
+        <item quantity="one">Votre offre permet %1$d appareil à la fois. Déconnectez-le pour ouvrir votre coffre ici.</item>
+        <item quantity="other">Votre offre permet %1$d appareils à la fois. Choisissez celui à déconnecter pour ouvrir votre coffre ici.</item>
     </plurals>
     <string name="session_limit_connected_since">Connecté depuis le %1$s</string>
-    <string name="session_limit_replace">Le déconnecter et continuer</string>
+    <string name="session_limit_reconnect_note">Il pourra se reconnecter plus tard avec votre mot de passe. Vos documents ne bougent pas.</string>
+    <string name="session_limit_disconnect">Déconnecter %1$s</string>
+    <string name="session_limit_pick">Choisissez un appareil</string>
+    <string name="session_limit_see_plans">Voir les offres</string>
     <string name="session_limit_failed">Échec de la déconnexion de l’appareil</string>
 
     <!-- Register screen -->

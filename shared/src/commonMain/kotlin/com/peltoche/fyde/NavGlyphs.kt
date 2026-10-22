@@ -489,3 +489,49 @@ fun KeyGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, s
         drawPath(shaft, color = tint, style = stroke)
     }
 }
+
+/** A phone — a session on Android or iOS (O5, DO5). Traced from `i-phone` in `icons.svg`. */
+@Composable
+fun PhoneGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(7f * unit, 2.5f * unit),
+            size = Size(10f * unit, 19f * unit),
+            cornerRadius = CornerRadius(2f * unit),
+            style = stroke,
+        )
+        drawLine(tint, Offset(11f * unit, 18.5f * unit), Offset(13f * unit, 18.5f * unit), stroke.width, StrokeCap.Round)
+    }
+}
+
+/** A laptop — a session on a computer (O5, DO5). Traced from `i-laptop` in `icons.svg`. */
+@Composable
+fun LaptopGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(4.5f * unit, 5f * unit),
+            size = Size(15f * unit, 10.5f * unit),
+            cornerRadius = CornerRadius(1.5f * unit),
+            style = stroke,
+        )
+        drawLine(tint, Offset(2.5f * unit, 19f * unit), Offset(21.5f * unit, 19f * unit), stroke.width, StrokeCap.Round)
+    }
+}
+
+/** An "i" in a circle — an info note's mark. Traced from `i-info` in `icons.svg`. */
+@Composable
+fun InfoGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawCircle(color = tint, radius = 8.5f * unit, center = Offset(12f * unit, 12f * unit), style = stroke)
+        drawLine(tint, Offset(12f * unit, 11f * unit), Offset(12f * unit, 16.5f * unit), stroke.width, StrokeCap.Round)
+        drawLine(tint, Offset(12f * unit, 7.7f * unit), Offset(12f * unit, 7.9f * unit), stroke.width, StrokeCap.Round)
+    }
+}
