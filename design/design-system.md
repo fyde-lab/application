@@ -24,7 +24,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 
 ## Reference screens
 
-Every screen of the app is drawn in `assets/screens/` (68 PNGs at 2×, phone frames at 390×844,
+Every screen of the app is drawn in `assets/screens/` (70 PNGs at 2×, phone frames at 390×844,
 desktop at 1440×900, tablet at 1194×834), rendered from the HTML in `assets/mockups/` by
 `render.py`; `sheets.py` assembles them into the contact sheets in `assets/sheets/`. To change a
 reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
@@ -296,6 +296,26 @@ Which one it is, and the masked destination, come from the scraper's question; u
 passes them as structured data (channel, destination, length), the card shows the question text
 as its title and a single field.
 
+### Plan quota
+
+`PlanQuota` shows how many of the plan's active sources a selection uses, wherever sources are
+picked (O7, DO7, S2). One row on `surface` with a `border` hairline: the plan in words, one
+segment per allowed source (16×6, `primary` when used, `border` otherwise), and "n / max" in
+Plex Mono. Screen readers hear "3 sources choisies sur 5"; the count is announced as it changes.
+
+- The count is the sources already active plus the ones ticked on the screen
+  (`Usage.enabled_scripts` + selection, against `Usage.max_scripts` from `getUsage`, read when the
+  screen opens). During onboarding no source is active yet, so it's the selection alone.
+- **At the limit** the row turns `warningWash` with its segments and count in `warning` and the
+  text "Limite de l'offre … atteinte". Unticked sources dim to 45% and stop taking a tick
+  (`aria-disabled`); ticked ones stay editable, so unticking one frees a slot at once. A note says
+  how to swap and where to change plan. Fyde never blocks the button: the selection is always
+  within the plan.
+- On phones the row is pinned under the bar once the title scrolls away (O7b); its text shortens
+  to "Offre Gratuit" / "Limite atteinte".
+- A plan with no source limit hides the counter. If `getUsage` fails, the counter is hidden and
+  the server's own refusal (`install_script`) is shown on that source's connect step instead.
+
 ### Document pass
 
 The detail of a document is a pass in its category colours: issuer and type, a headline value
@@ -345,7 +365,8 @@ subcategories of the chosen category only, type chips.
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
 | O5 | Trop d'appareils | Plan limit, radio list of open sessions, "Déconnecter le MacBook Air" | Re-runs login with `replaceSessionId`; credentials kept only while open |
 | O6 | Kit de récupération | Step 2/4; 12 words; Enregistrer le PDF / Imprimer; Je l'ai mis en lieu sûr / Plus tard | Screenshots blocked. Confirm asks two words back |
-| O7 | Choisir ses sources | Step 3/4; search, category chips, popular public scrapers with checkboxes | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
+| O7 | Choisir ses sources | Step 3/4; plan counter "Offre Gratuit · 3 / 5"; search, category chips, popular public scrapers with checkboxes | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
+| O7b | Limite de l'offre atteinte | O7 scrolled: the counter stays pinned under the bar, in `warning`, "Limite atteinte"; one line on unticking to swap; unticked sources dimmed and not tickable; pointer to Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | O8 | Notifications | Step 4/4; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
 | O9 | Ouverture | Ring "142 sur 214", the device's name, "Vous pouvez déjà parcourir" | Replaces an empty vault on a new device |
 
@@ -437,7 +458,8 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO4b | Trousseau absent (création) | Same dialog over DO3, ticked: "Créer quand même" enabled | Same |
 | DO5 | Trop d'appareils | As O5; Voir les offres · Déconnecter le MacBook Air | — |
 | DO6 | Kit de récupération | Step 2 of 4: 12 words in 4×3, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop |
-| DO7 | Choisir ses sources | Step 3 of 4: search, category chips, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
+| DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, category chips, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
+| DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 3 with their state | Connect installs the script and starts its first run |
 | DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel |
 | DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Annuler / Valider | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
@@ -479,6 +501,7 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `ArrivalsBanner`, `ClassificationSuggestion` | New | — |
 | `OneTimeCodeField` | New | See [Verification code](#verification-code) |
 | `SourceRow`, `SourceStatus`, `RunStepper` | New | See [Source status](#source-status) |
+| `PlanQuota` | New | See [Plan quota](#plan-quota) |
 | `SealHero` | Landed (O1) | `primary` disc and lock, `primaryWash` disc, two `border` rings at 168 (`AppDimensions.sealHero`); reused by M2 |
 | `DeviceTile`, `UsageMeter` | New / restyle | — |
 | `AppIconTile` | Restyle | 44 default; 36 (`AppDimensions.iconTileSmall`) beside body text, as in O1's promises; 52 (`iconTileLarge`) heading a sheet, as in O4 |

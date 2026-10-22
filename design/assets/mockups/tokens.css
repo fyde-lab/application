@@ -138,3 +138,16 @@
 .st.now .dot{border:2px solid var(--warn)}
 .st.idle{color:var(--muted)}
 .kbd{font:500 12px "Plex Mono";color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 6px;background:var(--bg)}
+
+/* plan quota counter (source picker) */
+.quota{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--border)}
+.quota .q{flex:1;min-width:0;font:400 14px/19px var(--font);color:var(--muted)}
+.quota .q b{color:var(--text);font-weight:600}
+.quota .n{font:600 15px "Plex Mono";font-feature-settings:"tnum";white-space:nowrap}
+.quota .seg{display:flex;gap:4px;flex:none}
+.quota .seg i{width:16px;height:6px;border-radius:3px;background:var(--border)}
+.quota .seg i.on{background:var(--primary)}
+.quota.full{background:var(--warnwash);border-color:var(--warnwash)}
+.quota.full .seg i.on{background:var(--warn)}
+.quota.full .n{color:var(--warn)}
+.off{opacity:.45}
