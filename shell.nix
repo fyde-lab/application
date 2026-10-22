@@ -91,6 +91,9 @@ pkgs.mkShell {
     # below and ../sdk/shell.nix's longer comment on this.
     glib-networking
 
+    # GSettings schemas GTK reads at runtime - see XDG_DATA_DIRS below.
+    gsettings-desktop-schemas
+
     androidComposition.androidsdk
 
     jdk21
@@ -114,6 +117,14 @@ pkgs.mkShell {
     # backend modules on this path, which nixpkgs never adds to a plain
     # shell's environment on its own.
     export GIO_EXTRA_MODULES="${pkgs.glib-networking}/lib/gio/modules''${GIO_EXTRA_MODULES:+:$GIO_EXTRA_MODULES}"
+
+    # On Linux, java.awt.FileDialog (the desktop app's save/open dialogs, e.g.
+    # the recovery kit's "Save as PDF") is a native GtkFileChooserDialog, and
+    # GLib aborts the whole JVM (SIGABRT, "No GSettings schemas are installed
+    # on the system") when it can't find the org.gtk.Settings.FileChooser
+    # schema. nixpkgs installs schemas under a per-package directory that GLib
+    # only finds through XDG_DATA_DIRS, which a plain shell never extends.
+    export XDG_DATA_DIRS="${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}:${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
 
     export JAVA_HOME="${pkgs.jdk21}"
     export PATH="$JAVA_HOME/bin:$PATH"
