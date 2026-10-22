@@ -55,6 +55,7 @@ import com.peltoche.fyde.resources.vault_step_sources_subtitle
 import com.peltoche.fyde.resources.vault_step_sources_title
 import com.peltoche.fyde.resources.vault_source_connected
 import com.peltoche.fyde.resources.vault_source_current
+import com.peltoche.fyde.resources.vault_source_fetching
 import com.peltoche.fyde.resources.vault_source_next
 import com.peltoche.fyde.resources.vault_source_running
 import com.peltoche.fyde.resources.vault_source_skipped
@@ -156,6 +157,9 @@ enum class VaultCreationStep { Account, RecoveryKit, Sources }
 enum class VaultSourceState {
     /** Its credentials are being asked for (DO7b). */
     Current,
+
+    /** Connected, its first run followed on screen (DO7c). */
+    Fetching,
 
     /** Still to come. */
     Next,
@@ -363,7 +367,8 @@ private fun VaultSourceRow(source: VaultSource) {
                 .clip(CircleShape)
                 .then(
                     when {
-                        source.state == VaultSourceState.Current -> Modifier.background(AppColors.onPrimary)
+                        source.state == VaultSourceState.Current || source.state == VaultSourceState.Fetching ->
+                            Modifier.background(AppColors.onPrimary)
                         connected -> Modifier.background(StepDoneFill)
                         else -> Modifier.border(1.5.dp, AppColors.onPrimary.copy(alpha = 0.4f), CircleShape)
                     },
@@ -385,6 +390,7 @@ private fun VaultSourceRow(source: VaultSource) {
             text = stringResource(
                 when (source.state) {
                     VaultSourceState.Current -> Res.string.vault_source_current
+                    VaultSourceState.Fetching -> Res.string.vault_source_fetching
                     VaultSourceState.Next -> Res.string.vault_source_next
                     VaultSourceState.Running -> Res.string.vault_source_running
                     VaultSourceState.Connected -> Res.string.vault_source_connected

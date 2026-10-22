@@ -142,6 +142,34 @@
     <string name="vault_source_running">en cours</string>
     <string name="vault_source_connected">connectée</string>
     <string name="vault_source_skipped">passée</string>
+    <string name="vault_source_fetching">récupération</string>
+
+    <!-- A source's first run (S4, DO7c) -->
+    <string name="source_fetch_title">%1$s récupère vos documents</string>
+    <string name="source_fetch_title_done">%1$s a récupéré vos documents</string>
+    <string name="source_fetch_title_failed">Impossible de récupérer depuis %1$s</string>
+    <string name="source_fetch_first">Première récupération</string>
+    <string name="source_fetch_queued">Démarre dès que la source précédente a terminé</string>
+    <plurals name="source_fetch_fetched">
+        <item quantity="one">%1$d document récupéré</item>
+        <item quantity="other">%1$d documents récupérés</item>
+    </plurals>
+    <string name="source_fetch_finished">Récupération terminée</string>
+    <string name="source_fetch_step_connecting">Connexion</string>
+    <string name="source_fetch_step_searching">Recherche des documents</string>
+    <string name="source_fetch_step_downloading">Téléchargement</string>
+    <string name="source_fetch_step_storing">Rangement dans le coffre</string>
+    <string name="source_fetch_waiting_for_you">vous attend</string>
+    <plurals name="source_fetch_found">
+        <item quantity="one">%1$d trouvé</item>
+        <item quantity="other">%1$d trouvés</item>
+    </plurals>
+    <string name="source_fetch_count">%1$d / %2$d</string>
+    <string name="source_fetch_background">Vous pouvez continuer : la récupération se poursuit en arrière-plan, et Fyde vous préviendra si %1$s demande un code.</string>
+    <string name="source_fetch_wait">Attendre ici</string>
+    <string name="source_fetch_retry">Réessayer</string>
+    <string name="source_fetch_next">Source suivante</string>
+    <string name="source_fetch_continue">Continuer</string>
     <string name="password_strength_weak">Faible · ajoutez des mots ou des caractères</string>
     <string name="password_strength_fair">Moyen · %1$d caractères</string>
     <string name="password_strength_strong">Solide · %1$d caractères</string>

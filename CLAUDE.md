@@ -110,9 +110,15 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   each ticked source in turn, `App.kt` holding the queue (`connectQueue`/`connectIndex`). One
   field per script parameter (`ScriptParameterField`, shared with Scripts' install dialog);
   Connecter installs and enables it, then `ScraperRuns.runOnceInstalled` queues its first run
-  until the installation has synced to this device. Passer cette source / back move along the
-  queue; after the last source → Documents until DO7c–DO7g and DO8 exist. No "Récupérer
-  automatiquement" switch: fyde-sdk has no scheduled runs.
+  until the installation has synced to this device, and opens `SourceFetchingScreen`. Passer
+  cette source / back move along the queue; after the last source → Documents until DO7d–DO7g
+  and DO8 exist. No "Récupérer automatiquement" switch: fyde-sdk has no scheduled runs.
+- `SourceFetchingScreen` (DO7c at Medium/Expanded, a stacked version at Compact): the connected
+  source's first run as a `RunStepper` (Connexion → Recherche → Téléchargement i / n →
+  Rangement), from `ScraperRuns`' typed `stepKind`/`update`/`found` and, once over, its
+  `outcomes` entry (`sourceFetchStatusOf` in `App.kt`). Source suivante / Continuer moves on
+  without stopping the run; Attendre ici moves on by itself once it succeeds; a failure shows
+  the SDK's message with Réessayer. No step times or duration estimate (nothing records them).
 - `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the
   wording and the desktop's Retry): over `LoginScreen`/`RegisterScreen` when the device has no
   OS credential store (`FydeSdk.isSecureStorageAvailable`, checked as each form opens and again

@@ -404,10 +404,21 @@ data class FydeScript(
     val type: FydeScriptType = FydeScriptType.PARSER,
 )
 
+/** A high-level stage of a scraper run, mirroring the SDK's `FfiProgressStep`. */
+enum class FydeScraperStep {
+    LOGGING_IN,
+    CHECKING_SESSION,
+    WAITING_FOR_VERIFICATION_CODE,
+    WAITING_FOR_CAPTCHA,
+    LISTING_DOCUMENTS,
+    DOWNLOADING_DOCUMENTS,
+    DONE,
+}
+
 /** A running scraper's progress, mirroring the SDK's `FfiProgressEvent`. */
 sealed interface FydeScraperProgress {
-    /** A step started; [message] is its wording in the user's language (e.g. "Connexion en cours"). */
-    data class Step(val message: String) : FydeScraperProgress
+    /** [step] started; [message] is its wording in the user's language (e.g. "Connexion en cours"). */
+    data class Step(val step: FydeScraperStep, val message: String) : FydeScraperProgress
 
     /** How far the current step has got; [total] is 0 when unknown. */
     data class Update(val current: Long, val total: Long) : FydeScraperProgress
