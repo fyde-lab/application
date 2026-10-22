@@ -94,9 +94,16 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   Save the PDF (`recoveryKitPdf`, a hand-written one-page PDF, through `rememberDocumentSaver`)
   everywhere; Print (`rememberPdfPrinter`) on desktop (PDFBox) and Android (`PrintManager`) only;
   Android keeps the screen out of screenshots (`ScreenshotGuard`, `FLAG_SECURE`). Both "I've put
-  it somewhere safe" and "Later" open the vault, keeping the key. `VaultCreationStep` drives
+  it somewhere safe" and "Later" lead on to `SourcesScreen`, keeping the key. `VaultCreationStep` drives
   `VaultCreationBrandPanel`'s stepper and the phone's `VaultStepDots`: list only steps that have
-  screens (sources and notifications don't yet).
+  screens (notifications doesn't yet).
+- `SourcesScreen` (O7/O7b at Compact, DO7/DO7h at Medium/Expanded in `VaultCreationSplitLayout`):
+  the public scrapers (`listPublicScripts`, `SCRAPER` only) to tick, searched with
+  `filterScripts`. `App.kt` holds the selection (in ticking order) and the plan counter
+  (`AppPlanQuota`, from `getUsage` via `sourceQuotaOf`; hidden without a limit or if `getUsage`
+  fails): at the limit unticked sources dim and can't be ticked. No back button (it would
+  regenerate the recovery key) and no category chips (scripts have no category yet). Passer →
+  Documents; Connecter → Scripts until the per-source connect steps (DO7b–DO7g) exist.
 - `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the
   wording and the desktop's Retry): over `LoginScreen`/`RegisterScreen` when the device has no
   OS credential store (`FydeSdk.isSecureStorageAvailable`, checked as each form opens and again

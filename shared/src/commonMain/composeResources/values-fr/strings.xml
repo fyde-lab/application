@@ -67,7 +67,7 @@
     <string name="register_acknowledge">J’ai compris, je le garde en lieu sûr.</string>
     <string name="register_submit">Continuer</string>
     <string name="register_submitting">Création du coffre…</string>
-    <string name="vault_steps_summary">Deux étapes, environ deux minutes.</string>
+    <string name="vault_steps_summary">Trois étapes, environ trois minutes.</string>
     <string name="vault_step_progress">Étape %1$d sur %2$d</string>
     <string name="vault_step_account_subtitle">Identifiant et mot de passe</string>
     <string name="vault_step_recovery_title">Kit de récupération</string>
@@ -92,6 +92,37 @@
     <string name="recovery_kit_pdf_title">Kit de récupération Fyde</string>
     <string name="recovery_kit_pdf_account">Compte : %1$s</string>
     <string name="recovery_kit_pdf_warning">Quiconque détient ces mots et votre identifiant peut définir un nouveau mot de passe et ouvrir votre coffre. Gardez cette feuille hors ligne, en lieu sûr, et ne saisissez ces mots que dans Fyde.</string>
+
+    <!-- Choisir ses sources (O7, O7b, DO7, DO7h) -->
+    <string name="vault_step_sources_title">Vos sources</string>
+    <string name="vault_step_sources_subtitle">D’où viennent vos documents</string>
+    <string name="sources_title">D’où viennent vos documents ?</string>
+    <string name="sources_subtitle">Fyde ira les chercher pour vous. Vous saisirez vos identifiants à l’étape suivante.</string>
+    <string name="sources_skip">Passer</string>
+    <string name="sources_search_placeholder">EDF, Free, Ameli…</string>
+    <string name="sources_search_clear">Effacer la recherche</string>
+    <string name="sources_no_match">Aucune source ne correspond à « %1$s ».</string>
+    <string name="sources_empty">Aucune source n’est encore disponible. Vous pourrez en ajouter plus tard depuis Sources.</string>
+    <string name="sources_load_failed">Impossible de charger les sources : %1$s</string>
+    <plurals name="sources_connect">
+        <item quantity="one">Connecter %1$d source</item>
+        <item quantity="other">Connecter %1$d sources</item>
+    </plurals>
+    <string name="sources_connect_none">Choisissez une source</string>
+    <string name="plan_quota_short">Offre %1$s</string>
+    <string name="plan_quota_short_full">Limite atteinte</string>
+    <plurals name="plan_quota_wide">
+        <item quantity="one">Votre offre %1$s inclut %2$d source</item>
+        <item quantity="other">Votre offre %1$s inclut %2$d sources</item>
+    </plurals>
+    <string name="plan_quota_wide_full">Limite de l’offre %1$s atteinte</string>
+    <string name="plan_quota_description">%1$d sources choisies sur %2$d</string>
+    <plurals name="sources_limit_compact">
+        <item quantity="one">Votre offre %1$s inclut %2$d source. Décochez-la pour en choisir une autre.</item>
+        <item quantity="other">Votre offre %1$s inclut %2$d sources. Décochez-en une pour en choisir une autre.</item>
+    </plurals>
+    <string name="sources_limit_compact_more">Plus de sources : Moi › Offre et usage, une fois votre coffre créé.</string>
+    <string name="sources_limit_wide">Décochez une source pour en choisir une autre. Vous pourrez passer à une offre supérieure plus tard, depuis Moi › Offre et usage.</string>
     <string name="password_strength_weak">Faible · ajoutez des mots ou des caractères</string>
     <string name="password_strength_fair">Moyen · %1$d caractères</string>
     <string name="password_strength_strong">Solide · %1$d caractères</string>

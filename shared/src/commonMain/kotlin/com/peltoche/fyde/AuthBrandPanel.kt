@@ -48,6 +48,8 @@ import com.peltoche.fyde.resources.vault_step_account_subtitle
 import com.peltoche.fyde.resources.vault_step_progress
 import com.peltoche.fyde.resources.vault_step_recovery_subtitle
 import com.peltoche.fyde.resources.vault_step_recovery_title
+import com.peltoche.fyde.resources.vault_step_sources_subtitle
+import com.peltoche.fyde.resources.vault_step_sources_title
 import com.peltoche.fyde.resources.vault_steps_summary
 import com.peltoche.fyde.resources.welcome_seal_description
 import com.peltoche.fyde.resources.welcome_title
@@ -133,10 +135,10 @@ fun SignInSplitLayout(modifier: Modifier = Modifier, form: @Composable (Modifier
  * The steps of creating a vault, in order: what [VaultCreationBrandPanel]'s
  * stepper and [VaultStepDots] count. The design has four (DO3, DO6–DO8);
  * only those the app has screens for are listed, so the stepper never
- * promises a step that doesn't come — sources and notifications join here
- * once they exist.
+ * promises a step that doesn't come — notifications join here once it
+ * exists.
  */
-enum class VaultCreationStep { Account, RecoveryKit }
+enum class VaultCreationStep { Account, RecoveryKit, Sources }
 
 /**
  * [AuthBrandPanel] on the vault-creation path (DO3, DO6–DO8): "Create your
@@ -345,6 +347,7 @@ private fun VaultCreationStep.title(): String = stringResource(
     when (this) {
         VaultCreationStep.Account -> Res.string.register_account_title
         VaultCreationStep.RecoveryKit -> Res.string.vault_step_recovery_title
+        VaultCreationStep.Sources -> Res.string.vault_step_sources_title
     },
 )
 
@@ -353,6 +356,7 @@ private fun VaultCreationStep.subtitle(): String = stringResource(
     when (this) {
         VaultCreationStep.Account -> Res.string.vault_step_account_subtitle
         VaultCreationStep.RecoveryKit -> Res.string.vault_step_recovery_subtitle
+        VaultCreationStep.Sources -> Res.string.vault_step_sources_subtitle
     },
 )
 
