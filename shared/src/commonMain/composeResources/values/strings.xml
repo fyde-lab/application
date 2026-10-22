@@ -67,7 +67,7 @@
     <string name="register_acknowledge">I understand, I’ll keep it somewhere safe.</string>
     <string name="register_submit">Continue</string>
     <string name="register_submitting">Creating the vault…</string>
-    <string name="vault_steps_summary">Two steps, about two minutes.</string>
+    <string name="vault_steps_summary">Three steps, about three minutes.</string>
     <string name="vault_step_progress">Step %1$d of %2$d</string>
     <string name="vault_step_account_subtitle">Username and password</string>
     <string name="vault_step_recovery_title">Recovery kit</string>
@@ -92,6 +92,37 @@
     <string name="recovery_kit_pdf_title">Fyde recovery kit</string>
     <string name="recovery_kit_pdf_account">Account: %1$s</string>
     <string name="recovery_kit_pdf_warning">Anyone holding these words and your username can set a new password and open your vault. Keep this sheet offline, somewhere safe, and only ever type the words into Fyde.</string>
+
+    <!-- Choose your sources (O7, O7b, DO7, DO7h) -->
+    <string name="vault_step_sources_title">Your sources</string>
+    <string name="vault_step_sources_subtitle">Where your documents come from</string>
+    <string name="sources_title">Where do your documents come from?</string>
+    <string name="sources_subtitle">Fyde will fetch them for you. You’ll enter your credentials at the next step.</string>
+    <string name="sources_skip">Skip</string>
+    <string name="sources_search_placeholder">EDF, Free, Ameli…</string>
+    <string name="sources_search_clear">Clear the search</string>
+    <string name="sources_no_match">No source matches “%1$s”.</string>
+    <string name="sources_empty">No source is available yet. You can add some later from Sources.</string>
+    <string name="sources_load_failed">Couldn’t load the sources: %1$s</string>
+    <plurals name="sources_connect">
+        <item quantity="one">Connect %1$d source</item>
+        <item quantity="other">Connect %1$d sources</item>
+    </plurals>
+    <string name="sources_connect_none">Pick a source</string>
+    <string name="plan_quota_short">%1$s plan</string>
+    <string name="plan_quota_short_full">Limit reached</string>
+    <plurals name="plan_quota_wide">
+        <item quantity="one">Your %1$s plan includes %2$d source</item>
+        <item quantity="other">Your %1$s plan includes %2$d sources</item>
+    </plurals>
+    <string name="plan_quota_wide_full">%1$s plan limit reached</string>
+    <string name="plan_quota_description">%1$d sources chosen of %2$d</string>
+    <plurals name="sources_limit_compact">
+        <item quantity="one">Your %1$s plan includes %2$d source. Untick it to choose another.</item>
+        <item quantity="other">Your %1$s plan includes %2$d sources. Untick one to choose another.</item>
+    </plurals>
+    <string name="sources_limit_compact_more">More sources: Me › Plan and usage, once your vault is created.</string>
+    <string name="sources_limit_wide">Untick a source to choose another. You can move to a bigger plan later, from Me › Plan and usage.</string>
     <string name="password_strength_weak">Weak · add words or characters</string>
     <string name="password_strength_fair">Fair · %1$d characters</string>
     <string name="password_strength_strong">Strong · %1$d characters</string>

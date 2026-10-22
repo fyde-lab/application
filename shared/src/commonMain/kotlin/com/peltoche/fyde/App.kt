@@ -84,6 +84,29 @@ private const val SCRIPT_ICON_FETCH_CONCURRENCY = 8
  */
 private val scriptIcons = mutableMapOf<String, ByteArray>()
 
+/**
+ * Fetches each of [scripts]' icons, [SCRIPT_ICON_FETCH_CONCURRENCY] at a
+ * time, through the process-wide [scriptIcons] cache, handing each to
+ * [onIcon] as it arrives. The listings leave icons out (see
+ * [FydeSdk.fetchIcon]), so a screen shows its scripts first and fills the
+ * icons in. A failed fetch isn't cached and keeps [ScriptIcon]'s
+ * placeholder glyph. Returns once every fetch has settled.
+ */
+private suspend fun fetchScriptIcons(scripts: List<FydeScript>, onIcon: (scriptId: String, icon: ByteArray) -> Unit) {
+    val iconFetches = Semaphore(SCRIPT_ICON_FETCH_CONCURRENCY)
+    coroutineScope {
+        scripts.forEach { script ->
+            val iconId = script.iconId ?: return@forEach
+            launch {
+                val icon = scriptIcons[iconId]
+                    ?: iconFetches.withPermit { FydeSdk.fetchIcon(iconId).getOrNull() }
+                        ?.also { scriptIcons[iconId] = it }
+                if (icon != null && icon.isNotEmpty()) onIcon(script.id, icon)
+            }
+        }
+    }
+}
+
 /** Which top-level screen [App] is currently showing. */
 private sealed interface Screen {
     /** No account open on this device: [WelcomeScreen], leading to [Register] or [Login]. */
@@ -112,6 +135,12 @@ private sealed interface Screen {
      * recovery key, for [username]'s vault, before the vault opens.
      */
     class RecoveryKit(val username: String) : Screen
+
+    /**
+     * Vault creation's sources step, after the recovery kit:
+     * [SourcesScreen] picks the public scrapers to connect, within the plan.
+     */
+    data object Sources : Screen
 
     data object Documents : Screen
     data object Settings : Screen
@@ -210,6 +239,12 @@ private fun AppContent(
     // soon as it closes.
     var recoveryKit by remember { mutableStateOf<RecoveryKitUiState>(RecoveryKitUiState.Generating) }
     var recoveryKitAttempt by remember { mutableStateOf(0) }
+    // SourcesScreen's listing, and what's ticked there (in ticking order, the
+    // order they'll be connected in) and searched for.
+    var sources by remember { mutableStateOf<SourcesUiState>(SourcesUiState.Loading) }
+    var sourcesAttempt by remember { mutableStateOf(0) }
+    var sourceSelection by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var sourcesQuery by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
     // App-lifetime, so a scraper run outlives the screen that started it.
@@ -411,6 +446,30 @@ private fun AppContent(
         )
     }
 
+    // Listed as the sources step opens (and on retry): the public scrapers
+    // (parsers never show in the UI), then the plan's limit. During
+    // onboarding nothing is ticked yet, so a fresh visit starts empty.
+    LaunchedEffect(screen, sourcesAttempt) {
+        if (screen != Screen.Sources) {
+            sources = SourcesUiState.Loading
+            return@LaunchedEffect
+        }
+        sources = SourcesUiState.Loading
+        val listed = FydeSdk.listPublicScripts().getOrElse {
+            sources = SourcesUiState.Failed(message = it.userMessage(), onRetry = { sourcesAttempt++ })
+            return@LaunchedEffect
+        }
+        val scrapers = listed.filter { it.type == FydeScriptType.SCRAPER }.sortedBy { it.name.lowercase() }
+        // Without the usage the counter is hidden; the server still refuses
+        // a source past the plan when it's connected.
+        val quota = FydeSdk.getUsage().getOrNull()?.let(::sourceQuotaOf)
+        sources = SourcesUiState.Loaded(scrapers, quota)
+        fetchScriptIcons(scrapers) { scriptId, icon ->
+            val latest = sources as? SourcesUiState.Loaded ?: return@fetchScriptIcons
+            sources = latest.copy(sources = latest.sources.map { if (it.id == scriptId) it.copy(icon = icon) else it })
+        }
+    }
+
     key(language) {
         when (screen) {
             Screen.Welcome -> WelcomeScreen(
@@ -473,8 +532,34 @@ private fun AppContent(
                 username = (screen as Screen.RecoveryKit).username,
                 // "Later" opens the vault too, keeping the key: the user may
                 // have saved the PDF before choosing it.
-                onDone = { screen = Screen.Documents },
-                onLater = { screen = Screen.Documents },
+                onDone = { screen = Screen.Sources },
+                onLater = { screen = Screen.Sources },
+            )
+            Screen.Sources -> SourcesScreen(
+                state = sources,
+                selected = sourceSelection,
+                onToggle = { script ->
+                    sourceSelection = if (script.id in sourceSelection) {
+                        sourceSelection - script.id
+                    } else {
+                        sourceSelection + script.id
+                    }
+                },
+                query = sourcesQuery,
+                onQueryChange = { sourcesQuery = it },
+                // Connecting each ticked source in turn inside onboarding
+                // (DO7b onwards) isn't built yet: until then they're
+                // installed, with their credentials, from Scripts.
+                onConnect = {
+                    sourceSelection = emptySet()
+                    sourcesQuery = ""
+                    screen = Screen.Scripts
+                },
+                onSkip = {
+                    sourceSelection = emptySet()
+                    sourcesQuery = ""
+                    screen = Screen.Documents
+                },
             )
             Screen.Documents -> DocumentsScreen(
                 onOpenSettings = { screen = Screen.Settings },
@@ -882,24 +967,11 @@ private fun ScriptsScreenContainer(
             installedParameters = FydeSdk.installedScriptParameters().getOrElse { emptyMap() },
         )
 
-        // The listings leave icons out (see FydeSdk.fetchIcon): the grid
-        // shows first, then each icon is filled in as it arrives. A failed
-        // fetch isn't cached and keeps ScriptIcon's placeholder glyph.
-        val iconFetches = Semaphore(SCRIPT_ICON_FETCH_CONCURRENCY)
-        coroutineScope {
-            scripts.forEach { script ->
-                val iconId = script.iconId ?: return@forEach
-                launch {
-                    val icon = scriptIcons[iconId]
-                        ?: iconFetches.withPermit { FydeSdk.fetchIcon(iconId).getOrNull() }
-                            ?.also { scriptIcons[iconId] = it }
-                    if (icon == null || icon.isEmpty()) return@launch
-                    val latest = uiState as? ScriptsUiState.Loaded ?: return@launch
-                    uiState = latest.copy(
-                        scripts = latest.scripts?.map { if (it.id == script.id) it.copy(icon = icon) else it },
-                    )
-                }
-            }
+        fetchScriptIcons(scripts) { scriptId, icon ->
+            val latest = uiState as? ScriptsUiState.Loaded ?: return@fetchScriptIcons
+            uiState = latest.copy(
+                scripts = latest.scripts?.map { if (it.id == scriptId) it.copy(icon = icon) else it },
+            )
         }
     }
 

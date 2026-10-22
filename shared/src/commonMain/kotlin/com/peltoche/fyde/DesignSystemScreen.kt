@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,7 @@ import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
+import com.peltoche.fyde.components.feedback.AppPlanQuota
 import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
@@ -298,6 +300,12 @@ private fun FeedbackSection() {
                 AppNote(message = "Sealed and up to date.", kind = AppNoteKind.Ok, icon = { tint -> LockGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) })
                 AppNote(message = "Your session has expired.", kind = AppNoteKind.Warning, icon = { tint -> ClockGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) })
                 AppNote(message = "Wrong password.", kind = AppNoteKind.Error, icon = { tint -> AlertGlyph(modifier = Modifier.size(AppIconSize.sm), tint = tint) })
+            }
+        }
+        CatalogueRow("AppPlanQuota — room left / at the limit") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                AppPlanQuota(label = AnnotatedString("Free plan"), used = 3, max = 5, description = "3 sources chosen of 5")
+                AppPlanQuota(label = AnnotatedString("Limit reached"), used = 5, max = 5, description = "5 sources chosen of 5")
             }
         }
         CatalogueRow("AppLoading") {

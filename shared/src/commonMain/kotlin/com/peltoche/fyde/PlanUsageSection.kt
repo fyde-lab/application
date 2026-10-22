@@ -105,7 +105,7 @@ internal fun PlanUsageSection(state: PlanUsageUiState) {
 
 /** The server's plan ids are identifiers, not display text: known ones get translated names. */
 @Composable
-private fun planName(planId: String): String = when (planId) {
+internal fun planName(planId: String): String = when (planId) {
     "free" -> stringResource(Res.string.plan_name_free)
     "basic" -> stringResource(Res.string.plan_name_basic)
     "admin" -> stringResource(Res.string.plan_name_admin)
