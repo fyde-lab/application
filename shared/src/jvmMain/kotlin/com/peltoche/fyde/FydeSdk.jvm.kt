@@ -15,6 +15,7 @@ import uniffi.fyde_sdk.FfiLoginOutcome
 import uniffi.fyde_sdk.FfiMetadata
 import uniffi.fyde_sdk.FfiOpenSession
 import uniffi.fyde_sdk.FfiProgressEvent
+import uniffi.fyde_sdk.FfiProgressStep
 import uniffi.fyde_sdk.FfiScript
 import uniffi.fyde_sdk.FfiScriptMetadata
 import uniffi.fyde_sdk.FfiScriptParameter
@@ -295,8 +296,18 @@ actual object FydeSdk {
 }
 
 private fun FfiProgressEvent.toFydeScraperProgress(): FydeScraperProgress = when (this) {
-    is FfiProgressEvent.Step -> FydeScraperProgress.Step(message)
+    is FfiProgressEvent.Step -> FydeScraperProgress.Step(step.toFydeScraperStep(), message)
     is FfiProgressEvent.Update -> FydeScraperProgress.Update(current, total)
+}
+
+private fun FfiProgressStep.toFydeScraperStep() = when (this) {
+    FfiProgressStep.LOGGING_IN -> FydeScraperStep.LOGGING_IN
+    FfiProgressStep.CHECKING_SESSION -> FydeScraperStep.CHECKING_SESSION
+    FfiProgressStep.WAITING_FOR_VERIFICATION_CODE -> FydeScraperStep.WAITING_FOR_VERIFICATION_CODE
+    FfiProgressStep.WAITING_FOR_CAPTCHA -> FydeScraperStep.WAITING_FOR_CAPTCHA
+    FfiProgressStep.LISTING_DOCUMENTS -> FydeScraperStep.LISTING_DOCUMENTS
+    FfiProgressStep.DOWNLOADING_DOCUMENTS -> FydeScraperStep.DOWNLOADING_DOCUMENTS
+    FfiProgressStep.DONE -> FydeScraperStep.DONE
 }
 
 private fun FfiCategory.toFydeCategory() = when (this) {

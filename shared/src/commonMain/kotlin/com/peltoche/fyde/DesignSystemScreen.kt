@@ -50,6 +50,9 @@ import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.AppPlanQuota
 import com.peltoche.fyde.components.feedback.AppProgressBar
+import com.peltoche.fyde.components.feedback.RunStep
+import com.peltoche.fyde.components.feedback.RunStepState
+import com.peltoche.fyde.components.feedback.RunStepper
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
 import com.peltoche.fyde.components.form.AppCheckbox
@@ -323,6 +326,30 @@ private fun FeedbackSection() {
                 AppProgressBar(progress = 0.9f, color = AppColors.warning, modifier = Modifier.fillMaxWidth())
                 AppProgressBar(progress = 1f, color = AppColors.error, modifier = Modifier.fillMaxWidth())
                 AppProgressBar(progress = null, modifier = Modifier.fillMaxWidth())
+            }
+        }
+        CatalogueRow("RunStepper — downloading / failed while signing in") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space4)) {
+                AppCard(modifier = Modifier.fillMaxWidth()) {
+                    RunStepper(
+                        steps = listOf(
+                            RunStep("Signing in", RunStepState.Done),
+                            RunStep("Looking for documents", RunStepState.Done, detail = "12 found"),
+                            RunStep("Downloading", RunStepState.Current, detail = "5 / 12", progress = 5f / 12),
+                            RunStep("Storing in the vault", RunStepState.ToDo),
+                        ),
+                    )
+                }
+                AppCard(modifier = Modifier.fillMaxWidth()) {
+                    RunStepper(
+                        steps = listOf(
+                            RunStep("Signing in", RunStepState.Failed),
+                            RunStep("Looking for documents", RunStepState.ToDo),
+                            RunStep("Downloading", RunStepState.ToDo),
+                            RunStep("Storing in the vault", RunStepState.ToDo),
+                        ),
+                    )
+                }
             }
         }
         CatalogueRow("AppEmptyState") {

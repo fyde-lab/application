@@ -142,6 +142,34 @@
     <string name="vault_source_running">fetching</string>
     <string name="vault_source_connected">connected</string>
     <string name="vault_source_skipped">skipped</string>
+    <string name="vault_source_fetching">fetching</string>
+
+    <!-- A source's first run (S4, DO7c) -->
+    <string name="source_fetch_title">%1$s is fetching your documents</string>
+    <string name="source_fetch_title_done">%1$s has fetched your documents</string>
+    <string name="source_fetch_title_failed">Couldn’t fetch from %1$s</string>
+    <string name="source_fetch_first">First fetch</string>
+    <string name="source_fetch_queued">Starts once the previous source has finished</string>
+    <plurals name="source_fetch_fetched">
+        <item quantity="one">%1$d document fetched</item>
+        <item quantity="other">%1$d documents fetched</item>
+    </plurals>
+    <string name="source_fetch_finished">Fetch finished</string>
+    <string name="source_fetch_step_connecting">Signing in</string>
+    <string name="source_fetch_step_searching">Looking for documents</string>
+    <string name="source_fetch_step_downloading">Downloading</string>
+    <string name="source_fetch_step_storing">Storing in the vault</string>
+    <string name="source_fetch_waiting_for_you">waiting for you</string>
+    <plurals name="source_fetch_found">
+        <item quantity="one">%1$d found</item>
+        <item quantity="other">%1$d found</item>
+    </plurals>
+    <string name="source_fetch_count">%1$d / %2$d</string>
+    <string name="source_fetch_background">You can carry on: fetching goes on in the background, and Fyde will let you know if %1$s asks for a code.</string>
+    <string name="source_fetch_wait">Wait here</string>
+    <string name="source_fetch_retry">Retry</string>
+    <string name="source_fetch_next">Next source</string>
+    <string name="source_fetch_continue">Continue</string>
     <string name="password_strength_weak">Weak · add words or characters</string>
     <string name="password_strength_fair">Fair · %1$d characters</string>
     <string name="password_strength_strong">Strong · %1$d characters</string>

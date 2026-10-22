@@ -149,6 +149,12 @@ private sealed interface Screen {
      */
     data object ConnectSource : Screen
 
+    /**
+     * Once a source is connected, [SourceFetchingScreen] follows its first
+     * run (DO7c) until the user moves on to the next one.
+     */
+    data object FetchingSource : Screen
+
     data object Documents : Screen
     data object Settings : Screen
     data object Scripts : Screen
@@ -259,6 +265,8 @@ private fun AppContent(
     var skippedSourceIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var connectError by remember { mutableStateOf<String?>(null) }
     var isConnectingSource by remember { mutableStateOf(false) }
+    // "Wait here" on SourceFetchingScreen: move on by itself once the run succeeds.
+    var isWaitingForFetch by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
     // App-lifetime, so a scraper run outlives the screen that started it.
@@ -488,8 +496,10 @@ private fun AppContent(
     // (DO7g's summary and the notifications step don't exist yet).
     fun nextSource() {
         connectError = null
+        isWaitingForFetch = false
         if (connectIndex + 1 < connectQueue.size) {
             connectIndex++
+            screen = Screen.ConnectSource
             return
         }
         connectQueue = emptyList()
@@ -501,7 +511,7 @@ private fun AppContent(
 
     // Installs [script] with what was typed (publishing the values, encrypted,
     // to the account's devices) and enables it, then starts its first run in
-    // the background once the installation has synced here, and moves on.
+    // the background once the installation has synced here, and follows it.
     fun connectSource(script: FydeScript, parameters: Map<String, FydeScriptParameterValue>) {
         connectError = null
         isConnectingSource = true
@@ -515,10 +525,34 @@ private fun AppContent(
                 .onSuccess {
                     skippedSourceIds = skippedSourceIds - script.id
                     scraperRuns.runOnceInstalled(script)
-                    nextSource()
+                    screen = Screen.FetchingSource
                 }
                 .onFailure { connectError = getString(Res.string.connect_source_failed, script.name, it.userMessage()) }
         }
+    }
+
+    // The source on SourceFetchingScreen, if its first run is over: after
+    // "Wait here", a success moves on by itself, a failure stays to be seen.
+    val fetchingOutcome = connectQueue.getOrNull(connectIndex)
+        ?.takeIf { screen == Screen.FetchingSource }
+        ?.let { scraperRuns.outcomes[it.id] }
+    LaunchedEffect(fetchingOutcome, isWaitingForFetch) {
+        if (!isWaitingForFetch || fetchingOutcome == null) return@LaunchedEffect
+        if (fetchingOutcome is ScraperRunOutcome.Succeeded) nextSource() else isWaitingForFetch = false
+    }
+
+    // The ticked sources as the brand panel lists them, the one up [current].
+    fun vaultSources(current: VaultSourceState) = connectQueue.mapIndexed { index, source ->
+        VaultSource(
+            name = source.name,
+            state = when {
+                index == connectIndex -> current
+                index > connectIndex -> VaultSourceState.Next
+                source.id in skippedSourceIds -> VaultSourceState.Skipped
+                scraperRuns.isPending(source.id) -> VaultSourceState.Running
+                else -> VaultSourceState.Connected
+            },
+        )
     }
 
     key(language) {
@@ -621,18 +655,7 @@ private fun AppContent(
                     script = script,
                     position = connectIndex + 1,
                     count = connectQueue.size,
-                    sources = connectQueue.mapIndexed { index, source ->
-                        VaultSource(
-                            name = source.name,
-                            state = when {
-                                index == connectIndex -> VaultSourceState.Current
-                                index > connectIndex -> VaultSourceState.Next
-                                source.id in skippedSourceIds -> VaultSourceState.Skipped
-                                scraperRuns.isPending(source.id) -> VaultSourceState.Running
-                                else -> VaultSourceState.Connected
-                            },
-                        )
-                    },
+                    sources = vaultSources(current = VaultSourceState.Current),
                     errorMessage = connectError,
                     isSubmitting = isConnectingSource,
                     onConnect = { parameters -> connectSource(script, parameters) },
@@ -646,6 +669,20 @@ private fun AppContent(
                         connectError = null
                         if (connectIndex > 0) connectIndex-- else screen = Screen.Sources
                     },
+                )
+            }
+            Screen.FetchingSource -> connectQueue.getOrNull(connectIndex)?.let { script ->
+                SourceFetchingScreen(
+                    script = script,
+                    position = connectIndex + 1,
+                    count = connectQueue.size,
+                    sources = vaultSources(current = VaultSourceState.Fetching),
+                    status = sourceFetchStatusOf(script.id, scraperRuns),
+                    isLast = connectIndex == connectQueue.lastIndex,
+                    isWaiting = isWaitingForFetch,
+                    onWait = { isWaitingForFetch = true },
+                    onRetry = { scraperRuns.runOnceInstalled(script) },
+                    onNext = ::nextSource,
                 )
             }
             Screen.Documents -> DocumentsScreen(
@@ -1146,5 +1183,15 @@ private fun ScriptsScreenContainer(
             query = scriptQuery,
             onQueryChange = { scriptQuery = it },
         )
+    }
+}
+
+/** Where [scriptId]'s first run is, for [SourceFetchingScreen]: running, waiting its turn, or over. */
+private fun sourceFetchStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStatus {
+    if (runs.running?.id == scriptId) return SourceFetchStatus.Running(runs.stepKind, runs.update, runs.found)
+    return when (val outcome = runs.outcomes[scriptId]) {
+        is ScraperRunOutcome.Succeeded -> SourceFetchStatus.Succeeded(outcome.found)
+        is ScraperRunOutcome.Failed -> SourceFetchStatus.Failed(outcome.message, outcome.step, outcome.found)
+        null -> SourceFetchStatus.Queued
     }
 }

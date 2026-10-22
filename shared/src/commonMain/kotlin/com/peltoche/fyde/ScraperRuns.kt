@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.peltoche.fyde.resources.Res
@@ -18,6 +19,15 @@ import org.jetbrains.compose.resources.getString
 
 /** A question a running script is waiting on; completing [answer] hands the reply back to it. */
 class PendingQuestion(val text: String, val answer: CompletableDeferred<String>)
+
+/** How a script's last run ended, as [ScraperRuns.outcomes] keeps it. */
+sealed interface ScraperRunOutcome {
+    /** [found] is how many documents it reported finding, if it said. */
+    data class Succeeded(val found: Long?) : ScraperRunOutcome
+
+    /** It failed during [step] (`null` before its first one), [message] saying why in the user's words. */
+    data class Failed(val message: String, val step: FydeScraperStep?, val found: Long?) : ScraperRunOutcome
+}
 
 /**
  * The one scraper run in progress, if any — what [FydeSdk.runInstalledScript]
@@ -36,6 +46,8 @@ class PendingQuestion(val text: String, val answer: CompletableDeferred<String>)
  * Sources connected during onboarding ([ConnectSourceScreen]) each start
  * their first run through [runOnceInstalled]: they wait in [queued] for the
  * one in progress, and for their installation to reach this device.
+ * [SourceFetchingScreen] (DO7c) follows that run through [stepKind] and
+ * [found], then its [outcomes] entry.
  */
 @Stable
 class ScraperRuns(
@@ -45,6 +57,17 @@ class ScraperRuns(
     var running by mutableStateOf<FydeScript?>(null)
         private set
     var step by mutableStateOf<String?>(null)
+        private set
+
+    /** Which stage [step] is, for [RunStepper]. */
+    var stepKind by mutableStateOf<FydeScraperStep?>(null)
+        private set
+
+    /**
+     * How many documents the run in progress has found: the total of its
+     * last [update] while listing or downloading them, `null` until known.
+     */
+    var found by mutableStateOf<Long?>(null)
         private set
     var update by mutableStateOf<FydeScraperProgress.Update?>(null)
         private set
@@ -56,6 +79,11 @@ class ScraperRuns(
         private set
 
     private val queue = mutableStateListOf<FydeScript>()
+
+    private val outcomeByScript = mutableStateMapOf<String, ScraperRunOutcome>()
+
+    /** Each script's last finished run, by script id; dropped as it runs again. */
+    val outcomes: Map<String, ScraperRunOutcome> get() = outcomeByScript
 
     /** Scripts waiting for [running] to finish before their own run, in order. */
     val queued: List<FydeScript> get() = queue
@@ -82,14 +110,17 @@ class ScraperRuns(
 
     private fun start(script: FydeScript, awaitInstallation: Boolean) {
         running = script
-        step = null
-        update = null
+        resetProgress()
+        outcomeByScript -= script.id
         scope.launch {
             if (awaitInstallation) awaitInstallation(script.id)
             val result = FydeSdk.runInstalledScript(script.id)
+            outcomeByScript[script.id] = result.fold(
+                onSuccess = { ScraperRunOutcome.Succeeded(found) },
+                onFailure = { ScraperRunOutcome.Failed(it.userMessage(), stepKind, found) },
+            )
             running = null
-            step = null
-            update = null
+            resetProgress()
             // Before the snackbar, which suspends until it's dismissed.
             queue.removeFirstOrNull()?.let { start(it, awaitInstallation = true) }
             result
@@ -111,6 +142,13 @@ class ScraperRuns(
         }
     }
 
+    private fun resetProgress() {
+        step = null
+        stepKind = null
+        update = null
+        found = null
+    }
+
     fun dismissFailure() {
         failure = null
     }
@@ -123,9 +161,14 @@ class ScraperRuns(
         when (progress) {
             is FydeScraperProgress.Step -> {
                 step = progress.message
+                stepKind = progress.step
                 update = null
             }
-            is FydeScraperProgress.Update -> update = progress
+            is FydeScraperProgress.Update -> {
+                update = progress
+                val counting = stepKind == FydeScraperStep.LISTING_DOCUMENTS || stepKind == FydeScraperStep.DOWNLOADING_DOCUMENTS
+                if (counting && progress.total > 0) found = progress.total
+            }
         }
     }
 
