@@ -558,3 +558,23 @@ fun PagesGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted,
         drawPath(back, color = tint, style = stroke)
     }
 }
+
+/** A globe — the sites a source may reach (S3, DO7b). Traced from `i-globe` in `icons.svg`. */
+@Composable
+fun GlobeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawCircle(color = tint, radius = 8.5f * unit, center = Offset(12f * unit, 12f * unit), style = stroke)
+        drawLine(tint, Offset(3.5f * unit, 12f * unit), Offset(20.5f * unit, 12f * unit), stroke.width, StrokeCap.Round)
+        val meridian = Path().apply {
+            moveTo(12f * unit, 3.5f * unit)
+            cubicTo(14.5f * unit, 6.1f * unit, 15.7f * unit, 8.9f * unit, 15.7f * unit, 12f * unit)
+            cubicTo(15.7f * unit, 15.1f * unit, 14.5f * unit, 17.9f * unit, 12f * unit, 20.5f * unit)
+            cubicTo(9.5f * unit, 17.9f * unit, 8.3f * unit, 15.1f * unit, 8.3f * unit, 12f * unit)
+            cubicTo(8.3f * unit, 8.9f * unit, 9.5f * unit, 6.1f * unit, 12f * unit, 3.5f * unit)
+            close()
+        }
+        drawPath(meridian, color = tint, style = stroke)
+    }
+}

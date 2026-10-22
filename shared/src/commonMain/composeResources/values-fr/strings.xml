@@ -123,6 +123,25 @@
     </plurals>
     <string name="sources_limit_compact_more">Plus de sources : Moi › Offre et usage, une fois votre coffre créé.</string>
     <string name="sources_limit_wide">Décochez une source pour en choisir une autre. Vous pourrez passer à une offre supérieure plus tard, depuis Moi › Offre et usage.</string>
+
+    <!-- Connecter une source (S3 dans l’accueil, DO7b) -->
+    <string name="connect_source_position">Source %1$d sur %2$d</string>
+    <string name="connect_source_skip">Passer cette source</string>
+    <string name="connect_source_domains">Fyde se connectera uniquement à %1$s, depuis vos appareils.</string>
+    <string name="connect_source_list_and">%1$s et %2$s</string>
+    <string name="connect_source_secret_help">Celui de votre espace client %1$s, pas celui de Fyde.</string>
+    <string name="connect_source_encrypted">Identifiants chiffrés avec votre coffre : le serveur Fyde ne les voit jamais.</string>
+    <string name="connect_source_encrypted_short">Chiffrés avec votre coffre : le serveur Fyde ne les voit jamais.</string>
+    <string name="connect_source_submit">Connecter %1$s</string>
+    <string name="connect_source_submitting">Connexion à %1$s…</string>
+    <string name="connect_source_failed">Impossible de connecter %1$s : %2$s</string>
+    <string name="auth_source_credentials_computer">Vos identifiants de sources sont chiffrés sur cet ordinateur.</string>
+    <string name="auth_source_credentials_device">Vos identifiants de sources sont chiffrés sur cet appareil.</string>
+    <string name="vault_source_current">identifiants</string>
+    <string name="vault_source_next">ensuite</string>
+    <string name="vault_source_running">en cours</string>
+    <string name="vault_source_connected">connectée</string>
+    <string name="vault_source_skipped">passée</string>
     <string name="password_strength_weak">Faible · ajoutez des mots ou des caractères</string>
     <string name="password_strength_fair">Moyen · %1$d caractères</string>
     <string name="password_strength_strong">Solide · %1$d caractères</string>

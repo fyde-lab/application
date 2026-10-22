@@ -387,29 +387,60 @@ private fun ScriptParametersDialog(
         ) {
             orderedParameters(parameters).forEach { (key, parameter) ->
                 val value = values[key].orEmpty()
-                if (parameter.type == FydeScriptParameterType.BOOLEAN) {
-                    AppSwitch(
-                        checked = value.toBooleanStrictOrNull() ?: false,
-                        onCheckedChange = { checked -> values[key] = checked.toString() },
-                        label = parameter.label,
-                    )
-                } else {
-                    AppTextField(
-                        value = value,
-                        onValueChange = { values[key] = it },
-                        label = parameter.label,
-                        placeholder = parameter.placeholder.ifBlank { null },
-                        errorText = errorFor(parameter, value),
-                        isPassword = parameter.secret,
-                        keyboardOptions = if (parameter.type == FydeScriptParameterType.NUMBER) {
-                            KeyboardOptions(keyboardType = KeyboardType.Number)
-                        } else {
-                            KeyboardOptions.Default
-                        },
-                    )
-                }
+                ScriptParameterField(
+                    parameter = parameter,
+                    value = value,
+                    onValueChange = { values[key] = it },
+                    errorText = errorFor(parameter, value),
+                )
             }
         }
+    }
+}
+
+/**
+ * The control one of a script's [parameter]s is entered with: a switch for
+ * a boolean ([value] "true"/"false"), a text field otherwise — masked for a
+ * secret, numeric keyboard for a number. Shared by [ScriptParametersDialog]
+ * and [ConnectSourceScreen], so a parameter reads the same wherever it's asked.
+ */
+@Composable
+internal fun ScriptParameterField(
+    parameter: FydeScriptParameter,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    errorText: String? = null,
+    supportingText: String? = null,
+    enabled: Boolean = true,
+    imeAction: ImeAction = ImeAction.Default,
+    onImeAction: () -> Unit = {},
+) {
+    if (parameter.type == FydeScriptParameterType.BOOLEAN) {
+        AppSwitch(
+            checked = value.toBooleanStrictOrNull() ?: false,
+            onCheckedChange = { checked -> onValueChange(checked.toString()) },
+            label = parameter.label,
+            enabled = enabled,
+            modifier = modifier,
+        )
+    } else {
+        AppTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = parameter.label,
+            placeholder = parameter.placeholder.ifBlank { null },
+            supportingText = supportingText,
+            errorText = errorText,
+            enabled = enabled,
+            isPassword = parameter.secret,
+            modifier = modifier,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = if (parameter.type == FydeScriptParameterType.NUMBER) KeyboardType.Number else KeyboardType.Unspecified,
+                imeAction = imeAction,
+            ),
+            keyboardActions = KeyboardActions(onAny = { onImeAction() }),
+        )
     }
 }
 
