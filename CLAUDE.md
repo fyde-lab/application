@@ -101,7 +101,8 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   the public scrapers (`listPublicScripts`, `SCRAPER` only) to tick, searched with
   `filterScripts`. `App.kt` holds the selection (in ticking order) and the plan counter
   (`AppPlanQuota`, from `getUsage` via `sourceQuotaOf`; hidden without a limit or if `getUsage`
-  fails): at the limit unticked sources dim and can't be ticked. No back button (it would
+  fails): at the limit unticked sources dim and can't be ticked. On desktop the cards scroll inside a
+  fixed-height grid so the connect button stays under them. No back button (it would
   regenerate the recovery key) and no category chips (scripts have no category yet). Passer →
   Documents; Connecter → Scripts until the per-source connect steps (DO7b–DO7g) exist.
 - `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the

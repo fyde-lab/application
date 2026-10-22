@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +20,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -135,7 +137,8 @@ sealed interface SourcesUiState {
  * At Medium and Expanded it's DO7
  * (`design/assets/screens/DO7-choisir-ses-sources.png`):
  * [VaultCreationSplitLayout] at its sources step beside the same content in
- * a 600dp column, the sources as two columns of cards.
+ * a 600dp column, the sources as two columns of cards scrolling in a
+ * fixed-height box, so the connect button stays close under them.
  *
  * At the plan's limit (O7b, DO7h) the counter turns `warning`, unticked
  * sources dim and stop taking a tick, ticked ones stay editable so
@@ -400,47 +403,58 @@ private fun WideSourcesPane(
     }
 }
 
-/** DO7's sources: two columns of cards, a ticked one outlined in `primary`. */
+/**
+ * DO7's sources: two columns of cards, a ticked one outlined in `primary`,
+ * scrolling inside a fixed [SourceGridHeight] so "Connecter n sources" stays
+ * just under them however many the server offers. Loading, failure and no
+ * match take the same box, so the button doesn't move between states.
+ */
 @Composable
-private fun ColumnScope.WideSourceGrid(content: SourcesContent) {
-    when (val state = content.state) {
-        SourcesUiState.Loading -> SourcesLoading()
-        is SourcesUiState.Failed -> SourcesFailed(state)
-        is SourcesUiState.Loaded -> {
-            val matches = filterScripts(state.sources, content.query)
-            if (matches.isEmpty()) {
-                NoSources(content)
-                return
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space4)) {
-                matches.chunked(2).forEach { row ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4), modifier = Modifier.fillMaxWidth()) {
-                        row.forEach { script ->
-                            val checked = script.id in content.selected
-                            SourceRow(
-                                script = script,
-                                checked = checked,
-                                enabled = content.canToggle(script),
-                                onToggle = { content.onToggle(script) },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(SourceCardShape)
-                                    .background(AppColors.surface)
-                                    .border(
-                                        width = if (checked) AppDimensions.borderFocus else AppDimensions.borderHairline,
-                                        color = if (checked) AppColors.primary else AppColors.border,
-                                        shape = SourceCardShape,
-                                    ),
-                            )
-                        }
-                        // A lone last card keeps the width of the others.
-                        if (row.size == 1) Spacer(Modifier.weight(1f))
+private fun WideSourceGrid(content: SourcesContent) {
+    Box(modifier = Modifier.fillMaxWidth().height(SourceGridHeight)) {
+        when (val state = content.state) {
+            SourcesUiState.Loading -> SourcesLoading()
+            is SourcesUiState.Failed -> Column { SourcesFailed(state) }
+            is SourcesUiState.Loaded -> {
+                val matches = filterScripts(state.sources, content.query)
+                if (matches.isEmpty()) {
+                    NoSources(content)
+                    return@Box
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
+                    verticalArrangement = Arrangement.spacedBy(AppSpacing.space4),
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    items(matches, key = { it.id }) { script ->
+                        val checked = script.id in content.selected
+                        SourceRow(
+                            script = script,
+                            checked = checked,
+                            enabled = content.canToggle(script),
+                            onToggle = { content.onToggle(script) },
+                            modifier = Modifier
+                                .clip(SourceCardShape)
+                                .background(AppColors.surface)
+                                .border(
+                                    width = if (checked) AppDimensions.borderFocus else AppDimensions.borderHairline,
+                                    color = if (checked) AppColors.primary else AppColors.border,
+                                    shape = SourceCardShape,
+                                ),
+                        )
                     }
                 }
             }
         }
     }
 }
+
+/**
+ * How tall [WideSourceGrid] is: four rows of 68dp cards and their gaps, plus
+ * a peek of a fifth so it reads as scrollable.
+ */
+private val SourceGridHeight = 340.dp
 
 private val SourceCardShape = RoundedCornerShape(16.dp)
 
