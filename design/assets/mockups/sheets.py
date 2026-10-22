@@ -28,7 +28,9 @@ LABELS = {
     "DO1": "Bienvenue", "DO2": "Connexion", "DO2b": "Connexion en cours", "DO2c": "Échec de connexion",
     "DO3": "Créer le coffre", "DO3b": "Créer — erreurs", "DO4": "Trousseau absent (connexion)",
     "DO4b": "Trousseau absent (création)", "DO5": "Trop d’appareils", "DO6": "Kit de récupération",
-    "DO7": "Choisir ses sources", "DO8": "Notifications", "DO9": "Ouverture",
+    "DO7": "Choisir ses sources", "DO7b": "Connecter une source", "DO7c": "Récupération en cours",
+    "DO7d": "Code reçu par SMS", "DO7e": "Code reçu par e-mail", "DO7f": "Mot de passe refusé",
+    "DO7g": "Sources connectées", "DO8": "Notifications", "DO9": "Ouverture",
     "D2": "Bureau — Document", "D3": "Bureau — Arrivées", "D4": "Bureau — Sources", "T1": "Tablette — Coffre",
 }
 GROUPS = {"onboarding": "O", "coffre": "V", "capture-arrivees": "KR", "sources": "S", "moi": "MX"}
