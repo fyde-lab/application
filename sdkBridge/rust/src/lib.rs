@@ -1231,13 +1231,15 @@ impl FydeClient {
             let listener: Arc<dyn ScraperListener> = Arc::from(listener);
             let for_progress = listener.clone();
             let language = scraper_language.clone();
-            config.on_scraper_progress = Some(Arc::new(move |event: ProgressEvent| {
-                let language = language.read().unwrap_or_else(PoisonError::into_inner);
-                for_progress.on_progress(FfiProgressEvent::localized(event, &language))
-            }));
-            config.on_scraper_question = Some(Arc::new(move |question: String| {
-                listener.on_question(question)
-            }));
+            config.on_scraper_progress =
+                Some(Arc::new(move |_script_id: &str, event: ProgressEvent| {
+                    let language = language.read().unwrap_or_else(PoisonError::into_inner);
+                    for_progress.on_progress(FfiProgressEvent::localized(event, &language))
+                }));
+            config.on_scraper_question =
+                Some(Arc::new(move |_script_id: &str, question: String| {
+                    listener.on_question(question)
+                }));
         }
 
         match Client::init(config).await {
