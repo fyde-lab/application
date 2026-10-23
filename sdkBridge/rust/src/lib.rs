@@ -1163,10 +1163,12 @@ impl FfiProgressEvent {
 /// user questions (a one-time code, ...) on screen. Both are invoked from
 /// the run's own blocking thread, never the caller's: `on_question` may
 /// block until the user answers, and returns their answer to the script.
+/// Several scripts can run at once, so both first get the id of the script
+/// whose run it is; an answer only ever goes back to that run.
 #[uniffi::export(callback_interface)]
 pub trait ScraperListener: Send + Sync {
-    fn on_progress(&self, event: FfiProgressEvent);
-    fn on_question(&self, question: String) -> String;
+    fn on_progress(&self, script_id: String, event: FfiProgressEvent);
+    fn on_question(&self, script_id: String, question: String) -> String;
 }
 
 /// A connection to a fyde server, exposed to Kotlin as `FydeClient`.
@@ -1232,13 +1234,16 @@ impl FydeClient {
             let for_progress = listener.clone();
             let language = scraper_language.clone();
             config.on_scraper_progress =
-                Some(Arc::new(move |_script_id: &str, event: ProgressEvent| {
+                Some(Arc::new(move |script_id: &str, event: ProgressEvent| {
                     let language = language.read().unwrap_or_else(PoisonError::into_inner);
-                    for_progress.on_progress(FfiProgressEvent::localized(event, &language))
+                    for_progress.on_progress(
+                        script_id.to_string(),
+                        FfiProgressEvent::localized(event, &language),
+                    )
                 }));
             config.on_scraper_question =
-                Some(Arc::new(move |_script_id: &str, question: String| {
-                    listener.on_question(question)
+                Some(Arc::new(move |script_id: &str, question: String| {
+                    listener.on_question(script_id.to_string(), question)
                 }));
         }
 

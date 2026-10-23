@@ -149,7 +149,7 @@
     <string name="source_fetch_title_done">%1$s has fetched your documents</string>
     <string name="source_fetch_title_failed">Couldn’t fetch from %1$s</string>
     <string name="source_fetch_first">First fetch</string>
-    <string name="source_fetch_queued">Starts once the previous source has finished</string>
+    <string name="source_fetch_queued">Starts as soon as the source is ready on this device</string>
     <plurals name="source_fetch_fetched">
         <item quantity="one">%1$d document fetched</item>
         <item quantity="other">%1$d documents fetched</item>

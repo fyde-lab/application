@@ -199,7 +199,7 @@ sealed interface SourceFocus {
 fun SourcesTabScreen(
     state: SourcesTabUiState,
     statuses: Map<String, SourceFetchStatus>,
-    canRun: Boolean,
+    runningIds: Set<String>,
     focus: SourceFocus?,
     onFocusChange: (SourceFocus?) -> Unit,
     catalogueOpen: Boolean,
@@ -243,7 +243,7 @@ fun SourcesTabScreen(
                 val tab = SourcesTab(
                     state = state,
                     statuses = statuses,
-                    canRun = canRun,
+                    runningIds = runningIds,
                     focus = focus,
                     onFocusChange = onFocusChange,
                     onCatalogueOpenChange = onCatalogueOpenChange,
@@ -285,7 +285,7 @@ fun SourcesTabScreen(
 private class SourcesTab(
     val state: SourcesTabUiState.Loaded,
     val statuses: Map<String, SourceFetchStatus>,
-    val canRun: Boolean,
+    val runningIds: Set<String>,
     val focus: SourceFocus?,
     val onFocusChange: (SourceFocus?) -> Unit,
     val onCatalogueOpenChange: (Boolean) -> Unit,
@@ -302,6 +302,9 @@ private class SourcesTab(
     fun isInstalled(id: String): Boolean = id in state.installedIds
 
     fun isPending(id: String): Boolean = id in state.pendingIds
+
+    /** Whether [id] has a run in progress; other sources' runs don't matter (runs are parallel). */
+    fun isRunning(id: String): Boolean = id in runningIds
 
     fun installedParameters(id: String): Map<String, FydeScriptParameterValue> = state.installedParameters[id].orEmpty()
 }
@@ -904,14 +907,14 @@ private fun ColumnScope.DetailBody(tab: SourcesTab, script: FydeScript, wide: Bo
     )
 }
 
-/** Lancer: one run at a time, so it's off while any source runs. */
+/** Lancer: off while this source runs; other sources' runs go in parallel. */
 @Composable
 private fun RunButton(tab: SourcesTab, script: FydeScript) {
     AppButton(
         text = stringResource(Res.string.script_run_button),
         onClick = { tab.onRun(script) },
         variant = AppButtonVariant.Outlined,
-        enabled = tab.canRun && !tab.isPending(script.id),
+        enabled = !tab.isRunning(script.id) && !tab.isPending(script.id),
         leadingIcon = { SyncGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.text) },
     )
 }
@@ -988,7 +991,7 @@ private fun UpdateForm(tab: SourcesTab, script: FydeScript, autofocus: Boolean) 
         AppButton(
             text = stringResource(Res.string.source_rerun),
             onClick = { tab.onRun(script) },
-            enabled = tab.canRun,
+            enabled = !tab.isRunning(script.id),
             modifier = Modifier.fillMaxWidth(),
         )
         return

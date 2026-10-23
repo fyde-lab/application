@@ -149,7 +149,7 @@
     <string name="source_fetch_title_done">%1$s a récupéré vos documents</string>
     <string name="source_fetch_title_failed">Impossible de récupérer depuis %1$s</string>
     <string name="source_fetch_first">Première récupération</string>
-    <string name="source_fetch_queued">Démarre dès que la source précédente a terminé</string>
+    <string name="source_fetch_queued">Démarre dès que la source est prête sur cet appareil</string>
     <plurals name="source_fetch_fetched">
         <item quantity="one">%1$d document récupéré</item>
         <item quantity="other">%1$d documents récupérés</item>
