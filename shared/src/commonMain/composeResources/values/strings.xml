@@ -188,6 +188,7 @@
     <string name="connecting_message">Connecting…</string>
     <string name="connect_failed_title">Can’t reach the server</string>
     <string name="retry">Retry</string>
+    <string name="already_running_title">Fyde is already open</string>
     <string name="server_unreachable_description">Check that the Fyde server is running and reachable, then try again.</string>
     <string name="offline_banner">Offline: the server can’t be reached. Uploading is paused until it’s back.</string>
 

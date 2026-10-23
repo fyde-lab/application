@@ -188,6 +188,7 @@
     <string name="connecting_message">Connexion…</string>
     <string name="connect_failed_title">Impossible de joindre le serveur</string>
     <string name="retry">Réessayer</string>
+    <string name="already_running_title">Fyde est déjà ouvert</string>
     <string name="server_unreachable_description">Vérifiez que le serveur Fyde est démarré et joignable, puis réessayez.</string>
     <string name="offline_banner">Hors ligne : le serveur est injoignable. L’import reprendra dès son retour.</string>
 

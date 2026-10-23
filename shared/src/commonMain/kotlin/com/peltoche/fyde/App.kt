@@ -267,6 +267,10 @@ private fun AppContent(
     var isConnectingSource by remember { mutableStateOf(false) }
     // "Wait here" on SourceFetchingScreen: move on by itself once the run succeeds.
     var isWaitingForFetch by remember { mutableStateOf(false) }
+    // fyde-sdk's wording while startup is refused because another instance
+    // of the app is running (see AlreadyRunningScreen), `null` otherwise.
+    var alreadyRunningMessage by remember { mutableStateOf<String?>(null) }
+    var startupAttempt by remember { mutableStateOf(0) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
     // App-lifetime, so a scraper run outlives the screen that started it.
@@ -282,16 +286,26 @@ private fun AppContent(
     // chosen language preference, if any - needed every launch, not just the
     // first, since applyPlatformLocale's effect doesn't itself persist across
     // process restarts (unlike the fyde-sdk preference it reads).
-    LaunchedEffect(Unit) {
-        FydeSdk.initialize(BuildConfig.SERVER_URL).onSuccess {
-            FydeSdk.getLanguage().getOrNull()?.let { savedLanguage ->
-                applyPlatformLocale(savedLanguage)
-                language = savedLanguage
+    // Another instance of the app already holding this device's local data
+    // makes fyde-sdk refuse to start: AlreadyRunningScreen then replaces every
+    // screen, saying so, until a retry (bumping startupAttempt) gets through.
+    LaunchedEffect(startupAttempt) {
+        FydeSdk.initialize(BuildConfig.SERVER_URL)
+            .onSuccess {
+                alreadyRunningMessage = null
+                FydeSdk.getLanguage().getOrNull()?.let { savedLanguage ->
+                    applyPlatformLocale(savedLanguage)
+                    language = savedLanguage
+                }
+                if (FydeSdk.isConnected().getOrDefault(false)) {
+                    screen = Screen.Documents
+                }
             }
-            if (FydeSdk.isConnected().getOrDefault(false)) {
-                screen = Screen.Documents
+            .onFailure {
+                if ((it as? FydeSdkException)?.isClientAlreadyRunning == true) {
+                    alreadyRunningMessage = it.userMessage()
+                }
             }
-        }
     }
 
     // Runs [attempt] at once where the device has secure storage; otherwise
@@ -553,6 +567,11 @@ private fun AppContent(
                 else -> VaultSourceState.Connected
             },
         )
+    }
+
+    alreadyRunningMessage?.let { message ->
+        AlreadyRunningScreen(message = message, onRetry = { startupAttempt++ })
+        return
     }
 
     key(language) {

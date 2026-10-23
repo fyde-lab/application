@@ -75,7 +75,8 @@ private fun defaultDataDirectory(): String {
  * failed and with which error (the exception's variant) are logged here;
  * anything else (e.g. the native library failing to load) is logged in
  * full. Cancellation is rethrown rather than reported as a failure. A
- * `SessionExpired` failure is also reported to [SessionExpiry].
+ * `SessionExpired` failure is also reported to [SessionExpiry], and a
+ * `ClientAlreadyRunning` one flagged (see [FydeSdkException.isClientAlreadyRunning]).
  */
 private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = try {
     Result.success(block())
@@ -84,7 +85,7 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
 } catch (e: FfiException) {
     logger.log(Level.WARNING, "FydeSdk.$operation failed: ${e::class.simpleName}")
     if (e is FfiException.SessionExpired) SessionExpiry.report(e.message)
-    Result.failure(FydeSdkException(e.message, e))
+    Result.failure(FydeSdkException(e.message, e, isClientAlreadyRunning = e is FfiException.ClientAlreadyRunning))
 } catch (e: Throwable) {
     logger.log(Level.SEVERE, "FydeSdk.$operation failed", e)
     Result.failure(FydeSdkException(null, e))

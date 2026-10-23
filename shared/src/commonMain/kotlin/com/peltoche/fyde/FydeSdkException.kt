@@ -17,8 +17,16 @@ import org.jetbrains.compose.resources.getString
  * failed to load), in which case it has no wording fit for the user. The
  * technical description is never meant for the UI: fyde-sdk logs its own
  * through the log listener, and each platform's [FydeSdk] logs [cause].
+ * [isClientAlreadyRunning] tells fyde-sdk's `FfiException.ClientAlreadyRunning`
+ * apart: [FydeSdk.initialize] refusing to start while another instance of
+ * the app already uses the same local data, which [App] shows in place of
+ * every screen.
  */
-class FydeSdkException(val userMessage: String?, cause: Throwable) : Exception(userMessage, cause)
+class FydeSdkException(
+    val userMessage: String?,
+    cause: Throwable,
+    val isClientAlreadyRunning: Boolean = false,
+) : Exception(userMessage, cause)
 
 /**
  * The wording to show the user for a failed [FydeSdk] call: fyde-sdk's
