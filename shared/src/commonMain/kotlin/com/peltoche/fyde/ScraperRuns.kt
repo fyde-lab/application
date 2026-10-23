@@ -17,8 +17,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.getString
 
-/** A question a running script is waiting on; completing [answer] hands the reply back to it. */
-class PendingQuestion(val text: String, val answer: CompletableDeferred<String>)
+/**
+ * A question a running script is waiting on; completing [answer] hands the
+ * reply back to that script's run alone.
+ */
+class PendingQuestion(
+    val scriptId: String,
+    val scriptName: String,
+    val text: String,
+    val answer: CompletableDeferred<String>,
+)
 
 /** How a script's last run ended, as [ScraperRuns.outcomes] keeps it. */
 sealed interface ScraperRunOutcome {
@@ -29,54 +37,62 @@ sealed interface ScraperRunOutcome {
     data class Failed(val message: String, val step: FydeScraperStep?, val found: Long?) : ScraperRunOutcome
 }
 
+/** One script's run in progress, as [ScraperRuns.runOf] returns it. */
+@Stable
+class ScraperRun(val script: FydeScript) {
+    /** While its installation, just published, hasn't reached this device yet. */
+    var awaitingInstallation by mutableStateOf(false)
+        internal set
+
+    /** Which stage it's at, for [RunStepper]. */
+    var stepKind by mutableStateOf<FydeScraperStep?>(null)
+        internal set
+
+    /**
+     * How many documents it has found: the total of its last [update] while
+     * listing or downloading them, `null` until known.
+     */
+    var found by mutableStateOf<Long?>(null)
+        internal set
+    var update by mutableStateOf<FydeScraperProgress.Update?>(null)
+        internal set
+}
+
 /**
- * The one scraper run in progress, if any — what [FydeSdk.runInstalledScript]
- * is doing, as UI state. Owned by `App`, above every screen, with an
+ * Every scraper run in progress — what [FydeSdk.runInstalledScript] is
+ * doing, as UI state. Owned by `App`, above every screen, with an
  * app-lifetime [scope], so a run started from a script's page keeps going
  * (and can still ask its questions) after the user navigates elsewhere.
  * Found via review: scripts could be installed but never run from the app,
  * so nothing showed whether one ran, how far it got, or that it was waiting
  * on a one-time code.
  *
- * Registered as [FydeSdk]'s [FydeScraperHandler]: progress callbacks update
- * [step]/[update], and a question parks the script on [question] until
- * [answer] is called. A run's end is told in a snackbar, wherever the user
- * is; the Sources tab keeps showing it from [outcomes].
+ * Runs go in parallel, one per script: the SDK keeps each isolated from
+ * the others, so starting one never waits for another. Each has its own
+ * [ScraperRun] (see [runOf]), which progress callbacks update by script id.
+ * A question parks its script on [question] until [answer] is called; when
+ * several ask at once they're shown one after the other. A run's end is
+ * told in a snackbar, wherever the user is; the Sources tab keeps showing
+ * it from [outcomes].
  *
- * Sources just connected or reconfigured (onboarding's [ConnectSourceScreen],
- * the Sources tab) start their run through [runOnceInstalled]: they wait in [queued] for the
- * one in progress, and for their installation to reach this device.
- * [SourceFetchingScreen] (DO7c) follows that run through [stepKind] and
- * [found], then its [outcomes] entry.
+ * Registered as [FydeSdk]'s [FydeScraperHandler]. Sources just connected or
+ * reconfigured (onboarding's [ConnectSourceScreen], the Sources tab) start
+ * their run through [runOnceInstalled], which first waits for their
+ * installation to reach this device. [SourceFetchingScreen] (DO7c) follows
+ * that run through its [ScraperRun], then its [outcomes] entry, while the
+ * next source's run can already be going.
  */
 @Stable
 class ScraperRuns(
     private val scope: CoroutineScope,
     private val snackbarHostState: SnackbarHostState,
 ) : FydeScraperHandler {
-    var running by mutableStateOf<FydeScript?>(null)
-        private set
-    var step by mutableStateOf<String?>(null)
-        private set
+    private val active = mutableStateMapOf<String, ScraperRun>()
 
-    /** Which stage [step] is, for [RunStepper]. */
-    var stepKind by mutableStateOf<FydeScraperStep?>(null)
-        private set
+    private val questions = mutableStateListOf<PendingQuestion>()
 
-    /**
-     * How many documents the run in progress has found: the total of its
-     * last [update] while listing or downloading them, `null` until known.
-     */
-    var found by mutableStateOf<Long?>(null)
-        private set
-    var update by mutableStateOf<FydeScraperProgress.Update?>(null)
-        private set
-    var question by mutableStateOf<PendingQuestion?>(null)
-        private set
 
-    private val queue = mutableStateListOf<FydeScript>()
-
-    /** The parameters a queued or starting run waits to see installed, by script id (see [runOnceInstalled]). */
+    /** The parameters a starting run waits to see installed, by script id (see [runOnceInstalled]). */
     private val expectedParameters = mutableMapOf<String, Map<String, FydeScriptParameterValue>>()
 
     private val outcomeByScript = mutableStateMapOf<String, ScraperRunOutcome>()
@@ -84,46 +100,52 @@ class ScraperRuns(
     /** Each script's last finished run, by script id; dropped as it runs again. */
     val outcomes: Map<String, ScraperRunOutcome> get() = outcomeByScript
 
-    /** Scripts waiting for [running] to finish before their own run, in order. */
-    val queued: List<FydeScript> get() = queue
+    /** The ids of every script running now. */
+    val runningIds: Set<String> get() = active.keys
 
-    /** Whether [scriptId] is running or waiting its turn. */
-    fun isPending(scriptId: String): Boolean = running?.id == scriptId || queue.any { it.id == scriptId }
+    /** The oldest question still waiting for an answer, if any. */
+    val question: PendingQuestion? get() = questions.firstOrNull()
+
+    /** [scriptId]'s run in progress, if it's running. */
+    fun runOf(scriptId: String): ScraperRun? = active[scriptId]
+
+    /** Whether [scriptId] is running (or waiting for its installation to start). */
+    fun isPending(scriptId: String): Boolean = scriptId in active
 
     fun run(script: FydeScript) {
-        if (running != null) return
+        if (isPending(script.id)) return
         start(script, awaitInstallation = false)
     }
 
     /**
      * Runs [script], just installed, once its installation has synced to
-     * this device ([FydeSdk.installScript] only publishes it) — after the
-     * run in progress and those already [queued]. Does nothing if it's
-     * already running or queued. Given [expected], it waits for the
+     * this device ([FydeSdk.installScript] only publishes it). Does nothing
+     * if it's already running. Given [expected], it waits for the
      * installation to carry exactly those values, so a reinstall with new
      * credentials doesn't run with the old ones still synced here.
      */
     fun runOnceInstalled(script: FydeScript, expected: Map<String, FydeScriptParameterValue>? = null) {
         if (isPending(script.id)) return
         if (expected != null) expectedParameters[script.id] = expected
-        if (running == null) start(script, awaitInstallation = true) else queue += script
+        start(script, awaitInstallation = true)
     }
 
     private fun start(script: FydeScript, awaitInstallation: Boolean) {
-        running = script
-        resetProgress()
+        val run = ScraperRun(script)
+        active[script.id] = run
         outcomeByScript -= script.id
         scope.launch {
-            if (awaitInstallation) awaitInstallation(script.id)
+            if (awaitInstallation) {
+                run.awaitingInstallation = true
+                awaitInstallation(script.id)
+                run.awaitingInstallation = false
+            }
             val result = FydeSdk.runInstalledScript(script.id)
             outcomeByScript[script.id] = result.fold(
-                onSuccess = { ScraperRunOutcome.Succeeded(found) },
-                onFailure = { ScraperRunOutcome.Failed(it.userMessage(), stepKind, found) },
+                onSuccess = { ScraperRunOutcome.Succeeded(run.found) },
+                onFailure = { ScraperRunOutcome.Failed(it.userMessage(), run.stepKind, run.found) },
             )
-            running = null
-            resetProgress()
-            // Before the snackbar, which suspends until it's dismissed.
-            queue.removeFirstOrNull()?.let { start(it, awaitInstallation = true) }
+            active -= script.id
             result
                 .onSuccess { snackbarHostState.showSnackbar(getString(Res.string.script_run_finished, script.name)) }
                 .onFailure { snackbarHostState.showSnackbar(getString(Res.string.script_run_failed, script.name, it.userMessage())) }
@@ -146,39 +168,34 @@ class ScraperRuns(
         }
     }
 
-    private fun resetProgress() {
-        step = null
-        stepKind = null
-        update = null
-        found = null
-    }
-
+    /** Answers the question [question] shows, for its script's run only. */
     fun answer(text: String) {
         question?.answer?.complete(text)
     }
 
-    override fun onProgress(progress: FydeScraperProgress) {
+    override fun onProgress(scriptId: String, progress: FydeScraperProgress) {
+        val run = active[scriptId] ?: return
         when (progress) {
             is FydeScraperProgress.Step -> {
-                step = progress.message
-                stepKind = progress.step
-                update = null
+                run.stepKind = progress.step
+                run.update = null
             }
             is FydeScraperProgress.Update -> {
-                update = progress
-                val counting = stepKind == FydeScraperStep.LISTING_DOCUMENTS || stepKind == FydeScraperStep.DOWNLOADING_DOCUMENTS
-                if (counting && progress.total > 0) found = progress.total
+                run.update = progress
+                val counting = run.stepKind == FydeScraperStep.LISTING_DOCUMENTS || run.stepKind == FydeScraperStep.DOWNLOADING_DOCUMENTS
+                if (counting && progress.total > 0) run.found = progress.total
             }
         }
     }
 
-    override suspend fun onQuestion(question: String): String {
-        val pending = PendingQuestion(question, CompletableDeferred())
-        this.question = pending
+    override suspend fun onQuestion(scriptId: String, question: String): String {
+        val name = active[scriptId]?.script?.name.orEmpty()
+        val pending = PendingQuestion(scriptId, name, question, CompletableDeferred())
+        questions += pending
         return try {
             pending.answer.await()
         } finally {
-            if (this.question === pending) this.question = null
+            questions.remove(pending)
         }
     }
 }

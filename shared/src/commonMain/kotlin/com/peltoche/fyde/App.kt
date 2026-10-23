@@ -824,12 +824,16 @@ private fun AppContent(
 
         // Above whichever screen is showing: a running script can ask its
         // question after the user has navigated away from its page.
+        // Keyed on the question itself: when several runs ask at once, the
+        // next one's dialog starts empty even if it asks the same thing.
         scraperRuns.question?.let { pending ->
-            ScraperQuestionDialog(
-                scriptName = scraperRuns.running?.name.orEmpty(),
-                question = pending.text,
-                onAnswer = scraperRuns::answer,
-            )
+            key(pending) {
+                ScraperQuestionDialog(
+                    scriptName = pending.scriptName,
+                    question = pending.text,
+                    onAnswer = scraperRuns::answer,
+                )
+            }
         }
     }
 }
@@ -1198,7 +1202,7 @@ private fun SourcesTabContainer(
         statuses = (uiState as? SourcesTabUiState.Loaded)?.installedIds.orEmpty()
             .mapNotNull { id -> sourceStatusOf(id, scraperRuns)?.let { id to it } }
             .toMap(),
-        canRun = scraperRuns.running == null,
+        runningIds = scraperRuns.runningIds,
         focus = focus,
         onFocusChange = { focus = it },
         catalogueOpen = catalogueOpen,
@@ -1266,23 +1270,22 @@ private fun SourcesTabContainer(
     )
 }
 
-/** Where [scriptId]'s latest run in this app session is, or `null` if it hasn't been run or queued. */
-private fun sourceStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStatus? = when {
-    runs.running?.id == scriptId -> SourceFetchStatus.Running(runs.stepKind, runs.update, runs.found)
-    runs.queued.any { it.id == scriptId } -> SourceFetchStatus.Queued
-    else -> when (val outcome = runs.outcomes[scriptId]) {
+/**
+ * Where [scriptId]'s latest run in this app session is: waiting for its
+ * installation to reach this device, running, or over; `null` if it hasn't
+ * been run.
+ */
+private fun sourceStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStatus? {
+    runs.runOf(scriptId)?.let { run ->
+        return if (run.awaitingInstallation) SourceFetchStatus.Queued else SourceFetchStatus.Running(run.stepKind, run.update, run.found)
+    }
+    return when (val outcome = runs.outcomes[scriptId]) {
         is ScraperRunOutcome.Succeeded -> SourceFetchStatus.Succeeded(outcome.found)
         is ScraperRunOutcome.Failed -> SourceFetchStatus.Failed(outcome.message, outcome.step, outcome.found)
         null -> null
     }
 }
 
-/** Where [scriptId]'s first run is, for [SourceFetchingScreen]: running, waiting its turn, or over. */
-private fun sourceFetchStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStatus {
-    if (runs.running?.id == scriptId) return SourceFetchStatus.Running(runs.stepKind, runs.update, runs.found)
-    return when (val outcome = runs.outcomes[scriptId]) {
-        is ScraperRunOutcome.Succeeded -> SourceFetchStatus.Succeeded(outcome.found)
-        is ScraperRunOutcome.Failed -> SourceFetchStatus.Failed(outcome.message, outcome.step, outcome.found)
-        null -> SourceFetchStatus.Queued
-    }
-}
+/** [sourceStatusOf] for [SourceFetchingScreen], which opens as the run is about to start. */
+private fun sourceFetchStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStatus =
+    sourceStatusOf(scriptId, runs) ?: SourceFetchStatus.Queued

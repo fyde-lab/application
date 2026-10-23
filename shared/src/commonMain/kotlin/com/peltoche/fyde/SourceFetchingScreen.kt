@@ -65,7 +65,7 @@ import org.jetbrains.compose.resources.stringResource
 
 /** Where a just-connected source's first run is, as [SourceFetchingScreen] shows it. */
 sealed interface SourceFetchStatus {
-    /** Waiting for the run in progress (another source's) to finish first. */
+    /** Waiting for its installation, just published, to reach this device before it starts. */
     data object Queued : SourceFetchStatus
 
     /** Running: [step] is its current stage (`null` before the first), [update] how far that stage has got, [found] the documents it has found. */

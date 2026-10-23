@@ -131,14 +131,14 @@ actual object FydeSdk {
                     }
                 }
                 val scraperListener = object : ScraperListener {
-                    override fun onProgress(event: FfiProgressEvent) {
-                        scraperHandler?.onProgress(event.toFydeScraperProgress())
+                    override fun onProgress(scriptId: String, event: FfiProgressEvent) {
+                        scraperHandler?.onProgress(scriptId, event.toFydeScraperProgress())
                     }
 
                     // Called on the scraper's own blocking thread, so it may
                     // block until the user answers.
-                    override fun onQuestion(question: String): String =
-                        scraperHandler?.let { handler -> runBlocking { handler.onQuestion(question) } } ?: ""
+                    override fun onQuestion(scriptId: String, question: String): String =
+                        scraperHandler?.let { handler -> runBlocking { handler.onQuestion(scriptId, question) } } ?: ""
                 }
                 client = FydeClient.init(config, JvmLogListener(), documentListener, scraperListener)
             }

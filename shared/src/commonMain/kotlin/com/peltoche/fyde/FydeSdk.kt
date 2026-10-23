@@ -428,12 +428,13 @@ sealed interface FydeScraperProgress {
  * Receives a [FydeSdk.runInstalledScript] run's progress, and answers the
  * questions its script asks (a one-time code, ...). Called from the run's
  * own background thread, never the UI's: [onQuestion] suspends until the
- * user answers, and its result goes back to the script.
+ * user answers, and its result goes back to the script. Several scripts can
+ * run at once, so both name the [scriptId] whose run it is.
  */
 interface FydeScraperHandler {
-    fun onProgress(progress: FydeScraperProgress)
+    fun onProgress(scriptId: String, progress: FydeScraperProgress)
 
-    suspend fun onQuestion(question: String): String
+    suspend fun onQuestion(scriptId: String, question: String): String
 }
 
 /**

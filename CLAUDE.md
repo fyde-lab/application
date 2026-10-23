@@ -129,13 +129,15 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   `VaultCreationSplitLayout`, whose brand panel lists the ticked sources as `VaultSource`s):
   each ticked source in turn, `App.kt` holding the queue (`connectQueue`/`connectIndex`). One
   field per script parameter (`ScriptParameterField`, `ScriptParameters.kt`, shared with the Sources tab);
-  Connecter installs and enables it, then `ScraperRuns.runOnceInstalled` queues its first run
-  until the installation has synced to this device, and opens `SourceFetchingScreen`. Passer
+  Connecter installs and enables it, then `ScraperRuns.runOnceInstalled` starts its first run
+  once the installation has synced to this device (alongside any other source's: runs are
+  parallel, one `ScraperRun` per script, keyed by the script id the bridge's
+  `ScraperListener` passes), and opens `SourceFetchingScreen`. Passer
   cette source / back move along the queue; after the last source → Vault until DO7d–DO7g
   and DO8 exist. No "Récupérer automatiquement" switch: fyde-sdk has no scheduled runs.
 - `SourceFetchingScreen` (DO7c at Medium/Expanded, a stacked version at Compact): the connected
   source's first run as a `RunStepper` (Connexion → Recherche → Téléchargement i / n →
-  Rangement), from `ScraperRuns`' typed `stepKind`/`update`/`found` and, once over, its
+  Rangement), from its `ScraperRun`'s typed `stepKind`/`update`/`found` and, once over, its
   `outcomes` entry (`sourceFetchStatusOf` in `App.kt`). Source suivante / Continuer moves on
   without stopping the run; Attendre ici moves on by itself once it succeeds; a failure shows
   the SDK's message with Réessayer. No step times or duration estimate (nothing records them).
