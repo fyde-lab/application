@@ -85,7 +85,7 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
 } catch (e: FfiException) {
     NSLog("[FydeSdk] WARN: FydeSdk.%@ failed: %@", operation, e::class.simpleName ?: "FfiException")
     if (e is FfiException.SessionExpired) SessionExpiry.report(e.message)
-    Result.failure(FydeSdkException(e.message, e))
+    Result.failure(FydeSdkException(e.message, e, isClientAlreadyRunning = e is FfiException.ClientAlreadyRunning))
 } catch (e: Throwable) {
     NSLog("[FydeSdk] ERROR: FydeSdk.%@ failed: %@", operation, e.stackTraceToString())
     Result.failure(FydeSdkException(null, e))

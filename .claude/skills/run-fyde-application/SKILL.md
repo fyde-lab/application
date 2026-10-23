@@ -134,12 +134,13 @@ Opens a real window. Useless on a headless machine — use the agent path.
   previous session didn't exit cleanly: `rm -f /tmp/.X11-unix/X99
   /tmp/.X99-lock` before `xvfb-start`.
 
-- **The app logs a changelog-lock `WouldBlock` warning** on launch
-  (`fyde-changelog-consume.lock" already held by another process, falling
-  back to read-only`) if a previous instance's SQLite lock file under
-  `/tmp/nix-shell-*/` wasn't released. Non-fatal — the UI still works, just
-  double-check you don't have a second `MainKt` process running
-  (`pgrep -f MainKt`) if this surprises you.
+- **The app opens on "Fyde is already open"** instead of its usual screens:
+  fyde-sdk refused to start (`ClientAlreadyRunning`, FYDE-1012) because
+  another instance holds the `flock` on `fyde.db.lock` next to the desktop
+  database (`~/.local/share/fyde/desktop/`). Only one instance may run at a
+  time: kill the other `MainKt` process (`pgrep -f MainKt`), then press
+  Retry. The OS drops the lock with its process, so a stale lock file left
+  by a crash never blocks a launch.
 
 ## Troubleshooting
 

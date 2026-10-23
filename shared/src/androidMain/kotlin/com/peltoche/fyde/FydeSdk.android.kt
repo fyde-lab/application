@@ -78,7 +78,7 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
 } catch (e: FfiException) {
     Log.w(LOG_TAG, "FydeSdk.$operation failed: ${e::class.simpleName}")
     if (e is FfiException.SessionExpired) SessionExpiry.report(e.message)
-    Result.failure(FydeSdkException(e.message, e))
+    Result.failure(FydeSdkException(e.message, e, isClientAlreadyRunning = e is FfiException.ClientAlreadyRunning))
 } catch (e: Throwable) {
     Log.e(LOG_TAG, "FydeSdk.$operation failed", e)
     Result.failure(FydeSdkException(null, e))
