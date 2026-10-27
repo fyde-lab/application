@@ -419,6 +419,18 @@ subcategories of the chosen category only, type chips.
 
 ![Account and states](assets/sheets/moi.png)
 
+How the account screens connect (source: `assets/mockups/map-moi.html`, rendered by `render.py`):
+
+![Navigation between the account screens](assets/sheets/moi-parcours.png)
+
+- M1 is the hub, from the Moi tab or the vault's avatar (the avatar menu on tablet and desktop).
+  M2, M5, M6 and M7 push over it; M8 is a dialog on it.
+- M2 leads to M3, M4 and the recovery kit (O6, the same screen as during vault creation); its
+  device tiles open M5. M4's "oublié ?" also leads to O6.
+- M6 is also reached from the source limit (O7b, DO7h, S1). Its "Voir les offres", like O5's and
+  DO5's, needs a plans page that isn't drawn yet; so does "Aide" in M1.
+- Confirming M8 wipes the device and returns to O1.
+
 | ID | Screen | Content | States |
 |---|---|---|---|
 | M1 | Moi | Profile, seal card, Sécurité (pill "Kit à créer"), Appareils, Offre et usage, Apparence et langue, Aide, Se déconnecter | — |
