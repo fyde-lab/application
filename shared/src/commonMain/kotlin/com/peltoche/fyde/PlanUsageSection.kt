@@ -1,5 +1,6 @@
 package com.peltoche.fyde
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,18 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.components.feedback.AppBanner
 import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.plan_label
 import com.peltoche.fyde.resources.plan_name_admin
 import com.peltoche.fyde.resources.plan_name_basic
 import com.peltoche.fyde.resources.plan_name_free
-import com.peltoche.fyde.resources.plan_section_title
+import com.peltoche.fyde.resources.plan_your_plan
 import com.peltoche.fyde.resources.usage_at_limit
 import com.peltoche.fyde.resources.usage_devices_label
-import com.peltoche.fyde.resources.usage_of_limit
+import com.peltoche.fyde.resources.usage_fraction
 import com.peltoche.fyde.resources.usage_over_limit
 import com.peltoche.fyde.resources.usage_scripts_label
 import com.peltoche.fyde.resources.usage_storage_label
@@ -70,35 +69,47 @@ internal fun usageLevel(used: Long, limit: Long): UsageLevel = when {
 internal fun usageFraction(used: Long, limit: Long): Float =
     if (limit <= 0) 1f else (used.toDouble() / limit).coerceIn(0.0, 1.0).toFloat()
 
-/** The plan section of [SettingsScreen]: the plan's name, then one meter per limit. */
+/**
+ * M6, Offre et usage: the plan's name on a card of its own, then one meter
+ * per limit on another. No "see plans" button: there's no plans page, nor
+ * any way to change plan from the app.
+ */
 @Composable
 internal fun PlanUsageSection(state: PlanUsageUiState) {
-    SectionTitle(stringResource(Res.string.plan_section_title))
     when (state) {
         PlanUsageUiState.Loading -> PlanUsageSkeleton()
         is PlanUsageUiState.Failed -> {
-            AppBanner(message = state.message)
+            SettingsErrorNote(state.message)
             RetryButton(onClick = state.onRetry)
         }
         is PlanUsageUiState.Loaded -> {
             val usage = state.usage
-            SettingsRow(label = stringResource(Res.string.plan_label), value = planName(usage.planId))
-            UsageMeter(
-                label = stringResource(Res.string.usage_storage_label),
-                used = usage.totalSize,
-                limit = usage.maxSize,
-                format = { localizedSize(it) },
-            )
-            UsageMeter(
-                label = stringResource(Res.string.usage_devices_label),
-                used = usage.openSessions.toLong(),
-                limit = usage.maxSessions.toLong(),
-            )
-            UsageMeter(
-                label = stringResource(Res.string.usage_scripts_label),
-                used = usage.enabledScripts.toLong(),
-                limit = usage.maxScripts.toLong(),
-            )
+            SettingsCard {
+                Text(text = stringResource(Res.string.plan_your_plan), style = AppTypography.caption, color = AppColors.textMuted)
+                Spacer(Modifier.height(AppSpacing.space1))
+                Text(text = planName(usage.planId), style = AppTypography.title, color = AppColors.text)
+            }
+            Spacer(Modifier.height(AppSpacing.space4))
+            SettingsCard {
+                Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space6)) {
+                    UsageMeter(
+                        label = stringResource(Res.string.usage_storage_label),
+                        used = usage.totalSize,
+                        limit = usage.maxSize,
+                        format = { localizedSize(it) },
+                    )
+                    UsageMeter(
+                        label = stringResource(Res.string.usage_devices_label),
+                        used = usage.openSessions.toLong(),
+                        limit = usage.maxSessions.toLong(),
+                    )
+                    UsageMeter(
+                        label = stringResource(Res.string.usage_scripts_label),
+                        used = usage.enabledScripts.toLong(),
+                        limit = usage.maxScripts.toLong(),
+                    )
+                }
+            }
         }
     }
 }
@@ -112,24 +123,30 @@ internal fun planName(planId: String): String = when (planId) {
     else -> planId.replaceFirstChar { it.uppercase() }
 }
 
-/** Shaped like the loaded section (a plan row, three meters), so it doesn't jump on load. */
+/** Shaped like the loaded page (the plan card, three meters), so it doesn't jump on load. */
 @Composable
 private fun PlanUsageSkeleton() {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpacing.space3)) {
-        AppSkeleton(Modifier.width(120.dp).height(14.dp))
+    SettingsCard {
+        AppSkeleton(Modifier.width(80.dp).height(14.dp))
         Spacer(Modifier.height(AppSpacing.space2))
-        AppSkeleton(Modifier.width(80.dp).height(18.dp))
-        repeat(3) {
-            Spacer(Modifier.height(AppSpacing.space5))
-            AppSkeleton(Modifier.fillMaxWidth().height(14.dp))
-            Spacer(Modifier.height(AppSpacing.space2))
-            AppSkeleton(Modifier.fillMaxWidth().height(AppDimensions.progressBarHeight))
+        AppSkeleton(Modifier.width(120.dp).height(22.dp))
+    }
+    Spacer(Modifier.height(AppSpacing.space4))
+    SettingsCard {
+        Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space6)) {
+            repeat(3) {
+                Column {
+                    AppSkeleton(Modifier.fillMaxWidth().height(16.dp))
+                    Spacer(Modifier.height(AppSpacing.space3))
+                    AppSkeleton(Modifier.fillMaxWidth().height(AppDimensions.progressBarHeight))
+                }
+            }
         }
     }
 }
 
 /**
- * One limit: its [label] and "used of limit" on one line, a bar under them,
+ * One limit: its [label] and "used / limit" on one line, a bar under them,
  * and — once the limit is reached — a caption saying so, so the state never
  * relies on the bar's color alone.
  */
@@ -148,21 +165,21 @@ private fun UsageMeter(
         UsageLevel.OVER -> AppColors.error
     }
 
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = AppSpacing.space3)) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = label,
-                style = AppTypography.caption,
-                color = AppColors.textMuted,
+                style = AppTypography.bodyEmphasis,
+                color = AppColors.text,
                 modifier = Modifier.weight(1f),
             )
             Text(
-                text = stringResource(Res.string.usage_of_limit, format(used), format(limit)),
-                style = AppTypography.caption,
-                color = AppColors.text,
+                text = stringResource(Res.string.usage_fraction, format(used), format(limit)),
+                style = AppTypography.data,
+                color = AppColors.textMuted,
             )
         }
-        Spacer(Modifier.height(AppSpacing.space2))
+        Spacer(Modifier.height(AppSpacing.space3))
         AppProgressBar(progress = fraction, color = color, modifier = Modifier.fillMaxWidth())
         when (level) {
             UsageLevel.FULL -> MeterCaption(stringResource(Res.string.usage_at_limit), AppColors.warning)
@@ -176,7 +193,7 @@ private fun UsageMeter(
 private fun MeterCaption(text: String, color: Color) {
     Text(
         text = text,
-        style = AppTypography.micro,
+        style = AppTypography.caption,
         color = color,
         modifier = Modifier.padding(top = AppSpacing.space2),
     )

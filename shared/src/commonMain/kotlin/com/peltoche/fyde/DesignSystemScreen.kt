@@ -511,7 +511,7 @@ private fun OverlaySection() {
     var showSheet by remember { mutableStateOf(false) }
 
     CatalogueSection("Overlay") {
-        CatalogueRow("AppDialog") {
+        CatalogueRow("AppDialog — actions stacked at Compact, right-aligned wider (M8)") {
             AppButton(text = "Open dialog", onClick = { showDialog = true }, variant = AppButtonVariant.Outlined)
         }
         CatalogueRow("AppBottomSheet — a bottom sheet at Compact, a centred panel wider (O4)") {
@@ -528,6 +528,7 @@ private fun OverlaySection() {
             onConfirm = { showDialog = false },
             dismissLabel = "Cancel",
             onDismiss = { showDialog = false },
+            destructive = true,
         )
     }
 

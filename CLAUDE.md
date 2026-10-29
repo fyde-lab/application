@@ -70,11 +70,16 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - Documents: `DocumentListScreen.kt` (list, detail, preview, download), state hoisted as a
   `DocumentSearch` in `App.kt`'s `DocumentsScreen`.
 - Scripts: `ScriptsScreen.kt` / `ScriptDetailScreen.kt` (public + own scripts, install/edit/uninstall).
-- Settings: theme and light/dark appearance (`theme/AppThemeOption.kt`, `theme/AppAppearance.kt`,
-  held in `App()` above `AppTheme`; not persisted yet), language, `PlanUsageSection.kt` (`FydeSdk.getUsage`, re-fetched each time Settings
-  opens), `SessionsSection.kt` (`listSessions`; revoke another device via `revokeSession` after
-  confirmation, then re-fetch sessions and usage), logout (the only way to end this device's
-  session; clears local state).
+- Settings (`SettingsScreen.kt`, the design's Moi M1–M3 and M5–M8): a menu (seal card,
+  Sécurité, Appareils, Offre et usage, Apparence et langue, logout) whose pages push inside the
+  tab at Compact and open beside it at Medium/Expanded; which page is open is screen state.
+  Pages: Sécurité and Ce que voit le serveur (static), `SessionsSection.kt` (M5, `listSessions`;
+  revoke another device via `revokeSession` after confirmation, then re-fetch sessions and
+  usage), `PlanUsageSection.kt` (M6, `FydeSdk.getUsage`, re-fetched each time Settings opens),
+  appearance and language (M7; the light/dark `theme/AppAppearance.kt` is held in `App()` above
+  `AppTheme`, not persisted yet; no theme picker while `AppThemeOption` has one entry). Logout
+  (M8, confirmed in an `AppDialog` that stays busy until it's done) is the only way to end this
+  device's session and clears local state.
 - `WelcomeScreen` (O1 at Compact, DO1 at Medium/Expanded): the first screen without a session,
   and after logout; leads to `RegisterScreen` or `LoginScreen` (an expired session goes straight
   to `LoginScreen`). DO1 splits the window with `SignInSplitLayout` (`SignInBrandPanel`, an

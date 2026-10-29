@@ -379,7 +379,7 @@ private fun DisconnectButton(state: SessionLimitState, modifier: Modifier = Modi
  * ([Platform.name]: "Android 34", "iOS 18.1", "Desktop (Linux)"), so the
  * mobile ones are told apart by that name; anything else is a computer.
  */
-private fun isPhoneSession(session: FydeOpenSession): Boolean =
+internal fun isPhoneSession(session: FydeOpenSession): Boolean =
     MOBILE_DEVICE_PREFIXES.any { session.deviceName.startsWith(it, ignoreCase = true) }
 
 private val MOBILE_DEVICE_PREFIXES = listOf("Android", "iOS", "iPadOS")
