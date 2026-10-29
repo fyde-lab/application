@@ -138,7 +138,7 @@ fun TopLevelScaffold(
     ) { contentPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             content(contentPadding)
-            // Settings already shows the full badge in its Account section.
+            // Settings' seal card already says it, at the top of its menu.
             if (isDesktop && current != TopLevelDestination.Settings) {
                 MarginEncryptionBadge(modifier = Modifier.padding(contentPadding))
             }
@@ -281,9 +281,8 @@ private val MarginBadgeWidth = 240.dp
 /**
  * A static end-to-end-encryption trust badge (a real property of this app,
  * see the top-level design docs). Shown in the desktop window's free margin
- * (see [MarginEncryptionBadge]) and in Settings' Account section — found via
- * review that it used to only appear in the desktop sidebar, so phone and
- * tablet users never saw it at all.
+ * (see [MarginEncryptionBadge]); Settings says the same with its seal card,
+ * on every window size.
  */
 @Composable
 internal fun EncryptionBadge(modifier: Modifier = Modifier) {

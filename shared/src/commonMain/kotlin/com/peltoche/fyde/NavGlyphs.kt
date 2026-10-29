@@ -559,6 +559,120 @@ fun PagesGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted,
     }
 }
 
+/** A shield holding a check — the sealed vault (Settings' seal card, M1). Traced from `i-shield` in `icons.svg`. */
+@Composable
+fun ShieldGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.success, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        val shield = Path().apply {
+            moveTo(12f * unit, 3f * unit)
+            lineTo(4.5f * unit, 6f * unit)
+            lineTo(4.5f * unit, 11.5f * unit)
+            cubicTo(4.5f * unit, 16f * unit, 7.7f * unit, 19.7f * unit, 12f * unit, 21f * unit)
+            cubicTo(16.3f * unit, 19.7f * unit, 19.5f * unit, 16f * unit, 19.5f * unit, 11.5f * unit)
+            lineTo(19.5f * unit, 6f * unit)
+            close()
+        }
+        drawPath(shield, color = tint, style = stroke)
+        val check = Path().apply {
+            moveTo(9f * unit, 12f * unit)
+            lineTo(11f * unit, 14f * unit)
+            lineTo(15f * unit, 10f * unit)
+        }
+        drawPath(check, color = tint, style = stroke)
+    }
+}
+
+/** Two slider tracks with their knobs — the plan's limits (M1's Offre et usage). Traced from `i-sliders` in `icons.svg`. */
+@Composable
+fun SlidersGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        val tracks = Path().apply {
+            moveTo(4f * unit, 7f * unit)
+            lineTo(14f * unit, 7f * unit)
+            moveTo(18f * unit, 7f * unit)
+            lineTo(20f * unit, 7f * unit)
+            moveTo(4f * unit, 17f * unit)
+            lineTo(8f * unit, 17f * unit)
+            moveTo(12f * unit, 17f * unit)
+            lineTo(20f * unit, 17f * unit)
+        }
+        drawPath(tracks, color = tint, style = stroke)
+        drawCircle(color = tint, radius = 2f * unit, center = Offset(16f * unit, 7f * unit), style = stroke)
+        drawCircle(color = tint, radius = 2f * unit, center = Offset(10f * unit, 17f * unit), style = stroke)
+    }
+}
+
+/** A sun — appearance (M1's Apparence et langue). Traced from `i-sun` in `icons.svg`. */
+@Composable
+fun SunGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawCircle(color = tint, radius = 4f * unit, center = Offset(12f * unit, 12f * unit), style = stroke)
+        val rays = listOf(
+            12f to 2.5f, 12f to 4.5f,
+            12f to 19.5f, 12f to 21.5f,
+            2.5f to 12f, 4.5f to 12f,
+            19.5f to 12f, 21.5f to 12f,
+            5.3f to 5.3f, 6.7f to 6.7f,
+            17.3f to 17.3f, 18.7f to 18.7f,
+            18.7f to 5.3f, 17.3f to 6.7f,
+            6.7f to 17.3f, 5.3f to 18.7f,
+        )
+        rays.chunked(2).forEach { (start, end) ->
+            drawLine(tint, Offset(start.first * unit, start.second * unit), Offset(end.first * unit, end.second * unit), stroke.width, StrokeCap.Round)
+        }
+    }
+}
+
+/** A door with an arrow leaving it — logging out (M1). Traced from `i-logout` in `icons.svg`. */
+@Composable
+fun LogoutGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.error, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        val path = Path().apply {
+            moveTo(14f * unit, 4.5f * unit)
+            lineTo(6.5f * unit, 4.5f * unit)
+            quadraticTo(5.5f * unit, 4.5f * unit, 5.5f * unit, 5.5f * unit)
+            lineTo(5.5f * unit, 18.5f * unit)
+            quadraticTo(5.5f * unit, 19.5f * unit, 6.5f * unit, 19.5f * unit)
+            lineTo(14f * unit, 19.5f * unit)
+            moveTo(10.5f * unit, 12f * unit)
+            lineTo(20.5f * unit, 12f * unit)
+            moveTo(17f * unit, 8.5f * unit)
+            lineTo(20.5f * unit, 12f * unit)
+            lineTo(17f * unit, 15.5f * unit)
+        }
+        drawPath(path, color = tint, style = stroke)
+    }
+}
+
+/** Two stacked server units — what the server sees (M2). Traced from `i-server` in `icons.svg`. */
+@Composable
+fun ServerGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        listOf(4f, 13.5f).forEach { top ->
+            drawRoundRect(
+                color = tint,
+                topLeft = Offset(4f * unit, top * unit),
+                size = Size(16f * unit, 6.5f * unit),
+                cornerRadius = CornerRadius(1.5f * unit),
+                style = stroke,
+            )
+        }
+        listOf(7.2f, 16.8f).forEach { y ->
+            drawLine(tint, Offset(7.5f * unit, y * unit), Offset(7.5f * unit, (y + 0.1f) * unit), stroke.width, StrokeCap.Round)
+        }
+    }
+}
+
 /** A globe — the sites a source may reach (S3, DO7b). Traced from `i-globe` in `icons.svg`. */
 @Composable
 fun GlobeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {

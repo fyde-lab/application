@@ -179,20 +179,17 @@ private val Screen.isSignedOut: Boolean
 @Composable
 @Preview
 fun App() {
-    // The theme and light/dark appearance picked in Settings, held here rather
-    // than in AppContent since AppTheme has to wrap every screen. Not persisted
-    // yet: fyde-sdk has no preference for them (unlike the language).
-    var theme by remember { mutableStateOf(AppThemeOption.Default) }
+    // The light/dark appearance picked in Settings, held here rather than in
+    // AppContent since AppTheme has to wrap every screen. Not persisted yet:
+    // fyde-sdk has no preference for it (unlike the language).
     var appearance by remember { mutableStateOf(AppAppearance.Default) }
-    AppTheme(theme = theme, darkTheme = appearance.isDark()) {
+    AppTheme(theme = AppThemeOption.Default, darkTheme = appearance.isDark()) {
         AppWindowSizeClassProvider {
             // One host for every screen's transient confirmations, above the
             // screens themselves so a message outlives the screen raising it.
             val snackbarHostState = remember { SnackbarHostState() }
             CompositionLocalProvider(LocalAppSnackbarHostState provides snackbarHostState) {
                 AppContent(
-                    theme = theme,
-                    onThemeChange = { theme = it },
                     appearance = appearance,
                     onAppearanceChange = { appearance = it },
                 )
@@ -203,8 +200,6 @@ fun App() {
 
 @Composable
 private fun AppContent(
-    theme: AppThemeOption,
-    onThemeChange: (AppThemeOption) -> Unit,
     appearance: AppAppearance,
     onAppearanceChange: (AppAppearance) -> Unit,
 ) {
@@ -242,6 +237,9 @@ private fun AppContent(
     var languageError by remember { mutableStateOf<String?>(null) }
     var isLoggingOut by remember { mutableStateOf(false) }
     var logoutError by remember { mutableStateOf<String?>(null) }
+    // Settings' open page, held above `key(language)` so picking a language
+    // there doesn't bounce back to its menu.
+    var settingsSection by remember { mutableStateOf<SettingsSection?>(null) }
     var planUsage by remember { mutableStateOf<PlanUsageUiState>(PlanUsageUiState.Loading) }
     var planUsageAttempt by remember { mutableStateOf(0) }
     var sessions by remember { mutableStateOf<SessionsUiState>(SessionsUiState.Loading) }
@@ -456,6 +454,18 @@ private fun AppContent(
         if (screen != Screen.Settings) return@LaunchedEffect
         planUsage = PlanUsageUiState.Loading
         planUsage = fetchPlanUsage()
+    }
+
+    // Settings' notes have no dismiss button: a failure is cleared by trying
+    // again, or by leaving and coming back.
+    // Leaving resets the open page too, so Settings reopens on its menu.
+    LaunchedEffect(screen) {
+        if (screen != Screen.Settings) {
+            settingsSection = null
+            return@LaunchedEffect
+        }
+        logoutError = null
+        languageError = null
     }
 
     // Same for the devices list, which other devices change by connecting or
@@ -709,8 +719,8 @@ private fun AppContent(
                 onOpenScripts = { screen = Screen.Scripts },
             )
             Screen.Settings -> SettingsScreen(
-                currentTheme = theme,
-                onThemeChange = onThemeChange,
+                openSection = settingsSection,
+                onOpenSectionChange = { settingsSection = it },
                 currentAppearance = appearance,
                 onAppearanceChange = onAppearanceChange,
                 currentLanguage = language,
@@ -745,9 +755,7 @@ private fun AppContent(
                 },
                 isLoggingOut = isLoggingOut,
                 logoutError = logoutError,
-                onDismissLogoutError = { logoutError = null },
                 languageError = languageError,
-                onDismissLanguageError = { languageError = null },
                 planUsage = planUsage,
                 sessions = sessions,
                 // Refreshes the list and the plan's device count in place,
@@ -771,7 +779,6 @@ private fun AppContent(
                 },
                 disconnectingSessionId = disconnectingSessionId,
                 disconnectSessionError = disconnectSessionError,
-                onDismissDisconnectSessionError = { disconnectSessionError = null },
             )
             Screen.Scripts -> ScriptsScreenContainer(
                 scraperRuns = scraperRuns,

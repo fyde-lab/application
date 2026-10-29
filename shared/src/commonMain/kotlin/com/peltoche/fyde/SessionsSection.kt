@@ -1,45 +1,50 @@
 package com.peltoche.fyde
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppTextButton
-import com.peltoche.fyde.components.content.AppBadge
-import com.peltoche.fyde.components.content.AppBadgeVariant
 import com.peltoche.fyde.components.content.AppDivider
-import com.peltoche.fyde.components.feedback.AppBanner
+import com.peltoche.fyde.components.feedback.AppNote
+import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
-import com.peltoche.fyde.resources.dismiss
+import com.peltoche.fyde.resources.devices_count_of_plan
+import com.peltoche.fyde.resources.devices_intro
+import com.peltoche.fyde.resources.devices_lost_note
+import com.peltoche.fyde.resources.devices_this_device_since
 import com.peltoche.fyde.resources.session_limit_connected_since
-import com.peltoche.fyde.resources.sessions_current_device
 import com.peltoche.fyde.resources.sessions_disconnect
 import com.peltoche.fyde.resources.sessions_disconnect_confirm_text
 import com.peltoche.fyde.resources.sessions_disconnect_confirm_title
-import com.peltoche.fyde.resources.sessions_section_title
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
+import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * What [SettingsScreen]'s devices section shows. The caller (see `App.kt`'s
+ * What [SettingsScreen]'s devices page shows. The caller (see `App.kt`'s
  * `Screen.Settings` branch) owns the [FydeSdk.listSessions] call and maps its
  * result into this state, same split as [PlanUsageUiState] — and, like it,
  * re-fetches every time Settings opens, since the account's other devices
@@ -54,9 +59,9 @@ sealed interface SessionsUiState {
 }
 
 /**
- * The devices section of [SettingsScreen]: every session open on the account,
- * oldest first, each with when it connected. This device's own is badged and
- * can't be disconnected from here — logging out (below, under Account) is
+ * M5, Appareils: how many devices the plan allows (from [planUsage], once
+ * loaded), then every session open on the account, oldest first. This
+ * device's own says so and can't be disconnected from here — logging out is
  * what ends it, since that also clears this device's local copy. Any other
  * can be disconnected through [onDisconnect], after confirming: that device
  * is signed out on its next call and needs the password to come back.
@@ -68,55 +73,59 @@ sealed interface SessionsUiState {
 @Composable
 internal fun SessionsSection(
     state: SessionsUiState,
+    planUsage: PlanUsageUiState,
     onDisconnect: (FydeOpenSession) -> Unit,
     disconnectingId: String? = null,
     disconnectError: String? = null,
-    onDismissDisconnectError: () -> Unit = {},
 ) {
     var confirming by remember { mutableStateOf<FydeOpenSession?>(null) }
 
-    SectionTitle(stringResource(Res.string.sessions_section_title))
-    if (disconnectError != null) {
-        AppBanner(
-            message = disconnectError,
-            onDismiss = onDismissDisconnectError,
-            dismissLabel = stringResource(Res.string.dismiss),
-        )
+    val intro = (planUsage as? PlanUsageUiState.Loaded)?.usage?.let { usage ->
+        stringResource(
+            Res.string.devices_count_of_plan,
+            usage.openSessions.toString(),
+            usage.maxSessions.toString(),
+            planName(usage.planId),
+        ) + " " + stringResource(Res.string.devices_intro)
+    } ?: stringResource(Res.string.devices_intro)
+    Text(text = intro, style = AppTypography.body, color = AppColors.textMuted)
+    Spacer(Modifier.height(AppSpacing.space5))
+    disconnectError?.let { message ->
+        SettingsErrorNote(message)
+        Spacer(Modifier.height(AppSpacing.space4))
     }
     when (state) {
         SessionsUiState.Loading -> SessionsSkeleton()
         is SessionsUiState.Failed -> {
-            AppBanner(message = state.message)
+            SettingsErrorNote(state.message)
             RetryButton(onClick = state.onRetry)
         }
-        is SessionsUiState.Loaded -> Column {
+        is SessionsUiState.Loaded -> SettingsGroup {
             state.sessions.forEachIndexed { index, session ->
                 if (index > 0) AppDivider()
-                SessionRow(
-                    session = session,
-                    trailingContent = {
-                        if (session.isCurrent) {
-                            AppBadge(
-                                text = stringResource(Res.string.sessions_current_device),
-                                variant = AppBadgeVariant.Primary,
-                            )
-                        } else {
-                            // Destructive, like every action that leads to
-                            // something that can't be undone (see
-                            // design-system.md § Feedback & confirmation).
-                            AppTextButton(
-                                text = stringResource(Res.string.sessions_disconnect),
-                                onClick = { confirming = session },
-                                enabled = disconnectingId == null,
-                                loading = session.id == disconnectingId,
-                                destructive = true,
-                            )
-                        }
-                    },
-                )
+                SessionRow(session = session) {
+                    if (!session.isCurrent) {
+                        // Destructive, like every action that leads to
+                        // something that can't be undone (see
+                        // design-system.md § Feedback & confirmation).
+                        AppTextButton(
+                            text = stringResource(Res.string.sessions_disconnect),
+                            onClick = { confirming = session },
+                            enabled = disconnectingId == null,
+                            loading = session.id == disconnectingId,
+                            destructive = true,
+                        )
+                    }
+                }
             }
         }
     }
+    Spacer(Modifier.height(AppSpacing.space4))
+    AppNote(
+        message = stringResource(Res.string.devices_lost_note),
+        kind = AppNoteKind.Info,
+        icon = { tint -> InfoGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+    )
 
     confirming?.let { session ->
         AppDialog(
@@ -136,18 +145,23 @@ internal fun SessionsSection(
 }
 
 /**
- * One device: its name over when it connected, then [trailingContent].
- * Not an [com.peltoche.fyde.components.content.AppListItem]: that one brings
- * M3's own horizontal inset, where every other Settings row (see
- * [SettingsRow]) takes only vertical padding and leaves the one horizontal
- * margin to the screen's container — so its rows would sit indented.
+ * One device in its group: a phone or laptop glyph guessed from its name
+ * (see [isPhoneSession]), the name over when it connected — "this device"
+ * for the current one — then [trailingContent].
  */
 @Composable
 private fun SessionRow(session: FydeOpenSession, trailingContent: @Composable () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = AppSpacing.space3),
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
         verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = AppDimensions.rowHeightComfortable)
+            .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
     ) {
+        // 24, off AppIconSize's scale: the mockup's `.ic.lg`, as in SessionLimitScreen.
+        val glyphModifier = Modifier.size(24.dp)
+        if (isPhoneSession(session)) PhoneGlyph(modifier = glyphModifier) else LaptopGlyph(modifier = glyphModifier)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = session.deviceName,
@@ -156,26 +170,41 @@ private fun SessionRow(session: FydeOpenSession, trailingContent: @Composable ()
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            val since = localizedDate(session.createdAt)
             Text(
-                text = stringResource(Res.string.session_limit_connected_since, localizedDate(session.createdAt)),
+                text = if (session.isCurrent) {
+                    stringResource(Res.string.devices_this_device_since, since)
+                } else {
+                    stringResource(Res.string.session_limit_connected_since, since)
+                },
                 style = AppTypography.caption,
-                color = AppColors.textMuted,
+                color = if (session.isCurrent) AppColors.success else AppColors.textMuted,
             )
         }
-        Spacer(Modifier.width(AppSpacing.space3))
         trailingContent()
     }
 }
 
-/** Shaped like two loaded rows (a name over a date), so the section doesn't jump on load. */
+/** Shaped like two loaded rows (a glyph, a name over a date), so the page doesn't jump on load. */
 @Composable
 private fun SessionsSkeleton() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        repeat(2) {
-            Column(modifier = Modifier.padding(vertical = AppSpacing.space3)) {
-                AppSkeleton(Modifier.width(160.dp).height(18.dp))
-                Spacer(Modifier.height(AppSpacing.space2))
-                AppSkeleton(Modifier.width(120.dp).height(14.dp))
+    SettingsGroup {
+        repeat(2) { index ->
+            if (index > 0) AppDivider()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = AppDimensions.rowHeightComfortable)
+                    .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
+            ) {
+                AppSkeleton(Modifier.size(24.dp))
+                Column {
+                    AppSkeleton(Modifier.width(160.dp).height(18.dp))
+                    Spacer(Modifier.height(AppSpacing.space2))
+                    AppSkeleton(Modifier.width(120.dp).height(14.dp))
+                }
             }
         }
     }

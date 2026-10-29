@@ -21,6 +21,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 | O2, DO2 | Connexion (Compact; Medium and Expanded, with DO2b and DO2c) | `LoginScreen.kt`, `AppBackButton`, `AppNote`, `AppTextField`, `AuthBrandPanel.kt` |
 | DO3, DO3b | Créer le coffre (Medium and Expanded; the stepper is left out until steps 2–4 exist, and a taken username is an error note, not a field error, until `FydeSdkException` carries the SDK's code) | `RegisterScreen.kt`, `AuthBrandPanel.kt`, `AppCheckbox`, `AppNote` |
 | O4, DO4b | Stockage indisponible (phone; desktop, at creation) | `InsecureStorageSheet.kt`, `AppBottomSheet`, `AlertTriangleGlyph` |
+| M1, M2, M3, M5, M6, M7, M8 | Moi as the Settings tab (still named Paramètres, like the other tabs' current names): drill-downs at Compact, master–detail at Medium and Expanded (menu as the 360 list column, Sécurité open by default). Left out until the SDK backs them: the profile card, M2's device tiles and the recovery-kit and password-check rows (so no M4), Aide, last-sync times in M5, Voir les offres in M6. M7 isn't persisted yet | `SettingsScreen.kt`, `SessionsSection.kt`, `PlanUsageSection.kt`, `AppDialog`, `SealHero`, `AppNote`, `AppRadio` |
 
 ## Reference screens
 
@@ -502,7 +503,8 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `AppCheckbox`, `AppSwitch` | Restyle | 22pt marks, 51×31 switch |
 | `AppRadio` | Landed (O5) | 22 mark: 1.5 `borderStrong` ring, selected = 7 `primary` ring around a `surface` dot. Mark only — the row is the `selectable` target |
 | `AppBottomSheet` | Layout landed (O4) | Modal bottom sheet opened fully, with grab handle, at Compact; a centred panel (`sheetPanelMaxWidth`, no drag) at Medium and Expanded and always on desktop. Still the current radius and surface, not `xl` / `surface` |
-| `AppDialog`, `AppSnackbarHost`, `AppProgressBar` | Restyle | Patterns above |
+| `AppDialog` | Layout landed (M8) | `surfaceElevated`, `section` title, muted body, up to `sheetPanelMaxWidth`; actions stacked full width at Compact (confirm first), right-aligned wider (cancel · confirm); `destructive` fills the confirm in `error`, `confirmLoading` keeps it up and busy. Still the current dialog radius, not 24 |
+| `AppSnackbarHost`, `AppProgressBar` | Restyle | Patterns above |
 | `AppSegmented` | New | 2–3 options on `sunk` |
 | `AppNote` | Landed (O2) | `Info` / `Ok` / `Warning` / `Error`: wash, icon in the kind's colour, text; replaces inline `AppBanner`, which screens drop as they're rebuilt |
 | `AppTabBar` | New | Replaces `AppNavigationBar` |
@@ -515,7 +517,8 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `SourceRow`, `SourceStatus`, `RunStepper` | New | See [Source status](#source-status) |
 | `PlanQuota` | New | See [Plan quota](#plan-quota) |
 | `SealHero` | Landed (O1) | `primary` disc and lock, `primaryWash` disc, two `border` rings at 168 (`AppDimensions.sealHero`); reused by M2 |
-| `DeviceTile`, `UsageMeter` | New / restyle | — |
+| `DeviceTile` | New | — |
+| `UsageMeter` | Landed (M6) | Label (`bodyEmphasis`) and `used / limit` in `data`, the bar under them: `primary`, `warning` from 90% and at the limit (with a caption), `error` over. Private to `PlanUsageSection.kt` until another screen needs it |
 | `AppIconTile` | Restyle | 44 default; 36 (`AppDimensions.iconTileSmall`) beside body text, as in O1's promises; 52 (`iconTileLarge`) heading a sheet, as in O4 |
 
 Every new or changed component lands in `DesignSystemScreen.kt` in the same change.

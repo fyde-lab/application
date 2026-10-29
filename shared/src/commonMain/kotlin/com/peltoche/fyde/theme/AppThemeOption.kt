@@ -6,7 +6,7 @@ import com.peltoche.fyde.resources.theme_fyde
 import org.jetbrains.compose.resources.StringResource
 
 /**
- * The themes a user can pick from in Settings — each one a full palette,
+ * The app's themes — each one a full palette,
  * light and dark, that [AppTheme] applies (the light/dark half still follows
  * the platform; a theme only decides *which* palette). Typography, shapes
  * and spacing are shared by every theme: design-system.md fixes them for the
@@ -18,7 +18,8 @@ import org.jetbrains.compose.resources.StringResource
  * sets. Nothing else changes: screens read colors only through [AppColors].
  *
  * [id] is the stable key a saved choice is stored under — never change one
- * once shipped; [label] is the name shown in the Settings picker.
+ * once shipped; [label] is the name a picker would show. Settings offers no
+ * picker while [Fyde] is the only theme: one choice isn't a choice.
  */
 enum class AppThemeOption(val id: String, val label: StringResource) {
     /** design-system.md's palette: warm neutral grays with a teal accent. */

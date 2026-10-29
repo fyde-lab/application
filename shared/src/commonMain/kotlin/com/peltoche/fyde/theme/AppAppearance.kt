@@ -10,7 +10,7 @@ import org.jetbrains.compose.resources.StringResource
 
 /**
  * Whether the app draws the light or the dark half of the picked
- * [AppThemeOption] — picked in Settings next to the theme. [System] follows
+ * [AppThemeOption] — picked in Settings' Apparence et langue (M7). [System] follows
  * the platform's own setting (the default); [Light] and [Dark] override it,
  * e.g. on a desktop whose platform reports no dark mode at all.
  *
