@@ -6,7 +6,11 @@
   --warn:#8F5B00;--ok:#2B6E45;--err:#B3261E;--r:14px;--rl:20px;--bstrong:#8C877B;
   --c-home:#E8DCC6;--c-home-i:#6E5328;--c-tel:#D8E3EF;--c-tel-i:#2C5582;--c-money:#D7E8DA;--c-money-i:#2B6E45;--c-tax:#EBD8D6;--c-tax-i:#8A3B36;
   --c-health:#EFDAE3;--c-health-i:#8E3459;--c-work:#D4E6E3;--c-work-i:#1D5C55;--c-trans:#DDDBEF;--c-trans-i:#45428F;--c-shop:#F0E1CF;--c-shop-i:#86501C}
-.fyde.dark{--bg:#0F1412;--surface:#18201D;--border:#2A3430;--text:#EAF0EC;--muted:#9AA8A1;--primary:#8FD1AE;--onp:#0B2418;--warn:#E9B65A;--ok:#8FD1AE}
+.fyde.dark{--bg:#0F1412;--surface:#18201D;--border:#2A3430;--text:#EAF0EC;--muted:#9AA8A1;--primary:#8FD1AE;--onp:#0B2418;--warn:#E9B65A;--ok:#8FD1AE;
+  --sunk:#202A26;--bstrong:#6E7C75;--pwash:#1D3329;--warnwash:#33291A;--err:#F2938A;--errwash:#3A1F1C;
+  --c-home:#3A3121;--c-home-i:#E3C58F;--c-tel:#1F2B3A;--c-tel-i:#9DBDE3;--c-money:#1E3326;--c-money-i:#9ED5AE;--c-tax:#3A2422;--c-tax-i:#EBA49E;
+  --c-health:#3A2230;--c-health-i:#EDA3C4;--c-work:#1B3331;--c-work-i:#8FD0C6;--c-trans:#26253B;--c-trans-i:#B4B1EC;--c-shop:#3A2C1D;--c-shop-i:#E9B887}
+.fyde.dark .seg{background:var(--sunk)}.fyde.dark .pass .meta{color:var(--c-home-i)}.fyde.dark .pass .perf{border-top-color:color-mix(in srgb,var(--c-home-i) 40%,transparent)}.fyde.dark .otp span{border-color:var(--bstrong)}.fyde.dark .cat .l{color:var(--muted)}
 .fyde h1{font:600 32px/38px var(--font);letter-spacing:-.02em}
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 4px}
 .avatar{width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;font:600 15px var(--font)}
@@ -64,7 +68,7 @@
 .prog i{display:block;height:100%;width:40%;background:var(--warn);border-radius:3px}
 /* trust dark */
 .ring{width:176px;height:176px;margin:12px auto 0;border-radius:50%;display:grid;place-items:center;
-  background:radial-gradient(circle,rgba(143,209,174,.16) 0 46px,transparent 47px),repeating-radial-gradient(circle,transparent 0 22px,rgba(143,209,174,.18) 23px 24px)}
+  background:radial-gradient(circle,color-mix(in srgb,var(--primary) 16%,transparent) 0 46px,transparent 47px),repeating-radial-gradient(circle,transparent 0 22px,color-mix(in srgb,var(--primary) 18%,transparent) 23px 24px)}
 .ring .core{width:88px;height:88px;border-radius:50%;background:var(--primary);color:var(--onp);display:grid;place-items:center}
 .tline{text-align:center;font:600 24px/30px var(--font);margin-top:12px}
 .tsub{text-align:center;font:400 15px/21px var(--font);color:var(--muted);margin:6px 34px 0}
@@ -144,6 +148,29 @@
 </div></div>
 
 <!-- B3 Inbox (arrivals + code) -->
+<div class="board"><p class="caption-board">V6b · Document (sombre)</p>
+<div class="phone fyde dark" data-shot="V6b-document-sombre">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span style="font:600 16px var(--font)">Logement · Énergie</span><button class="circ" aria-label="Plus"><svg class="ic"><use href="#i-more"/></svg></button></div>
+ <div class="pass">
+  <div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-zap"/></svg>EDF</span><span style="font:500 13px var(--font)">Facture</span></div>
+  <p class="big mono" style="font-family:'Instrument Sans'">84,20 €</p>
+  <p class="due">À régler avant le 27 octobre</p>
+  <div class="perf"></div>
+  <div class="meta"><div>Période<b>sept.–oct.</b></div><div>Référence<b>3001 4471</b></div><div>Reçue<b>12 oct.</b></div></div>
+ </div>
+ <div class="thumbrow"><div class="mini"><i style="width:60%"></i><i></i><i style="width:80%"></i><i style="margin-top:8px;height:8px;background:#EEF2EF"></i><i></i><i></i><i style="width:50%"></i></div>
+  <div class="grow"><p style="font:600 16px/21px var(--font)">Facture d’électricité — octobre 2026</p><p style="font:400 14px var(--font);color:var(--muted);margin-top:2px">PDF · 2 pages · 182 Ko</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+ <div class="list">
+  <div class="kv"><span>Arrivée</span><b class="row" style="gap:6px"><svg class="ic sm" style="color:var(--primary)"><use href="#i-bolt"/></svg>Automatique · EDF</b></div>
+  <div class="kv"><span>Dans le coffre</span><b class="row" style="gap:6px"><svg class="ic sm" style="color:var(--ok)"><use href="#i-shield"/></svg>Chiffré · 3 appareils</b></div>
+  <div class="kv"><span>Mots-clés</span><b>électricité, contrat 3001</b></div>
+ </div>
+ <div class="actbar"><button class="pbtn o"><svg class="ic"><use href="#i-download"/></svg>Enregistrer</button><button class="pbtn f"><svg class="ic"><use href="#i-share"/></svg>Partager</button></div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- B3 Inbox (arrivals + code) -->
 <div class="board"><p class="caption-board">R1 · Arrivées</p>
 <div class="phone fyde" data-shot="R1-arrivees">
  <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
@@ -174,8 +201,59 @@
 </div></div>
 
 <!-- B4 Trust (dark) -->
-<div class="board"><p class="caption-board">M2 · Sécurité (sombre)</p>
-<div class="phone fyde dark" data-shot="M2-securite">
+<div class="board"><p class="caption-board">R1b · Arrivées (sombre)</p>
+<div class="phone fyde dark" data-shot="R1b-arrivees-sombre">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div class="hdr"><h1>Arrivées</h1><button class="circ" aria-label="Lancer toutes les sources"><svg class="ic"><use href="#i-sync"/></svg></button></div>
+ <div class="seg"><span class="on">À traiter · 5</span><span>Historique</span></div>
+ <div class="icard" style="border-color:color-mix(in srgb,var(--warn) 45%,var(--border))">
+  <div class="row" style="gap:12px"><span class="prov" style="background:var(--c-tax);color:var(--c-tax-i)">IG</span><div class="grow"><p style="font:600 16px var(--font)">impots.gouv demande un code</p><p style="font:400 14px var(--font);color:var(--muted)">SMS envoyé au •• 42 87 · il y a 1 min</p></div></div>
+  <div class="otp"><span>4</span><span>8</span><span>2</span><span class="cur"></span><span></span><span></span></div>
+  <div class="row" style="gap:8px;font:500 13px var(--font);color:var(--muted)"><svg class="ic xs"><use href="#i-check"/></svg>Connexion<span style="opacity:.5">→</span><b style="color:var(--warn);font-weight:600">Code</b><span style="opacity:.5">→</span>Téléchargement</div>
+ </div>
+ <div class="icard">
+  <div class="row" style="gap:12px"><div class="mini" style="width:40px;height:52px;padding:5px"><i></i><i style="width:60%"></i><i></i></div><div class="grow"><p style="font:600 16px/21px var(--font)">Bulletin de paie — septembre</p><p style="font:400 14px var(--font);color:var(--muted)">Pajemploi · arrivé hier</p></div></div>
+  <div class="sugg"><svg class="ic sm" style="color:var(--c-work-i)"><use href="#i-brief"/></svg><span>Rangé dans <b style="font-weight:600">Travail › Bulletins de paie</b></span></div>
+  <div class="sbtns"><button style="background:var(--surface);border:1px solid var(--border)">Modifier</button><button style="background:var(--primary);color:var(--onp)">C’est bon</button></div>
+ </div>
+ <div class="icard">
+  <div class="row" style="gap:12px"><div class="mini" style="width:40px;height:52px;padding:5px"><i></i><i style="width:60%"></i><i></i></div><div class="grow"><p style="font:600 16px/21px var(--font)">Facture Freebox — octobre</p><p style="font:400 14px var(--font);color:var(--muted)">Free · arrivé il y a 3 jours</p></div></div>
+  <div class="sugg"><svg class="ic sm" style="color:var(--c-tel-i)"><use href="#i-phone"/></svg><span>Rangé dans <b style="font-weight:600">Télécom › Internet</b></span></div>
+ </div>
+ <div class="tabs">
+  <div class="tab"><svg class="ic lg"><use href="#i-grid"/></svg>Coffre</div>
+  <div class="tab on"><svg class="ic lg"><use href="#i-inbox"/></svg>Arrivées<span class="badge">5</span></div>
+  <div class="tab"><span class="scanb" aria-label="Scanner"><svg class="ic lg"><use href="#i-camera"/></svg></span></div>
+  <div class="tab"><svg class="ic lg"><use href="#i-plug"/></svg>Sources</div>
+  <div class="tab"><svg class="ic lg"><use href="#i-user"/></svg>Moi</div>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- B4 Trust (dark) -->
+<div class="board"><p class="caption-board">M2 · Sécurité</p>
+<div class="phone fyde" data-shot="M2-securite">
+ <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span style="font:600 16px var(--font)">Sécurité</span><span style="width:44px"></span></div>
+ <div class="ring"><div class="core"><svg class="ic" style="width:40px;height:40px"><use href="#i-lock"/></svg></div></div>
+ <p class="tline">Votre coffre est scellé</p>
+ <p class="tsub">Seuls vos appareils ont la clé. Le serveur ne voit passer que des données chiffrées.</p>
+ <div class="devs">
+  <div class="devc"><div class="row"><svg class="ic lg"><use href="#i-phone"/></svg><span class="dot"></span></div><p style="font:600 14px var(--font)">iPhone</p><p style="font:400 12px var(--font);color:var(--muted)">Cet appareil</p></div>
+  <div class="devc"><div class="row"><svg class="ic lg"><use href="#i-laptop"/></svg><span class="dot"></span></div><p style="font:600 14px var(--font)">MacBook</p><p style="font:400 12px var(--font);color:var(--muted)">Il y a 3 h</p></div>
+  <div class="devc"><div class="row"><svg class="ic lg"><use href="#i-phone"/></svg><span class="dot" style="background:var(--warn)"></span></div><p style="font:600 14px var(--font)">Pixel 8</p><p style="font:400 12px var(--font);color:var(--muted)">2 oct.</p></div>
+ </div>
+ <div class="tlist">
+  <div class="trow"><svg class="ic" style="color:var(--warn)"><use href="#i-key"/></svg><div class="grow"><p style="font-weight:600">Kit de récupération</p><p style="font-size:13px;color:var(--muted)">À créer — votre seule issue si vous oubliez le mot de passe</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+  <div class="trow"><svg class="ic" style="color:var(--primary)"><use href="#i-check-c"/></svg><div class="grow"><p style="font-weight:600">Vérifier mon mot de passe</p><p style="font-size:13px;color:var(--muted)">Dernière vérification : jamais</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+  <div class="trow"><svg class="ic" style="color:var(--primary)"><use href="#i-server"/></svg><div class="grow"><p style="font-weight:600">Ce que voit le serveur</p><p style="font-size:13px;color:var(--muted)">Tailles, dates d’envoi, nombre d’appareils</p></div><svg class="ic" style="color:var(--muted)"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <div class="homebar"></div>
+</div></div>
+
+<!-- B5 Desktop -->
+<div class="board"><p class="caption-board">M2b · Sécurité (sombre)</p>
+<div class="phone fyde dark" data-shot="M2b-securite-sombre">
  <div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i><i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>
  <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span style="font:600 16px var(--font)">Sécurité</span><span style="width:44px"></span></div>
  <div class="ring"><div class="core"><svg class="ic" style="width:40px;height:40px"><use href="#i-lock"/></svg></div></div>
