@@ -56,6 +56,7 @@ import com.peltoche.fyde.resources.connect_source_submit
 import com.peltoche.fyde.resources.connect_source_submitting
 import com.peltoche.fyde.resources.script_parameter_invalid_number
 import com.peltoche.fyde.resources.script_parameter_required
+import com.peltoche.fyde.resources.source_secret_keep
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
@@ -133,16 +134,22 @@ fun ConnectSourceScreen(
     }
 }
 
-/** What both layouts of [ConnectSourceScreen] show and edit. */
-private class ConnectSourceForm(
+/**
+ * What a source's credentials form shows and edits: both layouts of
+ * [ConnectSourceScreen], and the Sources tab's connect and update pages.
+ * [position]/[count] are only known inside onboarding's queue. A secret in
+ * [keptSecrets] is already installed, so leaving it blank keeps it.
+ */
+internal class ConnectSourceForm(
     val script: FydeScript,
-    val position: Int,
-    val count: Int,
     val values: SnapshotStateMap<String, String>,
     val showRequiredErrors: Boolean,
     val errorMessage: String?,
     val isSubmitting: Boolean,
     private val onSubmit: () -> Unit,
+    val position: Int? = null,
+    val count: Int? = null,
+    val keptSecrets: Set<String> = emptySet(),
 ) {
     val parameters = orderedParameters(script.parameters)
 
@@ -258,7 +265,7 @@ private fun WideConnectSourcePane(
  * [encryptedNote] worded for the room each layout has.
  */
 @Composable
-private fun ConnectSourceForm(
+internal fun ConnectSourceForm(
     form: ConnectSourceForm,
     encryptedNote: StringResource,
 ) {
@@ -268,12 +275,14 @@ private fun ConnectSourceForm(
     // filled and submitted from the keyboard alone (Enter submits).
     LaunchedEffect(script.id) { if (form.parameters.isNotEmpty()) firstField.requestFocus() }
 
-    Text(
-        text = stringResource(Res.string.connect_source_position, form.position, form.count).uppercase(),
-        style = AppTypography.caption.copy(fontWeight = FontWeight.Medium, letterSpacing = 0.04.em),
-        color = AppColors.textMuted,
-    )
-    Spacer(Modifier.height(AppSpacing.space4))
+    if (form.position != null && form.count != null) {
+        Text(
+            text = stringResource(Res.string.connect_source_position, form.position, form.count).uppercase(),
+            style = AppTypography.caption.copy(fontWeight = FontWeight.Medium, letterSpacing = 0.04.em),
+            color = AppColors.textMuted,
+        )
+        Spacer(Modifier.height(AppSpacing.space4))
+    }
     Row(verticalAlignment = Alignment.CenterVertically) {
         ScriptIcon(icon = script.icon, size = AppDimensions.iconTileLarge)
         Spacer(Modifier.width(AppSpacing.space5))
@@ -335,15 +344,18 @@ private fun AllowedDomainsNote(domains: List<String>) {
 }
 
 /**
- * One field per parameter, in [orderedParameters] order. Enter (or the soft
- * keyboard's action key) moves to the next field, and submits from the last.
+ * One field per parameter, in [orderedParameters] order, [firstField]
+ * requesting the one keyed [focusedKey] (the first by default). Enter (or the
+ * soft keyboard's action key) moves to the next field, and submits from the last.
  * A required field left empty is flagged once a submission has been tried.
  */
 @Composable
-private fun ConnectSourceFields(form: ConnectSourceForm, firstField: FocusRequester) {
+internal fun ConnectSourceFields(form: ConnectSourceForm, firstField: FocusRequester, focusedKey: String? = null) {
+    val focusedIndex = form.parameters.indexOfFirst { it.key == focusedKey }.coerceAtLeast(0)
     val requiredError = stringResource(Res.string.script_parameter_required)
     val invalidNumberError = stringResource(Res.string.script_parameter_invalid_number)
     val secretHelp = stringResource(Res.string.connect_source_secret_help, form.script.name)
+    val keptSecretHelp = "$secretHelp ${stringResource(Res.string.source_secret_keep)}"
     form.parameters.forEachIndexed { index, (key, parameter) ->
         if (index > 0) Spacer(Modifier.height(AppSpacing.space5))
         val value = form.values[key].orEmpty()
@@ -354,25 +366,30 @@ private fun ConnectSourceFields(form: ConnectSourceForm, firstField: FocusReques
             onValueChange = { form.values[key] = it },
             errorText = when {
                 value.isBlank() -> requiredError.takeIf {
-                    parameter.required && parameter.type != FydeScriptParameterType.BOOLEAN && form.showRequiredErrors
+                    parameter.required && parameter.type != FydeScriptParameterType.BOOLEAN &&
+                        key !in form.keptSecrets && form.showRequiredErrors
                 }
                 parameter.type == FydeScriptParameterType.NUMBER && value.toDoubleOrNull()?.isFinite() != true -> invalidNumberError
                 else -> null
             },
-            supportingText = secretHelp.takeIf { parameter.secret },
+            supportingText = when {
+                key in form.keptSecrets -> keptSecretHelp
+                parameter.secret -> secretHelp
+                else -> null
+            },
             enabled = !form.isSubmitting,
             imeAction = if (isLast) ImeAction.Go else ImeAction.Next,
             onImeAction = { if (isLast) form.submit() },
-            modifier = if (index == 0) Modifier.focusRequester(firstField) else Modifier,
+            modifier = if (index == focusedIndex) Modifier.focusRequester(firstField) else Modifier,
         )
     }
 }
 
-/** "Connect EDF", spinning while the source is installed. */
+/** "Connect EDF" unless [text] says otherwise, spinning while the source is installed. */
 @Composable
-private fun ConnectButton(form: ConnectSourceForm) {
+internal fun ConnectButton(form: ConnectSourceForm, text: String = stringResource(Res.string.connect_source_submit, form.script.name)) {
     AppButton(
-        text = stringResource(Res.string.connect_source_submit, form.script.name),
+        text = text,
         onClick = form::submit,
         loading = form.isSubmitting,
         loadingText = stringResource(Res.string.connect_source_submitting, form.script.name),

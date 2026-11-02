@@ -36,7 +36,7 @@ import org.jetbrains.compose.resources.stringResource
 /**
  * What [SettingsScreen]'s plan section shows. The caller (see `App.kt`'s
  * `Screen.Settings` branch) owns the [FydeSdk.getUsage] call and maps its
- * result into this state, same split as [ScriptsUiState]. Fetched every time
+ * result into this state, same split as [SourcesTabUiState]. Fetched every time
  * Settings opens rather than cached: the account's other devices move these
  * figures too.
  */

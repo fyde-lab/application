@@ -27,14 +27,30 @@ import org.jetbrains.compose.resources.stringResource
 
 /**
  * The circular back button of a pushed screen (design-system.md § Compact:
- * "a 44pt circular back button"): a `surface` circle with a `border`
- * hairline around a left chevron, as drawn in O2 and O3. Labelled "Back"
- * for assistive tech.
+ * "a 44pt circular back button"), as drawn in O2 and O3: an [AppCircleButton]
+ * around a left chevron, labelled "Back" for assistive tech.
  */
 @Composable
 fun AppBackButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+    AppCircleButton(onClick = onClick, contentDescription = stringResource(Res.string.back), modifier = modifier, enabled = enabled) {
+        ChevronLeftGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+    }
+}
+
+/**
+ * A 44dp `surface` circle with a `border` hairline around one glyph: the
+ * back button, and a header's lone action where a labelled button would
+ * crowd the title (S1's "+").
+ */
+@Composable
+fun AppCircleButton(
+    onClick: () -> Unit,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit,
+) {
     val interactionSource = remember { MutableInteractionSource() }
-    val label = stringResource(Res.string.back)
     Box(
         modifier = modifier
             .size(AppDimensions.backButton)
@@ -49,9 +65,9 @@ fun AppBackButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: B
                 role = Role.Button,
                 onClick = onClick,
             )
-            .semantics { contentDescription = label },
+            .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,
     ) {
-        ChevronLeftGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+        content()
     }
 }

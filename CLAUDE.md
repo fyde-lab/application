@@ -64,12 +64,19 @@ unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's na
 
 Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 
-- Shell: `TopLevelScaffold.kt` hosts Documents, Scripts, Settings — a top navigation bar
+- Shell: `TopLevelScaffold.kt` hosts Documents, Sources (`TopLevelDestination.Scripts`), Settings — a top navigation bar
   at Expanded (`AppNavigationTopBar`, with Settings and the screen's `primaryAction` at its
   far end), a bottom bar below.
 - Documents: `DocumentListScreen.kt` (list, detail, preview, download), state hoisted as a
   `DocumentSearch` in `App.kt`'s `DocumentsScreen`.
-- Scripts: `ScriptsScreen.kt` / `ScriptDetailScreen.kt` (public + own scripts, install/edit/uninstall).
+- Sources: `SourcesTabScreen.kt` (the design's S1–S7, D4), backed by `App.kt`'s
+  `SourcesTabContainer` (scrapers only; quota from `getUsage`). S1–S6 are pages at
+  Compact/Medium; Expanded is D4, a table sortable by source and status beside a detail panel.
+  Which page is open is a `SourceFocus` held by the container. Connect = install + enable, then
+  `ScraperRuns.runOnceInstalled` with the values just installed (it waits until they've synced)
+  and S4; editing credentials reinstalls, a blank secret keeping the installed one
+  (`validatedCredentials`); remove only disables (no uninstall event yet). Statuses come from
+  `ScraperRuns` (this app session's runs): no run history, schedule, counts or categories.
 - Settings (`SettingsScreen.kt`, the design's Moi M1–M3 and M5–M8): a menu (seal card,
   Sécurité, Appareils, Offre et usage, Apparence et langue, logout) whose pages push inside the
   tab at Compact and open beside it at Medium/Expanded; which page is open is screen state.
@@ -113,7 +120,7 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - `ConnectSourceScreen` (S3 inside onboarding at Compact, DO7b at Medium/Expanded in
   `VaultCreationSplitLayout`, whose brand panel lists the ticked sources as `VaultSource`s):
   each ticked source in turn, `App.kt` holding the queue (`connectQueue`/`connectIndex`). One
-  field per script parameter (`ScriptParameterField`, shared with Scripts' install dialog);
+  field per script parameter (`ScriptParameterField`, `ScriptParameters.kt`, shared with the Sources tab);
   Connecter installs and enables it, then `ScraperRuns.runOnceInstalled` queues its first run
   until the installation has synced to this device, and opens `SourceFetchingScreen`. Passer
   cette source / back move along the queue; after the last source → Documents until DO7d–DO7g
