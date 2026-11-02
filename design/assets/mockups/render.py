@@ -45,10 +45,10 @@ CATS = [("logement", "Logement", "i-home", "home", 38), ("argent", "Argent", "i-
 
 
 def sidebar(active):
-    """The desktop/tablet sidebar; active = arrivees | tout | sources | <category key>."""
+    """The desktop/tablet sidebar; active = arrivees | tout | sources | moi | <category key>."""
     def item(key, inner, count="", extra=""):
         on = " on" if key == active else ""
-        style = ' style="background:var(--pwash)"' if on and key in ("arrivees", "tout", "sources") else ""
+        style = ' style="background:var(--pwash)"' if on and key in ("arrivees", "tout", "sources", "moi") else ""
         c = f'<span class="c"{extra}>{count}</span>' if count != "" else ""
         return f'<div class="sitem{on}"{style}>{inner}{c}</div>'
     out = ['<div class="side">',
@@ -63,6 +63,7 @@ def sidebar(active):
                              f'<svg class="ic sm"><use href="#{icon}"/></svg></span>{label}', n))
     out += ['<span class="grow"></span>', item("sources", '<svg class="ic"><use href="#i-plug"/></svg>Sources', 6),
             '<div class="sitem" style="color:var(--ok)"><svg class="ic"><use href="#i-shield"/></svg>Scellé · 3 appareils</div>',
+            item("moi", '<span style="width:26px;height:26px;border-radius:13px;background:var(--pwash);color:var(--primary);display:grid;place-items:center;font:600 11px var(--font)">PP</span>pierre', '<svg class="ic sm"><use href="#i-chev-r"/></svg>'),
             '</div>']
     return "".join(out)
 
