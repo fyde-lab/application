@@ -2,8 +2,10 @@
 
 Fyde is a personal document wallet: it fetches documents from the user's providers by itself,
 keeps them end-to-end encrypted and local-first, and syncs them across the user's devices. This
-document is the source of truth for how the app looks and behaves on iOS, Android, desktop and
-web. Values here win over the code; where they disagree, the code is behind.
+document is the source of truth for how the app looks and behaves on iOS, Android and desktop.
+The web build is out of scope for now: fyde-sdk can't compile to WebAssembly, so the web app is
+a stub with nothing to sign in to; it gets its own references once the SDK runs in a browser.
+Values here win over the code; where they disagree, the code is behind.
 
 ## Status
 
@@ -231,7 +233,7 @@ becomes "Importer" (file picker, drag and drop) where there's no camera.
 
 ![Desktop and tablet](assets/sheets/bureau-tablette.png)
 
-Keyboard on desktop and web: ⌘K / Ctrl+K search, ↑↓ move the selection, Enter opens, Space
+Keyboard on desktop: ⌘K / Ctrl+K search, ↑↓ move the selection, Enter opens, Space
 previews, Esc closes the detail; in Arrivées, Enter confirms the classification and moves to the
 next, E edits. Right-click opens the same actions as V8.
 
@@ -448,7 +450,7 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | V5 | Résultats | Facet chips Catégorie / Type / Année / Source; matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
 | V6 | Document | Pass, file row with thumbnail, facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) |
 | V6b | Document (sombre) | V6 in the dark theme: the pass on its dark category fill | Dark reference for passes |
-| V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…"; web downloads |
+| V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…" |
 | V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Reclasser, Informations techniques, Supprimer de tous mes appareils | Delete confirms that it reaches every device |
 | V8b | Actions (sombre) | V8 in the dark theme | Dark reference for sheets and the scrim |
 | V9 | Reclasser | Category grid, subcategories, type, Enregistrer | Invalid category/subcategory pairs can't be picked |
@@ -651,8 +653,7 @@ left out (principle 5), not faked.
 - Dynamic type to 200% (see [Typography](#typography)).
 - iOS: large titles collapse on scroll, swipe back, haptic on code accepted, share extension.
 - Android: predictive back, SMS Retriever, ML Kit document scanner, share target, autofill hints.
-- Desktop and web: keyboard shortcuts above, hover states, right-click menus; web has no PDF
-  preview yet and offers a download instead.
+- Desktop: keyboard shortcuts above, hover states, right-click menus.
 
 ## Rules for AI coding agents
 
