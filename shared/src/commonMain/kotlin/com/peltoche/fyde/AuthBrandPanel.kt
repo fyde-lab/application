@@ -113,7 +113,7 @@ fun AuthBrandPanel(
 }
 
 /**
- * [AuthBrandPanel] on the sign-in path (DO1, DO2, DO4, DO5, DO9): the seal on
+ * [AuthBrandPanel] on the sign-in path (DO1, DO2, DO5, DO9): the seal on
  * `onPrimary`, "Your documents, under seal." at 38/44, and Welcome's three
  * promises.
  */

@@ -1,6 +1,6 @@
 # Screen map
 
-How the 70 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
+How the 68 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
 graphs: the phone app, and desktop and tablet. Screen IDs and content are specified in
 [`design-system.md`](design-system.md); this page is only about the links between them.
 
@@ -96,11 +96,12 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 
 - **DO1** → **DO2** or **DO3**.
 - **DO2** → **DO2b** while the key is derived → **DO2c** on failure, **DO5** at the device
-  limit, or **DO9** on a first sign-in here. **DO4** is the missing-keyring dialog over DO2.
-- **DO3** shows its errors as **DO3b**; **DO4b** is the missing-keyring dialog over DO3; then
+  limit, or **DO9** on a first sign-in here. **DO4b** is the missing-keyring dialog
+  over DO2 as over DO3.
+- **DO3** shows its errors as **DO3b**; **DO4b** again if there is no keyring; then
   **DO6** → **DO7**.
 - **DO7** (or **DO7h** at the limit) → **DO7b** for each ticked source → **DO7c** while it runs.
-  From DO7c: a code asked by SMS (**DO7d**) or e-mail (**DO7e**), "Source suivante" back to
+  From DO7c: a code asked by SMS or e-mail (**DO7d**, one card for both), "Source suivante" back to
   DO7b, or **DO7g** after the last source. **DO7f** is DO7b after a refused password; skipping
   the last source also reaches DO7g. DO7g or "Passer" → **DO8**.
 - DO8 and DO9 open the vault.
