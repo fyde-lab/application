@@ -75,7 +75,7 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "O2" -> "O4" [color="#2C5582" style=dashed penwidth=1.4 label="pas de trousseau"];
 "O3" -> "O4" [color="#2C5582" style=dashed penwidth=1.4 label="pas de trousseau"];
 "O2" -> "O5" [color="#1F4D3A" penwidth=1.6 label="limite d’appareils"];
-"O5" -> "O9" [color="#1F4D3A" penwidth=1.6 label="appareil déconnecté"];
+"O5" -> "O9" [color="#1F4D3A" penwidth=1.6 label="appareil retiré"];
 "O2" -> "O9" [color="#1F4D3A" penwidth=1.6 label="1re ouverture ici"];
 "O9>V1" [label="→ V1 · Coffre" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "O9" -> "O9>V1" [color="#1F4D3A" penwidth=1.6 label="Parcourir le coffre" arrowhead=none];
@@ -109,7 +109,7 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "V1>O2" [label="→ O2 · Connexion" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "V1" -> "V1>O2" [color="#1F4D3A" penwidth=1.6 label="session expirée" arrowhead=none];
 "K1" -> "K2" [color="#1F4D3A" penwidth=1.6 label="Terminer"];
-"K2" -> "K4" [color="#1F4D3A" penwidth=1.6 label="Mettre au coffre"];
+"K2" -> "K4" [color="#1F4D3A" penwidth=1.6 label="Ajouter au coffre"];
 "OS" -> "K3" [color="#2C5582" style=dashed penwidth=1.4 label="Partager"];
 "K3" -> "K4" [color="#1F4D3A" penwidth=1.6 label="Ajouter au coffre"];
 "K4>V3" [label="→ V3 · Catégorie" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];

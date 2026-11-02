@@ -126,15 +126,15 @@
 <!-- DO9 -->
 <g id="node19" class="node">
 <title>DO9</title>
-<path fill="#dce8e0" stroke="#8c877b" stroke-width="1.2" d="M431.5,-882C431.5,-882 368.5,-882 368.5,-882 362.5,-882 356.5,-876 356.5,-870 356.5,-870 356.5,-854 356.5,-854 356.5,-848 362.5,-842 368.5,-842 368.5,-842 431.5,-842 431.5,-842 437.5,-842 443.5,-848 443.5,-854 443.5,-854 443.5,-870 443.5,-870 443.5,-876 437.5,-882 431.5,-882"/>
-<text text-anchor="middle" x="400" y="-865.6" font-family="Inter" font-size="13.00">DO9</text>
-<text text-anchor="middle" x="400" y="-851.6" font-family="Inter" font-size="13.00">Ouverture</text>
+<path fill="#dce8e0" stroke="#8c877b" stroke-width="1.2" d="M467.5,-882C467.5,-882 404.5,-882 404.5,-882 398.5,-882 392.5,-876 392.5,-870 392.5,-870 392.5,-854 392.5,-854 392.5,-848 398.5,-842 404.5,-842 404.5,-842 467.5,-842 467.5,-842 473.5,-842 479.5,-848 479.5,-854 479.5,-854 479.5,-870 479.5,-870 479.5,-876 473.5,-882 467.5,-882"/>
+<text text-anchor="middle" x="436" y="-865.6" font-family="Inter" font-size="13.00">DO9</text>
+<text text-anchor="middle" x="436" y="-851.6" font-family="Inter" font-size="13.00">Ouverture</text>
 </g>
 <!-- DO2b&#45;&gt;DO9 -->
 <g id="edge7" class="edge">
 <title>DO2b&#45;&gt;DO9</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M360.92,-1027.93C332.43,-1017.36 302.75,-1000.53 286,-974 276.51,-958.97 277.37,-949.54 286,-934 299.53,-909.63 325.29,-892.53 348.9,-881.24"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="350.37,-883.65 356.48,-877.77 348.04,-878.55 350.37,-883.65"/>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M369.73,-1025.99C318.36,-1007.41 259.52,-975.84 286,-934 307.47,-900.08 350,-882.05 384.31,-872.66"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="385.35,-875.29 392.39,-870.57 383.94,-869.87 385.35,-875.29"/>
 <text text-anchor="middle" x="328.5" y="-951.2" font-family="Inter" font-size="11.00" fill="#3d3a33">1re ouverture ici</text>
 </g>
 <!-- DO6 -->
@@ -182,29 +182,29 @@
 <!-- DO5&#45;&gt;PLANS -->
 <g id="edge9" class="edge">
 <title>DO5&#45;&gt;PLANS</title>
-<path fill="none" stroke="#b3261e" stroke-width="1.2" stroke-dasharray="5,2" d="M503.25,-933.89C515.9,-928.42 528.85,-921.79 540,-914 550.01,-907.01 559.46,-897.56 567.23,-888.69"/>
-<polygon fill="#b3261e" stroke="#b3261e" stroke-width="1.2" points="572.57,-882.38 570.15,-890.81 570.06,-885.49 567.48,-888.55 567.4,-888.48 567.33,-888.42 569.91,-885.36 564.65,-886.16 572.57,-882.38 572.57,-882.38"/>
-<text text-anchor="middle" x="590" y="-905.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Voir les offres</text>
+<path fill="none" stroke="#b3261e" stroke-width="1.2" stroke-dasharray="5,2" d="M485.09,-933.94C496.56,-927.94 508.98,-921.03 520,-914 532.67,-905.92 545.97,-896.1 557.35,-887.24"/>
+<polygon fill="#b3261e" stroke="#b3261e" stroke-width="1.2" points="563.81,-882.16 559.75,-889.94 560.73,-884.71 557.59,-887.19 557.53,-887.11 557.46,-887.03 560.61,-884.56 555.3,-884.28 563.81,-882.16 563.81,-882.16"/>
+<text text-anchor="middle" x="574" y="-905.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Voir les offres</text>
 </g>
 <!-- DO5&#45;&gt;DO9 -->
 <g id="edge8" class="edge">
 <title>DO5&#45;&gt;DO9</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M436.24,-933.91C429.6,-920.91 420.71,-903.52 413.4,-889.22"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="415.88,-887.91 409.74,-882.06 410.89,-890.46 415.88,-887.91"/>
-<text text-anchor="middle" x="479.5" y="-905.2" font-family="Inter" font-size="11.00" fill="#3d3a33">appareil déconnecté</text>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M443.88,-933.91C442.47,-921.27 440.61,-904.47 439.05,-890.41"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="441.78,-889.7 438.12,-882.06 436.22,-890.32 441.78,-889.7"/>
+<text text-anchor="middle" x="477.5" y="-905.2" font-family="Inter" font-size="11.00" fill="#3d3a33">appareil retiré</text>
 </g>
 <!-- DO7 -->
 <g id="node11" class="node">
 <title>DO7</title>
-<path fill="#dce8e0" stroke="#8c877b" stroke-width="1.2" d="M355,-801C355,-801 233,-801 233,-801 227,-801 221,-795 221,-789 221,-789 221,-773 221,-773 221,-767 227,-761 233,-761 233,-761 355,-761 355,-761 361,-761 367,-767 367,-773 367,-773 367,-789 367,-789 367,-795 361,-801 355,-801"/>
-<text text-anchor="middle" x="294" y="-784.6" font-family="Inter" font-size="13.00">DO7</text>
-<text text-anchor="middle" x="294" y="-770.6" font-family="Inter" font-size="13.00">Choisir ses sources</text>
+<path fill="#dce8e0" stroke="#8c877b" stroke-width="1.2" d="M327,-801C327,-801 205,-801 205,-801 199,-801 193,-795 193,-789 193,-789 193,-773 193,-773 193,-767 199,-761 205,-761 205,-761 327,-761 327,-761 333,-761 339,-767 339,-773 339,-773 339,-789 339,-789 339,-795 333,-801 327,-801"/>
+<text text-anchor="middle" x="266" y="-784.6" font-family="Inter" font-size="13.00">DO7</text>
+<text text-anchor="middle" x="266" y="-770.6" font-family="Inter" font-size="13.00">Choisir ses sources</text>
 </g>
 <!-- DO6&#45;&gt;DO7 -->
 <g id="edge14" class="edge">
 <title>DO6&#45;&gt;DO7</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M183.34,-841.88C203.89,-830.76 229.92,-816.67 251.57,-804.96"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="253.03,-807.35 258.73,-801.08 250.36,-802.43 253.03,-807.35"/>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M176.56,-841.88C192.82,-830.99 213.33,-817.26 230.6,-805.7"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="232.2,-808 237.29,-801.22 229.08,-803.35 232.2,-808"/>
 </g>
 <!-- DO7h -->
 <g id="node12" class="node">
@@ -216,22 +216,22 @@
 <!-- DO7&#45;&gt;DO7h -->
 <g id="edge15" class="edge">
 <title>DO7&#45;&gt;DO7h</title>
-<path fill="none" stroke="#8c877b" stroke-width="1.6" stroke-dasharray="1,5" d="M322.63,-760.91C343.39,-747.07 371.6,-728.27 393.75,-713.5"/>
-<polygon fill="#8c877b" stroke="#8c877b" stroke-width="1.6" points="400.41,-709.06 395.75,-716.49 397.25,-711.53 393.92,-713.75 393.75,-713.5 393.59,-713.25 396.92,-711.03 391.76,-710.5 400.41,-709.06 400.41,-709.06"/>
-<text text-anchor="middle" x="405.5" y="-732.2" font-family="Inter" font-size="11.00" fill="#3d3a33">limite atteinte</text>
+<path fill="none" stroke="#8c877b" stroke-width="1.6" stroke-dasharray="1,5" d="M310.17,-760.89C323.18,-754.88 337.33,-747.99 350,-741 364.97,-732.74 380.92,-722.7 394.53,-713.73"/>
+<polygon fill="#8c877b" stroke="#8c877b" stroke-width="1.6" points="401.42,-709.14 396.76,-716.57 398.26,-711.61 394.93,-713.82 394.76,-713.57 394.6,-713.32 397.93,-711.11 392.77,-710.58 401.42,-709.14 401.42,-709.14"/>
+<text text-anchor="middle" x="406.5" y="-732.2" font-family="Inter" font-size="11.00" fill="#3d3a33">limite atteinte</text>
 </g>
 <!-- DO7b -->
 <g id="node13" class="node">
 <title>DO7b</title>
-<path fill="#dce8e0" stroke="#8c877b" stroke-width="1.2" d="M274,-709C274,-709 136,-709 136,-709 130,-709 124,-703 124,-697 124,-697 124,-681 124,-681 124,-675 130,-669 136,-669 136,-669 274,-669 274,-669 280,-669 286,-675 286,-681 286,-681 286,-697 286,-697 286,-703 280,-709 274,-709"/>
-<text text-anchor="middle" x="205" y="-692.6" font-family="Inter" font-size="13.00">DO7b</text>
-<text text-anchor="middle" x="205" y="-678.6" font-family="Inter" font-size="13.00">Connecter une source</text>
+<path fill="#dce8e0" stroke="#8c877b" stroke-width="1.2" d="M280,-709C280,-709 142,-709 142,-709 136,-709 130,-703 130,-697 130,-697 130,-681 130,-681 130,-675 136,-669 142,-669 142,-669 280,-669 280,-669 286,-669 292,-675 292,-681 292,-681 292,-697 292,-697 292,-703 286,-709 280,-709"/>
+<text text-anchor="middle" x="211" y="-692.6" font-family="Inter" font-size="13.00">DO7b</text>
+<text text-anchor="middle" x="211" y="-678.6" font-family="Inter" font-size="13.00">Connecter une source</text>
 </g>
 <!-- DO7&#45;&gt;DO7b -->
 <g id="edge16" class="edge">
 <title>DO7&#45;&gt;DO7b</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M248.7,-760.95C239.62,-755.54 230.8,-748.92 224,-741 218.12,-734.16 213.99,-725.32 211.11,-716.93"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="213.74,-715.94 208.72,-709.11 208.38,-717.58 213.74,-715.94"/>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M240.82,-760.98C234.54,-755.17 228.37,-748.36 224,-741 219.77,-733.89 216.91,-725.43 214.98,-717.46"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="217.67,-716.66 213.28,-709.41 212.19,-717.82 217.67,-716.66"/>
 <text text-anchor="middle" x="280" y="-732.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Connecter n sources</text>
 </g>
 <!-- DO8 -->
@@ -244,7 +244,7 @@
 <!-- DO7&#45;&gt;DO8 -->
 <g id="edge17" class="edge">
 <title>DO7&#45;&gt;DO8</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M320.81,-760.73C327.22,-755.01 333.51,-748.3 338,-741 355.35,-712.82 346.3,-700.32 357,-669 374.34,-618.23 389.49,-609.17 402,-557 411.48,-517.45 414.97,-470.33 416.25,-441.28"/>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M314.31,-760.99C323.21,-755.65 331.67,-749.05 338,-741 358.45,-714.98 346.3,-700.32 357,-669 374.34,-618.23 389.49,-609.17 402,-557 411.48,-517.45 414.97,-470.33 416.25,-441.28"/>
 <polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="419.05,-441.34 416.57,-433.24 413.46,-441.12 419.05,-441.34"/>
 <text text-anchor="middle" x="414.5" y="-594.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Passer</text>
 </g>
@@ -258,9 +258,9 @@
 <!-- DO7b&#45;&gt;DO7c -->
 <g id="edge18" class="edge">
 <title>DO7b&#45;&gt;DO7c</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M249.8,-668.81C258.19,-663.46 266.15,-656.9 272,-649 277.03,-642.2 279.99,-633.61 281.72,-625.43"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="284.5,-625.82 283.07,-617.47 278.98,-624.88 284.5,-625.82"/>
-<text text-anchor="middle" x="306.5" y="-640.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Connecter</text>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M262.69,-668.92C270.75,-663.68 278.05,-657.13 283,-649 287.24,-642.04 288.56,-633.49 288.51,-625.4"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="291.3,-625.04 288.03,-617.21 285.71,-625.36 291.3,-625.04"/>
+<text text-anchor="middle" x="315.5" y="-640.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Connecter</text>
 </g>
 <!-- DO7f -->
 <g id="node16" class="node">
@@ -272,16 +272,16 @@
 <!-- DO7b&#45;&gt;DO7f -->
 <g id="edge19" class="edge">
 <title>DO7b&#45;&gt;DO7f</title>
-<path fill="none" stroke="#8c877b" stroke-width="1.6" stroke-dasharray="1,5" d="M165.32,-668.98C155.5,-663.3 145.4,-656.55 137,-649 129.04,-641.85 121.76,-632.71 115.8,-624.15"/>
-<polygon fill="#8c877b" stroke="#8c877b" stroke-width="1.6" points="111.32,-617.46 118.76,-622.11 113.79,-620.62 116.02,-623.94 115.77,-624.11 115.52,-624.28 113.3,-620.95 112.78,-626.11 111.32,-617.46 111.32,-617.46"/>
-<text text-anchor="middle" x="154" y="-640.2" font-family="Inter" font-size="11.00" fill="#3d3a33">refusé</text>
+<path fill="none" stroke="#8c877b" stroke-width="1.6" stroke-dasharray="1,5" d="M176.54,-668.91C166.95,-663.01 156.77,-656.16 148,-649 138.6,-641.32 129.24,-631.88 121.31,-623.22"/>
+<polygon fill="#8c877b" stroke="#8c877b" stroke-width="1.6" points="115.81,-617.09 123.83,-620.64 118.71,-619.86 121.38,-622.84 121.15,-623.04 120.93,-623.24 118.26,-620.27 118.47,-625.45 115.81,-617.09 115.81,-617.09"/>
+<text text-anchor="middle" x="165" y="-640.2" font-family="Inter" font-size="11.00" fill="#3d3a33">refusé</text>
 </g>
 <!-- DO7c&#45;&gt;DO7b -->
 <g id="edge21" class="edge">
 <title>DO7c&#45;&gt;DO7b</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M202.79,-617.24C194.26,-622.35 186.65,-628.82 181,-637 175.7,-644.67 177.67,-653.7 182.24,-662.02"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="179.9,-663.56 186.58,-668.78 184.62,-660.54 179.9,-663.56"/>
-<text text-anchor="middle" x="223.5" y="-640.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Source suivante</text>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M213.55,-617.12C205.05,-622.25 197.46,-628.76 192,-637 187.13,-644.36 188.34,-653.14 191.85,-661.32"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="189.45,-662.78 195.6,-668.61 194.43,-660.21 189.45,-662.78"/>
+<text text-anchor="middle" x="234.5" y="-640.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Source suivante</text>
 </g>
 <!-- DO7d -->
 <g id="node15" class="node">
@@ -340,7 +340,7 @@
 <!-- DO9&#45;&gt;SIDE -->
 <g id="edge26" class="edge">
 <title>DO9&#45;&gt;SIDE</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M443.71,-852.61C480.44,-842.72 527,-822.25 527,-782 527,-782 527,-782 527,-412 527,-390.36 512.93,-370.4 499.02,-355.95"/>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M479.63,-842.64C502.99,-829.6 527,-809.51 527,-782 527,-782 527,-782 527,-412 527,-390.36 512.93,-370.4 499.02,-355.95"/>
 <polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="500.77,-353.74 493.11,-350.11 496.83,-357.73 500.77,-353.74"/>
 <text text-anchor="middle" x="574.5" y="-594.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Parcourir le coffre</text>
 </g>
