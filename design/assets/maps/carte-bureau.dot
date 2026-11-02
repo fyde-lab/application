@@ -40,7 +40,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO2" -> "DO4b" [color="#2C5582" style=dashed penwidth=1.4 label="pas de trousseau"];
 "DO2b" -> "DO5" [color="#1F4D3A" penwidth=1.6 label="limite d’appareils"];
 "DO2b" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="1re ouverture ici"];
-"DO5" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="appareil déconnecté"];
+"DO5" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="appareil retiré"];
 "DO5" -> "PLANS" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="Voir les offres"];
 "DO2c" -> "DO6" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="kit (à venir)"];
 "DO3" -> "DO3b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="erreurs"];

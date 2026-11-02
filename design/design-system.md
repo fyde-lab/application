@@ -219,7 +219,8 @@ title in the bar.
 ### Medium (600–839dp) and Expanded (≥ 840dp)
 
 The tab bar becomes a sidebar: 260dp at Expanded, icons-only at Medium. From top: brand,
-Arrivées (with count), Tout le coffre, CATÉGORIES (each with dot and count), then at the bottom
+Arrivées (with count), Tout le coffre, CATÉGORIES (each with dot and count, in the fixed order of Principle 1; a category with no document is
+hidden until its first one arrives), then at the bottom
 Sources and the seal ("Scellé · n appareils"). Moi moves to the avatar menu. Lists become
 master–detail: a 400dp list column and a detail pane; phone sheets become inline panels. Scanner
 becomes "Importer" (file picker, drag and drop) where there's no camera.
@@ -291,7 +292,7 @@ identically in Sources, Arrivées, history and on desktop:
 submits on the 6th digit; iOS `oneTimeCode` and Android SMS Retriever autofill; screen readers
 announce "chiffre 4 sur 6". When a source asks a free-text question, the boxes become one text
 field. Its context always shows the source, the masked destination and a step trail
-Connecté → Code → Récupération (from `FfiProgressStep`). A code request while the app is in the
+Connexion → Code → Téléchargement (from `FfiProgressStep`). A code request while the app is in the
 background raises a time-sensitive notification that opens straight into the field (R4).
 
 The card says how the code was sent, because the user has to go and fetch it:
@@ -352,6 +353,26 @@ Every new document, fetched or added, shows where Fyde filed it ("Rangé dans Tr
 de paie") with Modifier and C'est bon. Modifier opens the reclassify sheet (V9): category grid,
 subcategories of the chosen category only, type chips.
 
+### Glossary
+
+One word per thing, in every screen and both languages. A new string uses these terms; a term
+that needs changing changes here first.
+
+| Concept | Français | English | Not |
+|---|---|---|---|
+| The encrypted store of documents | coffre | vault | coffre-fort, espace |
+| The OS secret store | trousseau (système) | keychain / keyring | coffre-fort système |
+| An installed scraper | source | source | connecteur, script |
+| The plan | offre (Gratuit) | plan (Free) | abonnement, forfait |
+| Adding a file by hand | Ajouter au coffre; Importer for the desktop file picker | Add to vault; Import | Mettre au coffre, Ajouter à Fyde |
+| A one-time code a source asks for | "<source> demande un code"; status "Attend votre code" | "<source> needs a code"; "Waiting for your code" | attend un code |
+| A run's steps | Connexion · Recherche · Téléchargement · Rangement (Code when asked) | Signing in · Searching · Downloading · Filing (Code) | Connecté, Récupération as a step |
+| Ending this device's session | Se déconnecter | Log out | Déconnecter |
+| Ending another device's session | Retirer (cet appareil) | Remove (this device) | Déconnecter |
+| A document's place | catégorie › sous-catégorie, type | category › subcategory, type | dossier |
+
+The references show one plan everywhere, **Gratuit**: 5 active sources, 3 devices, 5 Go.
+
 ### Trust
 
 - The seal line under the vault title states the sync state: "Scellé · à jour sur 3 appareils",
@@ -375,7 +396,7 @@ subcategories of the chosen category only, type chips.
 | O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds). Failed attempt → error note. Back → O1; "Créer un coffre" → O3 |
 | O3 | Créer le coffre | Step 1/4; username; password with strength meter; confirm; warning "seule clé de votre coffre"; required "J'ai compris" | Mismatch and taken username as field errors |
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
-| O5 | Trop d'appareils | Plan limit, radio list of open sessions, "Déconnecter le MacBook Air" | Re-runs login with `replaceSessionId`; credentials kept only while open |
+| O5 | Trop d'appareils | Plan limit, radio list of open sessions, "Retirer le MacBook Air" | Re-runs login with `replaceSessionId`; credentials kept only while open |
 | O6 | Kit de récupération | Step 2/4; 12 words; Enregistrer le PDF / Imprimer; Je l'ai mis en lieu sûr / Plus tard | Screenshots blocked. Confirm asks two words back |
 | O7 | Choisir ses sources | Step 3/4; plan counter "Offre Gratuit · 3 / 5"; search, category chips, popular public scrapers with checkboxes | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
 | O7b | Limite de l'offre atteinte | O7 scrolled: the counter stays pinned under the bar, in `warning`, "Limite atteinte"; one line on unticking to swap; unticked sources dimmed and not tickable; pointer to Moi › Offre et usage | See [Plan quota](#plan-quota) |
@@ -386,7 +407,7 @@ subcategories of the chosen category only, type chips.
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| V1 | Coffre | Title, search, avatar; seal line; arrivals banner; 2-column category cards (icon, count, name, latest document) ordered by count | Banner only when something needs the user; pull to refresh = sync |
+| V1 | Coffre | Title, search, avatar; seal line; arrivals banner; 2-column category cards (icon, count, name, latest document) in the fixed order of Principle 1, categories with no document hidden | Banner only when something needs the user, counting what the Arrivées badge counts ("4 documents arrivés", "1 code demandé · …"); pull to refresh = sync |
 | V2 | Coffre en remplissage | Running sources with progress; filled cards for categories with documents; dashed cards for expected ones | Until each connected source ran once |
 | V3 | Catégorie | Category band; subcategory chips with counts; year chips; month groups of document rows | Sort by date, amount, name; rows swipe to Partager / Reclasser |
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
@@ -405,7 +426,7 @@ subcategories of the chosen category only, type chips.
 | ID | Screen | Content | States |
 |---|---|---|---|
 | K1 | Scanner | Platform document scanner in Fyde chrome; edge overlay; page count; Terminer | Camera denied → explanation + settings |
-| K2 | Vérifier le scan | Crop, rotate, delete, add page; name; suggested classification; Mettre au coffre | No suggestion → "À classer" and listed in Arrivées |
+| K2 | Vérifier le scan | Crop, rotate, delete, add page; name; suggested classification; Ajouter au coffre | No suggestion → "À classer" and listed in Arrivées |
 | K3 | Depuis une autre app | Share extension sheet: file, name, suggestion, "Chiffré sur cet iPhone avant d'être envoyé" | Signed out → "Ouvrez Fyde pour ajouter" |
 | K4 | Ajout en cours | Row appears at once with "Chiffrement…"; progress snackbar; duplicate → "Déjà dans le coffre · Voir" | `DuplicateDocument` is never an error |
 | R1 | Arrivées | À traiter / Historique; code card first; documents with their suggestion and Modifier / C'est bon | Swipe right = C'est bon |
@@ -449,7 +470,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | M2 | Sécurité | Seal hero, device tiles with sync dot, Kit de récupération, Vérifier mon mot de passe, Ce que voit le serveur | Dark reference |
 | M3 | Ce que voit le serveur | "Ne voit jamais" / "Voit" lists | Keep in step with the wire format |
 | M4 | Vérifier mon mot de passe | Local check, next reminder in 3 months | Wrong → link to the recovery kit |
-| M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Déconnecter | Current device can't be disconnected here |
+| M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Retirer | The current device can't be removed here (Se déconnecter, M8) |
 | M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error |
 | M7 | Apparence et langue | Theme tiles, language radios; text size follows the OS | Persisted |
 | M8 | Se déconnecter | Dialog: what is erased here, what stays; warning if no recovery kit | Wipes keys and local data even offline |
@@ -459,7 +480,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 
 | ID | Screen | Layout |
 |---|---|---|
-| D1 | Catégorie | Sidebar · header, search, Ajouter · subcategory pills · 4-column cards with first-page thumbnails |
+| D1 | Catégorie | Sidebar · header, search, Importer · subcategory pills · 4-column cards with first-page thumbnails |
 | D2 | Document | Sidebar · 400dp list · pass and facts · live preview |
 | D3 | Arrivées | Sidebar · queue with inline code card · preview · classification panel with C'est bon (Enter) |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, automatique) · detail panel |
@@ -479,7 +500,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO3 | Créer le coffre | Step 1 of 4: as O3 | — |
 | DO3b | Créer le coffre — erreurs | Username taken (field error, red 2dp border), weak password (meter in `warning`), mismatch, checkbox unticked, Continuer disabled | Errors appear on blur or submit, not while typing |
 | DO4b | Trousseau absent | Dialog over DO3 (drawn) or DO2: warning tile, "Pas de trousseau système sur cet ordinateur", which keyrings were tried (GNOME Keyring, KWallet), the risk, opt-in checkbox, Annuler · Réessayer · "Créer quand même" over DO3 or "Ouvrir quand même" over DO2 (enabled once ticked; drawn ticked) | On `SecureStorageUnavailable`; Réessayer re-runs the call without the opt-in (for after installing a keyring); the confirm re-runs it with `allowInsecureStorage` |
-| DO5 | Trop d'appareils | As O5; Voir les offres · Déconnecter le MacBook Air | — |
+| DO5 | Trop d'appareils | As O5; Voir les offres · Retirer le MacBook Air | — |
 | DO6 | Kit de récupération | Step 2 of 4: 12 words in 4×3, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop |
 | DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, category chips, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |

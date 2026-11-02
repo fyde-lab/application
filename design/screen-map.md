@@ -36,7 +36,7 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 - **O2 Connexion**: "Créer un coffre" → O3. A failed attempt stays on O2 with an error note. An
   expired session anywhere in the app returns here (V1 → O2), with a warning note.
 - **O4 Stockage indisponible** is a sheet over O2 or O3 when the device has no secure storage.
-- **O5 Trop d'appareils** follows O2 when the plan's device limit is reached; disconnecting a
+- **O5 Trop d'appareils** follows O2 when the plan's device limit is reached; removing a
   device continues to O9. Its "Voir les offres" needs the plans page (not drawn).
 - **O9 Ouverture** follows a first sign-in on this device, then "Parcourir le coffre" → V1.
 - Vault creation is a four-step line: **O3** (account) → **O6** (recovery kit) → **O7** (choose
@@ -57,7 +57,7 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 
 ### Capture (K1–K4)
 
-- **K1 Scanner** (tab bar) → **K2 Vérifier le scan** → "Mettre au coffre" → **K4 Ajout en
+- **K1 Scanner** (tab bar) → **K2 Vérifier le scan** → "Ajouter au coffre" → **K4 Ajout en
   cours**. A scan with no suggested classification is also listed in R1.
 - **K3** is the share sheet opened from another app; "Ajouter au coffre" → K4.
 - K4 adds the document to its category (V3).

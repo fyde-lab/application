@@ -118,15 +118,15 @@
 <!-- O9 -->
 <g id="node10" class="node">
 <title>O9</title>
-<path fill="#dce8e0" stroke="#8c877b" stroke-width="1.2" d="M1048.5,-1032C1048.5,-1032 985.5,-1032 985.5,-1032 979.5,-1032 973.5,-1026 973.5,-1020 973.5,-1020 973.5,-1004 973.5,-1004 973.5,-998 979.5,-992 985.5,-992 985.5,-992 1048.5,-992 1048.5,-992 1054.5,-992 1060.5,-998 1060.5,-1004 1060.5,-1004 1060.5,-1020 1060.5,-1020 1060.5,-1026 1054.5,-1032 1048.5,-1032"/>
-<text text-anchor="middle" x="1017" y="-1015.6" font-family="Inter" font-size="13.00">O9</text>
-<text text-anchor="middle" x="1017" y="-1001.6" font-family="Inter" font-size="13.00">Ouverture</text>
+<path fill="#dce8e0" stroke="#8c877b" stroke-width="1.2" d="M1084.5,-1032C1084.5,-1032 1021.5,-1032 1021.5,-1032 1015.5,-1032 1009.5,-1026 1009.5,-1020 1009.5,-1020 1009.5,-1004 1009.5,-1004 1009.5,-998 1015.5,-992 1021.5,-992 1021.5,-992 1084.5,-992 1084.5,-992 1090.5,-992 1096.5,-998 1096.5,-1004 1096.5,-1004 1096.5,-1020 1096.5,-1020 1096.5,-1026 1090.5,-1032 1084.5,-1032"/>
+<text text-anchor="middle" x="1053" y="-1015.6" font-family="Inter" font-size="13.00">O9</text>
+<text text-anchor="middle" x="1053" y="-1001.6" font-family="Inter" font-size="13.00">Ouverture</text>
 </g>
 <!-- O2&#45;&gt;O9 -->
 <g id="edge13" class="edge">
 <title>O2&#45;&gt;O9</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M811.43,-1175.93C840.11,-1146.31 893.19,-1091.83 903,-1084 925.37,-1066.15 952.49,-1049.1 974.66,-1036.18"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="976.14,-1038.56 981.68,-1032.14 973.35,-1033.71 976.14,-1038.56"/>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M811.33,-1175.79C839.87,-1145.99 892.76,-1091.25 903,-1084 933.57,-1062.36 971.76,-1044.39 1001.96,-1031.95"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="1003.1,-1034.51 1009.46,-1028.9 1000.99,-1029.32 1003.1,-1034.51"/>
 <text text-anchor="middle" x="945.5" y="-1101.2" font-family="Inter" font-size="11.00" fill="#3d3a33">1re ouverture ici</text>
 </g>
 <!-- O3&#45;&gt;O4 -->
@@ -153,9 +153,9 @@
 <!-- O5&#45;&gt;O9 -->
 <g id="edge12" class="edge">
 <title>O5&#45;&gt;O9</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M1053.24,-1083.91C1046.6,-1070.91 1037.71,-1053.52 1030.4,-1039.22"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="1032.88,-1037.91 1026.74,-1032.06 1027.89,-1040.46 1032.88,-1037.91"/>
-<text text-anchor="middle" x="1096.5" y="-1055.2" font-family="Inter" font-size="11.00" fill="#3d3a33">appareil déconnecté</text>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M1060.88,-1083.91C1059.47,-1071.27 1057.61,-1054.47 1056.05,-1040.41"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="1058.78,-1039.7 1055.12,-1032.06 1053.22,-1040.32 1058.78,-1039.7"/>
+<text text-anchor="middle" x="1094.5" y="-1055.2" font-family="Inter" font-size="11.00" fill="#3d3a33">appareil retiré</text>
 </g>
 <!-- O5&gt;PLANS -->
 <g id="node51" class="node">
@@ -166,8 +166,8 @@
 <!-- O5&#45;&gt;O5&gt;PLANS -->
 <g id="edge15" class="edge">
 <title>O5&#45;&gt;O5&gt;PLANS</title>
-<path fill="none" stroke="#b3261e" stroke-width="1.2" stroke-dasharray="5,2" d="M1117.7,-1083.85C1130.98,-1078.25 1144.85,-1071.57 1157,-1064 1172.25,-1054.5 1187.43,-1040.97 1198.43,-1030.23"/>
-<text text-anchor="middle" x="1209" y="-1055.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Voir les offres</text>
+<path fill="none" stroke="#b3261e" stroke-width="1.2" stroke-dasharray="5,2" d="M1101.02,-1083.84C1112.69,-1077.72 1125.49,-1070.78 1137,-1064 1155.13,-1053.33 1174.96,-1040.34 1190.09,-1030.15"/>
+<text text-anchor="middle" x="1193" y="-1055.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Voir les offres</text>
 </g>
 <!-- O7 -->
 <g id="node7" class="node">
@@ -258,8 +258,8 @@
 <!-- O9&#45;&gt;O9&gt;V1 -->
 <g id="edge14" class="edge">
 <title>O9&#45;&gt;O9&gt;V1</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M1054.75,-991.91C1086.28,-975.97 1130.84,-953.44 1161.21,-938.08"/>
-<text text-anchor="middle" x="1163.5" y="-963.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Parcourir le coffre</text>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M1083.11,-991.91C1108.19,-976.02 1143.58,-953.59 1167.81,-938.23"/>
+<text text-anchor="middle" x="1179.5" y="-963.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Parcourir le coffre</text>
 </g>
 <!-- V1 -->
 <g id="node11" class="node">
@@ -504,9 +504,9 @@
 <!-- K2&#45;&gt;K4 -->
 <g id="edge41" class="edge">
 <title>K2&#45;&gt;K4</title>
-<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M1947.48,-421.67C1956.83,-404.24 1972.51,-378.83 1992,-362 1998.96,-355.99 2007.02,-350.66 2015.28,-346.02"/>
-<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="2016.83,-348.37 2022.57,-342.13 2014.19,-343.43 2016.83,-348.37"/>
-<text text-anchor="middle" x="2034" y="-379.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Mettre au coffre</text>
+<path fill="none" stroke="#1f4d3a" stroke-width="1.6" d="M1945.95,-421.88C1954.05,-404.35 1968.12,-378.66 1987,-362 1994.04,-355.79 2002.23,-350.4 2010.7,-345.77"/>
+<polygon fill="#1f4d3a" stroke="#1f4d3a" stroke-width="1.6" points="2012.05,-348.22 2017.86,-342.06 2009.47,-343.25 2012.05,-348.22"/>
+<text text-anchor="middle" x="2031.5" y="-379.2" font-family="Inter" font-size="11.00" fill="#3d3a33">Ajouter au coffre</text>
 </g>
 <!-- K2&#45;&gt;R1 -->
 <g id="edge45" class="edge">

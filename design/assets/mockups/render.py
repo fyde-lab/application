@@ -37,10 +37,11 @@ def tabbar(active, badge_override=None):
     return "".join(out)
 
 
+# In the fixed category order; categories without documents (Famille, Abonnements, Dons here) are hidden.
 CATS = [("logement", "Logement", "i-home", "home", 38), ("argent", "Argent", "i-wallet", "money", 51),
-        ("travail", "Travail", "i-brief", "work", 41), ("sante", "Santé", "i-heart", "health", 33),
-        ("telecom", "Télécom", "i-phone", "tel", 24), ("impots", "Impôts", "i-landmark", "tax", 12),
-        ("transport", "Transport", "i-train", "trans", 9)]
+        ("travail", "Travail", "i-brief", "work", 41), ("impots", "Impôts", "i-landmark", "tax", 12),
+        ("sante", "Santé", "i-heart", "health", 33), ("telecom", "Télécom", "i-phone", "tel", 24),
+        ("transport", "Transport", "i-train", "trans", 9), ("achats", "Achats", "i-bag", "shop", 6)]
 
 
 def sidebar(active):
