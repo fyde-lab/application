@@ -32,6 +32,7 @@ subgraph "cluster_donb" { label="Accueil et accès au bureau (DO)"; fontname="In
 "SIDE" [label="Barre latérale" shape=box style="rounded,bold" color="#1C1B17" fillcolor="#FFFFFF"];
 subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
   "T1" [label="T1\nTablette — Coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "T2" [label="T2\nTablette portrait" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D1" [label="D1\nCatégorie" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D2" [label="D2\nDocument" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D3" [label="D3\nArrivées" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
@@ -72,6 +73,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO9" -> "SIDE" [color="#1F4D3A" penwidth=1.6 label="Parcourir le coffre"];
 "SIDE" -> "D6" [color="#1F4D3A" penwidth=1.6 label="Tout le coffre"];
 "D6" -> "T1" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sur tablette"];
+"T1" -> "T2" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="portrait"];
 "D6" -> "D1" [color="#1F4D3A" penwidth=1.6 label="carte"];
 "SIDE" -> "D1" [color="#1F4D3A" penwidth=1.6 label="catégorie"];
 "SIDE" -> "D3" [color="#1F4D3A" penwidth=1.6 label="Arrivées"];
