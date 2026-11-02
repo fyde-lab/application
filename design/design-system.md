@@ -271,7 +271,9 @@ Without a session there's no sidebar. The window splits in two (DO1–DO9):
   **Offline** is a state, not an error (X1): everything local stays usable, additions queue.
 - **Errors** use the SDK's localized wording (`FfiError` messages) or our own copy, never an
   exception message.
-- **One primary action per screen**, filled; every other action is outlined or text.
+- **One primary action per screen**, filled; every other action is outlined or text. A screen
+  whose only action is moving on (O9 Parcourir le coffre, M4 Terminé, S4 Continuer en
+  arrière-plan) fills it too: it's still the primary action.
 
 ### Source status
 
@@ -353,6 +355,13 @@ Every new document, fetched or added, shows where Fyde filed it ("Rangé dans Tr
 de paie") with Modifier and C'est bon. Modifier opens the reclassify sheet (V9): category grid,
 subcategories of the chosen category only, type chips.
 
+### Devices
+
+A device is named when it signs in: the OS's name for it ("iPhone", "Pixel 8"), or "Ordinateur
+(macOS)" on desktop, never a Java or browser version. The user can rename it in Appareils (M5);
+the references show renamed devices ("iPhone de Pierre", "MacBook Air"). Lists of devices are
+never pre-selected for removal.
+
 ### Glossary
 
 One word per thing, in every screen and both languages. A new string uses these terms; a term
@@ -396,9 +405,9 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds). Failed attempt → error note. Back → O1; "Créer un coffre" → O3 |
 | O3 | Créer le coffre | Step 1/4; username; password with strength meter; confirm; warning "seule clé de votre coffre"; required "J'ai compris" | Mismatch and taken username as field errors |
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
-| O5 | Trop d'appareils | Plan limit, radio list of open sessions, "Retirer le MacBook Air" | Re-runs login with `replaceSessionId`; credentials kept only while open |
+| O5 | Trop d'appareils | Plan limit, radio list of open sessions with none picked, "Retirer l'appareil choisi" (disabled until one is picked, then "Retirer le Pixel 8") | Nothing is pre-selected, so one tap can't cut off a device in use. Re-runs login with `replaceSessionId`; credentials kept only while open |
 | O6 | Kit de récupération | Step 2/4; 12 words; Enregistrer le PDF / Imprimer; Je l'ai mis en lieu sûr / Plus tard | Screenshots blocked. Confirm asks two words back |
-| O7 | Choisir ses sources | Step 3/4; plan counter "Offre Gratuit · 3 / 5"; search, category chips, popular public scrapers with checkboxes | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
+| O7 | Choisir ses sources | Step 3/4; plan counter "Offre Gratuit · 3 / 5"; search; public scrapers with checkboxes (no category chips: scripts have no category yet) | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
 | O7b | Limite de l'offre atteinte | O7 scrolled: the counter stays pinned under the bar, in `warning`, "Limite atteinte"; one line on unticking to swap; unticked sources dimmed and not tickable; pointer to Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | O8 | Notifications | Step 4/4; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
 | O9 | Ouverture | Ring "142 sur 214", the device's name, "Vous pouvez déjà parcourir" | Replaces an empty vault on a new device |
@@ -409,7 +418,7 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 |---|---|---|---|
 | V1 | Coffre | Title, search, avatar; seal line; arrivals banner; 2-column category cards (icon, count, name, latest document) in the fixed order of Principle 1, categories with no document hidden | Banner only when something needs the user, counting what the Arrivées badge counts ("4 documents arrivés", "1 code demandé · …"); pull to refresh = sync |
 | V2 | Coffre en remplissage | Running sources with progress; filled cards for categories with documents; dashed cards for expected ones | Until each connected source ran once |
-| V3 | Catégorie | Category band; subcategory chips with counts; year chips; month groups of document rows | Sort by date, amount, name; rows swipe to Partager / Reclasser |
+| V3 | Catégorie | Category band; subcategory chips with counts; year chips; month groups of document rows | Sort newest or oldest first (`SearchOrder`; amount and name need the SDK); rows swipe to Partager / Reclasser, also in V8 |
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
 | V5 | Résultats | Facet chips Catégorie / Type / Année / Source; matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
 | V6 | Document | Pass, file row with thumbnail, facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) |
@@ -440,12 +449,12 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| S1 | Sources | Next run; "Ont besoin de vous" then "À jour"; rows with initials tile and status; plan usage | Empty → Ajouter une source; limit → plan sheet |
-| S2 | Catalogue | Search, category chips, suggested then by category; Ajouter or check | User's own scripts in a last group |
+| S1 | Sources | Next run; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source; limit → plan sheet |
+| S2 | Catalogue | Search; every public scraper from A to Z; Ajouter or a check if already added; "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
 | S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch | Connect installs and runs at once (S4) |
 | S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan | Code or captcha → code sheet |
 | S5 | Détail | Status, counts, schedule switch, identifiants, sites, latest documents, Lancer, Retirer la source | — |
-| S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | Report never includes credentials |
+| S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | The report is the run's debug report, which never records headers, bodies or form values; a sheet shows what's sent before sending |
 | S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
 
 ### Moi and states (M1–M8, X1)
@@ -470,7 +479,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | M2 | Sécurité | Seal hero, device tiles with sync dot, Kit de récupération, Vérifier mon mot de passe, Ce que voit le serveur | Dark reference |
 | M3 | Ce que voit le serveur | "Ne voit jamais" / "Voit" lists | Keep in step with the wire format |
 | M4 | Vérifier mon mot de passe | Local check, next reminder in 3 months | Wrong → link to the recovery kit |
-| M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Retirer | The current device can't be removed here (Se déconnecter, M8) |
+| M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Retirer; Renommer on this device | The current device can't be removed here (Se déconnecter, M8) |
 | M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error |
 | M7 | Apparence et langue | Theme tiles, language radios; text size follows the OS | Persisted |
 | M8 | Se déconnecter | Dialog: what is erased here, what stays; warning if no recovery kit | Wipes keys and local data even offline |
@@ -502,7 +511,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO4b | Trousseau absent | Dialog over DO3 (drawn) or DO2: warning tile, "Pas de trousseau système sur cet ordinateur", which keyrings were tried (GNOME Keyring, KWallet), the risk, opt-in checkbox, Annuler · Réessayer · "Créer quand même" over DO3 or "Ouvrir quand même" over DO2 (enabled once ticked; drawn ticked) | On `SecureStorageUnavailable`; Réessayer re-runs the call without the opt-in (for after installing a keyring); the confirm re-runs it with `allowInsecureStorage` |
 | DO5 | Trop d'appareils | As O5; Voir les offres · Retirer le MacBook Air | — |
 | DO6 | Kit de récupération | Step 2 of 4: 12 words in 4×3, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop |
-| DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, category chips, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
+| DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 3 with their state | Connect installs the script and starts its first run |
 | DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel |
@@ -544,10 +553,10 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `DocumentPass` | New | Templates by type |
 | `ArrivalsBanner`, `ClassificationSuggestion` | New | — |
 | `OneTimeCodeField` | New | See [Verification code](#verification-code) |
-| `SourceRow`, `SourceStatus`, `RunStepper` | New | See [Source status](#source-status) |
+| `SourceRow`, `SourceStatus`, `RunStepper` | New | See [Source status](#source-status). The tile shows the script's icon (`fetchIcon`, cached) on `surface`; without one, its initials on the fill of its main category. The references show the fallback |
 | `PlanQuota` | New | See [Plan quota](#plan-quota) |
 | `SealHero` | Landed (O1) | `primary` disc and lock, `primaryWash` disc, two `border` rings at 168 (`AppDimensions.sealHero`); reused by M2 |
-| `DeviceTile` | New | — |
+| `DeviceTile` | New | Device glyph, name, sync dot |
 | `UsageMeter` | Landed (M6) | Label (`bodyEmphasis`) and `used / limit` in `data`, the bar under them: `primary`, `warning` from 90% and at the limit (with a caption), `error` over. Private to `PlanUsageSection.kt` until another screen needs it |
 | `AppIconTile` | Restyle | 44 default; 36 (`AppDimensions.iconTileSmall`) beside body text, as in O1's promises; 52 (`iconTileLarge`) heading a sheet, as in O4 |
 
@@ -570,6 +579,9 @@ left out (principle 5), not faked.
 | Recovery kit and local password check | O6, M2, M4 |
 | Replay progress and per-device last seen | O9, M5, M2 |
 | First-page thumbnails | V3, D1, D2 |
+| Sorting by amount or name | V3, D1 |
+| Script categories and popularity | O7, DO7, S2 chips and groups |
+| Renaming a session | M5 |
 
 ## Delivery
 
