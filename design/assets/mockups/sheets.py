@@ -19,7 +19,7 @@ LABELS = {
     "O5": "Trop d’appareils", "O6": "Kit de récupération", "O6b": "Vérifier le kit", "O7": "Choisir ses sources", "O8": "Notifications",
     "O7b": "Limite de l’offre", "O9": "Ouverture", "O10": "Récupérer mon coffre", "O10b": "Nouveau mot de passe", "V1": "Coffre", "V2": "Coffre en remplissage", "V3": "Catégorie", "V4": "Recherche",
     "V5": "Résultats", "V6": "Document", "V6b": "Document sombre", "V7": "Lecteur", "V8": "Actions", "V8b": "Actions sombres", "V9": "Reclasser",
-    "V10": "Cartes par type", "V11": "Coffre sombre", "K1": "Scanner", "K2": "Vérifier le scan",
+    "V11": "Coffre sombre", "K1": "Scanner", "K2": "Vérifier le scan",
     "K3": "Depuis une autre app", "K4": "Ajout en cours", "R1": "Arrivées", "R1c": "Code expiré", "R1b": "Arrivées sombre", "R2": "Tout est rangé",
     "R3": "Historique", "R4": "Notification de code", "S1": "Sources", "S2": "Catalogue", "S3": "Connecter",
     "S4": "Récupération", "S5": "Détail", "S6": "En échec", "S6b": "Site changé", "S8": "Vérification demandée", "S7": "Retirer", "M1": "Moi", "M2": "Sécurité", "M2b": "Sécurité sombre",
@@ -77,7 +77,7 @@ def sheet(name, files, width, per_row):
 
 for name, prefixes in GROUPS.items():
     files = sorted((f for f in glob.glob(str(SCREENS / "*.png"))
-                    if os.path.basename(f)[0] in prefixes and not os.path.basename(f).startswith("V10")), key=order)
+                    if os.path.basename(f)[0] in prefixes), key=order)
     sheet(name, files, 390, 5)
 sheet("bureau-acces", sorted(glob.glob(str(SCREENS / "DO*.png")), key=order), 720, 2)
 sheet("bureau-tablette", sorted(glob.glob(str(SCREENS / "D[0-9]*.png")), key=order) + [str(SCREENS / "T1-tablette-coffre.png"), str(SCREENS / "T2-tablette-portrait.png")], 720, 2)

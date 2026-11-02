@@ -27,11 +27,13 @@ the old palette and type, with the reference's layout, copy and proportions):
 
 ## Reference screens
 
-Every screen of the app is drawn in `assets/screens/` (68 PNGs at 2×, phone frames at 390×844,
-desktop at 1440×900, tablet at 1194×834), rendered from the HTML in `assets/mockups/` by
+Every screen of the app is drawn in `assets/screens/` (90 PNGs at 2×, phone frames at 390×844,
+desktop at 1440×900, tablet at 1194×834 or 834×1194 upright), rendered from the HTML in `assets/mockups/` by
 `render.py`; `sheets.py` assembles them into the contact sheets in `assets/sheets/`. To change a
 reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
-tables below), re-render, and commit the PNGs with the source.
+tables below; `core.html` still carries its own copy, so change both), re-render, and commit the
+PNGs with the source. `assets/maps/screen_map.py` checks that every PNG has a row in the tables
+below and a node in the screen map.
 
 How the screens lead to one another is mapped in [`screen-map.md`](screen-map.md).
 
@@ -361,7 +363,7 @@ The detail of a document is a pass in its category colours: issuer and type, a h
 in `passAmount`, one line under it, a perforation, and up to three meta cells. Templates by
 document type, each cell shown only when its attribute is set:
 
-![Pass templates](assets/screens/V10-modeles-cartes.png)
+![Pass templates](assets/sheets/modeles-cartes.png)
 
 | Document type | Headline | Line under | Meta cells |
 |---|---|---|---|
@@ -419,19 +421,22 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 
 ## Screens
 
+The tables hold each screen's content and states; how screens lead to one another is in
+[`screen-map.md`](screen-map.md), so a link changes in one place.
+
 ### Onboarding and access (O1–O10)
 
 ![Onboarding](assets/sheets/onboarding.png)
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| O1 | Bienvenue | Seal hero, "Vos documents, sous scellé.", three promises (fetched, encrypted, on every device), Créer mon coffre / J'ai déjà un coffre | Only without an account on the device: first screen until signed in and after logging out; Créer mon coffre → O3, J'ai déjà un coffre → O2; an expired session goes to O2 instead |
-| O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre, Mot de passe oublié ? | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds). Failed attempt → error note. Back → O1; "Créer un coffre" → O3; Mot de passe oublié ? → O10 |
+| O1 | Bienvenue | Seal hero, "Vos documents, sous scellé.", three promises (fetched, encrypted, on every device), Créer mon coffre / J'ai déjà un coffre | Only without an account on the device: first screen until signed in and after logging out; an expired session skips it |
+| O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre, Mot de passe oublié ? | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds). Failed attempt → error note |
 | O3 | Créer le coffre | Step 1/4; username; password with strength meter (the SDK's `analyzePassword`; a Weak password can't be submitted); confirm; warning "seule clé de votre coffre", saying the kit (next step) is the only way back; required "J'ai compris" | Mismatch and taken username as field errors |
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
 | O5 | Trop d'appareils | Plan limit, radio list of open sessions with none picked, "Retirer l'appareil choisi" (disabled until one is picked, then "Retirer le Pixel 8") | Nothing is pre-selected, so one tap can't cut off a device in use. Re-runs login with `replaceSessionId`; credentials kept only while open |
-| O6 | Kit de récupération | Step 2/4; the 24 words (3 columns, Plex Mono, numbered); Enregistrer le PDF / Imprimer; "Captures d'écran désactivées"; Je l'ai noté / Plus tard (déconseillé) | Screenshots blocked. The words are the SDK's English BIP39 words in every language. Je l'ai noté → O6b; Plus tard → O7 |
-| O6b | Vérifier le kit | Two of the words asked back by number ("Mot n° 7", "Mot n° 19", picked at random), each checked as typed; note that the kit is checked on the device; Vérifier (enabled once both match) / Revoir les mots | A wrong word shows a field error; Revoir les mots → O6 with the same words |
+| O6 | Kit de récupération | Step 2/4; the 24 words (3 columns, Plex Mono, numbered); Enregistrer le PDF / Imprimer; "Captures d'écran désactivées"; Je l'ai noté / Plus tard (déconseillé) | Screenshots blocked. The words are the SDK's English BIP39 words in every language |
+| O6b | Vérifier le kit | Two of the words asked back by number ("Mot n° 7", "Mot n° 19", picked at random), each checked as typed; note that the kit is checked on the device; Vérifier (enabled once both match) / Revoir les mots | A wrong word shows a field error; Revoir les mots shows the same words again |
 | O7 | Choisir ses sources | Step 3/4; plan counter "Offre Gratuit · 3 / 5"; search; public scrapers with checkboxes (no category chips: scripts have no category yet) | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
 | O7b | Limite de l'offre atteinte | O7 scrolled: the counter stays pinned under the bar, in `warning`, "Limite atteinte"; one line on unticking to swap; unticked sources dimmed and not tickable; pointer to Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | O8 | Notifications | Step 4/4; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
@@ -454,7 +459,6 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Reclasser, Informations techniques, Supprimer de tous mes appareils | Delete confirms that it reaches every device |
 | V8b | Actions (sombre) | V8 in the dark theme | Dark reference for sheets and the scrim |
 | V9 | Reclasser | Category grid, subcategories, type, Enregistrer | Invalid category/subcategory pairs can't be picked |
-| V10 | Cartes par type | Pass templates | — |
 | V11 | Coffre sombre | Dark reference | — |
 
 ### Capture and arrivals (K1–K4, R1–R4)
@@ -480,32 +484,21 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source; limit → M6 |
+| S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source |
 | S2 | Catalogue | Search; every public scraper from A to Z; Ajouter or a check if already added; "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
 | S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4) |
 | S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan | Code or captcha → code sheet |
 | S5 | Détail | Status, counts, automatic switch, Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Retirer la source | — |
 | S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | The report is the run's debug report, which never records headers, bodies or form values; a sheet shows what's sent before sending |
+| S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
 | S6b | Site changé | Error note (the site changed, nothing fetched since …); info note that the credentials aren't at fault and the documents stay; Signaler le problème (filled) · Relancer quand même; what the report holds | No credential field: there's nothing for the user to fix |
 | S8 | Vérification demandée | Sheet over S4 (or a window on desktop): the provider's own page in an embedded browser (`fyde.browser`), with its address and "Page d'Ameli"; a line that Fyde fills nothing in and keeps nothing; Passer cette fois | Opens when a script hands a step to the browser (a captcha, a consent page); the run resumes when the page lets it through |
-| S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
 
-### Moi and states (M1–M8, X1)
+### Moi and states (M1–M12, X1, X2)
 
 ![Account and states](assets/sheets/moi.png)
 
-How the account screens connect (source: `assets/mockups/map-moi.html`, rendered by `render.py`):
-
-![Navigation between the account screens](assets/sheets/moi-parcours.png)
-
-- M1 is the hub, from the Moi tab or the vault's avatar (the avatar row at the foot of the sidebar on tablet and desktop, D5).
-  M2, M5, M6 and M7 push over it; M8 is a dialog on it.
-- M2 leads to M3, M4 and the recovery kit (O6, the same screen as during vault creation); its
-  device tiles open M5. M4's "oublié ?" also leads to O6.
-- M6 is also reached from the source limit (O7b, DO7h, S1). Its "Voir les offres", like O5's and
-  DO5's, opens the plans (M9). M1 also opens Aide (M10) and Mes données (M12, with the account
-  deletion dialog M12b); M2 opens Changer le mot de passe (M11).
-- Confirming M8 wipes the device and returns to O1.
+How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12).
 
 | ID | Screen | Content | States |
 |---|---|---|---|
@@ -515,7 +508,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | M3 | Ce que voit le serveur | "Ne voit jamais": document contents; their names, amounts and categories; source credentials; the Fyde password and the recovery kit. "Voit": username and plan; encrypted size; when things are sent and synced; device names; which sources are enabled (`enableScript` goes to the server by script id), never their credentials | Keep in step with the wire format: anything sent in clear (an id, a count, a time) is listed under "Voit" |
 | M4 | Vérifier mon mot de passe | Local check, next reminder in 3 months | Wrong → link to the recovery kit |
 | M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Retirer; Renommer on this device | The current device can't be removed here (Se déconnecter, M8) |
-| M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error; Voir les offres → M9 |
+| M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error |
 | M7 | Apparence et langue | Theme tiles, language radios; text size follows the OS | Persisted |
 | M8 | Se déconnecter | Dialog: what is erased here, what stays; warning if no recovery kit | Wipes keys and local data even offline |
 | M8b | Se déconnecter (sombre) | M8 in the dark theme | Dark reference for dialogs and `onError` |
@@ -555,7 +548,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO3b | Créer le coffre — erreurs | Username taken (field error, red 2dp border), weak password (meter in `warning`), mismatch, checkbox unticked, Continuer disabled | Errors appear on blur or submit, not while typing |
 | DO4b | Trousseau absent | Dialog over DO3 (drawn) or DO2: warning tile, "Pas de trousseau système sur cet ordinateur", which keyrings were tried (GNOME Keyring, KWallet), the risk, opt-in checkbox, Annuler · Réessayer · "Créer quand même" over DO3 or "Ouvrir quand même" over DO2 (enabled once ticked; drawn ticked) | On `SecureStorageUnavailable`; Réessayer re-runs the call without the opt-in (for after installing a keyring); the confirm re-runs it with `allowInsecureStorage` |
 | DO5 | Trop d'appareils | As O5; Voir les offres · Retirer le MacBook Air | — |
-| DO6 | Kit de récupération | Step 2 of 4: the 24 words in 4×6, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop; Je l'ai noté → DO6b |
+| DO6 | Kit de récupération | Step 2 of 4: the 24 words in 4×6, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop |
 | DO6b | Vérifier le kit | Step 2 of 4: as O6b in the 440dp form | — |
 | DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
@@ -563,7 +556,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel |
 | DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Annuler / Valider. An e-mail code uses the same card: "Code reçu par e-mail", the masked address, a spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
 | DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
-| DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, or skipped with Réessayer), Continuer → DO8, "Ajouter une autre source" | — |
+| DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, or skipped with Réessayer), Continuer, "Ajouter une autre source" | — |
 | DO8 | Notifications | Step 4 of 4: a sample system notification at the top right of the pane, the promise, a note that on a computer Fyde notifies while it's open | — |
 | DO9 | Ouverture sur cet ordinateur | Ring with the replayed count, names this computer, Parcourir le coffre | Needs the replay total (SDK) |
 | DO10 | Récupérer mon coffre | As O10 in the 440dp form, sign-in brand panel | From DO2 and DO2c |
@@ -675,3 +668,10 @@ left out (principle 5), not faked.
 - Bundling Instrument Sans in `composeResources/font/` and removing Public Sans.
 - Category icons for Dons and Famille are not yet drawn as `Canvas` glyphs.
 - Android-specific reference screens are not drawn yet.
+- How plans are sold: through the App Store and Google Play on phones (their rules apply to M9's
+  wording and links) and how on desktop; the server has no plan catalogue yet, so M9's "Plus"
+  values are placeholders.
+- Which device a newly connected source runs on when it was connected on an iPhone, where
+  background time is scarce: keep it there, or suggest a desktop or Android device if there is one.
+- Whether the server should stop seeing which scripts are enabled (an opaque or encrypted id), or
+  M3 keeps saying so.
