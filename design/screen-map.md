@@ -68,7 +68,8 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 ### Arrivées (R1–R4)
 
 - **R1 Arrivées** (tab bar or V1's banner) holds what needs the user. "Historique" → **R3**;
-  when nothing is left, R1 shows **R2**. "Modifier" on a suggestion opens V9.
+  when nothing is left, R1 shows **R2**; a code that ran out shows **R1c**. "Modifier" on a
+  suggestion opens V9.
 - **R4** is the lock-screen notification for a verification code; tapping it opens the code in
   R1.
 
@@ -77,7 +78,8 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 - **S1 Sources** (tab bar): "+" → **S2 Catalogue** → "Ajouter" → **S3 Connecter** →
   "Connecter" → **S4 Récupération**, which can continue in the background (back to S1).
 - A source row → **S5 Détail**; "Retirer" opens the **S7** dialog. A failed source → **S6**;
-  "Mettre à jour et relancer" → S4.
+  "Mettre à jour et relancer" → S4. **S6b** is the failure when the site changed (report it, nothing
+  to fix); **S8** is the provider's own page over S4 when it asks for a check (a captcha).
 - At the plan's source limit S1 points to M6.
 
 ### Moi (M1–M12)

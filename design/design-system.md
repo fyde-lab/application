@@ -287,7 +287,7 @@ identically in Sources, Arrivées, history and on desktop:
 |---|---|---|
 | Running | `primary`, spinner | "Récupération… 5 / 12" |
 | Waiting for the user | `warning`, clock | "Attend votre code" + Saisir |
-| Failed | `error`, alert | The reason in user words: mot de passe refusé · site changé · captcha · code expiré |
+| Failed | `error`, alert | The reason in user words, each with its next step: mot de passe refusé (S6: update and retry) · site changé (S6b: report it, credentials aren't at fault) · code expiré (R1c: Relancer) |
 | Up to date | `success`, check | "Ce matin · 38 documents" |
 | Paused | `textMuted`, pause | "En pause" |
 
@@ -313,7 +313,8 @@ would expire unseen.
 `OneTimeCodeField`: 6 boxes 52pt tall, `code` type; paste fills all boxes; backspace moves left;
 submits on the 6th digit; iOS `oneTimeCode` and Android SMS Retriever autofill; screen readers
 announce "chiffre 4 sur 6". When a source asks a free-text question, the boxes become one text
-field. Its context always shows the source, the masked destination and a step trail
+field. Its context always shows the source, the masked destination, the deadline ("expire à 9:46": entering
+the code is timed, so the time left is always on screen) and a step trail
 Connexion → Code → Téléchargement (from `FfiProgressStep`). A code request while the app is in the
 background raises a time-sensitive notification that opens straight into the field (R4).
 
@@ -465,6 +466,7 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | K4 | Ajout en cours | Row appears at once with "Chiffrement…"; progress snackbar; duplicate → "Déjà dans le coffre · Voir" | `DuplicateDocument` is never an error |
 | R1 | Arrivées | À traiter / Historique; code card first; documents with their suggestion and Modifier / C'est bon | Swipe right = C'est bon |
 | R1b | Arrivées (sombre) | R1 in the dark theme | Dark reference for the code card and segments |
+| R1c | Code expiré | R1 with the code card replaced: "Le code d'impots.gouv a expiré", the deadline it missed, Plus tard · Relancer | Relancer runs the source again on this device; the card leaves the queue once a new code is asked or the run ends |
 | R2 | Tout est rangé | Check disc, "repasseront dans la journée, chacune sur son appareil", Lancer maintenant | Badge hidden |
 | R3 | Historique | Run outcomes and user confirmations by day | — |
 | R4 | Notification de code | Lock-screen notification with the deadline; new-document notifications hide titles while locked | Expired → "Code expiré" + Relancer |
@@ -481,6 +483,8 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan | Code or captcha → code sheet |
 | S5 | Détail | Status, counts, automatic switch, Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Retirer la source | — |
 | S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | The report is the run's debug report, which never records headers, bodies or form values; a sheet shows what's sent before sending |
+| S6b | Site changé | Error note (the site changed, nothing fetched since …); info note that the credentials aren't at fault and the documents stay; Signaler le problème (filled) · Relancer quand même; what the report holds | No credential field: there's nothing for the user to fix |
+| S8 | Vérification demandée | Sheet over S4 (or a window on desktop): the provider's own page in an embedded browser (`fyde.browser`), with its address and "Page d'Ameli"; a line that Fyde fills nothing in and keeps nothing; Passer cette fois | Opens when a script hands a step to the browser (a captcha, a consent page); the run resumes when the page lets it through |
 | S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
 
 ### Moi and states (M1–M8, X1)

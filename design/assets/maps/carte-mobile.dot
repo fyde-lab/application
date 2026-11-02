@@ -43,6 +43,7 @@ subgraph "cluster_capture" { label="Capture (K)"; fontname="Inter SemiBold"; fon
 subgraph "cluster_arrivals" { label="Arrivées (R)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
   "R1" [label="R1\nArrivées" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
   "R1b" [label="R1b\nArrivées sombre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
+  "R1c" [label="R1c\nCode expiré" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
   "R2" [label="R2\nTout est rangé" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
   "R3" [label="R3\nHistorique" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
   "R4" [label="R4\nNotification de code" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
@@ -54,6 +55,8 @@ subgraph "cluster_sources" { label="Sources (S)"; fontname="Inter SemiBold"; fon
   "S4" [label="S4\nRécupération" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S5" [label="S5\nDétail" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S6" [label="S6\nEn échec" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S6b" [label="S6b\nSite changé" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S8" [label="S8\nVérification demandée" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S7" [label="S7\nRetirer" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
 }
 subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
@@ -81,6 +84,9 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "R1" -> "R1b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "M2" -> "M2b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "M8" -> "M8b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
+"R1" -> "R1c" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="code expiré"];
+"S6" -> "S6b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="site changé"];
+"S4" -> "S8" [color="#2C5582" style=dashed penwidth=1.4 label="vérification"];
 "TABS" -> "V1" [color="#1F4D3A" penwidth=1.6 label="Coffre"];
 "TABS" -> "R1" [color="#1F4D3A" penwidth=1.6 label="Arrivées"];
 "TABS" -> "K1" [color="#1F4D3A" penwidth=1.6 label="Scanner"];
