@@ -510,7 +510,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | M1 | Moi | Profile, seal card, Sécurité (pill "Kit à créer"), Appareils, Offre et usage, Apparence et langue, Mes données, Aide, Se déconnecter | — |
 | M2 | Sécurité | Seal hero, device tiles with sync dot, Kit de récupération (its date from `recoveryKeyStatus`, or "À créer"), Changer le mot de passe, Vérifier mon mot de passe, Ce que voit le serveur | — |
 | M2b | Sécurité (sombre) | M2 in the dark theme | Dark reference for the seal hero |
-| M3 | Ce que voit le serveur | "Ne voit jamais" / "Voit" lists | Keep in step with the wire format |
+| M3 | Ce que voit le serveur | "Ne voit jamais": document contents; their names, amounts and categories; source credentials; the Fyde password and the recovery kit. "Voit": username and plan; encrypted size; when things are sent and synced; device names; which sources are enabled (`enableScript` goes to the server by script id), never their credentials | Keep in step with the wire format: anything sent in clear (an id, a count, a time) is listed under "Voit" |
 | M4 | Vérifier mon mot de passe | Local check, next reminder in 3 months | Wrong → link to the recovery kit |
 | M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Retirer; Renommer on this device | The current device can't be removed here (Se déconnecter, M8) |
 | M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error; Voir les offres → M9 |
