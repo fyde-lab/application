@@ -167,8 +167,9 @@ Two bundled, OFL-licensed families, identical on every platform:
 | `code` | 22 / 28 | Plex Mono SemiBold | One-time code boxes |
 
 Rules: one line for a row title (ellipsis), full text on the detail screen. Bold (700) is not
-used. Text scales with the OS setting up to 200%: rows grow, amounts never truncate, and the tab
-bar keeps its labels by dropping to icons-only above 150%.
+used. Text scales with the OS setting up to 200%: rows grow, amounts never truncate, the category
+grid becomes one column, and above 150% the tab bar drops its visible labels (they stay as
+accessibility labels) while the badge stays. X2 is the vault at 200%.
 
 ---
 
@@ -522,6 +523,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | M12 | Mes données | Exporter mes documents (a ZIP decrypted on the device, by category, with its size and a warning that it isn't encrypted); Supprimer mon compte | Export runs on the device, document by document |
 | M12b | Supprimer mon compte | Dialog: what is erased (documents, sources, keys, on the server and every device), the kit stops working; type the username to confirm; Supprimer définitivement · Exporter d'abord · Annuler | Needs account deletion in the SDK |
 | X1 | Hors ligne | Seal "hors ligne", info note, pending additions on cards | Never an error screen |
+| X2 | Texte à 200 % | V1 with the OS text size at 200%: one-column category cards, banner stacked, icons-only tab bar with the badge | See [Typography](#typography) |
 
 ### Desktop and tablet (D1–D4, T1)
 
@@ -534,6 +536,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |
 | D6 | Tout le coffre | Sidebar · header with search and Importer · arrivals banner · 4-column category cards · latest arrivals |
 | T1 | Tablette | As D6 on a tablet: Scanner instead of Importer |
+| T2 | Tablette portrait | Medium: icons-only 80dp sidebar (each category as its tile, selected = tint + leading bar), 3-column cards, latest arrivals |
 
 ### Desktop onboarding and access (DO1–DO10)
 
@@ -670,4 +673,4 @@ left out (principle 5), not faked.
 
 - Bundling Instrument Sans in `composeResources/font/` and removing Public Sans.
 - Category icons for Dons and Famille are not yet drawn as `Canvas` glyphs.
-- Android-specific reference screens, tablet portrait and web are not drawn yet.
+- Android-specific reference screens are not drawn yet.

@@ -24,14 +24,14 @@ LABELS = {
     "R3": "Historique", "R4": "Notification de code", "S1": "Sources", "S2": "Catalogue", "S3": "Connecter",
     "S4": "Récupération", "S5": "Détail", "S6": "En échec", "S6b": "Site changé", "S8": "Vérification demandée", "S7": "Retirer", "M1": "Moi", "M2": "Sécurité", "M2b": "Sécurité sombre",
     "M3": "Ce que voit le serveur", "M4": "Vérifier le mot de passe", "M5": "Appareils", "M6": "Offre et usage",
-    "M7": "Apparence et langue", "M8": "Se déconnecter", "M9": "Offres", "M10": "Aide", "M11": "Changer le mot de passe", "M12": "Mes données", "M12b": "Supprimer mon compte", "M8b": "Se déconnecter, sombre", "X1": "Hors ligne", "D1": "Bureau — Catégorie",
+    "M7": "Apparence et langue", "M8": "Se déconnecter", "M9": "Offres", "M10": "Aide", "M11": "Changer le mot de passe", "M12": "Mes données", "M12b": "Supprimer mon compte", "M8b": "Se déconnecter, sombre", "X1": "Hors ligne", "X2": "Texte à 200 %", "D1": "Bureau — Catégorie",
     "DO1": "Bienvenue", "DO2": "Connexion", "DO2b": "Connexion en cours", "DO2c": "Échec de connexion",
     "DO3": "Créer le coffre", "DO3b": "Créer — erreurs",
     "DO4b": "Trousseau absent", "DO5": "Trop d’appareils", "DO6": "Kit de récupération", "DO6b": "Vérifier le kit",
     "DO7": "Choisir ses sources", "DO7b": "Connecter une source", "DO7c": "Récupération en cours",
     "DO7d": "Code reçu par SMS ou e-mail", "DO7f": "Mot de passe refusé",
     "DO7g": "Sources connectées", "DO7h": "Limite de l’offre", "DO8": "Notifications", "DO9": "Ouverture", "DO10": "Récupérer mon coffre", "DO10b": "Nouveau mot de passe",
-    "D2": "Bureau — Document", "D3": "Bureau — Arrivées", "D4": "Bureau — Sources", "T1": "Tablette — Coffre", "D5": "Bureau — Moi", "D6": "Bureau — Tout le coffre",
+    "D2": "Bureau — Document", "D3": "Bureau — Arrivées", "D4": "Bureau — Sources", "T1": "Tablette — Coffre", "T2": "Tablette portrait", "D5": "Bureau — Moi", "D6": "Bureau — Tout le coffre",
 }
 GROUPS = {"onboarding": "O", "coffre": "V", "capture-arrivees": "KR", "sources": "S", "moi": "MX"}
 BG, INK, GAP, PAD, LABEL_H = "#E4E2DD", "#3d3a33", 28, 36, 50
@@ -80,4 +80,4 @@ for name, prefixes in GROUPS.items():
                     if os.path.basename(f)[0] in prefixes and not os.path.basename(f).startswith("V10")), key=order)
     sheet(name, files, 390, 5)
 sheet("bureau-acces", sorted(glob.glob(str(SCREENS / "DO*.png")), key=order), 720, 2)
-sheet("bureau-tablette", sorted(glob.glob(str(SCREENS / "D[0-9]*.png")), key=order) + [str(SCREENS / "T1-tablette-coffre.png")], 720, 2)
+sheet("bureau-tablette", sorted(glob.glob(str(SCREENS / "D[0-9]*.png")), key=order) + [str(SCREENS / "T1-tablette-coffre.png"), str(SCREENS / "T2-tablette-portrait.png")], 720, 2)

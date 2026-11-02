@@ -48,12 +48,12 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
   **S4** (first run) in turn; after the last one, S4 → O8. "Passer" goes straight to O8.
   **O7b** is O7 at the plan's source limit, and points to M6.
 
-### Coffre (V1–V11, X1)
+### Coffre (V1–V11, X1, X2)
 
 - **V1 Coffre** is the home of the app. Category card → **V3**; search → **V4** → **V5**;
   arrivals banner → R1; avatar → M1; the "Scellé" line → M2.
 - **V2** is V1 while the first sources run; it becomes V1 once each has run. **V11** is V1 in
-  dark mode, **X1** is V1 offline.
+  dark mode, **X1** is V1 offline, **X2** is V1 with the text at 200%.
 - **V3** and **V5** open **V6 Document**. From V6: the file → **V7 Lecteur**; "…" → the **V8**
   actions sheet, whose "Reclasser" opens the **V9** sheet. **V10** shows V6's pass for each
   document type.
@@ -116,7 +116,7 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 
 ### Coffre au bureau et sur tablette (D1–D6, T1)
 
-The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet), a category (**D1**),
+The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet, **T2** in portrait), a category (**D1**),
 **D3 Arrivées** and **D4 Sources**. D1 → **D2 Document**. The avatar row at the foot of the
 sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 
@@ -127,7 +127,7 @@ sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 | O1–O10 | DO1–DO10 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
 | O7b | DO7h |
 | S3, S4 inside vault creation | DO7b, DO7c |
-| V1 | D6, T1 (tablet) |
+| V1 | D6, T1 and T2 (tablet) |
 | V3 | D1 |
 | V6 + V7 | D2 |
 | R1 | D3 |

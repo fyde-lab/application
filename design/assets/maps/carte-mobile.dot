@@ -33,6 +33,7 @@ subgraph "cluster_vault" { label="Coffre (V, X)"; fontname="Inter SemiBold"; fon
   "V10" [label="V10\nCartes par type" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "V11" [label="V11\nCoffre sombre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "X1" [label="X1\nHors ligne" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "X2" [label="X2\nTexte à 200 %" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
 }
 subgraph "cluster_capture" { label="Capture (K)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
   "K1" [label="K1\nScanner" shape=box style="rounded,filled" color="#8C877B" fillcolor="#F0E1CF"];
@@ -84,6 +85,7 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "R1" -> "R1b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "M2" -> "M2b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "M8" -> "M8b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
+"V1" -> "X2" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="texte à 200 %"];
 "R1" -> "R1c" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="code expiré"];
 "S6" -> "S6b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="site changé"];
 "S4" -> "S8" [color="#2C5582" style=dashed penwidth=1.4 label="vérification"];
