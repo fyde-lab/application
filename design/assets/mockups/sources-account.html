@@ -15,8 +15,9 @@
 .big{width:96px;height:96px;border-radius:48px;margin:70px auto 0;display:grid;place-items:center;background:var(--pwash);color:var(--ok)}
 .ul{margin:8px 0 0;padding:0;list-style:none}
 .ul li{display:flex;gap:10px;align-items:flex-start;font:400 15px/21px var(--font);padding:5px 0}
-.prev{flex:1;border-radius:14px;border:1px solid var(--border);overflow:hidden;height:92px}
+.prev{flex:1;border-radius:14px;border:1px solid var(--bstrong);overflow:hidden;height:92px;position:relative}
 .prev.on{outline:2.5px solid var(--primary);outline-offset:1px}
+.prev.on::after{content:"";position:absolute;right:8px;bottom:8px;width:22px;height:22px;border-radius:11px;background:var(--primary) url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M6 12.5l4 4 8-9%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.4%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/16px no-repeat;box-shadow:0 0 0 2px var(--surface)}
 </style></head><body>
 <!--ICONS-->
 

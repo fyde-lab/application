@@ -89,6 +89,8 @@ French and English.
 | `error` | `#B3261E` | `#F2938A` | Failed source, destructive actions, field errors |
 | `errorWash` | `#F7DEDA` | `#3A1F1C` | Error notes |
 | `success` | `#2B6E45` | `#8FD1AE` | "À jour", "Scellé", checks |
+| `highlight` | `#F3E2A9` | `#5C4A12` | Matched words in search results (text stays `text`) |
+| `badge` | `warning` | `warning` | Count badges (tab bar, sidebar); figure in `onPrimary` light, `#2B1C02` dark |
 | `scrim` | `#0F1412` at 45% | same | Behind sheets and dialogs |
 
 Every Material 3 role is set from this table (`surfaceContainer*`, `surfaceTint` = `surface`,
@@ -122,6 +124,13 @@ All text pairs meet WCAG AA (4.5:1), including small captions. Lowest pairs, so 
 slip under the floor: Argent ink on its fill 4.81:1, `warning` on `warningWash` 4.78:1,
 `textMuted` on `sunk` 4.86:1, `success` on `primaryWash` 4.87:1. Dark category inks are ≥ 7:1 on
 their fills. Re-check any value you change and record the new ratio here.
+
+States that aren't text need 3:1 or a second cue (WCAG 1.4.11). Tints alone don't reach it
+(`primaryWash` on `background` is 1.11:1, `surface` on `sunk` about 1.15:1), so every selected
+state adds one: a selected sidebar row gets a 3dp `primary` bar on its leading edge and a
+SemiBold label; a selected segment gets a `borderStrong` hairline and a SemiBold label; a selected
+theme or option tile gets a `primary` ring and a check disc. `borderStrong` on `background`
+(3.14:1) is the floor for control outlines.
 
 ### Themes
 
@@ -166,8 +175,8 @@ bar keeps its labels by dropping to icons-only above 150%.
 |---|---|---|
 | `sm` | 12 | Tiles, segmented items, OTP boxes |
 | `md` | 14 | Inputs, notes |
-| `lg` | 22 | Cards, groups, passes, category cards |
-| `xl` | 24 | Sheet top corners, dialogs |
+| `lg` | 20 | Cards, groups, passes, category cards |
+| `xl` | 28 | Sheet top corners, dialogs |
 | `full` | pill | Buttons, chips, search field, avatar, status dots |
 
 Buttons are pills: 52 tall (40 for small), 20 horizontal padding. Chips are 38-tall pills.
@@ -238,7 +247,7 @@ Without a session there's no sidebar. The window splits in two (DO1–DO9):
   cross-link ("Pas encore de coffre ? Créer un coffre", or "Passer") sits at the top right.
   Screen titles use `display`. Paired actions sit on one row, text action first, filled action
   twice as wide.
-- **The phone's sheets become dialogs** (500dp, radius 24, actions right-aligned: Annuler ·
+- **The phone's sheets become dialogs** (500dp, radius `xl` (28), actions right-aligned: Annuler ·
   secondary · primary). Enter submits the form.
 - At **Medium** the brand panel narrows to a 96dp band at the top with only the mark and the
   stepper's current step; the form keeps its 440dp column.
@@ -503,12 +512,12 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `AppCheckbox`, `AppSwitch` | Restyle | 22pt marks, 51×31 switch |
 | `AppRadio` | Landed (O5) | 22 mark: 1.5 `borderStrong` ring, selected = 7 `primary` ring around a `surface` dot. Mark only — the row is the `selectable` target |
 | `AppBottomSheet` | Layout landed (O4) | Modal bottom sheet opened fully, with grab handle, at Compact; a centred panel (`sheetPanelMaxWidth`, no drag) at Medium and Expanded and always on desktop. Still the current radius and surface, not `xl` / `surface` |
-| `AppDialog` | Layout landed (M8) | `surfaceElevated`, `section` title, muted body, up to `sheetPanelMaxWidth`; actions stacked full width at Compact (confirm first), right-aligned wider (cancel · confirm); `destructive` fills the confirm in `error`, `confirmLoading` keeps it up and busy. Still the current dialog radius, not 24 |
+| `AppDialog` | Layout landed (M8) | `surfaceElevated`, `section` title, muted body, up to `sheetPanelMaxWidth`; actions stacked full width at Compact (confirm first), right-aligned wider (cancel · confirm); `destructive` fills the confirm in `error`, `confirmLoading` keeps it up and busy. Still the current dialog radius, not `xl` (28) |
 | `AppSnackbarHost`, `AppProgressBar` | Restyle | Patterns above |
-| `AppSegmented` | New | 2–3 options on `sunk` |
+| `AppSegmented` | New | 2–3 options on `sunk`; selected = `surface`, `borderStrong` hairline, SemiBold |
 | `AppNote` | Landed (O2) | `Info` / `Ok` / `Warning` / `Error`: wash, icon in the kind's colour, text; replaces inline `AppBanner`, which screens drop as they're rebuilt |
 | `AppTabBar` | New | Replaces `AppNavigationBar` |
-| `AppSidebar` | New | Replaces `AppNavigationTopBar` and `AppNavigationRail` |
+| `AppSidebar` | New | Replaces `AppNavigationTopBar` and `AppNavigationRail`; selected row = fill + 3dp `primary` leading bar + SemiBold |
 | `CategoryCard`, `CategoryBand` | New | Normal and placeholder variants |
 | `DocumentRow` | New | Thumbnail or tile, title, issuer · type, amount, date, highlight, pending |
 | `DocumentPass` | New | Templates by type |
