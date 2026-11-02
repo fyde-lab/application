@@ -16,7 +16,7 @@ OUT.mkdir(exist_ok=True)
 
 LABELS = {
     "O1": "Bienvenue", "O2": "Connexion", "O3": "Créer le coffre", "O4": "Stockage indisponible",
-    "O5": "Trop d’appareils", "O6": "Kit de récupération", "O7": "Choisir ses sources", "O8": "Notifications",
+    "O5": "Trop d’appareils", "O6": "Kit de récupération", "O6b": "Vérifier le kit", "O7": "Choisir ses sources", "O8": "Notifications",
     "O7b": "Limite de l’offre", "O9": "Ouverture", "V1": "Coffre", "V2": "Coffre en remplissage", "V3": "Catégorie", "V4": "Recherche",
     "V5": "Résultats", "V6": "Document", "V7": "Lecteur", "V8": "Actions", "V9": "Reclasser",
     "V10": "Cartes par type", "V11": "Coffre sombre", "K1": "Scanner", "K2": "Vérifier le scan",
@@ -27,7 +27,7 @@ LABELS = {
     "M7": "Apparence et langue", "M8": "Se déconnecter", "X1": "Hors ligne", "D1": "Bureau — Catégorie",
     "DO1": "Bienvenue", "DO2": "Connexion", "DO2b": "Connexion en cours", "DO2c": "Échec de connexion",
     "DO3": "Créer le coffre", "DO3b": "Créer — erreurs",
-    "DO4b": "Trousseau absent", "DO5": "Trop d’appareils", "DO6": "Kit de récupération",
+    "DO4b": "Trousseau absent", "DO5": "Trop d’appareils", "DO6": "Kit de récupération", "DO6b": "Vérifier le kit",
     "DO7": "Choisir ses sources", "DO7b": "Connecter une source", "DO7c": "Récupération en cours",
     "DO7d": "Code reçu par SMS ou e-mail", "DO7f": "Mot de passe refusé",
     "DO7g": "Sources connectées", "DO7h": "Limite de l’offre", "DO8": "Notifications", "DO9": "Ouverture",

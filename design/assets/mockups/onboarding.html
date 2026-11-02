@@ -6,8 +6,8 @@
 .hero .core{width:84px;height:84px;border-radius:50%;background:var(--primary);color:var(--onp);display:grid;place-items:center}
 .promise{display:flex;gap:14px;align-items:flex-start;padding:10px 28px;font:400 16px/22px var(--font)}
 .promise .tile{width:36px;height:36px;border-radius:11px;background:var(--pwash);color:var(--primary)}
-.words{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:18px 20px 0}
-.words span{height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:0 10px;font:500 15px "Plex Mono"}
+.words{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:14px 20px 0}
+.words span{height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:0 10px;font:500 15px "Plex Mono"}
 .words span i{font-style:normal;color:var(--muted);font-size:12px;width:16px}
 .notifmock{margin:44px 20px 0;border-radius:20px;background:var(--surface);border:1px solid var(--border);padding:12px 14px;display:flex;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
 .ringp{width:200px;height:200px;margin:60px auto 0;border-radius:50%;background:conic-gradient(var(--primary) 0 66%,var(--sunk) 66% 100%);display:grid;place-items:center}
@@ -98,15 +98,25 @@
 <div class="phone fyde" data-shot="O6-kit-recuperation">
  <!--SB-->
  <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="dots3"><i></i><i class="on"></i><i></i><i></i></div><span style="width:44px"></span></div>
- <p class="h1 pad">Votre kit de récupération</p>
- <p class="body pad" style="color:var(--muted);margin-top:8px">Si vous oubliez votre mot de passe, ces 12 mots sont la seule façon de rouvrir votre coffre. Gardez-les hors ligne, sur papier.</p>
- <div class="words">
-  <span><i>1</i>falaise</span><span><i>2</i>orgue</span><span><i>3</i>prisme</span><span><i>4</i>tilleul</span><span><i>5</i>ancre</span><span><i>6</i>basalte</span>
-  <span><i>7</i>girafe</span><span><i>8</i>moulin</span><span><i>9</i>vortex</span><span><i>10</i>cobalt</span><span><i>11</i>pivoine</span><span><i>12</i>sextant</span>
- </div>
- <div class="btns" style="margin-top:14px"><button class="pbtn o sm"><svg class="ic sm"><use href="#i-download"/></svg>Enregistrer le PDF</button><button class="pbtn o sm"><svg class="ic sm"><use href="#i-pages"/></svg>Imprimer</button></div>
- <div class="note info" style="margin:14px 16px 0"><svg class="ic"><use href="#i-eye-off"/></svg><span>Captures d’écran désactivées sur cet écran.</span></div>
- <div class="foot"><button class="pbtn f w">Je l’ai mis en lieu sûr</button><button class="pbtn t w">Plus tard (déconseillé)</button></div>
+ <p class="h1 pad">Kit de récupération</p>
+ <p class="body pad" style="color:var(--muted);margin-top:8px">Si vous oubliez votre mot de passe, ces 24 mots sont la seule façon de rouvrir votre coffre. Notez-les sur papier, dans l’ordre.</p>
+ <div class="words"><span><i>1</i>acoustic</span><span><i>2</i>timber</span><span><i>3</i>gravity</span><span><i>4</i>olive</span><span><i>5</i>ranch</span><span><i>6</i>harbor</span><span><i>7</i>velvet</span><span><i>8</i>cabin</span><span><i>9</i>pulse</span><span><i>10</i>meadow</span><span><i>11</i>dragon</span><span><i>12</i>frozen</span><span><i>13</i>lunar</span><span><i>14</i>kitten</span><span><i>15</i>shadow</span><span><i>16</i>aspect</span><span><i>17</i>banner</span><span><i>18</i>coral</span><span><i>19</i>eagle</span><span><i>20</i>jungle</span><span><i>21</i>orbit</span><span><i>22</i>plastic</span><span><i>23</i>river</span><span><i>24</i>walnut</span></div>
+ <div class="btns" style="margin-top:12px"><button class="pbtn o sm"><svg class="ic sm"><use href="#i-download"/></svg>Enregistrer le PDF</button><button class="pbtn o sm"><svg class="ic sm"><use href="#i-pages"/></svg>Imprimer</button></div>
+ <p class="t3 row" style="gap:6px;padding:10px 20px 0"><svg class="ic xs"><use href="#i-eye-off"/></svg>Captures d’écran désactivées sur cet écran.</p>
+ <div class="foot"><button class="pbtn f w">Je l’ai noté</button><button class="pbtn t w">Plus tard (déconseillé)</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O6b · Vérifier le kit</p>
+<div class="phone fyde" data-shot="O6b-verifier-kit">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Revoir les mots"><svg class="ic"><use href="#i-chev-l"/></svg></button><div class="dots3"><i></i><i class="on"></i><i></i><i></i></div><span style="width:44px"></span></div>
+ <p class="h1 pad">Vérifions votre kit</p>
+ <p class="body pad" style="color:var(--muted);margin:8px 0 20px">Tapez deux mots de votre kit, pour être sûr qu’il est complet et lisible.</p>
+ <div class="field"><label>Mot n°&nbsp;7</label><div class="in">velvet<span class="grow"></span><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg></div></div>
+ <div class="field"><label>Mot n°&nbsp;19</label><div class="in on">ea<span style="width:1.5px;height:22px;background:var(--primary)"></span></div></div>
+ <div class="note info" style="margin:6px 16px 0"><svg class="ic"><use href="#i-info"/></svg><span>Le kit n’est jamais envoyé : Fyde vérifie ces mots sur cet appareil.</span></div>
+ <div class="foot"><button class="pbtn f w" style="opacity:.45" aria-disabled="true">Vérifier</button><button class="pbtn t w">Revoir les mots</button></div>
  <!--HB-->
 </div></div>
 

@@ -39,7 +39,8 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 - **O5 Trop d'appareils** follows O2 when the plan's device limit is reached; removing a
   device continues to O9. Its "Voir les offres" needs the plans page (not drawn).
 - **O9 Ouverture** follows a first sign-in on this device, then "Parcourir le coffre" → V1.
-- Vault creation is a four-step line: **O3** (account) → **O6** (recovery kit) → **O7** (choose
+- Vault creation is a four-step line: **O3** (account) → **O6** (recovery kit, checked in **O6b**, which
+  "Plus tard" skips) → **O7** (choose
   sources) → **O8** (notifications) → **V2** (the vault filling up).
 - From **O7**, "Connecter n sources" takes each ticked source through **S3** (credentials) and
   **S4** (first run) in turn; after the last one, S4 → O8. "Passer" goes straight to O8.
@@ -99,7 +100,7 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
   limit, or **DO9** on a first sign-in here. **DO4b** is the missing-keyring dialog
   over DO2 as over DO3.
 - **DO3** shows its errors as **DO3b**; **DO4b** again if there is no keyring; then
-  **DO6** → **DO7**.
+  **DO6** → **DO6b** → **DO7**.
 - **DO7** (or **DO7h** at the limit) → **DO7b** for each ticked source → **DO7c** while it runs.
   From DO7c: a code asked by SMS or e-mail (**DO7d**, one card for both), "Source suivante" back to
   DO7b, or **DO7g** after the last source. **DO7f** is DO7b after a refused password; skipping
