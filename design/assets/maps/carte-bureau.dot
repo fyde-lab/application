@@ -11,16 +11,14 @@ subgraph "cluster_donb" { label="Accueil et accès au bureau (DO)"; fontname="In
   "DO2c" [label="DO2c\nÉchec de connexion" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO3" [label="DO3\nCréer le coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO3b" [label="DO3b\nCréer — erreurs" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
-  "DO4" [label="DO4\nTrousseau absent (connexion)" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
-  "DO4b" [label="DO4b\nTrousseau absent (création)" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "DO4b" [label="DO4b\nTrousseau absent" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO5" [label="DO5\nTrop d’appareils" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO6" [label="DO6\nKit de récupération" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7" [label="DO7\nChoisir ses sources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7h" [label="DO7h\nLimite de l’offre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7b" [label="DO7b\nConnecter une source" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7c" [label="DO7c\nRécupération en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
-  "DO7d" [label="DO7d\nCode reçu par SMS" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
-  "DO7e" [label="DO7e\nCode reçu par e-mail" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "DO7d" [label="DO7d\nCode reçu (SMS ou e-mail)" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7f" [label="DO7f\nMot de passe refusé" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7g" [label="DO7g\nSources connectées" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO8" [label="DO8\nNotifications" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
@@ -39,7 +37,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO1" -> "DO3" [color="#1F4D3A" penwidth=1.6 label="Créer mon coffre"];
 "DO2" -> "DO2b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Ouvrir le coffre"];
 "DO2b" -> "DO2c" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="échec"];
-"DO2" -> "DO4" [color="#2C5582" style=dashed penwidth=1.4 label="pas de trousseau"];
+"DO2" -> "DO4b" [color="#2C5582" style=dashed penwidth=1.4 label="pas de trousseau"];
 "DO2b" -> "DO5" [color="#1F4D3A" penwidth=1.6 label="limite d’appareils"];
 "DO2b" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="1re ouverture ici"];
 "DO5" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="appareil déconnecté"];
@@ -54,8 +52,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO7" -> "DO8" [color="#1F4D3A" penwidth=1.6 label="Passer"];
 "DO7b" -> "DO7c" [color="#1F4D3A" penwidth=1.6 label="Connecter"];
 "DO7b" -> "DO7f" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="refusé"];
-"DO7c" -> "DO7d" [color="#2C5582" style=dashed penwidth=1.4 label="code SMS"];
-"DO7c" -> "DO7e" [color="#2C5582" style=dashed penwidth=1.4 label="code e-mail"];
+"DO7c" -> "DO7d" [color="#2C5582" style=dashed penwidth=1.4 label="code SMS ou e-mail"];
 "DO7c" -> "DO7b" [color="#1F4D3A" penwidth=1.6 label="Source suivante"];
 "DO7c" -> "DO7g" [color="#1F4D3A" penwidth=1.6 label="dernière source"];
 "DO7f" -> "DO7g" [color="#1F4D3A" penwidth=1.6 label="Passer (dernière)"];
