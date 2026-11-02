@@ -233,11 +233,11 @@ next, E edits. Right-click opens the same actions as V8.
 
 ### Onboarding and access on Medium and Expanded
 
-Without a session there's no sidebar. The window splits in two (DO1–DO9):
+Without a session there's no sidebar. The window splits in two (DO1–DO10):
 
 - **Brand panel**, 520dp at Expanded, full height, `primary` fill with `onPrimary` content: the
   Fyde mark at the top, a reassurance line at the bottom ("Votre mot de passe ne quitte jamais
-  cet ordinateur."). In between, on the sign-in path (DO1, DO2, DO5, DO9): the seal on
+  cet ordinateur."). In between, on the sign-in path (DO1, DO2, DO5, DO9, DO10): the seal on
   `onPrimary` (white disc, lock in `primary`, rings at 22% and 16% white), "Vos documents, sous
   scellé." in 38/44 SemiBold and the three promises. On the vault-creation path (DO3, DO6–DO8, DO6b, DO7b–DO7g):
   "Créer votre coffre", "Quatre étapes, environ trois minutes." and a vertical 4-step stepper
@@ -412,15 +412,15 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 
 ## Screens
 
-### Onboarding and access (O1–O9)
+### Onboarding and access (O1–O10)
 
 ![Onboarding](assets/sheets/onboarding.png)
 
 | ID | Screen | Content | States |
 |---|---|---|---|
 | O1 | Bienvenue | Seal hero, "Vos documents, sous scellé.", three promises (fetched, encrypted, on every device), Créer mon coffre / J'ai déjà un coffre | Only without an account on the device: first screen until signed in and after logging out; Créer mon coffre → O3, J'ai déjà un coffre → O2; an expired session goes to O2 instead |
-| O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds). Failed attempt → error note. Back → O1; "Créer un coffre" → O3 |
-| O3 | Créer le coffre | Step 1/4; username; password with strength meter; confirm; warning "seule clé de votre coffre"; required "J'ai compris" | Mismatch and taken username as field errors |
+| O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre, Mot de passe oublié ? | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds). Failed attempt → error note. Back → O1; "Créer un coffre" → O3; Mot de passe oublié ? → O10 |
+| O3 | Créer le coffre | Step 1/4; username; password with strength meter (the SDK's `analyzePassword`; a Weak password can't be submitted); confirm; warning "seule clé de votre coffre", saying the kit (next step) is the only way back; required "J'ai compris" | Mismatch and taken username as field errors |
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
 | O5 | Trop d'appareils | Plan limit, radio list of open sessions with none picked, "Retirer l'appareil choisi" (disabled until one is picked, then "Retirer le Pixel 8") | Nothing is pre-selected, so one tap can't cut off a device in use. Re-runs login with `replaceSessionId`; credentials kept only while open |
 | O6 | Kit de récupération | Step 2/4; the 24 words (3 columns, Plex Mono, numbered); Enregistrer le PDF / Imprimer; "Captures d'écran désactivées"; Je l'ai noté / Plus tard (déconseillé) | Screenshots blocked. The words are the SDK's English BIP39 words in every language. Je l'ai noté → O6b; Plus tard → O7 |
@@ -429,6 +429,8 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | O7b | Limite de l'offre atteinte | O7 scrolled: the counter stays pinned under the bar, in `warning`, "Limite atteinte"; one line on unticking to swap; unticked sources dimmed and not tickable; pointer to Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | O8 | Notifications | Step 4/4; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
 | O9 | Ouverture | Ring "142 sur 214", the device's name, "Vous pouvez déjà parcourir" | Replaces an empty vault on a new device |
+| O10 | Récupérer mon coffre | Identifiant; the 24 words in one field (pasted or typed, case and spacing ignored, a live "n mots sur 24" count); note that the words stay on the device; Continuer | From O2's "Mot de passe oublié ?". Words that aren't BIP39 are caught locally as a field error; a key that isn't the account's (`InvalidRecoveryKey`) shows the SDK's wording on O10b's submit and returns here |
+| O10b | Nouveau mot de passe | New password with strength meter, confirm; warning that the other devices will be signed out; ok note that the kit stays valid; Rouvrir mon coffre | Runs `recoverAccount`, then continues as a first sign-in on this device (O9). The missing-keyring sheet (O4) can open over it |
 
 ### Coffre and documents (V1–V11)
 
@@ -513,7 +515,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
 | T1 | Tablette | Sidebar · 4-column category cards · Scanner in the header · latest arrivals |
 
-### Desktop onboarding and access (DO1–DO9)
+### Desktop onboarding and access (DO1–DO10)
 
 Same flows, content and SDK calls as O1–O9; layout in
 [Onboarding and access on Medium and Expanded](#onboarding-and-access-on-medium-and-expanded).
@@ -523,7 +525,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO1 | Bienvenue | "Bienvenue", one line on creating or opening a vault, Créer mon coffre (filled) / J'ai déjà un coffre (outlined), the server name in `caption` | — |
 | DO2 | Connexion | As O2; "Entrée pour valider" hint under the button | Session expired → warning note |
 | DO2b | Connexion en cours | Fields disabled at 55%, button spinner "Ouverture du coffre…", info note on key derivation taking a few seconds | — |
-| DO2c | Échec de connexion | Error note with the SDK's wording, password emptied and focused, button disabled until it's typed again, "Mot de passe oublié ? Utiliser mon kit de récupération" | The link needs the recovery kit (SDK) |
+| DO2c | Échec de connexion | Error note with the SDK's wording, password emptied and focused, button disabled until it's typed again, "Mot de passe oublié ? Utiliser mon kit de récupération" | The link opens DO10 |
 | DO3 | Créer le coffre | Step 1 of 4: as O3 | — |
 | DO3b | Créer le coffre — erreurs | Username taken (field error, red 2dp border), weak password (meter in `warning`), mismatch, checkbox unticked, Continuer disabled | Errors appear on blur or submit, not while typing |
 | DO4b | Trousseau absent | Dialog over DO3 (drawn) or DO2: warning tile, "Pas de trousseau système sur cet ordinateur", which keyrings were tried (GNOME Keyring, KWallet), the risk, opt-in checkbox, Annuler · Réessayer · "Créer quand même" over DO3 or "Ouvrir quand même" over DO2 (enabled once ticked; drawn ticked) | On `SecureStorageUnavailable`; Réessayer re-runs the call without the opt-in (for after installing a keyring); the confirm re-runs it with `allowInsecureStorage` |
@@ -539,6 +541,8 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, or skipped with Réessayer), Continuer → DO8, "Ajouter une autre source" | — |
 | DO8 | Notifications | Step 4 of 4: a sample system notification at the top right of the pane, the promise, a note that on a computer Fyde notifies while it's open | — |
 | DO9 | Ouverture sur cet ordinateur | Ring with the replayed count, names this computer, Parcourir le coffre | Needs the replay total (SDK) |
+| DO10 | Récupérer mon coffre | As O10 in the 440dp form, sign-in brand panel | From DO2 and DO2c |
+| DO10b | Nouveau mot de passe | As O10b | Then DO9 |
 
 The missing keyring is mostly a Linux case (only the Secret Service store has been exercised by
 the SDK), so DO4b is drawn in a Linux window; on macOS and Windows the same dialog names

@@ -29,7 +29,7 @@ The tab bar is always there once the vault is open: **Coffre** (V1), **Arrivées
 belongs to one tab and pushes inside it, so going back restores where you were. Two screens open
 from outside the app: R4 from the lock screen, K3 from another app's share sheet.
 
-### Accueil et accès (O1–O9)
+### Accueil et accès (O1–O10)
 
 - **O1 Bienvenue** is the first screen without an account on the device, and where logging out
   (M8) ends. "Créer mon coffre" → O3; "J'ai déjà un coffre" → O2.
@@ -39,6 +39,8 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 - **O5 Trop d'appareils** follows O2 when the plan's device limit is reached; removing a
   device continues to O9. Its "Voir les offres" needs the plans page (not drawn).
 - **O9 Ouverture** follows a first sign-in on this device, then "Parcourir le coffre" → V1.
+- **O10 Récupérer mon coffre** opens from O2's "Mot de passe oublié ?": the 24 words, then a new
+  password in **O10b**, which signs in and continues to O9.
 - Vault creation is a four-step line: **O3** (account) → **O6** (recovery kit, checked in **O6b**, which
   "Plus tard" skips) → **O7** (choose
   sources) → **O8** (notifications) → **V2** (the vault filling up).
@@ -91,7 +93,7 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 
 ![Desktop and tablet screen map](assets/sheets/carte-bureau.png)
 
-### Accueil et accès au bureau (DO1–DO9)
+### Accueil et accès au bureau (DO1–DO10)
 
 The same flows as O1–O9 in a split window, with the states drawn as their own screens:
 
@@ -106,7 +108,8 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
   DO7b, or **DO7g** after the last source. **DO7f** is DO7b after a refused password; skipping
   the last source also reaches DO7g. DO7g or "Passer" → **DO8**.
 - DO8 and DO9 open the vault.
-- DO2c's link to the recovery kit and DO5's "Voir les offres" lead to pages not drawn yet.
+- **DO10** (from DO2's "Mot de passe oublié ?" or DO2c's kit link) → **DO10b** → DO9: recovery with the kit.
+- DO5's "Voir les offres" leads to a page not drawn yet.
 
 ### Coffre au bureau et sur tablette (D1–D4, T1)
 
@@ -118,7 +121,7 @@ desktop screens aren't drawn yet, nor is a desktop version of "Tout le coffre".
 
 | Phone | Desktop / tablet |
 |---|---|
-| O1–O9 | DO1–DO9 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
+| O1–O10 | DO1–DO10 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
 | O7b | DO7h |
 | S3, S4 inside vault creation | DO7b, DO7c |
 | V1 | T1 (tablet) |
