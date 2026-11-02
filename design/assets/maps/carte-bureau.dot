@@ -3,7 +3,9 @@ rankdir=TB; newrank=true; compound=true; nodesep=0.35; ranksep=0.55;
 label="Fyde — carte des écrans, bureau et tablette"; labelloc=t; labeljust=l; fontsize=26; fontname="Inter SemiBold"; pad=0.4; bgcolor="#F2F0EA";
 node [fontname="Inter" fontsize=13 margin="0.18,0.08" penwidth=1.2];
 edge [fontname="Inter" fontsize=11 fontcolor="#3d3a33" arrowsize=0.8];
-"PLANS" [label="Offres\n(à dessiner)" shape=box style="rounded,dashed,filled" color="#8C877B" fillcolor="#F2F0EA" fontcolor="#5B574F"];
+subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
+  "M9" [label="M9\nOffres" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
+}
 subgraph "cluster_donb" { label="Accueil et accès au bureau (DO)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
   "DO1" [label="DO1\nBienvenue" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO2" [label="DO2\nConnexion" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
@@ -44,7 +46,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO2b" -> "DO5" [color="#1F4D3A" penwidth=1.6 label="limite d’appareils"];
 "DO2b" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="1re ouverture ici"];
 "DO5" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="appareil retiré"];
-"DO5" -> "PLANS" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="Voir les offres"];
+"DO5" -> "M9" [color="#1F4D3A" penwidth=1.6 label="Voir les offres"];
 "DO2c" -> "DO10" [color="#1F4D3A" penwidth=1.6 label="kit de récupération"];
 "DO2" -> "DO10" [color="#1F4D3A" penwidth=1.6 label="Mot de passe oublié ?"];
 "DO10" -> "DO10b" [color="#1F4D3A" penwidth=1.6 label="Continuer"];

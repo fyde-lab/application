@@ -37,7 +37,7 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
   expired session anywhere in the app returns here (V1 → O2), with a warning note.
 - **O4 Stockage indisponible** is a sheet over O2 or O3 when the device has no secure storage.
 - **O5 Trop d'appareils** follows O2 when the plan's device limit is reached; removing a
-  device continues to O9. Its "Voir les offres" needs the plans page (not drawn).
+  device continues to O9. Its "Voir les offres" opens the plans (M9), read-only.
 - **O9 Ouverture** follows a first sign-in on this device, then "Parcourir le coffre" → V1.
 - **O10 Récupérer mon coffre** opens from O2's "Mot de passe oublié ?": the 24 words, then a new
   password in **O10b**, which signs in and continues to O9.
@@ -80,13 +80,14 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
   "Mettre à jour et relancer" → S4.
 - At the plan's source limit S1 points to M6.
 
-### Moi (M1–M8)
+### Moi (M1–M12)
 
 - **M1 Moi** (tab bar or V1's avatar) opens **M2 Sécurité**, **M5 Appareils**, **M6 Offre et
-  usage**, **M7 Apparence et langue**, and the **M8** logout dialog. "Aide" has no screen yet.
-- **M2** → **M3 Ce que voit le serveur**, **M4 Vérifier le mot de passe**, and the recovery kit
+  usage**, **M7 Apparence et langue**, **M12 Mes données** (export, and the account deletion dialog **M12b**), **M10 Aide**, and the **M8**
+  logout dialog.
+- **M2** → **M3 Ce que voit le serveur**, **M4 Vérifier le mot de passe**, **M11 Changer le mot de passe**, and the recovery kit
   **O6** (the same screen as in vault creation); its device tiles → M5. M4's "oublié ?" → O6.
-- **M6** is also reached from O7b and S1; its "Voir les offres" needs the plans page.
+- **M6** is also reached from O7b and S1; its "Voir les offres" opens **M9 Offres**.
 - Confirming **M8** wipes the device and returns to O1.
 
 ## Desktop and tablet
@@ -109,7 +110,7 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
   the last source also reaches DO7g. DO7g or "Passer" → **DO8**.
 - DO8 and DO9 open the vault.
 - **DO10** (from DO2's "Mot de passe oublié ?" or DO2c's kit link) → **DO10b** → DO9: recovery with the kit.
-- DO5's "Voir les offres" leads to a page not drawn yet.
+- DO5's "Voir les offres" opens the plans (M9).
 
 ### Coffre au bureau et sur tablette (D1–D4, T1)
 

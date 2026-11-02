@@ -66,12 +66,16 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
   "M6" [label="M6\nOffre et usage" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
   "M7" [label="M7\nApparence et langue" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
   "M8" [label="M8\nSe déconnecter" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
+  "M9" [label="M9\nOffres" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
+  "M10" [label="M10\nAide" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
+  "M11" [label="M11\nChanger le mot de passe" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
+  "M12" [label="M12\nMes données" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
+  "M12b" [label="M12b\nSupprimer mon compte" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
   "M8b" [label="M8b\nSe déconnecter, sombre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
 }
 "TABS" [label="Barre d’onglets" shape=box style="rounded,bold" color="#1C1B17" fillcolor="#FFFFFF"];
 "OS" [label="Autre app (partage)" shape=box style="rounded,bold" color="#1C1B17" fillcolor="#FFFFFF"];
 "LOCK" [label="Écran verrouillé" shape=box style="rounded,bold" color="#1C1B17" fillcolor="#FFFFFF"];
-"HELP" [label="Aide\n(à dessiner)" shape=box style="rounded,dashed,filled" color="#8C877B" fillcolor="#F2F0EA" fontcolor="#5B574F"];
 "V6" -> "V6b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "V8" -> "V8b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "R1" -> "R1b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
@@ -95,8 +99,8 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "O2" -> "O10" [color="#1F4D3A" penwidth=1.6 label="Mot de passe oublié ?"];
 "O10" -> "O10b" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
 "O10b" -> "O9" [color="#1F4D3A" penwidth=1.6 label="Rouvrir mon coffre"];
-"O5>PLANS" [label="→ Offres, à dessiner" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#B3261E" fontcolor="#B3261E" fontsize=11 margin="0.10,0.04" penwidth=1];
-"O5" -> "O5>PLANS" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="Voir les offres" arrowhead=none];
+"O5>M9" [label="→ M9 · Offres" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
+"O5" -> "O5>M9" [color="#1F4D3A" penwidth=1.6 label="Voir les offres" arrowhead=none];
 "O3" -> "O6" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
 "O6" -> "O6b" [color="#1F4D3A" penwidth=1.6 label="Je l’ai noté"];
 "O6b" -> "O7" [color="#1F4D3A" penwidth=1.6 label="Vérifier"];
@@ -155,7 +159,10 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "M1" -> "M6" [color="#1F4D3A" penwidth=1.6];
 "M1" -> "M7" [color="#1F4D3A" penwidth=1.6];
 "M1" -> "M8" [color="#2C5582" style=dashed penwidth=1.4];
-"M1" -> "HELP" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="Aide"];
+"M1" -> "M10" [color="#1F4D3A" penwidth=1.6 label="Aide"];
+"M1" -> "M12" [color="#1F4D3A" penwidth=1.6 label="Mes données"];
+"M12" -> "M12b" [color="#2C5582" style=dashed penwidth=1.4 label="Supprimer"];
+"M2" -> "M11" [color="#1F4D3A" penwidth=1.6];
 "M2" -> "M3" [color="#1F4D3A" penwidth=1.6];
 "M2" -> "M4" [color="#1F4D3A" penwidth=1.6];
 "M2>O6" [label="→ O6 · Kit de récupération" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
@@ -163,8 +170,7 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "M2" -> "M5" [color="#1F4D3A" penwidth=1.6 label="tuiles"];
 "M4>O6" [label="→ O6 · Kit de récupération" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "M4" -> "M4>O6" [color="#1F4D3A" penwidth=1.6 label="oublié ?" arrowhead=none];
-"M6>PLANS" [label="→ Offres, à dessiner" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#B3261E" fontcolor="#B3261E" fontsize=11 margin="0.10,0.04" penwidth=1];
-"M6" -> "M6>PLANS" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="Voir les offres" arrowhead=none];
+"M6" -> "M9" [color="#1F4D3A" penwidth=1.6 label="Voir les offres"];
 "M8>O1" [label="→ O1 · Bienvenue" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "M8" -> "M8>O1" [color="#1F4D3A" penwidth=1.6 label="confirmé" arrowhead=none];
 subgraph cluster_legend { label="Légende"; fontname="Inter SemiBold"; fontsize=14; style=rounded; color="#CFCAC0";
