@@ -39,7 +39,7 @@
  <div class="field"><label for="u">Identifiant</label><div class="in" id="u">pierre</div></div>
  <div class="field"><label for="pw">Mot de passe</label><div class="in on" id="pw"><span class="grow" style="letter-spacing:.2em">••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div>
   <p class="help">Il ne quitte jamais cet appareil, même chiffré.</p></div>
- <div style="padding:6px 20px 0"><button class="pbtn f w">Ouvrir le coffre</button></div>
+ <div style="padding:6px 20px 0"><button class="pbtn f w">Ouvrir le coffre</button><button class="pbtn t w">Mot de passe oublié ?</button></div>
  <div class="foot"><p class="t2" style="text-align:center">Pas encore de coffre ? <b style="color:var(--primary);font-weight:600">Créer un coffre</b></p></div>
  <!--HB-->
 </div></div>
@@ -54,7 +54,7 @@
  <div class="field"><label>Mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div>
   <div class="strength"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><p class="help">Solide · 16 caractères</p></div>
  <div class="field"><label>Confirmer le mot de passe</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••••••••</span><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg></div></div>
- <div class="note warn" style="margin:2px 20px 14px"><svg class="ic"><use href="#i-key"/></svg><span><b style="font-weight:600">Ce mot de passe est la seule clé de votre coffre.</b> Fyde ne peut pas le réinitialiser : oublié, vos documents sont perdus.</span></div>
+ <div class="note warn" style="margin:2px 20px 14px"><svg class="ic"><use href="#i-key"/></svg><span><b style="font-weight:600">Ce mot de passe est la seule clé de votre coffre.</b> Fyde ne peut pas le réinitialiser : oublié, seul votre kit de récupération (étape suivante) rouvrira votre coffre.</span></div>
  <div class="chk"><span class="box on"><svg class="ic sm"><use href="#i-check"/></svg></span><span>J’ai compris, je le garde en lieu sûr.</span></div>
  <div class="foot"><button class="pbtn f w">Continuer</button></div>
  <!--HB-->
@@ -178,6 +178,35 @@
  <p class="body" style="text-align:center;color:var(--muted);margin:8px 32px 0">Vos documents chiffrés arrivent de votre compte et sont déchiffrés ici, sur ce Pixel 8.</p>
  <div class="note ok" style="margin:26px 20px 0"><svg class="ic"><use href="#i-check-c"/></svg><span>Vous pouvez déjà parcourir ce qui est arrivé. Le reste suit en arrière-plan.</span></div>
  <div class="foot"><button class="pbtn f w">Parcourir le coffre</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O10 · Récupérer mon coffre</p>
+<div class="phone fyde" data-shot="O10-recuperer-coffre">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <p class="h1 pad">Récupérer mon coffre</p>
+ <p class="body pad" style="color:var(--muted);margin:8px 0 18px">Avec votre kit de récupération, vous choisirez un nouveau mot de passe. Aucun document n’est perdu.</p>
+ <div class="field"><label>Identifiant</label><div class="in">pierre</div></div>
+ <div class="field"><label>Les 24 mots de votre kit</label><div class="in on" style="height:132px;align-items:flex-start;padding:12px 13px;font:400 15px/22px 'Plex Mono'">acoustic timber gravity olive ranch harbor velvet cabin pulse meadow dragon frozen lunar kitten shadow aspect banner coral eagle jungle orbit plastic river walnut</div>
+  <p class="help row" style="gap:6px;color:var(--ok)"><svg class="ic xs"><use href="#i-check"/></svg>24 mots sur 24</p></div>
+ <div class="note info" style="margin:0 16px"><svg class="ic"><use href="#i-info"/></svg><span>Les mots restent sur cet appareil : Fyde s’en sert pour prouver au serveur que c’est vous.</span></div>
+ <div class="foot"><button class="pbtn f w">Continuer</button></div>
+ <!--HB-->
+</div></div>
+
+<div class="board"><p class="caption-board">O10b · Nouveau mot de passe</p>
+<div class="phone fyde" data-shot="O10b-nouveau-mot-de-passe">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <p class="h1 pad">Nouveau mot de passe</p>
+ <p class="body pad" style="color:var(--muted);margin:8px 0 18px">Il remplace l’ancien sur tous vos appareils.</p>
+ <div class="field"><label>Nouveau mot de passe</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div>
+  <div class="strength"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><p class="help">Très solide · 18 caractères</p></div>
+ <div class="field"><label>Confirmer le mot de passe</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••••••••••</span><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg></div></div>
+ <div class="note warn" style="margin:2px 16px 0"><svg class="ic"><use href="#i-laptop"/></svg><span>Vos autres appareils seront déconnectés. Vous les rouvrirez avec ce nouveau mot de passe.</span></div>
+ <div class="note ok" style="margin:10px 16px 0"><svg class="ic"><use href="#i-key"/></svg><span>Votre kit de récupération reste valable.</span></div>
+ <div class="foot"><button class="pbtn f w">Rouvrir mon coffre</button></div>
  <!--HB-->
 </div></div>
 </body></html>

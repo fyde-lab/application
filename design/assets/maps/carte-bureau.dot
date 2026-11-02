@@ -24,6 +24,8 @@ subgraph "cluster_donb" { label="Accueil et accès au bureau (DO)"; fontname="In
   "DO7g" [label="DO7g\nSources connectées" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO8" [label="DO8\nNotifications" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO9" [label="DO9\nOuverture" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "DO10" [label="DO10\nRécupérer mon coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "DO10b" [label="DO10b\nNouveau mot de passe" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
 }
 "SIDE" [label="Barre latérale" shape=box style="rounded,bold" color="#1C1B17" fillcolor="#FFFFFF"];
 subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
@@ -43,7 +45,10 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO2b" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="1re ouverture ici"];
 "DO5" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="appareil retiré"];
 "DO5" -> "PLANS" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="Voir les offres"];
-"DO2c" -> "DO6" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="kit (à venir)"];
+"DO2c" -> "DO10" [color="#1F4D3A" penwidth=1.6 label="kit de récupération"];
+"DO2" -> "DO10" [color="#1F4D3A" penwidth=1.6 label="Mot de passe oublié ?"];
+"DO10" -> "DO10b" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
+"DO10b" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="Rouvrir mon coffre"];
 "DO3" -> "DO3b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="erreurs"];
 "DO3" -> "DO4b" [color="#2C5582" style=dashed penwidth=1.4 label="pas de trousseau"];
 "DO3" -> "DO6" [color="#1F4D3A" penwidth=1.6 label="Continuer"];

@@ -15,6 +15,8 @@ subgraph "cluster_onb" { label="Accueil et accès (O)"; fontname="Inter SemiBold
   "O7b" [label="O7b\nLimite de l’offre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "O8" [label="O8\nNotifications" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "O9" [label="O9\nOuverture" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "O10" [label="O10\nRécupérer mon coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "O10b" [label="O10b\nNouveau mot de passe" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
 }
 subgraph "cluster_vault" { label="Coffre (V, X)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
   "V1" [label="V1\nCoffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
@@ -80,6 +82,9 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "O2" -> "O9" [color="#1F4D3A" penwidth=1.6 label="1re ouverture ici"];
 "O9>V1" [label="→ V1 · Coffre" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "O9" -> "O9>V1" [color="#1F4D3A" penwidth=1.6 label="Parcourir le coffre" arrowhead=none];
+"O2" -> "O10" [color="#1F4D3A" penwidth=1.6 label="Mot de passe oublié ?"];
+"O10" -> "O10b" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
+"O10b" -> "O9" [color="#1F4D3A" penwidth=1.6 label="Rouvrir mon coffre"];
 "O5>PLANS" [label="→ Offres, à dessiner" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#B3261E" fontcolor="#B3261E" fontsize=11 margin="0.10,0.04" penwidth=1];
 "O5" -> "O5>PLANS" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="Voir les offres" arrowhead=none];
 "O3" -> "O6" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
