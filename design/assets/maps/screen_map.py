@@ -46,7 +46,7 @@ NODES = {
     "DO7g": ("Sources connectées", "donb"), "DO8": ("Notifications", "donb"), "DO9": ("Ouverture", "donb"), "DO10": ("Récupérer mon coffre", "donb"), "DO10b": ("Nouveau mot de passe", "donb"),
     "SIDE": ("Barre latérale", "dentry"), "T1": ("Tablette — Coffre", "dapp"), "D1": ("Catégorie", "dapp"),
     "D2": ("Document", "dapp"), "D3": ("Arrivées", "dapp"), "D4": ("Sources", "dapp"),
-    "DMOI": ("Moi (menu de l’avatar)", "dtodo"),
+    "D5": ("Moi", "dapp"), "D6": ("Tout le coffre", "dapp"),
 }
 
 # Links that jump to a distant part of the app. On a map they're drawn as a short tag next to the
@@ -100,8 +100,8 @@ DESKTOP = [
     ("DO7c", "DO7b", "Source suivante", "nav"), ("DO7c", "DO7g", "dernière source", "nav"),
     ("DO7f", "DO7g", "Passer (dernière)", "nav"), ("DO7g", "DO8", "Continuer", "nav"), ("DO8", "SIDE", "", "nav"),
     ("DO9", "SIDE", "Parcourir le coffre", "nav"),
-    ("SIDE", "T1", "Tout le coffre", "nav"), ("SIDE", "D1", "catégorie", "nav"), ("SIDE", "D3", "Arrivées", "nav"),
-    ("SIDE", "D4", "Sources", "nav"), ("SIDE", "DMOI", "avatar", "todo"), ("D1", "D2", "", "nav"), ("T1", "D1", "carte", "nav"),
+    ("SIDE", "D6", "Tout le coffre", "nav"), ("D6", "T1", "sur tablette", "state"), ("D6", "D1", "carte", "nav"), ("SIDE", "D1", "catégorie", "nav"), ("SIDE", "D3", "Arrivées", "nav"),
+    ("SIDE", "D4", "Sources", "nav"), ("SIDE", "D5", "pierre (avatar)", "nav"), ("D1", "D2", "", "nav"), ("T1", "D1", "carte", "nav"),
 ]
 
 GROUPS = {

@@ -112,11 +112,11 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 - **DO10** (from DO2's "Mot de passe oublié ?" or DO2c's kit link) → **DO10b** → DO9: recovery with the kit.
 - DO5's "Voir les offres" opens the plans (M9).
 
-### Coffre au bureau et sur tablette (D1–D4, T1)
+### Coffre au bureau et sur tablette (D1–D6, T1)
 
-The sidebar replaces the tab bar: "Tout le coffre" (**T1** on tablet), a category (**D1**),
-**D3 Arrivées** and **D4 Sources**. D1 → **D2 Document**. Moi opens from the avatar menu; its
-desktop screens aren't drawn yet, nor is a desktop version of "Tout le coffre".
+The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet), a category (**D1**),
+**D3 Arrivées** and **D4 Sources**. D1 → **D2 Document**. The avatar row at the foot of the
+sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 
 ## Phone and desktop counterparts
 
@@ -125,9 +125,9 @@ desktop screens aren't drawn yet, nor is a desktop version of "Tout le coffre".
 | O1–O10 | DO1–DO10 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
 | O7b | DO7h |
 | S3, S4 inside vault creation | DO7b, DO7c |
-| V1 | T1 (tablet) |
+| V1 | D6, T1 (tablet) |
 | V3 | D1 |
 | V6 + V7 | D2 |
 | R1 | D3 |
 | S1 + S5 | D4 |
-| M1–M8 | not drawn yet |
+| M1–M12 | D5 (menu and page side by side) |

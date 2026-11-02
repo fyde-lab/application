@@ -36,8 +36,9 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
   "D2" [label="D2\nDocument" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D3" [label="D3\nArrivées" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D4" [label="D4\nSources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D5" [label="D5\nMoi" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D6" [label="D6\nTout le coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
 }
-"DMOI" [label="Moi (menu de l’avatar)\n(à dessiner)" shape=box style="rounded,dashed,filled" color="#8C877B" fillcolor="#F2F0EA" fontcolor="#5B574F"];
 "DO1" -> "DO2" [color="#1F4D3A" penwidth=1.6 label="J’ai déjà un coffre"];
 "DO1" -> "DO3" [color="#1F4D3A" penwidth=1.6 label="Créer mon coffre"];
 "DO2" -> "DO2b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Ouvrir le coffre"];
@@ -69,11 +70,13 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO7g" -> "DO8" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
 "DO8" -> "SIDE" [color="#1F4D3A" penwidth=1.6];
 "DO9" -> "SIDE" [color="#1F4D3A" penwidth=1.6 label="Parcourir le coffre"];
-"SIDE" -> "T1" [color="#1F4D3A" penwidth=1.6 label="Tout le coffre"];
+"SIDE" -> "D6" [color="#1F4D3A" penwidth=1.6 label="Tout le coffre"];
+"D6" -> "T1" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sur tablette"];
+"D6" -> "D1" [color="#1F4D3A" penwidth=1.6 label="carte"];
 "SIDE" -> "D1" [color="#1F4D3A" penwidth=1.6 label="catégorie"];
 "SIDE" -> "D3" [color="#1F4D3A" penwidth=1.6 label="Arrivées"];
 "SIDE" -> "D4" [color="#1F4D3A" penwidth=1.6 label="Sources"];
-"SIDE" -> "DMOI" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="avatar"];
+"SIDE" -> "D5" [color="#1F4D3A" penwidth=1.6 label="pierre (avatar)"];
 "D1" -> "D2" [color="#1F4D3A" penwidth=1.6];
 "T1" -> "D1" [color="#1F4D3A" penwidth=1.6 label="carte"];
 subgraph cluster_legend { label="Légende"; fontname="Inter SemiBold"; fontsize=14; style=rounded; color="#CFCAC0";

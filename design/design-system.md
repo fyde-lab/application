@@ -224,7 +224,7 @@ title in the bar.
 The tab bar becomes a sidebar: 260dp at Expanded, icons-only at Medium. From top: brand,
 Arrivées (with count), Tout le coffre, CATÉGORIES (each with dot and count, in the fixed order of Principle 1; a category with no document is
 hidden until its first one arrives), then at the bottom
-Sources and the seal ("Scellé · n appareils"). Moi moves to the avatar menu. Lists become
+Sources and the seal ("Scellé · n appareils"). Moi moves to the avatar row at the foot of the sidebar (D5). Lists become
 master–detail: a 400dp list column and a detail pane; phone sheets become inline panels. Scanner
 becomes "Importer" (file picker, drag and drop) where there's no camera.
 
@@ -491,7 +491,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 
 ![Navigation between the account screens](assets/sheets/moi-parcours.png)
 
-- M1 is the hub, from the Moi tab or the vault's avatar (the avatar menu on tablet and desktop).
+- M1 is the hub, from the Moi tab or the vault's avatar (the avatar row at the foot of the sidebar on tablet and desktop, D5).
   M2, M5, M6 and M7 push over it; M8 is a dialog on it.
 - M2 leads to M3, M4 and the recovery kit (O6, the same screen as during vault creation); its
   device tiles open M5. M4's "oublié ?" also leads to O6.
@@ -527,7 +527,9 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | D2 | Document | Sidebar · 400dp list · pass and facts · live preview |
 | D3 | Arrivées | Sidebar · queue with inline code card · preview · classification panel with C'est bon (Enter) |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
-| T1 | Tablette | Sidebar · 4-column category cards · Scanner in the header · latest arrivals |
+| D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |
+| D6 | Tout le coffre | Sidebar · header with search and Importer · arrivals banner · 4-column category cards · latest arrivals |
+| T1 | Tablette | As D6 on a tablet: Scanner instead of Importer |
 
 ### Desktop onboarding and access (DO1–DO10)
 
