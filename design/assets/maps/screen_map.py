@@ -3,6 +3,7 @@
 usage: python3 screen_map.py   (needs Graphviz `dot`)
 Writes ../sheets/carte-mobile.{svg,png} and ../sheets/carte-bureau.{svg,png}.
 Edit NODES / EDGES here when a screen or a link changes; design/screen-map.md describes the same graph.
+Fails unless every PNG in ../screens has a node here and a row in design-system.md's Screens tables, and the reverse.
 """
 import pathlib
 import subprocess
@@ -20,7 +21,7 @@ NODES = {
     "O9": ("Ouverture", "onb"), "O10": ("Récupérer mon coffre", "onb"), "O10b": ("Nouveau mot de passe", "onb"),
     "V1": ("Coffre", "vault"), "V2": ("Coffre en remplissage", "vault"), "V3": ("Catégorie", "vault"),
     "V4": ("Recherche", "vault"), "V5": ("Résultats", "vault"), "V6": ("Document", "vault"), "V6b": ("Document sombre", "vault"), "V7": ("Lecteur", "vault"),
-    "V8": ("Actions", "vault"), "V8b": ("Actions sombres", "vault"), "V9": ("Reclasser", "vault"), "V10": ("Cartes par type", "vault"),
+    "V8": ("Actions", "vault"), "V8b": ("Actions sombres", "vault"), "V9": ("Reclasser", "vault"),
     "V11": ("Coffre sombre", "vault"), "X1": ("Hors ligne", "vault"), "X2": ("Texte à 200 %", "vault"),
     "K1": ("Scanner", "capture"), "K2": ("Vérifier le scan", "capture"), "K3": ("Depuis une autre app", "capture"),
     "K4": ("Ajout en cours", "capture"),
@@ -72,7 +73,7 @@ MOBILE = [
     ("S4", "O8", "dernière source", "nav"), ("O8", "V2", "", "nav"), ("V2", "V1", "chaque source a tourné", "state"),
     ("V1", "V3", "carte", "nav"), ("V1", "V4", "recherche", "nav"), ("V4", "V5", "", "nav"),
     ("V3", "V6", "", "nav"), ("V5", "V6", "", "nav"), ("V6", "V7", "fichier", "nav"), ("V6", "V8", "…", "overlay"),
-    ("V8", "V9", "Reclasser", "overlay"), ("V6", "V10", "selon le type", "state"), ("V1", "V11", "sombre", "state"),
+    ("V8", "V9", "Reclasser", "overlay"), ("V1", "V11", "sombre", "state"),
     ("V1", "X1", "sans réseau", "state"), ("V1", "R1", "bannière", "nav"), ("V1", "M1", "avatar", "nav"),
     ("V1", "M2", "ligne « Scellé »", "nav"), ("V1", "O2", "session expirée", "nav"),
     ("K1", "K2", "Terminer", "nav"), ("K2", "K4", "Ajouter au coffre", "nav"), ("OS", "K3", "Partager", "overlay"),
@@ -186,6 +187,15 @@ def graph(name, edges, title, rankdir="TB"):
 graph("carte-mobile", MOBILE, "Fyde — carte des écrans, téléphone")
 graph("carte-bureau", DESKTOP, "Fyde — carte des écrans, bureau et tablette")
 
-missing = sorted({p.name.split("-")[0] for p in SCREENS.glob("*.png")} - set(NODES))
-if missing:
-    raise SystemExit(f"screens missing from the map: {missing}")
+# Cross-checks, so the PNGs, the map and the spec's Screens tables can't drift apart.
+import re
+pngs = {p.name.split("-")[0] for p in SCREENS.glob("*.png")}
+screens = {nid for nid, (_, group) in NODES.items() if group not in ("entry", "dentry", "todo", "dtodo")}
+spec = (HERE.parent.parent / "design-system.md").read_text()
+rows = set(re.findall(r"^\| ([A-Z]+\d+[a-z]?) \|", spec, re.M))
+problems = [f"{label}: {sorted(ids)}" for label, ids in [
+    ("PNG without a map node", pngs - screens), ("map node without a PNG", screens - pngs),
+    ("PNG without a row in design-system.md", pngs - rows), ("row in design-system.md without a PNG", rows - pngs)] if ids]
+if problems:
+    raise SystemExit("\n".join(problems))
+print(f"{len(pngs)} screens: every PNG has a map node and a spec row")
