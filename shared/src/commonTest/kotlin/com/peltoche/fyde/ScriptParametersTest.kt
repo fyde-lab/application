@@ -203,4 +203,45 @@ class ScriptParametersTest {
         assertFailsWith<IllegalArgumentException> { decodeScriptParametersJson("""{"a":1""") }
         assertFailsWith<IllegalArgumentException> { decodeScriptParametersJson("""{"a":1} x""") }
     }
+
+    @Test
+    fun keepsAnInstalledSecretLeftBlank() {
+        val parameters = mapOf(
+            "email" to parameter(FydeScriptParameterType.STRING, required = true),
+            "password" to parameter(FydeScriptParameterType.STRING, required = true, secret = true),
+        )
+        val installed = mapOf(
+            "email" to FydeScriptParameterValue.Text("old@example.com"),
+            "password" to FydeScriptParameterValue.Text("hunter2"),
+        )
+
+        assertEquals(
+            mapOf(
+                "email" to FydeScriptParameterValue.Text("new@example.com"),
+                "password" to FydeScriptParameterValue.Text("hunter2"),
+            ),
+            validatedCredentials(parameters, mapOf("email" to "new@example.com", "password" to ""), installed),
+        )
+        assertEquals(
+            FydeScriptParameterValue.Text("changed"),
+            validatedCredentials(parameters, mapOf("email" to "a@b.c", "password" to "changed"), installed)?.get("password"),
+        )
+    }
+
+    @Test
+    fun stillRequiresASecretNeverInstalledAndPlainRequiredFields() {
+        val parameters = mapOf(
+            "email" to parameter(FydeScriptParameterType.STRING, required = true),
+            "password" to parameter(FydeScriptParameterType.STRING, required = true, secret = true),
+        )
+
+        assertNull(validatedCredentials(parameters, mapOf("email" to "a@b.c", "password" to ""), emptyMap()))
+        assertNull(
+            validatedCredentials(
+                parameters,
+                mapOf("email" to "", "password" to ""),
+                mapOf("password" to FydeScriptParameterValue.Text("hunter2")),
+            ),
+        )
+    }
 }

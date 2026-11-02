@@ -316,7 +316,7 @@ private fun SourceFetchBody(content: SourceFetchContent) {
 
 /** [status]'s four phases as [RunStepper] rows, with what's known of each: found, i / n, waiting on the user. */
 @Composable
-private fun sourceFetchSteps(status: SourceFetchStatus): List<RunStep> {
+internal fun sourceFetchSteps(status: SourceFetchStatus): List<RunStep> {
     val states = sourceFetchPhaseStates(status)
     val running = status as? SourceFetchStatus.Running
     val found = when (status) {
@@ -361,10 +361,10 @@ private fun sourceFetchSteps(status: SourceFetchStatus): List<RunStep> {
     }
 }
 
-private fun FydeScraperStep?.isWaitingForUser(): Boolean =
+internal fun FydeScraperStep?.isWaitingForUser(): Boolean =
     this == FydeScraperStep.WAITING_FOR_VERIFICATION_CODE || this == FydeScraperStep.WAITING_FOR_CAPTCHA
 
-private fun Long.toIntClamped(): Int = coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+internal fun Long.toIntClamped(): Int = coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
 
 /**
  * "Wait here" (or "Retry" after a failure; nothing once it succeeded) as

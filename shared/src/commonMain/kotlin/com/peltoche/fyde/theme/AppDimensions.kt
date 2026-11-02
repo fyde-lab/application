@@ -88,6 +88,9 @@ object AppDimensions {
     /** A bottom sheet shown as a centred panel (Medium, Expanded, desktop) — DO4b's dialog. */
     val sheetPanelMaxWidth: Dp = 500.dp
 
+    /** D4's source detail panel, flush to the window's right edge beside the table. */
+    val sourceDetailPanelWidth: Dp = 380.dp
+
     /** `AppBackButton`'s circle — design-system.md § Compact: "a 44pt circular back button". */
     val backButton: Dp = 44.dp
 

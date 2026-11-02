@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppBackButton
+import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppIconButton
@@ -53,6 +54,8 @@ import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.feedback.RunStep
 import com.peltoche.fyde.components.feedback.RunStepState
 import com.peltoche.fyde.components.feedback.RunStepper
+import com.peltoche.fyde.components.feedback.SourceStatus
+import com.peltoche.fyde.components.feedback.SourceStatusKind
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
 import com.peltoche.fyde.components.form.AppCheckbox
@@ -176,6 +179,16 @@ private fun ActionsSection(onShowSnackbar: () -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
                 AppBackButton(onClick = {})
                 AppBackButton(onClick = {}, enabled = false)
+            }
+        }
+        CatalogueRow("AppCircleButton — enabled / disabled") {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                AppCircleButton(onClick = {}, contentDescription = "Add") {
+                    PlusGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+                }
+                AppCircleButton(onClick = {}, contentDescription = "Add", enabled = false) {
+                    PlusGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.textMuted)
+                }
             }
         }
     }
@@ -350,6 +363,15 @@ private fun FeedbackSection() {
                         ),
                     )
                 }
+            }
+        }
+        CatalogueRow("SourceStatus — running / waiting / failed / up to date / queued") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                SourceStatus(SourceStatusKind.Running, "Fetching… 5 / 12")
+                SourceStatus(SourceStatusKind.Waiting, "Waiting for your code")
+                SourceStatus(SourceStatusKind.Failed, "Wrong password")
+                SourceStatus(SourceStatusKind.UpToDate, "Up to date")
+                SourceStatus(SourceStatusKind.Queued, "Queued")
             }
         }
         CatalogueRow("AppEmptyState") {

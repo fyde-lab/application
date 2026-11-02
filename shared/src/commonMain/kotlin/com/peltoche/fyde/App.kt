@@ -5,10 +5,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.connect_source_failed
-import com.peltoche.fyde.resources.script_installed
-import com.peltoche.fyde.resources.script_toggle_failed
-import com.peltoche.fyde.resources.script_uninstalled
-import com.peltoche.fyde.resources.script_updated
+import com.peltoche.fyde.resources.source_credentials_saved
+import com.peltoche.fyde.resources.source_remove_failed
+import com.peltoche.fyde.resources.source_removed
+import com.peltoche.fyde.resources.source_update_failed
 import com.peltoche.fyde.resources.auth_error_login_failed
 import com.peltoche.fyde.resources.session_limit_failed
 import com.peltoche.fyde.resources.auth_error_register_failed
@@ -70,7 +70,7 @@ private const val SESSION_CHECK_INTERVAL_MS = 5_000L
 private const val SEARCH_DEBOUNCE_MS = 250L
 
 /**
- * How many [FydeSdk.fetchIcon] calls [ScriptsScreenContainer] keeps in
+ * How many [FydeSdk.fetchIcon] calls [SourcesTabContainer] keeps in
  * flight at once: the listings leave icons out, so every script in the grid
  * needs its own call, and over a hundred at once would queue behind each
  * other on the one server connection anyway.
@@ -78,7 +78,7 @@ private const val SEARCH_DEBOUNCE_MS = 250L
 private const val SCRIPT_ICON_FETCH_CONCURRENCY = 8
 
 /**
- * Every script icon [ScriptsScreenContainer] has fetched, keyed by icon id
+ * Every script icon [SourcesTabContainer] has fetched, keyed by icon id
  * (an icon never changes once created), kept for the whole process so
  * reopening the Scripts screen doesn't decode them from the SDK's cache
  * again. Only touched from the UI thread.
@@ -780,10 +780,14 @@ private fun AppContent(
                 disconnectingSessionId = disconnectingSessionId,
                 disconnectSessionError = disconnectSessionError,
             )
-            Screen.Scripts -> ScriptsScreenContainer(
+            Screen.Scripts -> SourcesTabContainer(
                 scraperRuns = scraperRuns,
                 onOpenDocuments = { screen = Screen.Documents },
                 onOpenSettings = { screen = Screen.Settings },
+                onOpenPlan = {
+                    settingsSection = SettingsSection.Plan
+                    screen = Screen.Settings
+                },
             )
         }
 
@@ -1058,157 +1062,172 @@ private fun DocumentsScreen(
 }
 
 /**
- * Owns the `fyde-sdk` scripts calls backing [ScriptsScreen] and
- * [ScriptDetailScreen]. The grid shows every public script plus the user's
- * own enabled private ones ([FydeSdk.listPublicScripts] +
- * [FydeSdk.listUserScripts]); the enabled subset is what's "installed", and
- * [FydeSdk.installedScriptParameters] supplies the values each was
- * installed with. Unlike [DocumentsScreen], there's no changelog-style live
- * subscription for scripts, so the listing is fetched once per screen open
- * (plus [retryKey] bumps) rather than kept in sync by a background stream.
+ * Owns the `fyde-sdk` calls backing [SourcesTabScreen]: every scraper on
+ * offer ([FydeSdk.listPublicScripts] + [FydeSdk.listUserScripts], parsers
+ * left out), the user's enabled ones being their sources, installed with
+ * [FydeSdk.installedScriptParameters]'s values, and the plan's source quota
+ * ([FydeSdk.getUsage]). There's no live subscription for scripts, so all of
+ * it is fetched once per visit (plus [retryKey] bumps).
  */
 @Composable
-private fun ScriptsScreenContainer(
+private fun SourcesTabContainer(
     scraperRuns: ScraperRuns,
     onOpenDocuments: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenPlan: () -> Unit,
 ) {
     var retryKey by remember { mutableStateOf(0) }
-    var uiState by remember { mutableStateOf<ScriptsUiState>(ScriptsUiState.Connecting) }
-    // Which script's [ScriptDetailScreen] is open, if any — a drill-down
-    // local to this container rather than a top-level Screen, since the
-    // detail view shares the same scripts/enabled/pending state this
-    // container already owns.
-    var viewedScriptId by remember { mutableStateOf<String?>(null) }
-    // The grid's search, kept here rather than in ScriptsScreen, which
-    // leaves composition while a script's detail view is open: going back
-    // finds the same query, as with the document list.
-    var scriptQuery by remember { mutableStateOf("") }
+    var uiState by remember { mutableStateOf<SourcesTabUiState>(SourcesTabUiState.Connecting) }
+    var focus by remember { mutableStateOf<SourceFocus?>(null) }
+    var catalogueOpen by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
-    fun showBanner(message: String) {
-        val current = uiState as? ScriptsUiState.Loaded ?: return
-        uiState = current.copy(
-            banner = message,
-            onDismissBanner = { (uiState as? ScriptsUiState.Loaded)?.let { loaded -> uiState = loaded.copy(banner = null) } },
-        )
+    fun update(transform: (SourcesTabUiState.Loaded) -> SourcesTabUiState.Loaded) {
+        (uiState as? SourcesTabUiState.Loaded)?.let { uiState = transform(it) }
+    }
+
+    suspend fun refreshQuota() {
+        val quota = FydeSdk.getUsage().getOrNull()?.let(::sourceQuotaOf)
+        update { it.copy(quota = quota) }
     }
 
     LaunchedEffect(retryKey) {
-        uiState = ScriptsUiState.Connecting
+        uiState = SourcesTabUiState.Connecting
 
         val initResult = FydeSdk.initialize(BuildConfig.SERVER_URL)
         if (initResult.isFailure) {
-            uiState = ScriptsUiState.ConnectFailed(
+            uiState = SourcesTabUiState.ConnectFailed(
                 message = initResult.exceptionOrNull()?.userMessage() ?: getString(Res.string.error_unknown),
                 onRetry = { retryKey++ },
             )
             return@LaunchedEffect
         }
 
-        uiState = ScriptsUiState.Loaded(scripts = null)
+        uiState = SourcesTabUiState.Loaded(scripts = null)
         val publicScripts = FydeSdk.listPublicScripts().getOrElse { emptyList() }
         val userScripts = FydeSdk.listUserScripts().getOrElse { emptyList() }
-        val scripts = (userScripts + publicScripts).distinctBy { it.id }
-        uiState = ScriptsUiState.Loaded(
+        val scripts = (userScripts + publicScripts).distinctBy { it.id }.filter { it.type == FydeScriptType.SCRAPER }
+        uiState = SourcesTabUiState.Loaded(
             scripts = scripts,
-            enabledScriptIds = userScripts.map { it.id }.toSet(),
+            installedIds = userScripts.map { it.id }.toSet(),
             installedParameters = FydeSdk.installedScriptParameters().getOrElse { emptyMap() },
         )
+        refreshQuota()
 
         fetchScriptIcons(scripts) { scriptId, icon ->
-            val latest = uiState as? ScriptsUiState.Loaded ?: return@fetchScriptIcons
-            uiState = latest.copy(
-                scripts = latest.scripts?.map { if (it.id == scriptId) it.copy(icon = icon) else it },
-            )
+            update { latest -> latest.copy(scripts = latest.scripts?.map { if (it.id == scriptId) it.copy(icon = icon) else it }) }
         }
     }
 
-    // Installing publishes [parameters] through the changelog (so the script
-    // and the values it runs with sync to every device on the account) and
-    // then enables the script, which is what the installed/available split
-    // reads back; installing an already-installed script again replaces its
-    // values (Save changes). Uninstalling only disables it: fyde-sdk has no
-    // uninstall event yet.
-    fun setInstalled(
+    // Installing publishes [parameters] through the changelog (so the source
+    // and the values it runs with sync to every device on the account), then
+    // enables it; installing an installed source again replaces its values.
+    fun install(
         script: FydeScript,
-        enabled: Boolean,
-        parameters: Map<String, FydeScriptParameterValue> = emptyMap(),
+        parameters: Map<String, FydeScriptParameterValue>,
+        onDone: suspend (Throwable?) -> Unit,
     ) {
-        val current = uiState as? ScriptsUiState.Loaded
-        if (current == null || script.id in current.pendingScriptIds) return
-        val wasInstalled = script.id in current.enabledScriptIds
-        uiState = current.copy(pendingScriptIds = current.pendingScriptIds + script.id)
+        val current = uiState as? SourcesTabUiState.Loaded ?: return
+        if (script.id in current.pendingIds) return
+        uiState = current.copy(pendingIds = current.pendingIds + script.id, errors = current.errors - script.id)
         scope.launch {
-            val result = if (enabled) {
-                FydeSdk.installScript(script.id, parameters)
-                    .mapCatching { FydeSdk.enableScript(script.id).getOrThrow() }
-            } else {
-                FydeSdk.disableScript(script.id)
-            }
-            val latest = uiState as? ScriptsUiState.Loaded ?: return@launch
-            val error = result.exceptionOrNull()
-            if (error == null) {
-                uiState = latest.copy(
-                    enabledScriptIds = if (enabled) latest.enabledScriptIds + script.id else latest.enabledScriptIds - script.id,
-                    installedParameters = if (enabled) latest.installedParameters + (script.id to parameters) else latest.installedParameters,
-                    pendingScriptIds = latest.pendingScriptIds - script.id,
+            val error = FydeSdk.installScript(script.id, parameters)
+                .mapCatching { FydeSdk.enableScript(script.id).getOrThrow() }
+                .exceptionOrNull()
+            update { latest ->
+                latest.copy(
+                    pendingIds = latest.pendingIds - script.id,
+                    installedIds = if (error == null) latest.installedIds + script.id else latest.installedIds,
+                    installedParameters = if (error == null) latest.installedParameters + (script.id to parameters) else latest.installedParameters,
                 )
-                val confirmation = when {
-                    !enabled -> Res.string.script_uninstalled
-                    wasInstalled -> Res.string.script_updated
-                    else -> Res.string.script_installed
-                }
-                snackbarHostState.showSnackbar(getString(confirmation, script.name))
-            } else {
-                uiState = latest.copy(pendingScriptIds = latest.pendingScriptIds - script.id)
-                showBanner(getString(Res.string.script_toggle_failed, script.name, error.userMessage()))
             }
+            onDone(error)
         }
     }
 
-    val loaded = uiState as? ScriptsUiState.Loaded
-    val viewedScript = viewedScriptId?.let { id -> loaded?.scripts?.find { it.id == id } }
+    SourcesTabScreen(
+        state = uiState,
+        statuses = (uiState as? SourcesTabUiState.Loaded)?.installedIds.orEmpty()
+            .mapNotNull { id -> sourceStatusOf(id, scraperRuns)?.let { id to it } }
+            .toMap(),
+        canRun = scraperRuns.running == null,
+        focus = focus,
+        onFocusChange = { focus = it },
+        catalogueOpen = catalogueOpen,
+        onCatalogueOpenChange = { catalogueOpen = it },
+        query = query,
+        onQueryChange = { query = it },
+        onConnect = { script, parameters ->
+            install(script, parameters) { error ->
+                if (error == null) {
+                    refreshQuota()
+                    scraperRuns.runOnceInstalled(script, parameters)
+                    focus = SourceFocus.Fetching(script.id)
+                    catalogueOpen = false
+                } else {
+                    val message = getString(Res.string.connect_source_failed, script.name, error.userMessage())
+                    update { it.copy(errors = it.errors + (script.id to message)) }
+                }
+            }
+        },
+        onUpdate = { script, parameters, rerun ->
+            install(script, parameters) { error ->
+                when {
+                    error != null -> {
+                        val message = getString(Res.string.source_update_failed, script.name, error.userMessage())
+                        update { it.copy(errors = it.errors + (script.id to message)) }
+                    }
+                    rerun -> {
+                        scraperRuns.runOnceInstalled(script, parameters)
+                        focus = SourceFocus.Fetching(script.id)
+                    }
+                    else -> {
+                        focus = SourceFocus.Detail(script.id)
+                        snackbarHostState.showSnackbar(getString(Res.string.source_credentials_saved, script.name))
+                    }
+                }
+            }
+        },
+        onRun = { script -> scraperRuns.run(script) },
+        // Removing only disables the source: fyde-sdk has no uninstall event yet.
+        onRemove = { script ->
+            val current = uiState as? SourcesTabUiState.Loaded
+            if (current != null && script.id !in current.pendingIds) {
+                uiState = current.copy(pendingIds = current.pendingIds + script.id)
+                scope.launch {
+                    val error = FydeSdk.disableScript(script.id).exceptionOrNull()
+                    update { latest ->
+                        latest.copy(
+                            pendingIds = latest.pendingIds - script.id,
+                            installedIds = if (error == null) latest.installedIds - script.id else latest.installedIds,
+                        )
+                    }
+                    if (error == null) {
+                        if (focus?.scriptId == script.id) focus = null
+                        refreshQuota()
+                        snackbarHostState.showSnackbar(getString(Res.string.source_removed, script.name))
+                    } else {
+                        snackbarHostState.showSnackbar(getString(Res.string.source_remove_failed, script.name, error.userMessage()))
+                    }
+                }
+            }
+        },
+        onOpenPlan = onOpenPlan,
+        onOpenDocuments = onOpenDocuments,
+        onOpenSettings = onOpenSettings,
+    )
+}
 
-    if (loaded != null && viewedScript != null) {
-        ScriptDetailScreen(
-            script = viewedScript,
-            isInstalled = viewedScript.id in loaded.enabledScriptIds,
-            isPending = viewedScript.id in loaded.pendingScriptIds,
-            installedParameters = loaded.installedParameters[viewedScript.id],
-            // A failure triggered from here is shown here; it's cleared on
-            // the way back so the grid doesn't re-announce one already seen.
-            banner = loaded.banner,
-            onDismissBanner = loaded.onDismissBanner,
-            onBack = {
-                viewedScriptId = null
-                (uiState as? ScriptsUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) }
-            },
-            onInstall = { parameters -> setInstalled(viewedScript, true, parameters) },
-            onUninstall = { setInstalled(viewedScript, false) },
-            run = ScriptRunState(
-                isRunning = scraperRuns.running?.id == viewedScript.id,
-                canRun = scraperRuns.running == null,
-                step = scraperRuns.step,
-                update = scraperRuns.update,
-                failure = scraperRuns.failure?.takeIf { it.first == viewedScript.id }?.second,
-            ),
-            onRun = { scraperRuns.run(viewedScript) },
-            onDismissRunFailure = scraperRuns::dismissFailure,
-            onOpenDocuments = onOpenDocuments,
-            onOpenSettings = onOpenSettings,
-        )
-    } else {
-        ScriptsScreen(
-            state = uiState,
-            onOpenDocuments = onOpenDocuments,
-            onOpenSettings = onOpenSettings,
-            onView = { script -> viewedScriptId = script.id },
-            runningScriptId = scraperRuns.running?.id,
-            query = scriptQuery,
-            onQueryChange = { scriptQuery = it },
-        )
+/** Where [scriptId]'s latest run in this app session is, or `null` if it hasn't been run or queued. */
+private fun sourceStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStatus? = when {
+    runs.running?.id == scriptId -> SourceFetchStatus.Running(runs.stepKind, runs.update, runs.found)
+    runs.queued.any { it.id == scriptId } -> SourceFetchStatus.Queued
+    else -> when (val outcome = runs.outcomes[scriptId]) {
+        is ScraperRunOutcome.Succeeded -> SourceFetchStatus.Succeeded(outcome.found)
+        is ScraperRunOutcome.Failed -> SourceFetchStatus.Failed(outcome.message, outcome.step, outcome.found)
+        null -> null
     }
 }
 

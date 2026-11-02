@@ -58,7 +58,8 @@ import org.jetbrains.compose.resources.stringResource
  * Issuers, Dates, Favorites) that never linked anywhere real — dropped
  * rather than shipped as dead links. Scripts and Add-ons used to be two
  * peers listing and uninstalling the very same installed objects under two
- * names, so they were folded into one, Scripts (see [ScriptsScreen]).
+ * names, so they were folded into one, Scripts, shown as Sources (see
+ * [SourcesTabScreen]).
  */
 enum class TopLevelDestination { Documents, Scripts, Settings }
 
@@ -73,8 +74,8 @@ val LocalAppSnackbarHostState = staticCompositionLocalOf { SnackbarHostState() }
 
 /**
  * The shell every top-level destination ([DocumentListScreen],
- * [ScriptsScreen], [SettingsScreen]) and its drill-downs
- * ([ScriptDetailScreen], the compact document detail) compose into, so
+ * [SourcesTabScreen], [SettingsScreen]) and its drill-downs
+ * (a source's pages, the compact document detail) compose into, so
  * navigation is one decision made once rather than re-derived per screen.
  *
  * Navigation is present at every [AppWindowSizeClass] — a top bar at
@@ -138,8 +139,9 @@ fun TopLevelScaffold(
     ) { contentPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             content(contentPadding)
-            // Settings' seal card already says it, at the top of its menu.
-            if (isDesktop && current != TopLevelDestination.Settings) {
+            // Settings' seal card already says it, at the top of its menu;
+            // Sources' detail panel takes the margin the badge would sit in.
+            if (isDesktop && current == TopLevelDestination.Documents) {
                 MarginEncryptionBadge(modifier = Modifier.padding(contentPadding))
             }
         }

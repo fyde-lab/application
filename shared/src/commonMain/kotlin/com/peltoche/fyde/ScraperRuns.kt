@@ -40,11 +40,11 @@ sealed interface ScraperRunOutcome {
  *
  * Registered as [FydeSdk]'s [FydeScraperHandler]: progress callbacks update
  * [step]/[update], and a question parks the script on [question] until
- * [answer] is called. A finished run is confirmed with a snackbar; a failed
- * one is kept in [failure] for the script's page to show as a banner.
+ * [answer] is called. A run's end is told in a snackbar, wherever the user
+ * is; the Sources tab keeps showing it from [outcomes].
  *
- * Sources connected during onboarding ([ConnectSourceScreen]) each start
- * their first run through [runOnceInstalled]: they wait in [queued] for the
+ * Sources just connected or reconfigured (onboarding's [ConnectSourceScreen],
+ * the Sources tab) start their run through [runOnceInstalled]: they wait in [queued] for the
  * one in progress, and for their installation to reach this device.
  * [SourceFetchingScreen] (DO7c) follows that run through [stepKind] and
  * [found], then its [outcomes] entry.
@@ -74,11 +74,10 @@ class ScraperRuns(
     var question by mutableStateOf<PendingQuestion?>(null)
         private set
 
-    /** The last failed run's script id and message, until dismissed or the script runs again. */
-    var failure by mutableStateOf<Pair<String, String>?>(null)
-        private set
-
     private val queue = mutableStateListOf<FydeScript>()
+
+    /** The parameters a queued or starting run waits to see installed, by script id (see [runOnceInstalled]). */
+    private val expectedParameters = mutableMapOf<String, Map<String, FydeScriptParameterValue>>()
 
     private val outcomeByScript = mutableStateMapOf<String, ScraperRunOutcome>()
 
@@ -93,7 +92,6 @@ class ScraperRuns(
 
     fun run(script: FydeScript) {
         if (running != null) return
-        failure = null
         start(script, awaitInstallation = false)
     }
 
@@ -101,10 +99,13 @@ class ScraperRuns(
      * Runs [script], just installed, once its installation has synced to
      * this device ([FydeSdk.installScript] only publishes it) — after the
      * run in progress and those already [queued]. Does nothing if it's
-     * already running or queued.
+     * already running or queued. Given [expected], it waits for the
+     * installation to carry exactly those values, so a reinstall with new
+     * credentials doesn't run with the old ones still synced here.
      */
-    fun runOnceInstalled(script: FydeScript) {
+    fun runOnceInstalled(script: FydeScript, expected: Map<String, FydeScriptParameterValue>? = null) {
         if (isPending(script.id)) return
+        if (expected != null) expectedParameters[script.id] = expected
         if (running == null) start(script, awaitInstallation = true) else queue += script
     }
 
@@ -125,7 +126,7 @@ class ScraperRuns(
             queue.removeFirstOrNull()?.let { start(it, awaitInstallation = true) }
             result
                 .onSuccess { snackbarHostState.showSnackbar(getString(Res.string.script_run_finished, script.name)) }
-                .onFailure { failure = script.id to getString(Res.string.script_run_failed, script.name, it.userMessage()) }
+                .onFailure { snackbarHostState.showSnackbar(getString(Res.string.script_run_failed, script.name, it.userMessage())) }
         }
     }
 
@@ -135,8 +136,11 @@ class ScraperRuns(
      * own wording rather than hanging.
      */
     private suspend fun awaitInstallation(scriptId: String) {
+        val expected = expectedParameters.remove(scriptId)
         withTimeoutOrNull(INSTALL_SYNC_TIMEOUT_MS) {
-            while (FydeSdk.installedScriptParameters().getOrNull()?.containsKey(scriptId) != true) {
+            while (true) {
+                val installed = FydeSdk.installedScriptParameters().getOrNull()?.get(scriptId)
+                if (installed != null && (expected == null || installed == expected)) break
                 delay(INSTALL_SYNC_POLL_MS)
             }
         }
@@ -147,10 +151,6 @@ class ScraperRuns(
         stepKind = null
         update = null
         found = null
-    }
-
-    fun dismissFailure() {
-        failure = null
     }
 
     fun answer(text: String) {
