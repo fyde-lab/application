@@ -61,6 +61,7 @@
 .pbtn.o{background:var(--surface);border:1px solid var(--bstrong);color:var(--text)}
 .pbtn.t{color:var(--primary)}
 .pbtn.d{background:var(--err);color:#fff}
+.fyde.dark .pbtn.d{color:#2B0B08}
 .pbtn.do{border:1px solid var(--err);color:var(--err);background:var(--surface)}
 .pbtn.sm{height:40px;border-radius:20px;font-size:14px;padding:0 14px}
 .pbtn.w{width:100%}

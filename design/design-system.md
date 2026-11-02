@@ -87,6 +87,7 @@ French and English.
 | `warning` | `#8F5B00` | `#E9B65A` | A source waiting for a code, limits reached, recovery kit missing |
 | `warningWash` | `#F6E9D2` | `#33291A` | Warning notes |
 | `error` | `#B3261E` | `#F2938A` | Failed source, destructive actions, field errors |
+| `onError` | `#FFFFFF` | `#2B0B08` | Content on `error` (destructive buttons): 6.54:1 light, 8.07:1 dark |
 | `errorWash` | `#F7DEDA` | `#3A1F1C` | Error notes |
 | `success` | `#2B6E45` | `#8FD1AE` | "À jour", "Scellé", checks |
 | `highlight` | `#F3E2A9` | `#5C4A12` | Matched words in search results (text stays `text`) |
@@ -135,8 +136,10 @@ theme or option tile gets a `primary` ring and a check disc. `borderStrong` on `
 ### Themes
 
 Light and dark are one theme, picked in Moi › Apparence et langue (Système · Clair · Sombre,
-persisted). Screens read `AppColors` only and never branch on the theme. Every screen has a dark
-twin; V11 and M2 are the dark references.
+persisted). Screens read `AppColors` only and never branch on the theme. Every screen works in both
+themes from the roles alone; the dark references cover each kind of surface: V11 (the vault),
+V6b (a pass), V8b (a sheet over the scrim), R1b (the code card and segments), M2b (the seal hero)
+and M8b (a dialog with a destructive action). A screen without a drawn dark twin follows these.
 
 ---
 
@@ -442,8 +445,10 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
 | V5 | Résultats | Facet chips Catégorie / Type / Année / Source; matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
 | V6 | Document | Pass, file row with thumbnail, facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) |
+| V6b | Document (sombre) | V6 in the dark theme: the pass on its dark category fill | Dark reference for passes |
 | V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…"; web downloads |
 | V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Reclasser, Informations techniques, Supprimer de tous mes appareils | Delete confirms that it reaches every device |
+| V8b | Actions (sombre) | V8 in the dark theme | Dark reference for sheets and the scrim |
 | V9 | Reclasser | Category grid, subcategories, type, Enregistrer | Invalid category/subcategory pairs can't be picked |
 | V10 | Cartes par type | Pass templates | — |
 | V11 | Coffre sombre | Dark reference | — |
@@ -459,6 +464,7 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | K3 | Depuis une autre app | Share extension sheet: file, name, suggestion, "Chiffré sur cet iPhone avant d'être envoyé" | Signed out → "Ouvrez Fyde pour ajouter" |
 | K4 | Ajout en cours | Row appears at once with "Chiffrement…"; progress snackbar; duplicate → "Déjà dans le coffre · Voir" | `DuplicateDocument` is never an error |
 | R1 | Arrivées | À traiter / Historique; code card first; documents with their suggestion and Modifier / C'est bon | Swipe right = C'est bon |
+| R1b | Arrivées (sombre) | R1 in the dark theme | Dark reference for the code card and segments |
 | R2 | Tout est rangé | Check disc, "repasseront dans la journée, chacune sur son appareil", Lancer maintenant | Badge hidden |
 | R3 | Historique | Run outcomes and user confirmations by day | — |
 | R4 | Notification de code | Lock-screen notification with the deadline; new-document notifications hide titles while locked | Expired → "Code expiré" + Relancer |
@@ -496,13 +502,15 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | ID | Screen | Content | States |
 |---|---|---|---|
 | M1 | Moi | Profile, seal card, Sécurité (pill "Kit à créer"), Appareils, Offre et usage, Apparence et langue, Aide, Se déconnecter | — |
-| M2 | Sécurité | Seal hero, device tiles with sync dot, Kit de récupération, Vérifier mon mot de passe, Ce que voit le serveur | Dark reference |
+| M2 | Sécurité | Seal hero, device tiles with sync dot, Kit de récupération, Vérifier mon mot de passe, Ce que voit le serveur | — |
+| M2b | Sécurité (sombre) | M2 in the dark theme | Dark reference for the seal hero |
 | M3 | Ce que voit le serveur | "Ne voit jamais" / "Voit" lists | Keep in step with the wire format |
 | M4 | Vérifier mon mot de passe | Local check, next reminder in 3 months | Wrong → link to the recovery kit |
 | M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Retirer; Renommer on this device | The current device can't be removed here (Se déconnecter, M8) |
 | M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error |
 | M7 | Apparence et langue | Theme tiles, language radios; text size follows the OS | Persisted |
 | M8 | Se déconnecter | Dialog: what is erased here, what stays; warning if no recovery kit | Wipes keys and local data even offline |
+| M8b | Se déconnecter (sombre) | M8 in the dark theme | Dark reference for dialogs and `onError` |
 | X1 | Hors ligne | Seal "hors ligne", info note, pending additions on cards | Never an error screen |
 
 ### Desktop and tablet (D1–D4, T1)
