@@ -475,7 +475,7 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source; limit → plan sheet |
+| S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source; limit → M6 |
 | S2 | Catalogue | Search; every public scraper from A to Z; Ajouter or a check if already added; "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
 | S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4) |
 | S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan | Code or captcha → code sheet |
@@ -496,21 +496,27 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 - M2 leads to M3, M4 and the recovery kit (O6, the same screen as during vault creation); its
   device tiles open M5. M4's "oublié ?" also leads to O6.
 - M6 is also reached from the source limit (O7b, DO7h, S1). Its "Voir les offres", like O5's and
-  DO5's, needs a plans page that isn't drawn yet; so does "Aide" in M1.
+  DO5's, opens the plans (M9). M1 also opens Aide (M10) and Mes données (M12, with the account
+  deletion dialog M12b); M2 opens Changer le mot de passe (M11).
 - Confirming M8 wipes the device and returns to O1.
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| M1 | Moi | Profile, seal card, Sécurité (pill "Kit à créer"), Appareils, Offre et usage, Apparence et langue, Aide, Se déconnecter | — |
-| M2 | Sécurité | Seal hero, device tiles with sync dot, Kit de récupération, Vérifier mon mot de passe, Ce que voit le serveur | — |
+| M1 | Moi | Profile, seal card, Sécurité (pill "Kit à créer"), Appareils, Offre et usage, Apparence et langue, Mes données, Aide, Se déconnecter | — |
+| M2 | Sécurité | Seal hero, device tiles with sync dot, Kit de récupération (its date from `recoveryKeyStatus`, or "À créer"), Changer le mot de passe, Vérifier mon mot de passe, Ce que voit le serveur | — |
 | M2b | Sécurité (sombre) | M2 in the dark theme | Dark reference for the seal hero |
 | M3 | Ce que voit le serveur | "Ne voit jamais" / "Voit" lists | Keep in step with the wire format |
 | M4 | Vérifier mon mot de passe | Local check, next reminder in 3 months | Wrong → link to the recovery kit |
 | M5 | Appareils | Each device with last sync or "Pas vu depuis … · n en attente"; Retirer; Renommer on this device | The current device can't be removed here (Se déconnecter, M8) |
-| M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error |
+| M6 | Offre et usage | Plan; meters for storage, devices, active sources | 100% → warning, over → error; Voir les offres → M9 |
 | M7 | Apparence et langue | Theme tiles, language radios; text size follows the OS | Persisted |
 | M8 | Se déconnecter | Dialog: what is erased here, what stays; warning if no recovery kit | Wipes keys and local data even offline |
 | M8b | Se déconnecter (sombre) | M8 in the dark theme | Dark reference for dialogs and `onError` |
+| M9 | Offres | Each plan as a card: name, active sources, devices, storage, price; the current one ringed and tagged "Votre offre"; one line on how payment works on this platform; Passer à … | From M6, O5, DO5 (read-only without a session: no purchase button). Plans, limits and prices come from the server; the reference's "Plus" values and "x,xx €" are placeholders |
+| M10 | Aide | Questions fréquentes (how fetching works, forgotten password, a broken source, what the server sees); Proposer une source; Écrire au support; a line that support never sees documents or credentials; version and server | Each question opens a page of text |
+| M11 | Changer le mot de passe | Current password, new with strength meter, confirm; ok note that the kit stays valid; Changer le mot de passe | `changePassword`; the other devices stay signed in |
+| M12 | Mes données | Exporter mes documents (a ZIP decrypted on the device, by category, with its size and a warning that it isn't encrypted); Supprimer mon compte | Export runs on the device, document by document |
+| M12b | Supprimer mon compte | Dialog: what is erased (documents, sources, keys, on the server and every device), the kit stops working; type the username to confirm; Supprimer définitivement · Exporter d'abord · Annuler | Needs account deletion in the SDK |
 | X1 | Hors ligne | Seal "hors ligne", info note, pending additions on cards | Never an error screen |
 
 ### Desktop and tablet (D1–D4, T1)
@@ -613,6 +619,8 @@ left out (principle 5), not faked.
 | Sorting by amount or name | V3, D1 |
 | Script categories and popularity | O7, DO7, S2 chips and groups |
 | Renaming a session | M5 |
+| Plan catalogue and purchase | M9 |
+| Deleting the account | M12b |
 
 ## Delivery
 

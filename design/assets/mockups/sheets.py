@@ -24,7 +24,7 @@ LABELS = {
     "R3": "Historique", "R4": "Notification de code", "S1": "Sources", "S2": "Catalogue", "S3": "Connecter",
     "S4": "Récupération", "S5": "Détail", "S6": "En échec", "S7": "Retirer", "M1": "Moi", "M2": "Sécurité", "M2b": "Sécurité sombre",
     "M3": "Ce que voit le serveur", "M4": "Vérifier le mot de passe", "M5": "Appareils", "M6": "Offre et usage",
-    "M7": "Apparence et langue", "M8": "Se déconnecter", "M8b": "Se déconnecter, sombre", "X1": "Hors ligne", "D1": "Bureau — Catégorie",
+    "M7": "Apparence et langue", "M8": "Se déconnecter", "M9": "Offres", "M10": "Aide", "M11": "Changer le mot de passe", "M12": "Mes données", "M12b": "Supprimer mon compte", "M8b": "Se déconnecter, sombre", "X1": "Hors ligne", "D1": "Bureau — Catégorie",
     "DO1": "Bienvenue", "DO2": "Connexion", "DO2b": "Connexion en cours", "DO2c": "Échec de connexion",
     "DO3": "Créer le coffre", "DO3b": "Créer — erreurs",
     "DO4b": "Trousseau absent", "DO5": "Trop d’appareils", "DO6": "Kit de récupération", "DO6b": "Vérifier le kit",

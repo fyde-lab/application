@@ -31,9 +31,10 @@ NODES = {
     "S7": ("Retirer", "sources"),
     "M1": ("Moi", "moi"), "M2": ("Sécurité", "moi"), "M2b": ("Sécurité sombre", "moi"), "M3": ("Ce que voit le serveur", "moi"),
     "M4": ("Vérifier le mot de passe", "moi"), "M5": ("Appareils", "moi"), "M6": ("Offre et usage", "moi"),
-    "M7": ("Apparence et langue", "moi"), "M8": ("Se déconnecter", "moi"), "M8b": ("Se déconnecter, sombre", "moi"),
+    "M7": ("Apparence et langue", "moi"), "M8": ("Se déconnecter", "moi"), "M9": ("Offres", "moi"), "M10": ("Aide", "moi"), "M11": ("Changer le mot de passe", "moi"),
+    "M12": ("Mes données", "moi"), "M12b": ("Supprimer mon compte", "moi"), "M8b": ("Se déconnecter, sombre", "moi"),
     "TABS": ("Barre d’onglets", "entry"), "OS": ("Autre app (partage)", "entry"),
-    "LOCK": ("Écran verrouillé", "entry"), "PLANS": ("Offres", "todo"), "HELP": ("Aide", "todo"),
+    "LOCK": ("Écran verrouillé", "entry"),
     # desktop / tablet
     "DO1": ("Bienvenue", "donb"), "DO2": ("Connexion", "donb"), "DO2b": ("Connexion en cours", "donb"),
     "DO2c": ("Échec de connexion", "donb"), "DO3": ("Créer le coffre", "donb"), "DO3b": ("Créer — erreurs", "donb"),
@@ -50,8 +51,8 @@ NODES = {
 
 # Links that jump to a distant part of the app. On a map they're drawn as a short tag next to the
 # screen they leave ("→ O1"), so they don't cross the whole drawing; the text lists them too.
-JUMPS = {("V1", "O2"), ("M8", "O1"), ("M4", "O6"), ("M2", "O6"), ("O7b", "M6"), ("S1", "M6"), ("O5", "PLANS"),
-         ("M6", "PLANS"), ("R1", "V9"), ("K4", "V3"), ("O9", "V1"), ("S4", "O8")}
+JUMPS = {("V1", "O2"), ("M8", "O1"), ("M4", "O6"), ("M2", "O6"), ("O7b", "M6"), ("S1", "M6"), ("O5", "M9"),
+         ("R1", "V9"), ("K4", "V3"), ("O9", "V1"), ("S4", "O8")}
 
 # (from, to, label, kind): nav = a tap moves there; state = the same screen in another state;
 # overlay = a sheet or dialog over the screen; todo = leads to a page not drawn yet.
@@ -64,7 +65,7 @@ MOBILE = [
     ("O2", "O3", "Créer un coffre", "nav"), ("O2", "O4", "pas de trousseau", "overlay"),
     ("O3", "O4", "pas de trousseau", "overlay"), ("O2", "O5", "limite d’appareils", "nav"),
     ("O5", "O9", "appareil retiré", "nav"), ("O2", "O9", "1re ouverture ici", "nav"),
-    ("O9", "V1", "Parcourir le coffre", "nav"), ("O2", "O10", "Mot de passe oublié ?", "nav"), ("O10", "O10b", "Continuer", "nav"), ("O10b", "O9", "Rouvrir mon coffre", "nav"), ("O5", "PLANS", "Voir les offres", "todo"),
+    ("O9", "V1", "Parcourir le coffre", "nav"), ("O2", "O10", "Mot de passe oublié ?", "nav"), ("O10", "O10b", "Continuer", "nav"), ("O10b", "O9", "Rouvrir mon coffre", "nav"), ("O5", "M9", "Voir les offres", "nav"),
     ("O3", "O6", "Continuer", "nav"), ("O6", "O6b", "Je l’ai noté", "nav"), ("O6b", "O7", "Vérifier", "nav"), ("O6", "O7", "Plus tard", "nav"), ("O7", "O7b", "limite atteinte", "state"),
     ("O7b", "M6", "Offre et usage", "nav"), ("O7", "S3", "Connecter n sources", "nav"), ("O7", "O8", "Passer", "nav"),
     ("S4", "O8", "dernière source", "nav"), ("O8", "V2", "", "nav"), ("V2", "V1", "chaque source a tourné", "state"),
@@ -82,16 +83,16 @@ MOBILE = [
     ("S1", "S6", "en échec", "nav"), ("S6", "S4", "Mettre à jour et relancer", "nav"), ("S5", "S7", "Retirer", "overlay"),
     ("S1", "M6", "limite", "nav"),
     ("M1", "M2", "", "nav"), ("M1", "M5", "", "nav"), ("M1", "M6", "", "nav"), ("M1", "M7", "", "nav"),
-    ("M1", "M8", "", "overlay"), ("M1", "HELP", "Aide", "todo"), ("M2", "M3", "", "nav"), ("M2", "M4", "", "nav"),
+    ("M1", "M8", "", "overlay"), ("M1", "M10", "Aide", "nav"), ("M1", "M12", "Mes données", "nav"), ("M12", "M12b", "Supprimer", "overlay"), ("M2", "M11", "", "nav"), ("M2", "M3", "", "nav"), ("M2", "M4", "", "nav"),
     ("M2", "O6", "kit", "nav"), ("M2", "M5", "tuiles", "nav"), ("M4", "O6", "oublié ?", "nav"),
-    ("M6", "PLANS", "Voir les offres", "todo"), ("M8", "O1", "confirmé", "nav"),
+    ("M6", "M9", "Voir les offres", "nav"), ("M8", "O1", "confirmé", "nav"),
 ]
 DESKTOP = [
     ("DO1", "DO2", "J’ai déjà un coffre", "nav"), ("DO1", "DO3", "Créer mon coffre", "nav"),
     ("DO2", "DO2b", "Ouvrir le coffre", "state"), ("DO2b", "DO2c", "échec", "state"),
     ("DO2", "DO4b", "pas de trousseau", "overlay"), ("DO2b", "DO5", "limite d’appareils", "nav"),
     ("DO2b", "DO9", "1re ouverture ici", "nav"), ("DO5", "DO9", "appareil retiré", "nav"),
-    ("DO5", "PLANS", "Voir les offres", "todo"), ("DO2c", "DO10", "kit de récupération", "nav"), ("DO2", "DO10", "Mot de passe oublié ?", "nav"), ("DO10", "DO10b", "Continuer", "nav"), ("DO10b", "DO9", "Rouvrir mon coffre", "nav"),
+    ("DO5", "M9", "Voir les offres", "nav"), ("DO2c", "DO10", "kit de récupération", "nav"), ("DO2", "DO10", "Mot de passe oublié ?", "nav"), ("DO10", "DO10b", "Continuer", "nav"), ("DO10b", "DO9", "Rouvrir mon coffre", "nav"),
     ("DO3", "DO3b", "erreurs", "state"), ("DO3", "DO4b", "pas de trousseau", "overlay"), ("DO3", "DO6", "Continuer", "nav"),
     ("DO6", "DO6b", "Je l’ai noté", "nav"), ("DO6b", "DO7", "Vérifier", "nav"), ("DO6", "DO7", "Plus tard", "nav"), ("DO7", "DO7h", "limite atteinte", "state"), ("DO7", "DO7b", "Connecter n sources", "nav"),
     ("DO7", "DO8", "Passer", "nav"), ("DO7b", "DO7c", "Connecter", "nav"), ("DO7b", "DO7f", "refusé", "state"),
