@@ -288,6 +288,23 @@ identically in Sources, Arrivées, history and on desktop:
 | Up to date | `success`, check | "Ce matin · 38 documents" |
 | Paused | `textMuted`, pause | "En pause" |
 
+### Source runs
+
+Sources run on the user's devices, never on the server, and the design promises no clock time:
+phones can't guarantee one (iOS runs background work when it chooses), and a code asked at night
+would expire unseen.
+
+- **One device per source.** A source runs on one device, the one that connected it unless the
+  user picks another in S5 or D4 ("Appareil"). Running it everywhere would sign in to the
+  provider once per device, which providers answer with codes or lockouts.
+- **Once a day.** A source runs when its device opens Fyde and the last run is more than 24 h
+  old, and in the background where the OS allows it (Android's WorkManager, desktop while Fyde is
+  open, iOS when it grants time). The wording is "Une fois par jour", never "vers 22 h".
+- **Codes come while the user is there.** A run that will likely ask a code (the last one did)
+  waits for the app to be open rather than running in the background.
+- **Lancer** (S5, D4, R2) runs the source now, on the device where it's tapped: one sign-in,
+  asked for by the user.
+
 ### Verification code
 
 `OneTimeCodeField`: 6 boxes 52pt tall, `code` type; paste fills all boxes; backspace moves left;
@@ -439,7 +456,7 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | K3 | Depuis une autre app | Share extension sheet: file, name, suggestion, "Chiffré sur cet iPhone avant d'être envoyé" | Signed out → "Ouvrez Fyde pour ajouter" |
 | K4 | Ajout en cours | Row appears at once with "Chiffrement…"; progress snackbar; duplicate → "Déjà dans le coffre · Voir" | `DuplicateDocument` is never an error |
 | R1 | Arrivées | À traiter / Historique; code card first; documents with their suggestion and Modifier / C'est bon | Swipe right = C'est bon |
-| R2 | Tout est rangé | Check disc, next run, Lancer maintenant | Badge hidden |
+| R2 | Tout est rangé | Check disc, "repasseront dans la journée, chacune sur son appareil", Lancer maintenant | Badge hidden |
 | R3 | Historique | Run outcomes and user confirmations by day | — |
 | R4 | Notification de code | Lock-screen notification with the deadline; new-document notifications hide titles while locked | Expired → "Code expiré" + Relancer |
 
@@ -449,11 +466,11 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| S1 | Sources | Next run; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source; limit → plan sheet |
+| S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source; limit → plan sheet |
 | S2 | Catalogue | Search; every public scraper from A to Z; Ajouter or a check if already added; "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
-| S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch | Connect installs and runs at once (S4) |
+| S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4) |
 | S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan | Code or captcha → code sheet |
-| S5 | Détail | Status, counts, schedule switch, identifiants, sites, latest documents, Lancer, Retirer la source | — |
+| S5 | Détail | Status, counts, automatic switch, Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Retirer la source | — |
 | S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | The report is the run's debug report, which never records headers, bodies or form values; a sheet shows what's sent before sending |
 | S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
 
@@ -492,7 +509,7 @@ How the account screens connect (source: `assets/mockups/map-moi.html`, rendered
 | D1 | Catégorie | Sidebar · header, search, Importer · subcategory pills · 4-column cards with first-page thumbnails |
 | D2 | Document | Sidebar · 400dp list · pass and facts · live preview |
 | D3 | Arrivées | Sidebar · queue with inline code card · preview · classification panel with C'est bon (Enter) |
-| D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, automatique) · detail panel |
+| D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
 | T1 | Tablette | Sidebar · 4-column category cards · Scanner in the header · latest arrivals |
 
 ### Desktop onboarding and access (DO1–DO9)
@@ -572,7 +589,7 @@ left out (principle 5), not faked.
 | Capability | Screens |
 |---|---|
 | Per-source run record: last run, outcome, failure kind, new count | S1, S5, S6, R3, D4 |
-| Scheduled runs and background execution | S3, S5, R2 |
+| Runs on a chosen device: once a day on open, in the background where the OS allows | S1, S3, S5, R2, D4, DO7b |
 | Provenance on document metadata (source script, device, fetched at) | V5 Source facet, V6, S5 |
 | Unconfirmed-classification flag | R1, D3, Arrivées badge |
 | Delete-document event | V8 |
