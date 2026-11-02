@@ -31,6 +31,8 @@ desktop at 1440×900, tablet at 1194×834), rendered from the HTML in `assets/mo
 reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
 tables below), re-render, and commit the PNGs with the source.
 
+How the screens lead to one another is mapped in [`screen-map.md`](screen-map.md).
+
 Screen IDs are used throughout this document and in file names:
 **O** onboarding and access · **V** vault and documents · **K** capture · **R** arrivals ·
 **S** sources · **M** account (Moi) · **X** system states · **D** desktop · **DO** desktop
