@@ -239,7 +239,7 @@ Without a session there's no sidebar. The window splits in two (DO1–DO9):
   Fyde mark at the top, a reassurance line at the bottom ("Votre mot de passe ne quitte jamais
   cet ordinateur."). In between, on the sign-in path (DO1, DO2, DO5, DO9): the seal on
   `onPrimary` (white disc, lock in `primary`, rings at 22% and 16% white), "Vos documents, sous
-  scellé." in 38/44 SemiBold and the three promises. On the vault-creation path (DO3, DO6–DO8, DO7b–DO7g):
+  scellé." in 38/44 SemiBold and the three promises. On the vault-creation path (DO3, DO6–DO8, DO6b, DO7b–DO7g):
   "Créer votre coffre", "Quatre étapes, environ trois minutes." and a vertical 4-step stepper
   (done = `success` disc with check, current = white disc, to do = outline at 35% white, joined
   by a 2dp line at 18% white).
@@ -423,7 +423,8 @@ The references show one plan everywhere, **Gratuit**: 5 active sources, 3 device
 | O3 | Créer le coffre | Step 1/4; username; password with strength meter; confirm; warning "seule clé de votre coffre"; required "J'ai compris" | Mismatch and taken username as field errors |
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
 | O5 | Trop d'appareils | Plan limit, radio list of open sessions with none picked, "Retirer l'appareil choisi" (disabled until one is picked, then "Retirer le Pixel 8") | Nothing is pre-selected, so one tap can't cut off a device in use. Re-runs login with `replaceSessionId`; credentials kept only while open |
-| O6 | Kit de récupération | Step 2/4; 12 words; Enregistrer le PDF / Imprimer; Je l'ai mis en lieu sûr / Plus tard | Screenshots blocked. Confirm asks two words back |
+| O6 | Kit de récupération | Step 2/4; the 24 words (3 columns, Plex Mono, numbered); Enregistrer le PDF / Imprimer; "Captures d'écran désactivées"; Je l'ai noté / Plus tard (déconseillé) | Screenshots blocked. The words are the SDK's English BIP39 words in every language. Je l'ai noté → O6b; Plus tard → O7 |
+| O6b | Vérifier le kit | Two of the words asked back by number ("Mot n° 7", "Mot n° 19", picked at random), each checked as typed; note that the kit is checked on the device; Vérifier (enabled once both match) / Revoir les mots | A wrong word shows a field error; Revoir les mots → O6 with the same words |
 | O7 | Choisir ses sources | Step 3/4; plan counter "Offre Gratuit · 3 / 5"; search; public scrapers with checkboxes (no category chips: scripts have no category yet) | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
 | O7b | Limite de l'offre atteinte | O7 scrolled: the counter stays pinned under the bar, in `warning`, "Limite atteinte"; one line on unticking to swap; unticked sources dimmed and not tickable; pointer to Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | O8 | Notifications | Step 4/4; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
@@ -527,7 +528,8 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO3b | Créer le coffre — erreurs | Username taken (field error, red 2dp border), weak password (meter in `warning`), mismatch, checkbox unticked, Continuer disabled | Errors appear on blur or submit, not while typing |
 | DO4b | Trousseau absent | Dialog over DO3 (drawn) or DO2: warning tile, "Pas de trousseau système sur cet ordinateur", which keyrings were tried (GNOME Keyring, KWallet), the risk, opt-in checkbox, Annuler · Réessayer · "Créer quand même" over DO3 or "Ouvrir quand même" over DO2 (enabled once ticked; drawn ticked) | On `SecureStorageUnavailable`; Réessayer re-runs the call without the opt-in (for after installing a keyring); the confirm re-runs it with `allowInsecureStorage` |
 | DO5 | Trop d'appareils | As O5; Voir les offres · Retirer le MacBook Air | — |
-| DO6 | Kit de récupération | Step 2 of 4: 12 words in 4×3, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop |
+| DO6 | Kit de récupération | Step 2 of 4: the 24 words in 4×6, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop; Je l'ai noté → DO6b |
+| DO6b | Vérifier le kit | Step 2 of 4: as O6b in the 440dp form | — |
 | DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 3 with their state | Connect installs the script and starts its first run |
@@ -593,7 +595,7 @@ left out (principle 5), not faked.
 | Provenance on document metadata (source script, device, fetched at) | V5 Source facet, V6, S5 |
 | Unconfirmed-classification flag | R1, D3, Arrivées badge |
 | Delete-document event | V8 |
-| Recovery kit and local password check | O6, M2, M4 |
+| Recovery key status, account recovery and password change (in fyde-sdk, not yet in the bindings) | M2, M4, O10, DO10 |
 | Replay progress and per-device last seen | O9, M5, M2 |
 | First-page thumbnails | V3, D1, D2 |
 | Sorting by amount or name | V3, D1 |

@@ -10,6 +10,7 @@ subgraph "cluster_onb" { label="Accueil et accès (O)"; fontname="Inter SemiBold
   "O4" [label="O4\nStockage indisponible" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "O5" [label="O5\nTrop d’appareils" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "O6" [label="O6\nKit de récupération" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "O6b" [label="O6b\nVérifier le kit" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "O7" [label="O7\nChoisir ses sources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "O7b" [label="O7b\nLimite de l’offre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "O8" [label="O8\nNotifications" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
@@ -82,7 +83,9 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "O5>PLANS" [label="→ Offres, à dessiner" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#B3261E" fontcolor="#B3261E" fontsize=11 margin="0.10,0.04" penwidth=1];
 "O5" -> "O5>PLANS" [color="#B3261E" style=dashed penwidth=1.2 arrowhead=open label="Voir les offres" arrowhead=none];
 "O3" -> "O6" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
-"O6" -> "O7" [color="#1F4D3A" penwidth=1.6];
+"O6" -> "O6b" [color="#1F4D3A" penwidth=1.6 label="Je l’ai noté"];
+"O6b" -> "O7" [color="#1F4D3A" penwidth=1.6 label="Vérifier"];
+"O6" -> "O7" [color="#1F4D3A" penwidth=1.6 label="Plus tard"];
 "O7" -> "O7b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="limite atteinte"];
 "O7b>M6" [label="→ M6 · Offre et usage" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "O7b" -> "O7b>M6" [color="#1F4D3A" penwidth=1.6 label="Offre et usage" arrowhead=none];

@@ -14,6 +14,7 @@ subgraph "cluster_donb" { label="Accueil et accès au bureau (DO)"; fontname="In
   "DO4b" [label="DO4b\nTrousseau absent" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO5" [label="DO5\nTrop d’appareils" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO6" [label="DO6\nKit de récupération" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "DO6b" [label="DO6b\nVérifier le kit" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7" [label="DO7\nChoisir ses sources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7h" [label="DO7h\nLimite de l’offre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7b" [label="DO7b\nConnecter une source" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
@@ -46,7 +47,9 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO3" -> "DO3b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="erreurs"];
 "DO3" -> "DO4b" [color="#2C5582" style=dashed penwidth=1.4 label="pas de trousseau"];
 "DO3" -> "DO6" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
-"DO6" -> "DO7" [color="#1F4D3A" penwidth=1.6];
+"DO6" -> "DO6b" [color="#1F4D3A" penwidth=1.6 label="Je l’ai noté"];
+"DO6b" -> "DO7" [color="#1F4D3A" penwidth=1.6 label="Vérifier"];
+"DO6" -> "DO7" [color="#1F4D3A" penwidth=1.6 label="Plus tard"];
 "DO7" -> "DO7h" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="limite atteinte"];
 "DO7" -> "DO7b" [color="#1F4D3A" penwidth=1.6 label="Connecter n sources"];
 "DO7" -> "DO8" [color="#1F4D3A" penwidth=1.6 label="Passer"];
