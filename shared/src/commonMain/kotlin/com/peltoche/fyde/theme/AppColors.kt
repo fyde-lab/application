@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.lerp
 /**
  * The handful of roles `design/design-system.md` § Color names that Material
  * 3's [ColorScheme] has no slot for at all (`success`, `warning`, the two
- * `selection` roles). Everything else in the spec maps onto a real M3 role —
+ * `selection` roles, `highlight`, the category colours). Everything else in the spec maps onto a real M3 role —
  * see [appLightColorScheme]/[appDarkColorScheme] — and is read through
  * `MaterialTheme.colorScheme`, not duplicated here.
  */
@@ -23,7 +23,16 @@ data class AppExtendedColors(
     val onWarning: Color,
     val selectionSurface: Color,
     val selectionTextBackground: Color,
+    /** Behind the words a search matched; the text on it stays `text`. */
+    val highlight: Color,
+    /** The square behind a category's icon, on that category's fill — the same pale wash in both themes. */
+    val categoryTile: Color,
+    /** A category card's secondary line, on the category's fill. */
+    val categoryCaption: Color,
+    val categories: AppCategoryColors,
 )
+
+private val CATEGORY_TILE = Color.White.copy(alpha = 0.62f)
 
 private val lightExtendedColors = AppExtendedColors(
     success = Color(0xFF2E7D46),
@@ -32,6 +41,10 @@ private val lightExtendedColors = AppExtendedColors(
     onWarning = Color(0xFFFFFFFF),
     selectionSurface = Color(0xFFE7EFEF),
     selectionTextBackground = Color(0xFFBFE0E1),
+    highlight = Color(0xFFF3E2A9),
+    categoryTile = CATEGORY_TILE,
+    categoryCaption = Color(0xFF4C4840),
+    categories = lightCategoryColors,
 )
 
 private val darkExtendedColors = AppExtendedColors(
@@ -41,6 +54,10 @@ private val darkExtendedColors = AppExtendedColors(
     onWarning = Color(0xFF2B1C02),
     selectionSurface = Color(0xFF1F3638),
     selectionTextBackground = Color(0xFF2C5457),
+    highlight = Color(0xFF5C4A12),
+    categoryTile = CATEGORY_TILE,
+    categoryCaption = Color(0xFF9B9484),
+    categories = darkCategoryColors,
 )
 
 /**
@@ -213,6 +230,10 @@ object AppColors {
     val onSuccess: Color @Composable get() = LocalAppExtendedColors.current.onSuccess
     val selectionSurface: Color @Composable get() = LocalAppExtendedColors.current.selectionSurface
     val selectionTextBackground: Color @Composable get() = LocalAppExtendedColors.current.selectionTextBackground
+    val highlight: Color @Composable get() = LocalAppExtendedColors.current.highlight
+    val categoryTile: Color @Composable get() = LocalAppExtendedColors.current.categoryTile
+    val categoryCaption: Color @Composable get() = LocalAppExtendedColors.current.categoryCaption
+    val category: AppCategoryColors @Composable get() = LocalAppExtendedColors.current.categories
 
     /**
      * design-system.md § Color — a tinted container: [accent] at one low

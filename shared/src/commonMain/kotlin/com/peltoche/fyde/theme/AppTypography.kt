@@ -50,7 +50,8 @@ internal fun appTypography(bodyFontFamily: FontFamily): Typography {
     fun rebased(style: TextStyle) = style.copy(fontFamily = bodyFontFamily)
 
     return Typography(
-        displayLarge = rebased(base.displayLarge),
+        // Pass amount role — a document pass's headline value.
+        displayLarge = TextStyle(fontFamily = bodyFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-0.88).sp),
         displayMedium = rebased(base.displayMedium),
         displaySmall = rebased(base.displaySmall),
         // Display role — rare, empty-state/onboarding headlines only.
@@ -98,7 +99,8 @@ val LocalAppDataTextStyle = staticCompositionLocalOf {
  * design-system.md's table, plus [label] (M3's `labelLarge`, left at M3's
  * own default proportions): the spec doesn't yet name a distinct "button
  * label" role, and inventing one here would be a value the spec never
- * reviewed — see design-system.md § Open questions.
+ * reviewed — see design-system.md § Open questions. [passAmount] is the
+ * first role taken from the new table ahead of the rest of it.
  */
 object AppTypography {
     val display: TextStyle @Composable get() = MaterialTheme.typography.headlineLarge
@@ -110,4 +112,7 @@ object AppTypography {
     val micro: TextStyle @Composable get() = MaterialTheme.typography.labelSmall
     val label: TextStyle @Composable get() = MaterialTheme.typography.labelLarge
     val data: TextStyle @Composable get() = LocalAppDataTextStyle.current
+
+    /** design-system.md's `passAmount`: the one large value heading a document pass. */
+    val passAmount: TextStyle @Composable get() = MaterialTheme.typography.displayLarge
 }

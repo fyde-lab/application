@@ -44,6 +44,14 @@ import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.AppListItem
 import com.peltoche.fyde.components.content.SealHero
+import com.peltoche.fyde.components.content.CategoryBand
+import com.peltoche.fyde.components.content.CategoryCard
+import com.peltoche.fyde.components.content.CategoryCardPlaceholder
+import com.peltoche.fyde.components.content.DocumentCard
+import com.peltoche.fyde.components.content.DocumentPass
+import com.peltoche.fyde.components.content.DocumentPassCell
+import com.peltoche.fyde.components.content.DocumentPassHeadline
+import com.peltoche.fyde.components.content.DocumentRow
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
@@ -288,6 +296,106 @@ private fun ContentSection() {
                 AppSkeleton(modifier = Modifier.size(AppDimensions.iconTile), shape = AppShapes.iconTile)
                 AppIconTile(size = AppDimensions.iconTileSmall, tint = AppColors.primary) { BoltGlyph(tint = AppColors.primary, modifier = Modifier.size(AppIconSize.md)) }
                 AppIconTile(size = AppDimensions.iconTileSmall, tint = AppColors.primary) { SyncGlyph(tint = AppColors.primary, modifier = Modifier.size(AppIconSize.md)) }
+            }
+        }
+        CatalogueRow("CategoryCard — every category, in display order, then the placeholder") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                (CategoryDisplayOrder + listOf<FydeCategory?>(null)).chunked(4).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                        row.forEach { category ->
+                            CategoryCard(
+                                name = category?.label() ?: "À classer",
+                                count = "38",
+                                caption = "Facture · 12 oct.",
+                                color = category.colors(),
+                                contentDescription = category?.label() ?: "À classer",
+                                onClick = {},
+                                modifier = Modifier.width(180.dp),
+                                icon = { tint -> CategoryGlyph(category, tint) },
+                            )
+                        }
+                    }
+                }
+                CategoryCardPlaceholder(modifier = Modifier.width(180.dp))
+            }
+        }
+        CatalogueRow("CategoryBand — a category page's head") {
+            CategoryBand(
+                name = FydeCategory.HOUSING.label(),
+                subtitle = "38 documents",
+                color = FydeCategory.HOUSING.colors(),
+                icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+            )
+        }
+        CatalogueRow("DocumentRow — plain / highlighted / selected") {
+            Column {
+                DocumentRow(
+                    title = "Facture d'électricité",
+                    subtitle = "Logement · Facture",
+                    trailing = "12 oct.",
+                    color = FydeCategory.HOUSING.colors(),
+                    onClick = {},
+                    icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+                )
+                DocumentRow(
+                    title = "Attestation d'assurance habitation",
+                    subtitle = "Logement · Attestation",
+                    trailing = "1 oct.",
+                    color = FydeCategory.HOUSING.colors(),
+                    onClick = {},
+                    highlightTerms = listOf("attestation"),
+                    icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+                )
+                DocumentRow(
+                    title = "Bulletin de paie — septembre",
+                    subtitle = "Travail · Bulletin de paie",
+                    trailing = "10 oct.",
+                    color = FydeCategory.WORK.colors(),
+                    onClick = {},
+                    selected = true,
+                    icon = { tint -> CategoryGlyph(FydeCategory.WORK, tint) },
+                )
+            }
+        }
+        CatalogueRow("DocumentCard — a category's grid at Expanded") {
+            DocumentCard(
+                title = "Facture EDF — octobre",
+                caption = "12 oct.",
+                color = FydeCategory.HOUSING.colors(),
+                onClick = {},
+                modifier = Modifier.width(240.dp),
+                icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+            )
+        }
+        CatalogueRow("DocumentPass — value headline / name headline") {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                DocumentPass(
+                    issuer = "EDF",
+                    type = "Facture",
+                    headline = "84,20 €",
+                    line = "À régler avant le 27 octobre",
+                    cells = listOf(DocumentPassCell("Période", "sept.–oct."), DocumentPassCell("Référence", "3001 4471"), DocumentPassCell("Reçue", "12 oct.")),
+                    color = FydeCategory.HOUSING.colors(),
+                    modifier = Modifier.width(340.dp),
+                    icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+                )
+                DocumentPass(
+                    issuer = FydeCategory.MONEY.label(),
+                    type = "Relevé",
+                    headline = "Relevé de compte — octobre",
+                    line = null,
+                    cells = listOf(DocumentPassCell("Reçu", "1 oct."), DocumentPassCell("Taille", "182 Ko")),
+                    color = FydeCategory.MONEY.colors(),
+                    modifier = Modifier.width(340.dp),
+                    headlineKind = DocumentPassHeadline.Name,
+                    icon = { tint -> CategoryGlyph(FydeCategory.MONEY, tint) },
+                )
+            }
+        }
+        CatalogueRow("Vault glyphs — grid / sort") {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                GridGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+                SortGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
             }
         }
         CatalogueRow("SealHero — the seal (Welcome, Sécurité)") {
