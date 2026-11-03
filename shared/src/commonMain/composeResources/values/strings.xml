@@ -516,4 +516,55 @@
 
     <!-- Components: what assistive tech announces for a busy button -->
     <string name="button_loading">Loading</string>
+    <!-- Document attributes: the pass and Informations (design-system.md § Document pass). -->
+    <string name="vault_pass_received_f">Received</string>
+    <string name="vault_pass_issued">Issued</string>
+    <string name="vault_pass_issued_f">Issued</string>
+    <string name="vault_pass_due_by">Due by %1$s</string>
+    <string name="vault_pass_issued_on">Issued on %1$s</string>
+    <string name="vault_pass_issued_on_f">Issued on %1$s</string>
+    <string name="vault_pass_net_pay">Net pay</string>
+    <string name="vault_pass_net_pay_month">Net pay · %1$s</string>
+    <string name="vault_pass_refund">Refund</string>
+    <string name="vault_pass_amount_due">Amount due</string>
+    <string name="vault_pass_refund_on">Refund · expected %1$s</string>
+    <string name="vault_pass_amount_due_by">Amount due · by %1$s</string>
+    <string name="vault_pass_valid_until">Valid until %1$s</string>
+    <string name="vault_pass_refund_amount">+ %1$s</string>
+    <string name="vault_info_heading">Information</string>
+    <string name="attribute_issued_on">Issued on</string>
+    <string name="attribute_issued_on_f">Issued on</string>
+    <string name="attribute_issuer">Issuer</string>
+    <string name="attribute_reference">Reference</string>
+    <string name="attribute_period">Period</string>
+    <string name="attribute_period_start">Period start</string>
+    <string name="attribute_period_end">Period end</string>
+    <string name="attribute_total_amount">Total incl. tax</string>
+    <string name="attribute_due_on">Due date</string>
+    <string name="attribute_gross_pay">Gross pay</string>
+    <string name="attribute_net_pay">Net pay</string>
+    <string name="attribute_tax_year">Income year</string>
+    <string name="attribute_tax_amount">Tax</string>
+    <string name="attribute_yes">Yes</string>
+    <string name="attribute_no">No</string>
+    <string name="period_from">From %1$s</string>
+    <string name="period_until">Until %1$s</string>
+    <string name="period_range">%1$s–%2$s</string>
+    <string name="amount_format">%2$s%1$s</string>
+    <string name="grouping_separator">,</string>
+    <string name="date_format_long">%2$s %1$d, %3$d</string>
+    <string name="date_format_long_no_year">%2$s %1$d</string>
+    <string name="month_year_format">%1$s %2$d</string>
+    <string name="month_long_1">January</string>
+    <string name="month_long_2">February</string>
+    <string name="month_long_3">March</string>
+    <string name="month_long_4">April</string>
+    <string name="month_long_5">May</string>
+    <string name="month_long_6">June</string>
+    <string name="month_long_7">July</string>
+    <string name="month_long_8">August</string>
+    <string name="month_long_9">September</string>
+    <string name="month_long_10">October</string>
+    <string name="month_long_11">November</string>
+    <string name="month_long_12">December</string>
 </resources>

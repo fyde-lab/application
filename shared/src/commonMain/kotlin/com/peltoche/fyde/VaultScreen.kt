@@ -364,7 +364,6 @@ private fun HomePage(vault: Vault) {
                             if (index > 0) AppDivider()
                             VaultDocumentRow(
                                 document = document,
-                                subtitle = listOfNotNull(document.categoryLabel(), document.documentType?.label()).joinToString(" · "),
                                 onClick = { vault.openDocument(document) },
                             )
                         }
@@ -528,19 +527,21 @@ internal fun <T> VaultGrid(
     }
 }
 
-/** A document's row in its category's colours. */
+/**
+ * A document's row in its category's colours: its issuer and date under its
+ * name, its pass's amount at the end (design-system.md § Components).
+ */
 @Composable
 internal fun VaultDocumentRow(
     document: FydeDocument,
-    subtitle: String?,
     onClick: () -> Unit,
     selected: Boolean = false,
     highlightTerms: List<String> = emptyList(),
 ) {
     DocumentRow(
         title = document.name,
-        subtitle = subtitle?.takeIf { it.isNotEmpty() },
-        trailing = localizedShortDate(document.createdAt),
+        subtitle = listOfNotNull(document.issuer, localizedShortDate(document.createdAt)).joinToString(" · "),
+        amount = rowAmount(document),
         color = document.category.colors(),
         onClick = onClick,
         selected = selected,

@@ -41,8 +41,8 @@ import com.peltoche.fyde.theme.appFocusRing
 
 /**
  * A document in a list (V3, V5, D2, D6's latest arrivals): its category's
- * tile, [title] over [subtitle] ("Logement · Facture"), and [trailing] (its
- * date) at the end. [highlightTerms] are marked in the title wherever they
+ * tile, [title] over [subtitle] ("EDF · 12 oct."), and its [amount]
+ * ("84,20 €", in `data`) at the end when it has one. [highlightTerms] are marked in the title wherever they
  * occur, ignoring case — the words a search matched. [selected] is the
  * document open beside the list (D2), drawn in the category's fill.
  */
@@ -50,7 +50,7 @@ import com.peltoche.fyde.theme.appFocusRing
 fun DocumentRow(
     title: String,
     subtitle: String?,
-    trailing: String?,
+    amount: String?,
     color: AppCategoryColor,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -84,8 +84,8 @@ fun DocumentRow(
                 Text(text = subtitle, style = AppTypography.caption, color = AppColors.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-        if (trailing != null) {
-            Text(text = trailing, style = AppTypography.caption, color = AppColors.textMuted, maxLines = 1)
+        if (amount != null) {
+            Text(text = amount, style = AppTypography.data, color = AppColors.text, maxLines = 1)
         }
     }
 }

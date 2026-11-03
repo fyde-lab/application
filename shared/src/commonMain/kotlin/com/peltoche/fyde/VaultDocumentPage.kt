@@ -33,20 +33,17 @@ import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppIconTile
+import com.peltoche.fyde.components.content.DocumentAttributes
 import com.peltoche.fyde.components.content.DocumentPass
-import com.peltoche.fyde.components.content.DocumentPassCell
-import com.peltoche.fyde.components.content.DocumentPassHeadline
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.document_detail_size
 import com.peltoche.fyde.resources.vault_fact_arrived
 import com.peltoche.fyde.resources.vault_fact_encrypted
 import com.peltoche.fyde.resources.vault_fact_encrypted_devices
 import com.peltoche.fyde.resources.vault_fact_filed
+import com.peltoche.fyde.resources.vault_info_heading
 import com.peltoche.fyde.resources.vault_fact_in_vault
 import com.peltoche.fyde.resources.vault_file_caption
 import com.peltoche.fyde.resources.vault_filed_path
-import com.peltoche.fyde.resources.vault_pass_format
-import com.peltoche.fyde.resources.vault_pass_received
 import com.peltoche.fyde.resources.vault_save
 import com.peltoche.fyde.resources.vault_viewer_close
 import com.peltoche.fyde.resources.vault_viewer_decrypted
@@ -160,30 +157,43 @@ internal fun DocumentViewer(
 
 /**
  * The pass, the file row (when [onOpenFile] opens the content elsewhere;
- * D2 previews it beside), the facts, and Save. The pass is the "name"
- * template: the SDK has no issuer, amount or due date for a document.
+ * D2 previews it beside), Informations, the facts, and Save. The pass's
+ * template and Informations' rows come from the document's attributes
+ * (design-system.md § Document pass, § Informations).
  */
 @Composable
 private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: (() -> Unit)?) {
     val size = localizedSize(document.size)
+    val layout = remember(document) { passLayout(document) }
+    val information = remember(document, layout) { informationRows(document, layout) }
+    val pass = passText(document, layout, fallbackIssuer = document.categoryLabel())
+    val type = document.documentType?.label()
     Column {
         DocumentPass(
-            issuer = document.categoryLabel(),
-            type = document.documentType?.label(),
-            headline = document.name,
-            line = null,
-            cells = listOf(
-                DocumentPassCell(stringResource(Res.string.vault_pass_received), localizedShortDate(document.createdAt)),
-                DocumentPassCell(stringResource(Res.string.document_detail_size), size),
-                DocumentPassCell(stringResource(Res.string.vault_pass_format), document.typeCode),
-            ),
+            issuer = pass.issuer,
+            type = type,
+            headline = pass.headline,
+            line = pass.line,
+            cells = pass.cells,
             color = document.category.colors(),
-            headlineKind = DocumentPassHeadline.Name,
+            headlineKind = pass.headlineKind,
+            description = listOfNotNull(listOfNotNull(type, pass.issuer).joinToString(" "), pass.headline, pass.line)
+                .plus(pass.cells.map { "${it.label} ${it.value}" })
+                .filter { it.isNotBlank() }
+                .joinToString(", "),
             icon = { tint -> CategoryGlyph(document.category, tint) },
         )
         if (onOpenFile != null) {
             Spacer(Modifier.height(AppSpacing.space5))
             SettingsGroup { FileRow(document, size, onOpenFile) }
+        }
+        if (information.isNotEmpty()) {
+            Spacer(Modifier.height(AppSpacing.space5))
+            val feminine = isFeminine(document.documentType)
+            DocumentAttributes(
+                heading = stringResource(Res.string.vault_info_heading),
+                rows = information.map { informationText(it, feminine) },
+            )
         }
         Spacer(Modifier.height(AppSpacing.space5))
         SettingsGroup {

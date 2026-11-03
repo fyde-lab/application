@@ -48,6 +48,8 @@ import com.peltoche.fyde.components.content.CategoryBand
 import com.peltoche.fyde.components.content.CategoryCard
 import com.peltoche.fyde.components.content.CategoryCardPlaceholder
 import com.peltoche.fyde.components.content.DocumentCard
+import com.peltoche.fyde.components.content.DocumentAttributeRow
+import com.peltoche.fyde.components.content.DocumentAttributes
 import com.peltoche.fyde.components.content.DocumentPass
 import com.peltoche.fyde.components.content.DocumentPassCell
 import com.peltoche.fyde.components.content.DocumentPassHeadline
@@ -331,16 +333,16 @@ private fun ContentSection() {
             Column {
                 DocumentRow(
                     title = "Facture d'électricité",
-                    subtitle = "Logement · Facture",
-                    trailing = "12 oct.",
+                    subtitle = "EDF · 12 oct.",
+                    amount = "84,20 €",
                     color = FydeCategory.HOUSING.colors(),
                     onClick = {},
                     icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
                 )
                 DocumentRow(
                     title = "Attestation d'assurance habitation",
-                    subtitle = "Logement · Attestation",
-                    trailing = "1 oct.",
+                    subtitle = "MAIF · 1 oct.",
+                    amount = null,
                     color = FydeCategory.HOUSING.colors(),
                     onClick = {},
                     highlightTerms = listOf("attestation"),
@@ -348,8 +350,8 @@ private fun ContentSection() {
                 )
                 DocumentRow(
                     title = "Bulletin de paie — septembre",
-                    subtitle = "Travail · Bulletin de paie",
-                    trailing = "10 oct.",
+                    subtitle = "Pajemploi · 10 oct.",
+                    amount = "1 912,44 €",
                     color = FydeCategory.WORK.colors(),
                     onClick = {},
                     selected = true,
@@ -391,6 +393,17 @@ private fun ContentSection() {
                     icon = { tint -> CategoryGlyph(FydeCategory.MONEY, tint) },
                 )
             }
+        }
+        CatalogueRow("DocumentAttributes — Informations on V6 and D2") {
+            DocumentAttributes(
+                heading = "Informations",
+                rows = listOf(
+                    DocumentAttributeRow("Émise le", "10 octobre 2026"),
+                    DocumentAttributeRow("Montant TTC", "84,20 €", isAmount = true),
+                    DocumentAttributeRow("Contract", "CTR 3001 4471 22"),
+                ),
+                modifier = Modifier.width(340.dp),
+            )
         }
         CatalogueRow("Vault glyphs — grid / sort") {
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
