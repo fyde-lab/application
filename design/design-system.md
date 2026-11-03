@@ -590,9 +590,9 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `AppNote` | Landed (O2) | `Info` / `Ok` / `Warning` / `Error`: wash, icon in the kind's colour, text; replaces inline `AppBanner`, which screens drop as they're rebuilt |
 | `AppTabBar` | New | Replaces `AppNavigationBar` |
 | `AppSidebar` | New | Replaces `AppNavigationTopBar` and `AppNavigationRail`; selected row = fill + 3dp `primary` leading bar + SemiBold |
-| `CategoryCard`, `CategoryBand` | New | Normal and placeholder variants |
-| `DocumentRow` | New | Thumbnail or tile, title, issuer · type, amount, date, highlight, pending |
-| `DocumentPass` | New | Templates by type |
+| `CategoryCard`, `CategoryBand` | Landed (V1, V3) | Card: 132 tall (`AppDimensions.categoryCardHeight`) on the category's fill, a 38 `categoryTile` square (white at 62%, both themes) with the icon in ink and the count in ink above the name (`section`) and the newest document (`caption`, `categoryCaption`); one control for screen readers; `CategoryCardPlaceholder` while loading. Band: 52 tile, name in `title`, count under it. Glyphs in `CategoryGlyphs.kt`, the category → fill, ink and icon mapping in `VaultCategories.kt`. Still the current card radius |
+| `DocumentRow`, `DocumentCard` | Landed (V3, V5, D1, D2) | Row: the category's tile (fill and ink; no thumbnails yet), title (`bodyEmphasis`, matched words on `highlight`), subtitle, date; `selected` fills it with the category (D2). Amount and pending are left out until the SDK carries them. Card: D1's grid cell, a preview well holding the tile, then title and date |
+| `DocumentPass` | Landed (V6, D2) | Issuer and type in ink, headline in `passAmount` (`DocumentPassHeadline.Value`) or `title` for a name, the line under it, a dashed perforation in ink at 40%, up to three `DocumentPassCell`s. The caller picks the template; today only "Relevé, autre" (the SDK has no amounts, issuers or references yet) |
 | `ArrivalsBanner`, `ClassificationSuggestion` | New | — |
 | `OneTimeCodeField` | New | See [Verification code](#verification-code) |
 | `SourceStatus`, `RunStepper` | Landed (S1, DO7c) | See [Source status](#source-status). `SourceStatus`: 12 glyph and caption Medium in the state's colour (spinner `primary`, clock `warning`, alert `error`, check `success`, muted clock when queued) |
@@ -668,7 +668,7 @@ left out (principle 5), not faked.
 ## Open questions
 
 - Bundling Instrument Sans in `composeResources/font/` and removing Public Sans.
-- Category icons for Dons and Famille are not yet drawn as `Canvas` glyphs.
+- The Dons icon (`GiftGlyph`) has no symbol in `icons.svg`; it's drawn in the same hand until one is.
 - Android-specific reference screens are not drawn yet.
 - How plans are sold: through the App Store and Google Play on phones (their rules apply to M9's
   wording and links) and how on desktop; the server has no plan catalogue yet, so M9's "Plus"

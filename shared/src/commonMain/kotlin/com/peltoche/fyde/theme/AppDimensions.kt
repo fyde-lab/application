@@ -91,6 +91,21 @@ object AppDimensions {
     /** D4's source detail panel, flush to the window's right edge beside the table. */
     val sourceDetailPanelWidth: Dp = 380.dp
 
+    /** `CategoryCard`'s fixed height (V1, D6): every card in the grid lines up whatever its caption. */
+    val categoryCardHeight: Dp = 132.dp
+
+    /** The square behind a category's icon on a `CategoryCard`. */
+    val categoryCardIcon: Dp = 38.dp
+
+    /** `DocumentCard`'s preview well (D1). */
+    val documentCardWell: Dp = 160.dp
+
+    /** D2's list column, the category's documents beside the open one. */
+    val documentListColumn: Dp = 400.dp
+
+    /** D2's pass column, between the list and the preview. */
+    val documentPassColumn: Dp = 360.dp
+
     /** `AppBackButton`'s circle — design-system.md § Compact: "a 44pt circular back button". */
     val backButton: Dp = 44.dp
 
