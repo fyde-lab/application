@@ -1063,6 +1063,9 @@ private fun CredentialsFields(
         errorMessage = tab.state.errors[script.id],
         isSubmitting = tab.isPending(script.id),
         keptSecrets = keptSecrets,
+        // Rerunning needs this source's run over: ScraperRuns won't start a
+        // second one, so the new credentials would only be saved.
+        canSubmit = !(rerun && tab.isRunning(script.id)),
         onSubmit = {
             val entered = validatedCredentials(script.parameters, values, installed)
             if (entered != null) tab.onUpdate(script, entered, rerun) else showRequiredErrors = true

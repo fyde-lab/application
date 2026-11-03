@@ -150,11 +150,13 @@ internal class ConnectSourceForm(
     val position: Int? = null,
     val count: Int? = null,
     val keptSecrets: Set<String> = emptySet(),
+    /** False while submitting can't do anything yet (the Sources tab's rerun while that source runs). */
+    val canSubmit: Boolean = true,
 ) {
     val parameters = orderedParameters(script.parameters)
 
     fun submit() {
-        if (!isSubmitting) onSubmit()
+        if (!isSubmitting && canSubmit) onSubmit()
     }
 }
 
@@ -391,6 +393,7 @@ internal fun ConnectButton(form: ConnectSourceForm, text: String = stringResourc
     AppButton(
         text = text,
         onClick = form::submit,
+        enabled = form.canSubmit,
         loading = form.isSubmitting,
         loadingText = stringResource(Res.string.connect_source_submitting, form.script.name),
         modifier = Modifier.fillMaxWidth(),

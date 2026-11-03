@@ -831,7 +831,7 @@ private fun AppContent(
                 ScraperQuestionDialog(
                     scriptName = pending.scriptName,
                     question = pending.text,
-                    onAnswer = scraperRuns::answer,
+                    onAnswer = { text -> scraperRuns.answer(pending, text) },
                 )
             }
         }
