@@ -87,4 +87,18 @@ class VaultQueryTest {
         assertEquals(VaultQuery(category = FydeCategory.MONEY), query.withCategory(FydeCategory.MONEY))
         assertEquals(VaultQuery(), query.withCategory(null))
     }
+
+    @Test
+    fun termsAreTheTypedWords() {
+        assertEquals(listOf("avis", "impôt"), VaultQuery(text = "  avis   impôt ").terms)
+        assertEquals(emptyList(), VaultQuery(text = " ").terms)
+    }
+
+    @Test
+    fun resultsShowOnceTextTypeOrYearIsPicked() {
+        assertEquals(false, VaultQuery(text = "  ", category = FydeCategory.HOUSING).showsResults)
+        assertEquals(true, VaultQuery(text = "edf").showsResults)
+        assertEquals(true, VaultQuery(type = FydeDocumentType.INVOICE).showsResults)
+        assertEquals(true, VaultQuery(year = YearFilter.In(2025)).showsResults)
+    }
 }

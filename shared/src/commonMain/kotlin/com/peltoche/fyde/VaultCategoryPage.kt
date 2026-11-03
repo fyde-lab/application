@@ -52,7 +52,7 @@ internal fun CategoryPage(vault: Vault, page: VaultPage.Category) {
     val contents = vault.contents(page)
     val count = vault.categoryCount(page.category)
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        VaultPageBar(title = null, onBack = { vault.openPage(VaultPage.Home) }, trailing = { SortButton(vault, page) })
+        VaultPageBar(title = null, onBack = { vault.openPage(VaultPage.Home) }, trailing = { CategoryActions(vault, page) })
         CategoryBand(
             name = page.category.label(),
             subtitle = count?.let { pluralStringResource(Res.plurals.documents_count, it.toInt(), it.toInt()) },
@@ -88,6 +88,8 @@ internal fun CategoryGridPage(vault: Vault, page: VaultPage.Category) {
             }
             SortButton(vault, page)
             Spacer(Modifier.width(AppSpacing.space3))
+            SearchLauncher(vault, page.category)
+            Spacer(Modifier.width(AppSpacing.space3))
             ImportAction(vault)
         }
         VaultNotes(vault)
@@ -117,11 +119,20 @@ internal fun CategoryListColumn(vault: Vault, page: VaultPage.Category, selected
             .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpacing.space5),
     ) {
-        VaultPageBar(title = page.category.label(), onBack = vault::closeDocument, trailing = { SortButton(vault, page) })
+        VaultPageBar(title = page.category.label(), onBack = vault::closeDocument, trailing = { CategoryActions(vault, page) })
         VaultNotes(vault)
         CategoryChips(vault, page, contents)
         CategoryDocuments(vault, page, contents) { documents -> CategoryRows(vault, documents, selected = selected) }
         Spacer(Modifier.height(AppSpacing.space7))
+    }
+}
+
+/** A page bar's search within the category, and its sort. */
+@Composable
+private fun CategoryActions(vault: Vault, page: VaultPage.Category) {
+    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+        SearchLauncher(vault, page.category, asField = false)
+        SortButton(vault, page)
     }
 }
 
@@ -183,7 +194,7 @@ private fun CategoryChips(vault: Vault, page: VaultPage.Category, contents: Vaul
 }
 
 @Composable
-private fun YearFilter.label(): String = when (this) {
+internal fun YearFilter.label(): String = when (this) {
     is YearFilter.In -> year.toString()
     is YearFilter.Before -> stringResource(Res.string.vault_year_before, year)
 }

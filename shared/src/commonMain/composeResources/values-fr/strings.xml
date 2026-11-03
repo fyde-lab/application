@@ -236,7 +236,6 @@
     <string name="offline_banner">Hors ligne : le serveur est injoignable. L’import reprendra dès son retour.</string>
 
     <!-- Document list -->
-    <string name="search_documents_placeholder">Rechercher des documents</string>
     <string name="no_documents_title">Aucun document pour le moment</string>
     <string name="no_documents_description">Les documents que vous importez apparaîtront ici.</string>
     <string name="no_documents_match">Aucun document ne correspond à « %1$s »</string>
@@ -317,6 +316,12 @@
     <string name="vault_save">Enregistrer</string>
     <string name="vault_viewer_close">Fermer</string>
     <string name="vault_viewer_decrypted">Déchiffré sur cet appareil</string>
+    <string name="vault_search">Rechercher</string>
+    <string name="vault_search_in">Rechercher dans %1$s</string>
+    <string name="vault_search_types">Par type de document</string>
+    <string name="vault_search_local">Recherche faite sur cet appareil, dans le texte des documents.</string>
+    <string name="filter_year">Année</string>
+    <string name="filter_year_all">Toutes les années</string>
 
     <!-- Navigation -->
     <string name="app_title">Fyde</string>
