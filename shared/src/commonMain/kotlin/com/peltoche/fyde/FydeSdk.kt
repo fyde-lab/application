@@ -812,4 +812,13 @@ expect object FydeSdk {
      * installation hasn't synced to this device yet.
      */
     suspend fun runInstalledScript(scriptId: String): Result<Unit>
+
+    /**
+     * Stops [scriptId]'s run that [runInstalledScript] started, returning
+     * whether there was one. Returns at once: that [runInstalledScript] call
+     * then fails with [FydeSdkException.isRunStopped] once its script has
+     * really stopped (unless it finished first). A question it was waiting
+     * on is abandoned, its answer dropped. Mirrors `FfiClient::stop_script_run`.
+     */
+    suspend fun stopScriptRun(scriptId: String): Result<Boolean>
 }

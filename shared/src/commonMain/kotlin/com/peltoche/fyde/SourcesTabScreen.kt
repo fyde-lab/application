@@ -104,6 +104,10 @@ import com.peltoche.fyde.resources.source_settings
 import com.peltoche.fyde.resources.source_sites
 import com.peltoche.fyde.resources.source_status_failed
 import com.peltoche.fyde.resources.source_status_queued
+import com.peltoche.fyde.resources.source_status_stopped
+import com.peltoche.fyde.resources.source_fetching_stopped_title
+import com.peltoche.fyde.resources.source_fetching_stopped_note
+import com.peltoche.fyde.resources.script_stop_button
 import com.peltoche.fyde.resources.source_status_running
 import com.peltoche.fyde.resources.source_status_running_count
 import com.peltoche.fyde.resources.source_status_up_to_date
@@ -200,6 +204,7 @@ fun SourcesTabScreen(
     state: SourcesTabUiState,
     statuses: Map<String, SourceFetchStatus>,
     runningIds: Set<String>,
+    stoppingIds: Set<String>,
     focus: SourceFocus?,
     onFocusChange: (SourceFocus?) -> Unit,
     catalogueOpen: Boolean,
@@ -209,6 +214,7 @@ fun SourcesTabScreen(
     onConnect: (FydeScript, Map<String, FydeScriptParameterValue>) -> Unit,
     onUpdate: (FydeScript, Map<String, FydeScriptParameterValue>, rerun: Boolean) -> Unit,
     onRun: (FydeScript) -> Unit,
+    onStop: (FydeScript) -> Unit,
     onRemove: (FydeScript) -> Unit,
     onOpenPlan: () -> Unit,
     navigation: TopLevelNavigation,
@@ -243,6 +249,7 @@ fun SourcesTabScreen(
                     state = state,
                     statuses = statuses,
                     runningIds = runningIds,
+                    stoppingIds = stoppingIds,
                     focus = focus,
                     onFocusChange = onFocusChange,
                     onCatalogueOpenChange = onCatalogueOpenChange,
@@ -251,6 +258,7 @@ fun SourcesTabScreen(
                     onConnect = onConnect,
                     onUpdate = onUpdate,
                     onRun = onRun,
+                    onStop = onStop,
                     onRemove = { removing = it },
                     onOpenPlan = onOpenPlan,
                 )
@@ -285,6 +293,7 @@ private class SourcesTab(
     val state: SourcesTabUiState.Loaded,
     val statuses: Map<String, SourceFetchStatus>,
     val runningIds: Set<String>,
+    val stoppingIds: Set<String>,
     val focus: SourceFocus?,
     val onFocusChange: (SourceFocus?) -> Unit,
     val onCatalogueOpenChange: (Boolean) -> Unit,
@@ -293,6 +302,7 @@ private class SourcesTab(
     val onConnect: (FydeScript, Map<String, FydeScriptParameterValue>) -> Unit,
     val onUpdate: (FydeScript, Map<String, FydeScriptParameterValue>, Boolean) -> Unit,
     val onRun: (FydeScript) -> Unit,
+    val onStop: (FydeScript) -> Unit,
     val onRemove: (FydeScript) -> Unit,
     val onOpenPlan: () -> Unit,
 ) {
@@ -304,6 +314,9 @@ private class SourcesTab(
 
     /** Whether [id] has a run in progress; other sources' runs don't matter (runs are parallel). */
     fun isRunning(id: String): Boolean = id in runningIds
+
+    /** Whether [id]'s run was asked to stop and hasn't ended yet. */
+    fun isStopping(id: String): Boolean = id in stoppingIds
 
     fun installedParameters(id: String): Map<String, FydeScriptParameterValue> = state.installedParameters[id].orEmpty()
 }
@@ -640,8 +653,9 @@ private fun statusRank(status: SourceFetchStatus?): Int = when (status) {
     is SourceFetchStatus.Failed -> 0
     is SourceFetchStatus.Running -> if (status.step.isWaitingForUser()) 1 else 2
     SourceFetchStatus.Queued -> 3
-    is SourceFetchStatus.Succeeded -> 4
-    null -> 5
+    is SourceFetchStatus.Stopped -> 4
+    is SourceFetchStatus.Succeeded -> 5
+    null -> 6
 }
 
 // S2 ------------------------------------------------------------------------------------------
@@ -788,7 +802,7 @@ private fun ConnectPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit)
 @Composable
 private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
     val status = tab.statuses[script.id] ?: SourceFetchStatus.Queued
-    val over = status is SourceFetchStatus.Succeeded || status is SourceFetchStatus.Failed
+    val over = status is SourceFetchStatus.Succeeded || status is SourceFetchStatus.Failed || status is SourceFetchStatus.Stopped
     val leave = { tab.onFocusChange(null) }
     Column(modifier = Modifier.fillMaxSize()) {
         PageBar(title = script.name, onBack = leave)
@@ -798,6 +812,7 @@ private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
                 text = when (status) {
                     is SourceFetchStatus.Succeeded -> stringResource(Res.string.source_fetch_finished)
                     is SourceFetchStatus.Failed -> stringResource(Res.string.source_fetch_title_failed, script.name)
+                    is SourceFetchStatus.Stopped -> stringResource(Res.string.source_fetching_stopped_title)
                     else -> stringResource(Res.string.source_fetching_title)
                 },
                 style = AppTypography.display,
@@ -809,10 +824,15 @@ private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
                 RunStepper(steps = sourceFetchSteps(status))
             }
             Spacer(Modifier.height(AppSpacing.space5))
-            if (status is SourceFetchStatus.Failed) {
-                ErrorNote(status.message)
-            } else if (!over) {
-                Text(
+            when {
+                status is SourceFetchStatus.Failed -> ErrorNote(status.message)
+                // S4b: what it got stays, and Relancer picks up from there.
+                status is SourceFetchStatus.Stopped -> AppNote(
+                    message = stringResource(Res.string.source_fetching_stopped_note),
+                    kind = AppNoteKind.Info,
+                    icon = { tint -> InfoGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+                )
+                !over -> Text(
                     text = stringResource(Res.string.source_fetch_background, script.name),
                     style = AppTypography.caption,
                     color = AppColors.textMuted,
@@ -820,12 +840,39 @@ private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
             }
             Spacer(Modifier.height(AppSpacing.space6))
         }
-        Box(modifier = Modifier.fillMaxWidth().padding(top = AppSpacing.space4, bottom = AppSpacing.space5)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.space2),
+            modifier = Modifier.fillMaxWidth().padding(top = AppSpacing.space4, bottom = AppSpacing.space5),
+        ) {
             AppButton(
-                text = stringResource(if (over) Res.string.source_fetch_continue else Res.string.source_fetching_background),
+                text = stringResource(
+                    when {
+                        status is SourceFetchStatus.Stopped -> Res.string.source_fetching_back
+                        over -> Res.string.source_fetch_continue
+                        else -> Res.string.source_fetching_background
+                    },
+                ),
                 onClick = leave,
                 modifier = Modifier.fillMaxWidth(),
             )
+            when {
+                // S4: never confirmed, never red; busy until the run has really ended.
+                !over -> AppTextButton(
+                    text = stringResource(Res.string.source_fetching_stop),
+                    onClick = { tab.onStop(script) },
+                    loading = tab.isStopping(script.id),
+                    enabled = !tab.isStopping(script.id),
+                    leadingIcon = { StopGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                status is SourceFetchStatus.Stopped -> AppTextButton(
+                    text = stringResource(Res.string.source_rerun),
+                    onClick = { tab.onRun(script) },
+                    enabled = !tab.isRunning(script.id),
+                    leadingIcon = { SyncGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }
@@ -906,16 +953,32 @@ private fun ColumnScope.DetailBody(tab: SourcesTab, script: FydeScript, wide: Bo
     )
 }
 
-/** Lancer: off while this source runs; other sources' runs go in parallel. */
+/**
+ * Lancer, turned into an outlined Arrêter while this source runs (S5b, D4b),
+ * busy until the stopped run has really ended; other sources' runs go in
+ * parallel.
+ */
 @Composable
 private fun RunButton(tab: SourcesTab, script: FydeScript) {
-    AppButton(
-        text = stringResource(Res.string.script_run_button),
-        onClick = { tab.onRun(script) },
-        variant = AppButtonVariant.Outlined,
-        enabled = !tab.isRunning(script.id) && !tab.isPending(script.id),
-        leadingIcon = { SyncGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.text) },
-    )
+    if (tab.isRunning(script.id)) {
+        val stopping = tab.isStopping(script.id)
+        AppButton(
+            text = stringResource(Res.string.script_stop_button),
+            onClick = { tab.onStop(script) },
+            variant = AppButtonVariant.Outlined,
+            loading = stopping,
+            enabled = !stopping,
+            leadingIcon = { StopGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.text) },
+        )
+    } else {
+        AppButton(
+            text = stringResource(Res.string.script_run_button),
+            onClick = { tab.onRun(script) },
+            variant = AppButtonVariant.Outlined,
+            enabled = !tab.isPending(script.id),
+            leadingIcon = { SyncGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.text) },
+        )
+    }
 }
 
 /** Réglages: the credentials it signs in with (first plain value shown) and the sites it may reach. */
@@ -1199,6 +1262,7 @@ internal fun SourceStatusLine(status: SourceFetchStatus, modifier: Modifier = Mo
         SourceFetchStatus.Queued -> SourceStatus(SourceStatusKind.Queued, stringResource(Res.string.source_status_queued), modifier)
         is SourceFetchStatus.Succeeded -> SourceStatus(SourceStatusKind.UpToDate, stringResource(Res.string.source_status_up_to_date), modifier)
         is SourceFetchStatus.Failed -> SourceStatus(SourceStatusKind.Failed, status.message, modifier)
+        is SourceFetchStatus.Stopped -> SourceStatus(SourceStatusKind.Stopped, stringResource(Res.string.source_status_stopped), modifier)
     }
 }
 

@@ -1,6 +1,7 @@
 package com.peltoche.fyde
 
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -10,6 +11,8 @@ import androidx.compose.runtime.setValue
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.script_run_failed
 import com.peltoche.fyde.resources.script_run_finished
+import com.peltoche.fyde.resources.script_run_stopped
+import com.peltoche.fyde.resources.source_rerun
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -35,6 +38,16 @@ sealed interface ScraperRunOutcome {
 
     /** It failed during [step] (`null` before its first one), [message] saying why in the user's words. */
     data class Failed(val message: String, val step: FydeScraperStep?, val found: Long?) : ScraperRunOutcome
+
+    /**
+     * The user stopped it ([ScraperRuns.stop]) during [step] (`null` if it
+     * hadn't started). Not a failure: what it saved stays in the vault.
+     */
+    data class Stopped(
+        val step: FydeScraperStep?,
+        val update: FydeScraperProgress.Update?,
+        val found: Long?,
+    ) : ScraperRunOutcome
 }
 
 /** One script's run in progress, as [ScraperRuns.runOf] returns it. */
@@ -55,6 +68,10 @@ class ScraperRun(val script: FydeScript) {
     var found by mutableStateOf<Long?>(null)
         internal set
     var update by mutableStateOf<FydeScraperProgress.Update?>(null)
+        internal set
+
+    /** Once [ScraperRuns.stop] was asked for it, until the run has really ended. */
+    var stopping by mutableStateOf(false)
         internal set
 }
 
@@ -81,6 +98,9 @@ class ScraperRun(val script: FydeScript) {
  * installation to reach this device. [SourceFetchingScreen] (DO7c) follows
  * that run through its [ScraperRun], then its [outcomes] entry, while the
  * next source's run can already be going.
+ *
+ * [stop] ends a run before it's over (design-system.md § Source runs,
+ * Arrêter): its outcome is then [ScraperRunOutcome.Stopped], not a failure.
  */
 @Stable
 class ScraperRuns(
@@ -102,6 +122,9 @@ class ScraperRuns(
 
     /** The ids of every script running now. */
     val runningIds: Set<String> get() = active.keys
+
+    /** The ids of every running script [stop] was asked for, until its run has ended. */
+    val stoppingIds: Set<String> get() = active.filterValues { it.stopping }.keys
 
     /** The oldest question still waiting for an answer, if any. */
     val question: PendingQuestion? get() = questions.firstOrNull()
@@ -137,30 +160,70 @@ class ScraperRuns(
         scope.launch {
             if (awaitInstallation) {
                 run.awaitingInstallation = true
-                awaitInstallation(script.id)
+                awaitInstallation(run)
                 run.awaitingInstallation = false
             }
-            val result = FydeSdk.runInstalledScript(script.id)
-            outcomeByScript[script.id] = result.fold(
-                onSuccess = { ScraperRunOutcome.Succeeded(run.found) },
-                onFailure = { ScraperRunOutcome.Failed(it.userMessage(), run.stepKind, run.found) },
-            )
+            // Stopped before it ever reached fyde-sdk: nothing to tell it.
+            val result = if (run.stopping) null else FydeSdk.runInstalledScript(script.id)
+            val failure = result?.exceptionOrNull()
+            val outcome = when {
+                result == null || (failure as? FydeSdkException)?.isRunStopped == true ->
+                    ScraperRunOutcome.Stopped(run.stepKind, run.update, run.found)
+                failure != null -> ScraperRunOutcome.Failed(failure.userMessage(), run.stepKind, run.found)
+                else -> ScraperRunOutcome.Succeeded(run.found)
+            }
+            outcomeByScript[script.id] = outcome
             active -= script.id
-            result
-                .onSuccess { snackbarHostState.showSnackbar(getString(Res.string.script_run_finished, script.name)) }
-                .onFailure { snackbarHostState.showSnackbar(getString(Res.string.script_run_failed, script.name, it.userMessage())) }
+            when (outcome) {
+                is ScraperRunOutcome.Succeeded ->
+                    snackbarHostState.showSnackbar(getString(Res.string.script_run_finished, script.name))
+                is ScraperRunOutcome.Failed ->
+                    snackbarHostState.showSnackbar(getString(Res.string.script_run_failed, script.name, outcome.message))
+                is ScraperRunOutcome.Stopped -> {
+                    val shown = snackbarHostState.showSnackbar(
+                        message = getString(Res.string.script_run_stopped, script.name),
+                        actionLabel = getString(Res.string.source_rerun),
+                    )
+                    if (shown == SnackbarResult.ActionPerformed) this@ScraperRuns.run(script)
+                }
+            }
         }
     }
 
     /**
-     * Waits until [scriptId]'s installation shows among this device's, or
-     * [INSTALL_SYNC_TIMEOUT_MS] passes — the run then fails with the SDK's
-     * own wording rather than hanging.
+     * Stops [scriptId]'s run, if it's going (design-system.md § Source runs,
+     * Arrêter). Returns at once; the run stays in [runningIds], with
+     * [ScraperRun.stopping] set, until it has really ended, then its outcome
+     * is [ScraperRunOutcome.Stopped]. Its question, if it was waiting on one,
+     * is dismissed: fyde-sdk drops that answer anyway.
      */
-    private suspend fun awaitInstallation(scriptId: String) {
+    fun stop(scriptId: String) {
+        val run = active[scriptId] ?: return
+        if (run.stopping) return
+        run.stopping = true
+        questions.filter { it.scriptId == scriptId }.forEach { it.answer.complete("") }
+        if (run.awaitingInstallation) return // `start` sees `stopping` once the wait ends.
+        scope.launch {
+            // Between leaving `awaitInstallation` and fyde-sdk registering the
+            // run (it first loads the installation), there's nothing to stop
+            // yet: try again until the run is over.
+            while (active[scriptId] === run) {
+                if (FydeSdk.stopScriptRun(scriptId).getOrDefault(false)) break
+                delay(STOP_RETRY_MS)
+            }
+        }
+    }
+
+    /**
+     * Waits until [run]'s installation shows among this device's, or
+     * [INSTALL_SYNC_TIMEOUT_MS] passes — the run then fails with the SDK's
+     * own wording rather than hanging — or the run is stopped.
+     */
+    private suspend fun awaitInstallation(run: ScraperRun) {
+        val scriptId = run.script.id
         val expected = expectedParameters.remove(scriptId)
         withTimeoutOrNull(INSTALL_SYNC_TIMEOUT_MS) {
-            while (true) {
+            while (!run.stopping) {
                 val installed = FydeSdk.installedScriptParameters().getOrNull()?.get(scriptId)
                 if (installed != null && (expected == null || installed == expected)) break
                 delay(INSTALL_SYNC_POLL_MS)
@@ -209,3 +272,6 @@ private const val INSTALL_SYNC_POLL_MS = 500L
 
 /** How long [ScraperRuns.runOnceInstalled] waits for it before running anyway. */
 private const val INSTALL_SYNC_TIMEOUT_MS = 30_000L
+
+/** How often [ScraperRuns.stop] asks again while the run hasn't reached fyde-sdk yet. */
+private const val STOP_RETRY_MS = 200L

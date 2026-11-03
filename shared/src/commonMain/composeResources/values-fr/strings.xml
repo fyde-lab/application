@@ -148,6 +148,7 @@
     <string name="source_fetch_title">%1$s récupère vos documents</string>
     <string name="source_fetch_title_done">%1$s a récupéré vos documents</string>
     <string name="source_fetch_title_failed">Impossible de récupérer depuis %1$s</string>
+    <string name="source_fetch_title_stopped">%1$s a arrêté la récupération</string>
     <string name="source_fetch_first">Première récupération</string>
     <string name="source_fetch_queued">Démarre dès que la source est prête sur cet appareil</string>
     <plurals name="source_fetch_fetched">
@@ -189,6 +190,7 @@
     <string name="source_status_up_to_date">À jour</string>
     <string name="source_status_queued">En attente</string>
     <string name="source_status_failed">Dernier passage en échec</string>
+    <string name="source_status_stopped">Arrêtée</string>
     <string name="catalogue_search_placeholder">Fournisseur, banque, administration</string>
     <string name="catalogue_all">Toutes les sources</string>
     <string name="catalogue_own">Vos scripts</string>
@@ -197,6 +199,11 @@
     <string name="catalogue_limit">Votre offre %1$s est complète : retirez une source pour en ajouter une autre.</string>
     <string name="source_fetching_title">Récupération en cours</string>
     <string name="source_fetching_background">Continuer en arrière-plan</string>
+    <string name="source_fetching_stop">Arrêter la récupération</string>
+    <string name="source_fetching_stopped_title">Récupération arrêtée</string>
+    <string name="source_fetching_stopped_note">Les documents déjà récupérés restent dans votre coffre. Relancez-la : elle reprendra là où elle s’est arrêtée.</string>
+    <string name="source_fetching_back">Revenir aux sources</string>
+    <string name="script_stop_button">Arrêter</string>
     <string name="source_last_run">Dernier passage</string>
     <string name="source_settings">Réglages</string>
     <string name="source_credentials">Identifiants</string>
@@ -436,6 +443,7 @@
     <string name="script_run_button">Lancer</string>
     <string name="script_run_finished">« %1$s » terminé</string>
     <string name="script_run_failed">Échec de « %1$s » : %2$s</string>
+    <string name="script_run_stopped">« %1$s » arrêtée · documents gardés</string>
     <string name="scraper_question_title">« %1$s » a besoin de vous</string>
     <string name="scraper_answer_label">Votre réponse</string>
     <string name="scraper_answer_send">Envoyer</string>

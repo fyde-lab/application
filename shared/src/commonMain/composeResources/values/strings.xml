@@ -148,6 +148,7 @@
     <string name="source_fetch_title">%1$s is fetching your documents</string>
     <string name="source_fetch_title_done">%1$s has fetched your documents</string>
     <string name="source_fetch_title_failed">Couldn’t fetch from %1$s</string>
+    <string name="source_fetch_title_stopped">%1$s stopped fetching</string>
     <string name="source_fetch_first">First fetch</string>
     <string name="source_fetch_queued">Starts as soon as the source is ready on this device</string>
     <plurals name="source_fetch_fetched">
@@ -189,6 +190,7 @@
     <string name="source_status_up_to_date">Up to date</string>
     <string name="source_status_queued">Queued</string>
     <string name="source_status_failed">Last run failed</string>
+    <string name="source_status_stopped">Stopped</string>
     <string name="catalogue_search_placeholder">Supplier, bank, administration</string>
     <string name="catalogue_all">All sources</string>
     <string name="catalogue_own">Your scripts</string>
@@ -197,6 +199,11 @@
     <string name="catalogue_limit">Your %1$s plan is full: remove a source to add another.</string>
     <string name="source_fetching_title">Fetching in progress</string>
     <string name="source_fetching_background">Continue in background</string>
+    <string name="source_fetching_stop">Stop fetching</string>
+    <string name="source_fetching_stopped_title">Fetching stopped</string>
+    <string name="source_fetching_stopped_note">The documents already fetched stay in your vault. Run it again and it picks up where it stopped.</string>
+    <string name="source_fetching_back">Back to sources</string>
+    <string name="script_stop_button">Stop</string>
     <string name="source_last_run">Last run</string>
     <string name="source_settings">Settings</string>
     <string name="source_credentials">Credentials</string>
@@ -443,6 +450,7 @@
     <string name="script_run_button">Run now</string>
     <string name="script_run_finished">“%1$s” finished</string>
     <string name="script_run_failed">“%1$s” failed: %2$s</string>
+    <string name="script_run_stopped">“%1$s” stopped · documents kept</string>
     <string name="scraper_question_title">“%1$s” needs your input</string>
     <string name="scraper_answer_label">Your answer</string>
     <string name="scraper_answer_send">Send</string>

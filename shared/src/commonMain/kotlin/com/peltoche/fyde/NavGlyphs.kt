@@ -251,6 +251,25 @@ fun PlayGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted) 
 }
 
 /**
+ * A rounded square outline: "stop" — Arrêter on a running source, and a
+ * stopped run's status and step (design-system.md § Source runs).
+ */
+@Composable
+fun StopGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val stroke = strokeWidth.toPx()
+        val inset = size.minDimension * 0.27f + stroke / 2f
+        drawRoundRect(
+            color = tint,
+            topLeft = Offset(inset, inset),
+            size = Size(size.width - 2 * inset, size.height - 2 * inset),
+            cornerRadius = CornerRadius(size.minDimension * 0.08f),
+            style = Stroke(width = stroke, join = StrokeJoin.Round),
+        )
+    }
+}
+
+/**
  * A plus sign — the upload-document action's leading icon. Previously a raw
  * `"+"` character rendered in the platform's default font (the one place a
  * system font leaked through); drawn here instead so every icon in the app,

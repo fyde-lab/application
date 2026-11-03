@@ -1831,6 +1831,23 @@ impl FydeClient {
         })
         .await
     }
+
+    /// Stops the run of the installed script `script_id` that
+    /// [`Self::run_installed_script`] started (and one of it waiting for its
+    /// turn), returning whether there was one. Returns at once: that
+    /// `run_installed_script` call then fails with `ScraperRunStopped` once
+    /// its script has really stopped (unless it finished first). A question
+    /// it was waiting on is abandoned, its answer dropped: the caller should
+    /// dismiss it. Mirrors [`fyde_sdk::ScrapersService::stop`].
+    pub async fn stop_script_run(&self, script_id: String) -> Result<bool, FfiError> {
+        self.localized(async {
+            // Canonical form, as `run_installed` names the run after the
+            // script's id.
+            let script_id = parse_uuid(&script_id)?;
+            Ok(self.inner.scrapers().stop(&script_id.to_string()))
+        })
+        .await
+    }
 }
 
 #[cfg(test)]

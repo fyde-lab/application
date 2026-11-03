@@ -20,12 +20,15 @@ import org.jetbrains.compose.resources.getString
  * [isClientAlreadyRunning] tells fyde-sdk's `FfiException.ClientAlreadyRunning`
  * apart: [FydeSdk.initialize] refusing to start while another instance of
  * the app already uses the same local data, which [App] shows in place of
- * every screen.
+ * every screen. [isRunStopped] tells `FfiException.ScraperRunStopped` apart:
+ * a [FydeSdk.runInstalledScript] run ended by [FydeSdk.stopScriptRun], which
+ * isn't a failure of its source.
  */
 class FydeSdkException(
     val userMessage: String?,
     cause: Throwable,
     val isClientAlreadyRunning: Boolean = false,
+    val isRunStopped: Boolean = false,
 ) : Exception(userMessage, cause)
 
 /**

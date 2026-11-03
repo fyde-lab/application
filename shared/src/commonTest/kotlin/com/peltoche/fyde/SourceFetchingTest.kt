@@ -3,6 +3,7 @@ package com.peltoche.fyde
 import com.peltoche.fyde.components.feedback.RunStepState.Current
 import com.peltoche.fyde.components.feedback.RunStepState.Done
 import com.peltoche.fyde.components.feedback.RunStepState.Failed
+import com.peltoche.fyde.components.feedback.RunStepState.Stopped
 import com.peltoche.fyde.components.feedback.RunStepState.ToDo
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,6 +37,16 @@ class SourceFetchingTest {
     fun marksThePhaseARunStoppedInFailed() {
         val failed = SourceFetchStatus.Failed("Wrong password", FydeScraperStep.LOGGING_IN, found = null)
         assertEquals(listOf(Failed, ToDo, ToDo, ToDo), sourceFetchPhaseStates(failed))
+    }
+
+    @Test
+    fun marksThePhaseTheUserStoppedARunInStopped() {
+        val stopped = SourceFetchStatus.Stopped(
+            FydeScraperStep.DOWNLOADING_DOCUMENTS,
+            update = FydeScraperProgress.Update(current = 5, total = 12),
+            found = 12,
+        )
+        assertEquals(listOf(Done, Done, Stopped, ToDo), sourceFetchPhaseStates(stopped))
     }
 
     @Test

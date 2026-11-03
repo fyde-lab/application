@@ -81,7 +81,14 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
 } catch (e: FfiException) {
     Log.w(LOG_TAG, "FydeSdk.$operation failed: ${e::class.simpleName}")
     if (e is FfiException.SessionExpired) SessionExpiry.report(e.message)
-    Result.failure(FydeSdkException(e.message, e, isClientAlreadyRunning = e is FfiException.ClientAlreadyRunning))
+    Result.failure(
+        FydeSdkException(
+            e.message,
+            e,
+            isClientAlreadyRunning = e is FfiException.ClientAlreadyRunning,
+            isRunStopped = e is FfiException.ScraperRunStopped,
+        ),
+    )
 } catch (e: Throwable) {
     Log.e(LOG_TAG, "FydeSdk.$operation failed", e)
     Result.failure(FydeSdkException(null, e))
@@ -288,6 +295,10 @@ actual object FydeSdk {
 
     actual suspend fun runInstalledScript(scriptId: String): Result<Unit> = withClient("runInstalledScript") { client ->
         client.runInstalledScript(scriptId)
+    }
+
+    actual suspend fun stopScriptRun(scriptId: String): Result<Boolean> = withClient("stopScriptRun") { client ->
+        client.stopScriptRun(scriptId)
     }
 
     actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =

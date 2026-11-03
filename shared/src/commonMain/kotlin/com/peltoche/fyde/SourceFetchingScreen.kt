@@ -53,6 +53,9 @@ import com.peltoche.fyde.resources.source_fetch_step_storing
 import com.peltoche.fyde.resources.source_fetch_title
 import com.peltoche.fyde.resources.source_fetch_title_done
 import com.peltoche.fyde.resources.source_fetch_title_failed
+import com.peltoche.fyde.resources.source_rerun
+import com.peltoche.fyde.resources.source_fetching_stopped_note
+import com.peltoche.fyde.resources.source_fetch_title_stopped
 import com.peltoche.fyde.resources.source_fetch_wait
 import com.peltoche.fyde.resources.source_fetch_waiting_for_you
 import com.peltoche.fyde.theme.AppColors
@@ -80,6 +83,13 @@ sealed interface SourceFetchStatus {
 
     /** Failed during [step], [message] saying why in the user's words. */
     data class Failed(val message: String, val step: FydeScraperStep?, val found: Long?) : SourceFetchStatus
+
+    /** Stopped by the user during [step], [update] how far that stage had got: not a failure. */
+    data class Stopped(
+        val step: FydeScraperStep?,
+        val update: FydeScraperProgress.Update?,
+        val found: Long?,
+    ) : SourceFetchStatus
 }
 
 /** The four stages DO7c lists, coarser than the SDK's [FydeScraperStep]s. */
@@ -105,8 +115,8 @@ internal fun sourceFetchPhaseOf(step: FydeScraperStep?): SourceFetchPhase = when
 /**
  * Each [SourceFetchPhase]'s state for [status]: those before the current
  * one done (a script may skip one, e.g. download without listing first),
- * the current one current — or failed, if that's where the run stopped —
- * the rest still to do. All done once the run succeeded; all to do while
+ * the current one current — or failed or stopped, if that's where the run
+ * ended — the rest still to do. All done once the run succeeded; all to do while
  * it's queued.
  */
 internal fun sourceFetchPhaseStates(status: SourceFetchStatus): List<RunStepState> {
@@ -116,6 +126,7 @@ internal fun sourceFetchPhaseStates(status: SourceFetchStatus): List<RunStepStat
         is SourceFetchStatus.Succeeded -> return phases.map { RunStepState.Done }
         is SourceFetchStatus.Running -> sourceFetchPhaseOf(status.step) to RunStepState.Current
         is SourceFetchStatus.Failed -> sourceFetchPhaseOf(status.step) to RunStepState.Failed
+        is SourceFetchStatus.Stopped -> sourceFetchPhaseOf(status.step) to RunStepState.Stopped
     }
     return phases.map {
         when {
@@ -268,6 +279,7 @@ private fun SourceFetchBody(content: SourceFetchContent) {
                     when (status) {
                         is SourceFetchStatus.Succeeded -> Res.string.source_fetch_title_done
                         is SourceFetchStatus.Failed -> Res.string.source_fetch_title_failed
+                        is SourceFetchStatus.Stopped -> Res.string.source_fetch_title_stopped
                         SourceFetchStatus.Queued, is SourceFetchStatus.Running -> Res.string.source_fetch_title
                     },
                     script.name,
@@ -282,7 +294,8 @@ private fun SourceFetchBody(content: SourceFetchContent) {
                     is SourceFetchStatus.Succeeded -> status.found?.let {
                         pluralStringResource(Res.plurals.source_fetch_fetched, it.toIntClamped(), it)
                     } ?: stringResource(Res.string.source_fetch_finished)
-                    is SourceFetchStatus.Running, is SourceFetchStatus.Failed -> stringResource(Res.string.source_fetch_first)
+                    is SourceFetchStatus.Running, is SourceFetchStatus.Failed, is SourceFetchStatus.Stopped ->
+                        stringResource(Res.string.source_fetch_first)
                 },
                 style = AppTypography.body,
                 color = AppColors.textMuted,
@@ -310,6 +323,14 @@ private fun SourceFetchBody(content: SourceFetchContent) {
                 icon = { tint -> AlertGlyph(modifier = Modifier.size(AppIconSize.sm), tint = tint) },
             )
         }
+        is SourceFetchStatus.Stopped -> {
+            Spacer(Modifier.height(AppSpacing.space4))
+            AppNote(
+                message = stringResource(Res.string.source_fetching_stopped_note),
+                kind = AppNoteKind.Info,
+                icon = { tint -> InfoGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+            )
+        }
         is SourceFetchStatus.Succeeded -> Unit
     }
 }
@@ -323,10 +344,12 @@ internal fun sourceFetchSteps(status: SourceFetchStatus): List<RunStep> {
         is SourceFetchStatus.Running -> status.found
         is SourceFetchStatus.Succeeded -> status.found
         is SourceFetchStatus.Failed -> status.found
+        is SourceFetchStatus.Stopped -> status.found
         SourceFetchStatus.Queued -> null
     }
-    // While downloading, its i / n; while listing, how many it has come across so far.
-    val update = running?.update?.takeIf { it.total > 0 }
+    // While downloading, its i / n (where it stood when stopped, too); while
+    // listing, how many it has come across so far.
+    val update = (running?.update ?: (status as? SourceFetchStatus.Stopped)?.update)?.takeIf { it.total > 0 }
     return SourceFetchPhase.entries.mapIndexed { index, phase ->
         val state = states[index]
         when (phase) {
@@ -345,12 +368,13 @@ internal fun sourceFetchSteps(status: SourceFetchStatus): List<RunStep> {
                 },
             )
             SourceFetchPhase.Downloading -> {
-                val downloading = update?.takeIf { state == RunStepState.Current }
+                val downloading = update?.takeIf { state == RunStepState.Current || state == RunStepState.Stopped }
                 RunStep(
                     label = stringResource(Res.string.source_fetch_step_downloading),
                     state = state,
                     detail = downloading?.let { stringResource(Res.string.source_fetch_count, it.current, it.total) },
-                    progress = downloading?.let { it.current.toFloat() / it.total },
+                    // A stopped download's bar would read as still going.
+                    progress = downloading?.takeIf { state == RunStepState.Current }?.let { it.current.toFloat() / it.total },
                 )
             }
             SourceFetchPhase.Storing -> RunStep(
@@ -386,6 +410,10 @@ private fun SourceFetchActions(content: SourceFetchContent) {
             )
             is SourceFetchStatus.Failed -> AppTextButton(
                 text = stringResource(Res.string.source_fetch_retry),
+                onClick = content.onRetry,
+            )
+            is SourceFetchStatus.Stopped -> AppTextButton(
+                text = stringResource(Res.string.source_rerun),
                 onClick = content.onRetry,
             )
             is SourceFetchStatus.Succeeded -> Unit
