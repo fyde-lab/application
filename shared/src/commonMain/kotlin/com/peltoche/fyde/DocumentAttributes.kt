@@ -104,7 +104,7 @@ internal sealed interface PassLine {
 /**
  * A document's pass, decided from its type and attributes: its [template],
  * its [line], its [cells] (at most three, each one set), and which
- * attributes it shows, so Informations lists only the others.
+ * attributes it shows (Informations lists every attribute regardless).
  */
 internal data class PassLayout(
     val template: PassTemplate,
@@ -209,30 +209,32 @@ internal fun passLayout(document: FydeDocument): PassLayout {
 
 /** One row of the Informations section. */
 internal sealed interface InformationRow {
-    /** `period_start` and `period_end`, both left to Informations, read as one "Période" row. */
+    /** `period_start` and `period_end`, both set, read as one "Période" row. */
     data class Covers(val period: Period) : InformationRow
 
     data class Value(val name: String, val attribute: FydeAttribute) : InformationRow
 }
 
 /**
- * The attributes [layout]'s pass doesn't show, in Informations' order: the
- * default attributes first, in [AttributeNames.DEFAULTS]' order, then the
- * others by name.
+ * Every attribute of [document], in Informations' order: the default
+ * attributes first, in [AttributeNames.DEFAULTS]' order, then the others by
+ * name. The pass repeats some of them; Informations still lists them all.
  */
-internal fun informationRows(document: FydeDocument, layout: PassLayout): List<InformationRow> {
-    val left = document.attributes.filterKeys { it !in layout.shown }
-    val ordered = left.keys.sortedWith(
+internal fun informationRows(document: FydeDocument): List<InformationRow> {
+    val attributes = document.attributes
+    val ordered = attributes.keys.sortedWith(
         compareBy<String> { AttributeNames.DEFAULTS.indexOf(it).let { index -> if (index < 0) Int.MAX_VALUE else index } }.thenBy { it },
     )
-    val period = if (PERIOD_ATTRIBUTES.all { it in left }) document.period else null
+    val start = document.date(AttributeNames.PERIOD_START)
+    val end = document.date(AttributeNames.PERIOD_END)
+    val period = if (start != null && end != null) periodOf(start, end) else null
     return buildList {
         for (name in ordered) {
             if (period != null && name in PERIOD_ATTRIBUTES) {
                 if (name == AttributeNames.PERIOD_START) add(InformationRow.Covers(period))
                 continue
             }
-            add(InformationRow.Value(name, left.getValue(name)))
+            add(InformationRow.Value(name, attributes.getValue(name)))
         }
     }
 }

@@ -165,7 +165,7 @@ internal fun DocumentViewer(
 private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: (() -> Unit)?) {
     val size = localizedSize(document.size)
     val layout = remember(document) { passLayout(document) }
-    val information = remember(document, layout) { informationRows(document, layout) }
+    val information = remember(document) { informationRows(document) }
     val pass = passText(document, layout, fallbackIssuer = document.categoryLabel())
     val type = document.documentType?.label()
     Column {
