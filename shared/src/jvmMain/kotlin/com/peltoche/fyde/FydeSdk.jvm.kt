@@ -79,7 +79,8 @@ private fun defaultDataDirectory(): String {
  * anything else (e.g. the native library failing to load) is logged in
  * full. Cancellation is rethrown rather than reported as a failure. A
  * `SessionExpired` failure is also reported to [SessionExpiry], and a
- * `ClientAlreadyRunning` one flagged (see [FydeSdkException.isClientAlreadyRunning]).
+ * `ClientAlreadyRunning` or `ScraperRunStopped` one flagged (see
+ * [FydeSdkException.isClientAlreadyRunning], [FydeSdkException.isRunStopped]).
  */
 private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = try {
     Result.success(block())
@@ -88,7 +89,14 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
 } catch (e: FfiException) {
     logger.log(Level.WARNING, "FydeSdk.$operation failed: ${e::class.simpleName}")
     if (e is FfiException.SessionExpired) SessionExpiry.report(e.message)
-    Result.failure(FydeSdkException(e.message, e, isClientAlreadyRunning = e is FfiException.ClientAlreadyRunning))
+    Result.failure(
+        FydeSdkException(
+            e.message,
+            e,
+            isClientAlreadyRunning = e is FfiException.ClientAlreadyRunning,
+            isRunStopped = e is FfiException.ScraperRunStopped,
+        ),
+    )
 } catch (e: Throwable) {
     logger.log(Level.SEVERE, "FydeSdk.$operation failed", e)
     Result.failure(FydeSdkException(null, e))
@@ -295,6 +303,10 @@ actual object FydeSdk {
 
     actual suspend fun runInstalledScript(scriptId: String): Result<Unit> = withClient("runInstalledScript") { client ->
         client.runInstalledScript(scriptId)
+    }
+
+    actual suspend fun stopScriptRun(scriptId: String): Result<Boolean> = withClient("stopScriptRun") { client ->
+        client.stopScriptRun(scriptId)
     }
 
     actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =

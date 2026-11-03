@@ -921,6 +921,7 @@ private fun AppContent(
                     scriptName = pending.scriptName,
                     question = pending.text,
                     onAnswer = { text -> scraperRuns.answer(pending, text) },
+                    onStop = { scraperRuns.stop(pending.scriptId) },
                 )
             }
         }
@@ -1300,6 +1301,7 @@ private fun SourcesTabContainer(
             .mapNotNull { id -> sourceStatusOf(id, scraperRuns)?.let { id to it } }
             .toMap(),
         runningIds = scraperRuns.runningIds,
+        stoppingIds = scraperRuns.stoppingIds,
         focus = focus,
         onFocusChange = { focus = it },
         catalogueOpen = catalogueOpen,
@@ -1339,6 +1341,7 @@ private fun SourcesTabContainer(
             }
         },
         onRun = { script -> scraperRuns.run(script) },
+        onStop = { script -> scraperRuns.stop(script.id) },
         // Removing only disables the source: fyde-sdk has no uninstall event yet.
         onRemove = { script ->
             val current = uiState as? SourcesTabUiState.Loaded
@@ -1380,6 +1383,7 @@ private fun sourceStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStat
     return when (val outcome = runs.outcomes[scriptId]) {
         is ScraperRunOutcome.Succeeded -> SourceFetchStatus.Succeeded(outcome.found)
         is ScraperRunOutcome.Failed -> SourceFetchStatus.Failed(outcome.message, outcome.step, outcome.found)
+        is ScraperRunOutcome.Stopped -> SourceFetchStatus.Stopped(outcome.step, outcome.update, outcome.found)
         null -> null
     }
 }

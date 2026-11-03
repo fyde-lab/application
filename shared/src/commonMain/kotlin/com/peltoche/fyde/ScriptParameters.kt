@@ -14,10 +14,10 @@ import com.peltoche.fyde.components.form.AppSwitch
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.scraper_answer_label
 import com.peltoche.fyde.resources.scraper_answer_send
 import com.peltoche.fyde.resources.scraper_question_title
+import com.peltoche.fyde.resources.source_fetching_stop
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -87,21 +87,28 @@ internal fun displayedParameterValue(
 
 /**
  * A question a running script asks the user (a one-time code, a security
- * answer), shown above whatever screen is open. Cancel (or dismissing)
- * answers with an empty string, which the script treats as no answer.
+ * answer), shown above whatever screen is open. Leaving it without an
+ * answer — "Stop fetching", or dismissing it — stops the run
+ * (design-system.md § Verification code), rather than failing it with an
+ * empty answer.
  */
 @Composable
-internal fun ScraperQuestionDialog(scriptName: String, question: String, onAnswer: (String) -> Unit) {
+internal fun ScraperQuestionDialog(
+    scriptName: String,
+    question: String,
+    onAnswer: (String) -> Unit,
+    onStop: () -> Unit,
+) {
     var answer by remember(question) { mutableStateOf("") }
     AppDialog(
-        onDismissRequest = { onAnswer("") },
+        onDismissRequest = onStop,
         title = stringResource(Res.string.scraper_question_title, scriptName),
         text = question,
         confirmLabel = stringResource(Res.string.scraper_answer_send),
         onConfirm = { onAnswer(answer) },
         confirmEnabled = answer.isNotBlank(),
-        dismissLabel = stringResource(Res.string.cancel),
-        onDismiss = { onAnswer("") },
+        dismissLabel = stringResource(Res.string.source_fetching_stop),
+        onDismiss = onStop,
     ) {
         AppTextField(
             value = answer,

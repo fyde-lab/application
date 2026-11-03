@@ -94,6 +94,10 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   and S4; editing credentials reinstalls, a blank secret keeping the installed one
   (`validatedCredentials`); remove only disables (no uninstall event yet). Statuses come from
   `ScraperRuns` (this app session's runs): no run history, schedule, counts or categories.
+  Arrêter (`ScraperRuns.stop`, `FydeSdk.stopScriptRun`) sits under S4's primary and in S5/D4's
+  Lancer slot while the source runs, busy until the run has ended; a stopped run's outcome is
+  `ScraperRunOutcome.Stopped` (from `FydeSdkException.isRunStopped`), shown muted, never as a
+  failure (S4b's note, a snackbar with Relancer). The question dialog's dismiss stops the run.
 - Settings (`SettingsScreen.kt`, the design's Moi M1–M3 and M5–M8): a menu (seal card,
   Sécurité, Appareils, Offre et usage, Apparence et langue, logout) whose pages push inside the
   tab at Compact and open beside it at Medium/Expanded; which page is open is screen state.
@@ -153,7 +157,8 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   Rangement), from its `ScraperRun`'s typed `stepKind`/`update`/`found` and, once over, its
   `outcomes` entry (`sourceFetchStatusOf` in `App.kt`). Source suivante / Continuer moves on
   without stopping the run; Attendre ici moves on by itself once it succeeds; a failure shows
-  the SDK's message with Réessayer. No step times or duration estimate (nothing records them).
+  the SDK's message with Réessayer. No Arrêter here (DO7c stays as drawn), but a run stopped
+  from the code dialog shows as stopped, with Relancer. No step times or duration estimate (nothing records them).
 - `InsecureStorageSheet` (O4 on phones, DO4b on desktop — `Platform.isDesktop` picks the
   wording and the desktop's Retry): over `LoginScreen`/`RegisterScreen` when the device has no
   OS credential store (`FydeSdk.isSecureStorageAvailable`, checked as each form opens and again

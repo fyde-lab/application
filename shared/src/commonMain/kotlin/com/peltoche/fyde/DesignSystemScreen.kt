@@ -462,7 +462,7 @@ private fun FeedbackSection() {
                 AppProgressBar(progress = null, modifier = Modifier.fillMaxWidth())
             }
         }
-        CatalogueRow("RunStepper — downloading / failed while signing in") {
+        CatalogueRow("RunStepper — downloading / failed while signing in / stopped while downloading") {
             Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space4)) {
                 AppCard(modifier = Modifier.fillMaxWidth()) {
                     RunStepper(
@@ -484,14 +484,25 @@ private fun FeedbackSection() {
                         ),
                     )
                 }
+                AppCard(modifier = Modifier.fillMaxWidth()) {
+                    RunStepper(
+                        steps = listOf(
+                            RunStep("Signing in", RunStepState.Done),
+                            RunStep("Looking for documents", RunStepState.Done, detail = "12 found"),
+                            RunStep("Downloading", RunStepState.Stopped, detail = "5 / 12"),
+                            RunStep("Storing in the vault", RunStepState.ToDo),
+                        ),
+                    )
+                }
             }
         }
-        CatalogueRow("SourceStatus — running / waiting / failed / up to date / queued") {
+        CatalogueRow("SourceStatus — running / waiting / failed / up to date / stopped / queued") {
             Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
                 SourceStatus(SourceStatusKind.Running, "Fetching… 5 / 12")
                 SourceStatus(SourceStatusKind.Waiting, "Waiting for your code")
                 SourceStatus(SourceStatusKind.Failed, "Wrong password")
                 SourceStatus(SourceStatusKind.UpToDate, "Up to date")
+                SourceStatus(SourceStatusKind.Stopped, "Stopped")
                 SourceStatus(SourceStatusKind.Queued, "Queued")
             }
         }

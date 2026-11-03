@@ -104,4 +104,6 @@ actual object FydeSdk {
     }
 
     actual suspend fun runInstalledScript(scriptId: String): Result<Unit> = unsupported()
+
+    actual suspend fun stopScriptRun(scriptId: String): Result<Boolean> = unsupported()
 }

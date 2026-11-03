@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.AlertGlyph
 import com.peltoche.fyde.CheckGlyph
+import com.peltoche.fyde.StopGlyph
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
@@ -28,7 +29,7 @@ import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 
 /** Where a [RunStep] stands in its run. */
-enum class RunStepState { Done, Current, ToDo, Failed }
+enum class RunStepState { Done, Current, ToDo, Failed, Stopped }
 
 /**
  * One stage of a run as [RunStepper] lists it: its [label], its [state],
@@ -49,8 +50,10 @@ data class RunStep(
  * its stages (Connexion → Recherche → Téléchargement i / n → Rangement, S4
  * and DO7c), one 44dp row each — a 22dp disc, the label, the detail.
  * Done is a `success` disc with a check, current a 2dp `warning` ring,
- * failed an `error` disc with an alert, still to do a hairline ring with
- * the label muted. The state is never in the colour alone: the disc's
+ * failed an `error` disc with an alert, stopped (the user ended the run
+ * there) a `sunk` disc (`surfaceElevated` until the tokens migrate) with a
+ * `borderStrong` ring and a muted stop square,
+ * still to do a hairline ring with the label muted. The state is never in the colour alone: the disc's
  * glyph or emptiness says it too, and the detail carries the numbers.
  */
 @Composable
@@ -106,12 +109,14 @@ private fun StepDisc(state: RunStepState) {
             RunStepState.Done -> base.background(AppColors.success)
             RunStepState.Failed -> base.background(AppColors.error)
             RunStepState.Current -> base.border(AppDimensions.borderFocus, AppColors.warning, CircleShape)
+            RunStepState.Stopped -> base.background(AppColors.surfaceElevated).border(1.5.dp, AppColors.borderStrong, CircleShape)
             RunStepState.ToDo -> base.border(1.5.dp, AppColors.border, CircleShape)
         },
     ) {
         when (state) {
             RunStepState.Done -> CheckGlyph(modifier = Modifier.size(AppIconSize.xs), tint = AppColors.onSuccess, strokeWidth = 2.dp)
             RunStepState.Failed -> AlertGlyph(modifier = Modifier.size(AppIconSize.xs), tint = AppColors.onError, strokeWidth = 2.dp)
+            RunStepState.Stopped -> StopGlyph(modifier = Modifier.size(AppIconSize.xs), tint = AppColors.textMuted)
             RunStepState.Current, RunStepState.ToDo -> Unit
         }
     }
