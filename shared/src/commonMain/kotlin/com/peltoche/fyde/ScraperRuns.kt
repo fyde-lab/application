@@ -70,10 +70,10 @@ class ScraperRun(val script: FydeScript) {
  * Runs go in parallel, one per script: the SDK keeps each isolated from
  * the others, so starting one never waits for another. Each has its own
  * [ScraperRun] (see [runOf]), which progress callbacks update by script id.
- * A question parks its script on [question] until [answer] is called; when
- * several ask at once they're shown one after the other. A run's end is
- * told in a snackbar, wherever the user is; the Sources tab keeps showing
- * it from [outcomes].
+ * A question parks its script on [question] until [answer] is called for
+ * it; when several ask at once they're shown one after the other. A run's
+ * end is told in a snackbar, wherever the user is; the Sources tab keeps
+ * showing it from [outcomes].
  *
  * Registered as [FydeSdk]'s [FydeScraperHandler]. Sources just connected or
  * reconfigured (onboarding's [ConnectSourceScreen], the Sources tab) start
@@ -168,9 +168,13 @@ class ScraperRuns(
         }
     }
 
-    /** Answers the question [question] shows, for its script's run only. */
-    fun answer(text: String) {
-        question?.answer?.complete(text)
+    /**
+     * Answers [pending], for its script's run only. Takes the question
+     * itself, not whichever is first: another can take its place between
+     * the dialog showing it and the user sending their answer.
+     */
+    fun answer(pending: PendingQuestion, text: String) {
+        pending.answer.complete(text)
     }
 
     override fun onProgress(scriptId: String, progress: FydeScraperProgress) {
