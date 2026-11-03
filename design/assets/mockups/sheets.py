@@ -22,7 +22,7 @@ LABELS = {
     "V11": "Coffre sombre", "K1": "Scanner", "K2": "Vérifier le scan",
     "K3": "Depuis une autre app", "K4": "Ajout en cours", "R1": "Arrivées", "R1c": "Code expiré", "R1b": "Arrivées sombre", "R2": "Tout est rangé",
     "R3": "Historique", "R4": "Notification de code", "S1": "Sources", "S2": "Catalogue", "S3": "Connecter",
-    "S4": "Récupération", "S5": "Détail", "S6": "En échec", "S6b": "Site changé", "S8": "Vérification demandée", "S7": "Retirer", "M1": "Moi", "M2": "Sécurité", "M2b": "Sécurité sombre",
+    "S4": "Récupération", "S4b": "Récupération arrêtée", "S5": "Détail", "S5b": "Détail, en cours", "S6": "En échec", "S6b": "Site changé", "S8": "Vérification demandée", "S7": "Retirer", "M1": "Moi", "M2": "Sécurité", "M2b": "Sécurité sombre",
     "M3": "Ce que voit le serveur", "M4": "Vérifier le mot de passe", "M5": "Appareils", "M6": "Offre et usage",
     "M7": "Apparence et langue", "M8": "Se déconnecter", "M9": "Offres", "M10": "Aide", "M11": "Changer le mot de passe", "M12": "Mes données", "M12b": "Supprimer mon compte", "M8b": "Se déconnecter, sombre", "X1": "Hors ligne", "X2": "Texte à 200 %", "D1": "Bureau — Catégorie",
     "DO1": "Bienvenue", "DO2": "Connexion", "DO2b": "Connexion en cours", "DO2c": "Échec de connexion",
@@ -31,7 +31,7 @@ LABELS = {
     "DO7": "Choisir ses sources", "DO7b": "Connecter une source", "DO7c": "Récupération en cours",
     "DO7d": "Code reçu par SMS ou e-mail", "DO7f": "Mot de passe refusé",
     "DO7g": "Sources connectées", "DO7h": "Limite de l’offre", "DO8": "Notifications", "DO9": "Ouverture", "DO10": "Récupérer mon coffre", "DO10b": "Nouveau mot de passe",
-    "D2": "Bureau — Document", "D3": "Bureau — Arrivées", "D4": "Bureau — Sources", "T1": "Tablette — Coffre", "T2": "Tablette portrait", "D5": "Bureau — Moi", "D6": "Bureau — Tout le coffre",
+    "D2": "Bureau — Document", "D3": "Bureau — Arrivées", "D4": "Bureau — Sources", "D4b": "Bureau — Source en cours", "T1": "Tablette — Coffre", "T2": "Tablette portrait", "D5": "Bureau — Moi", "D6": "Bureau — Tout le coffre",
 }
 GROUPS = {"onboarding": "O", "coffre": "V", "capture-arrivees": "KR", "sources": "S", "moi": "MX"}
 BG, INK, GAP, PAD, LABEL_H = "#E4E2DD", "#3d3a33", 28, 36, 50
