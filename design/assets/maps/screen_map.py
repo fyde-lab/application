@@ -28,7 +28,7 @@ NODES = {
     "R1": ("Arrivées", "arrivals"), "R1b": ("Arrivées sombre", "arrivals"), "R1c": ("Code expiré", "arrivals"), "R2": ("Tout est rangé", "arrivals"), "R3": ("Historique", "arrivals"),
     "R4": ("Notification de code", "arrivals"),
     "S1": ("Sources", "sources"), "S2": ("Catalogue", "sources"), "S3": ("Connecter", "sources"),
-    "S4": ("Récupération", "sources"), "S5": ("Détail", "sources"), "S6": ("En échec", "sources"), "S6b": ("Site changé", "sources"), "S8": ("Vérification demandée", "sources"),
+    "S4": ("Récupération", "sources"), "S4b": ("Récupération arrêtée", "sources"), "S5": ("Détail", "sources"), "S5b": ("Détail, en cours", "sources"), "S6": ("En échec", "sources"), "S6b": ("Site changé", "sources"), "S8": ("Vérification demandée", "sources"),
     "S7": ("Retirer", "sources"),
     "M1": ("Moi", "moi"), "M2": ("Sécurité", "moi"), "M2b": ("Sécurité sombre", "moi"), "M3": ("Ce que voit le serveur", "moi"),
     "M4": ("Vérifier le mot de passe", "moi"), "M5": ("Appareils", "moi"), "M6": ("Offre et usage", "moi"),
@@ -46,7 +46,7 @@ NODES = {
     "DO7f": ("Mot de passe refusé", "donb"),
     "DO7g": ("Sources connectées", "donb"), "DO8": ("Notifications", "donb"), "DO9": ("Ouverture", "donb"), "DO10": ("Récupérer mon coffre", "donb"), "DO10b": ("Nouveau mot de passe", "donb"),
     "SIDE": ("Barre latérale", "dentry"), "T1": ("Tablette — Coffre", "dapp"), "T2": ("Tablette portrait", "dapp"), "D1": ("Catégorie", "dapp"),
-    "D2": ("Document", "dapp"), "D3": ("Arrivées", "dapp"), "D4": ("Sources", "dapp"),
+    "D2": ("Document", "dapp"), "D3": ("Arrivées", "dapp"), "D4": ("Sources", "dapp"), "D4b": ("Source en cours", "dapp"),
     "D5": ("Moi", "dapp"), "D6": ("Tout le coffre", "dapp"),
 }
 
@@ -61,6 +61,8 @@ MOBILE = [
     ("V6", "V6b", "sombre", "state"), ("V8", "V8b", "sombre", "state"), ("R1", "R1b", "sombre", "state"),
     ("M2", "M2b", "sombre", "state"), ("M8", "M8b", "sombre", "state"),
     ("V1", "X2", "texte à 200 %", "state"), ("R1", "R1c", "code expiré", "state"), ("S6", "S6b", "site changé", "state"), ("S4", "S8", "vérification", "overlay"),
+    ("S4", "S4b", "Arrêter", "state"), ("S8", "S4b", "Arrêter", "state"), ("S4b", "S1", "Revenir aux sources", "nav"), ("S4b", "S4", "Relancer", "nav"),
+    ("S5", "S5b", "Lancer", "state"), ("S5b", "S5", "Arrêter", "state"),
     ("TABS", "V1", "Coffre", "nav"), ("TABS", "R1", "Arrivées", "nav"), ("TABS", "K1", "Scanner", "nav"),
     ("TABS", "S1", "Sources", "nav"), ("TABS", "M1", "Moi", "nav"),
     ("O1", "O3", "Créer mon coffre", "nav"), ("O1", "O2", "J’ai déjà un coffre", "nav"),
@@ -103,7 +105,7 @@ DESKTOP = [
     ("DO7f", "DO7g", "Passer (dernière)", "nav"), ("DO7g", "DO8", "Continuer", "nav"), ("DO8", "SIDE", "", "nav"),
     ("DO9", "SIDE", "Parcourir le coffre", "nav"),
     ("SIDE", "D6", "Tout le coffre", "nav"), ("D6", "T1", "sur tablette", "state"), ("T1", "T2", "portrait", "state"), ("D6", "D1", "carte", "nav"), ("SIDE", "D1", "catégorie", "nav"), ("SIDE", "D3", "Arrivées", "nav"),
-    ("SIDE", "D4", "Sources", "nav"), ("SIDE", "D5", "pierre (avatar)", "nav"), ("D1", "D2", "", "nav"), ("T1", "D1", "carte", "nav"),
+    ("SIDE", "D4", "Sources", "nav"), ("D4", "D4b", "Lancer", "state"), ("D4b", "D4", "Arrêter", "state"), ("SIDE", "D5", "pierre (avatar)", "nav"), ("D1", "D2", "", "nav"), ("T1", "D1", "carte", "nav"),
 ]
 
 GROUPS = {

@@ -1,6 +1,6 @@
 # Screen map
 
-How the 90 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
+How the 93 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
 graphs: the phone app, and desktop and tablet. Screen IDs and content are specified in
 [`design-system.md`](design-system.md); this page is only about the links between them.
 
@@ -81,6 +81,9 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 - A source row → **S5 Détail**; "Retirer" opens the **S7** dialog. A failed source → **S6**;
   "Mettre à jour et relancer" → S4. **S6b** is the failure when the site changed (report it, nothing
   to fix); **S8** is the provider's own page over S4 when it asks for a check (a captcha).
+- "Arrêter la récupération" on S4 or S8 stops the run: **S4b** shows what it got, with "Revenir
+  aux sources" (S1) and "Relancer" (S4). On S5, Lancer turns into Arrêter while the source runs
+  (**S5b**); once stopped, S5 comes back with the stopped status.
 - At the plan's source limit S1 points to M6.
 
 ### Moi (M1–M12)
@@ -108,7 +111,8 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 - **DO3** shows its errors as **DO3b**; **DO4b** again if there is no keyring; then
   **DO6** → **DO6b** → **DO7**.
 - **DO7** (or **DO7h** at the limit) → **DO7b** for each ticked source → **DO7c** while it runs.
-  From DO7c: a code asked by SMS or e-mail (**DO7d**, one card for both), "Source suivante" back to
+  From DO7c: a code asked by SMS or e-mail (**DO7d**, one card for both; its "Arrêter la
+  récupération" stops the run, as DO7c's own link does), "Source suivante" back to
   DO7b, or **DO7g** after the last source. **DO7f** is DO7b after a refused password; skipping
   the last source also reaches DO7g. DO7g or "Passer" → **DO8**.
 - DO8 and DO9 open the vault.
@@ -118,7 +122,8 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 ### Coffre au bureau et sur tablette (D1–D6, T1)
 
 The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet, **T2** in portrait), a category (**D1**),
-**D3 Arrivées** and **D4 Sources**. D1 → **D2 Document**. The avatar row at the foot of the
+**D3 Arrivées** and **D4 Sources**; while the selected source runs, D4's panel offers Arrêter in
+Lancer's place (**D4b**). D1 → **D2 Document**. The avatar row at the foot of the
 sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 
 ## Phone and desktop counterparts
@@ -133,4 +138,5 @@ sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 | V6 + V7 | D2 |
 | R1 | D3 |
 | S1 + S5 | D4 |
+| S5b | D4b |
 | M1–M12 | D5 (menu and page side by side) |

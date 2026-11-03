@@ -29,7 +29,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 
 ## Reference screens
 
-Every screen of the app is drawn in `assets/screens/` (90 PNGs at 2×, phone frames at 390×844,
+Every screen of the app is drawn in `assets/screens/` (93 PNGs at 2×, phone frames at 390×844,
 desktop at 1440×900, tablet at 1194×834 or 834×1194 upright), rendered from the HTML in `assets/mockups/` by
 `render.py`; `sheets.py` assembles them into the contact sheets in `assets/sheets/`. To change a
 reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
@@ -272,6 +272,8 @@ Without a session there's no sidebar. The window splits in two (DO1–DO10):
 - **Sheet** for short, contextual tasks (verification code, document actions, reclassify, import
   from another app, insecure-storage warning). **Dialog** only to confirm something irreversible
   (remove a source, disconnect a device, log out); its confirm button is filled `error`.
+  Stopping a run isn't irreversible (what it fetched stays, Lancer starts another), so it takes
+  no dialog.
 - **Note** (`info`, `ok`, `warning`, `error`: wash fill, icon, rich text) explains a condition
   inline, next to what it concerns. There is no full-width banner.
 - **Snackbar** (ink surface above the tab bar, optional progress and action, at most 2 stacked)
@@ -296,6 +298,7 @@ identically in Sources, Arrivées, history and on desktop:
 | Waiting for the user | `warning`, clock | "Attend votre code" + Saisir |
 | Failed | `error`, alert | The reason in user words, each with its next step: mot de passe refusé (S6: update and retry) · site changé (S6b: report it, credentials aren't at fault) · code expiré (R1c: Relancer) |
 | Up to date | `success`, check | "Ce matin · 38 documents" |
+| Stopped | `textMuted`, stop square | "Arrêtée · 5 documents gardés" + Lancer. The user stopped the last run: nothing failed, so it's neither red nor "En pause" (the next daily run still happens) |
 | Paused | `textMuted`, pause | "En pause" |
 
 ### Source runs
@@ -314,6 +317,23 @@ would expire unseen.
   waits for the app to be open rather than running in the background.
 - **Lancer** (S5, D4, R2) runs the source now, on the device where it's tapped: one sign-in,
   asked for by the user.
+- **Arrêter** stops a run in progress, on the device running it. It's offered wherever that run
+  is shown with room for an action: S4 and DO7c (text button "Arrêter la récupération" under
+  the primary, which stays "Continuer en arrière-plan" / "Source suivante"), S5 and D4's
+  detail panel (Lancer's slot turns into an outlined Arrêter while it runs, S5b and D4b), the
+  code sheet and S8 (text button "Arrêter la récupération"). Never in S1's rows or D4's table:
+  a row stays one tap target, and stopping by mistake would throw away a sign-in.
+  - Never confirmed by a dialog, and never filled `error`: it's a normal choice, not a
+    destructive one. The word is "Arrêter", never "Annuler", which would suggest undoing.
+  - The script stops at its next check (between two instructions, around a request or a
+    browser wait, or a pending question), which can take a few seconds mid-download, so the
+    button stays `loading` ("Arrêt…") until the run has really ended.
+  - What the run already saved stays in the vault, and the next run skips it (scripts skip
+    URLs they already saved), so Relancer picks up roughly where it stopped. The source's
+    status becomes Stopped; its daily run isn't paused.
+  - S4 becomes S4b (stepper frozen at the step it reached, that step in the stop glyph; a note
+    that the documents stay; Revenir aux sources · Relancer). Stopped from S5, D4 or the code
+    sheet, a snackbar confirms it ("EDF arrêtée · 5 documents gardés", action Relancer).
 
 ### Verification code
 
@@ -334,6 +354,10 @@ The card says how the code was sent, because the user has to go and fetch it:
   on any platform; Fyde never reads the user's mailbox.
 - **Anything else** (an authenticator app, a question) — the provider's own wording as the
   title, one text field.
+
+Leaving the card without a code stops the run ("Arrêter la récupération", see
+[Source runs](#source-runs)) rather than failing it: an unanswered code only fails the run
+(`MFA_FAILED`) when it expires.
 
 Which one it is, and the masked destination, come from the scraper's question; until the SDK
 passes them as structured data (channel, destination, length), the card shows the question text
@@ -489,12 +513,14 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source |
 | S2 | Catalogue | Search; every public scraper from A to Z; Ajouter or a check if already added; "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
 | S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4) |
-| S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan | Code or captcha → code sheet |
+| S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan; Arrêter la récupération (text) | Code or captcha → code sheet; Arrêter → S4b |
+| S4b | Récupération arrêtée | S4 once stopped: stepper frozen at the step reached (stop glyph, "Téléchargement arrêté 5 / 12"), later steps idle; info note "Les 5 documents déjà récupérés restent dans votre coffre…"; documents already arrived; Revenir aux sources · Relancer | Relancer → S4 |
 | S5 | Détail | Status, counts, automatic switch, Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Retirer la source | — |
+| S5b | Détail, en cours | S5 while the source runs: status "Récupération… 5 / 12", Lancer's slot turned into an outlined Arrêter | Arrêter keeps S5b busy until the run ends, then S5 with the Stopped status and a snackbar |
 | S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | The report is the run's debug report, which never records headers, bodies or form values; a sheet shows what's sent before sending |
 | S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
 | S6b | Site changé | Error note (the site changed, nothing fetched since …); info note that the credentials aren't at fault and the documents stay; Signaler le problème (filled) · Relancer quand même; what the report holds | No credential field: there's nothing for the user to fix |
-| S8 | Vérification demandée | Sheet over S4 (or a window on desktop): the provider's own page in an embedded browser (`fyde.browser`), with its address and "Page d'Ameli"; a line that Fyde fills nothing in and keeps nothing; Passer cette fois | Opens when a script hands a step to the browser (a captcha, a consent page); the run resumes when the page lets it through |
+| S8 | Vérification demandée | Sheet over S4 (or a window on desktop): the provider's own page in an embedded browser (`fyde.browser`), with its address and "Page d'Ameli"; a line that Fyde fills nothing in and keeps nothing; Arrêter la récupération | Opens when a script hands a step to the browser (a captcha, a consent page); the run resumes when the page lets it through. Arrêter → S4b |
 
 ### Moi and states (M1–M12, X1, X2)
 
@@ -530,6 +556,7 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | D2 | Document | Sidebar · 400dp list · pass and facts · live preview |
 | D3 | Arrivées | Sidebar · queue with inline code card · preview · classification panel with C'est bon (Enter) |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
+| D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
 | D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |
 | D6 | Tout le coffre | Sidebar · header with search and Importer · arrivals banner · 4-column category cards · latest arrivals |
 | T1 | Tablette | As D6 on a tablet: Scanner instead of Importer |
@@ -555,10 +582,10 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 3 with their state | Connect installs the script and starts its first run |
-| DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel |
-| DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Annuler / Valider. An e-mail code uses the same card: "Code reçu par e-mail", the masked address, a spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
+| DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante; a line under them "Arrêter la récupération d'EDF · les documents déjà arrivés restent" | Moving on doesn't stop the run; its state stays in the brand panel. Arrêter freezes the stepper as in S4b, the brand panel saying "arrêtée", and leaves Source suivante as the way on |
+| DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Arrêter la récupération / Valider. An e-mail code uses the same card: "Code reçu par e-mail", the masked address, a spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
 | DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
-| DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, or skipped with Réessayer), Continuer, "Ajouter une autre source" | — |
+| DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, stopped with "Arrêtée · n documents gardés" and Relancer, or skipped with Réessayer), Continuer, "Ajouter une autre source" | — |
 | DO8 | Notifications | Step 4 of 4: a sample system notification at the top right of the pane, the promise, a note that on a computer Fyde notifies while it's open | — |
 | DO9 | Ouverture sur cet ordinateur | Ring with the replayed count, names this computer, Parcourir le coffre | Needs the replay total (SDK) |
 | DO10 | Récupérer mon coffre | As O10 in the 440dp form, sign-in brand panel | From DO2 and DO2c |
@@ -596,7 +623,7 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `DocumentPass` | Landed (V6, D2) | Issuer and type in ink, headline in `passAmount` (`DocumentPassHeadline.Value`) or `title` for a name, the line under it, a dashed perforation in ink at 40%, up to three `DocumentPassCell`s. The caller picks the template; today only "Relevé, autre" (the SDK has no amounts, issuers or references yet) |
 | `ArrivalsBanner`, `ClassificationSuggestion` | New | — |
 | `OneTimeCodeField` | New | See [Verification code](#verification-code) |
-| `SourceStatus`, `RunStepper` | Landed (S1, DO7c) | See [Source status](#source-status). `SourceStatus`: 12 glyph and caption Medium in the state's colour (spinner `primary`, clock `warning`, alert `error`, check `success`, muted clock when queued) |
+| `SourceStatus`, `RunStepper` | Landed (S1, DO7c) | See [Source status](#source-status). `SourceStatus`: 12 glyph and caption Medium in the state's colour (spinner `primary`, clock `warning`, alert `error`, check `success`, muted stop square when stopped, muted clock when queued). `RunStepper`'s stopped step: the dot on `sunk` with a `borderStrong` ring and the stop square in `textMuted`, later steps idle |
 | `SourceRow` | New | Private to `SourcesTabScreen.kt` until another screen needs it. The tile shows the script's icon (`fetchIcon`, cached) on `surface`; without one, its initials on the fill of its main category. The references show the fallback (the app still falls back to a puzzle glyph: scripts have no category yet) |
 | `PlanQuota` | New | See [Plan quota](#plan-quota) |
 | `SealHero` | Landed (O1) | `primary` disc and lock, `primaryWash` disc, two `border` rings at 168 (`AppDimensions.sealHero`); reused by M2 |
@@ -625,6 +652,7 @@ left out (principle 5), not faked.
 | First-page thumbnails | V3, D1, D2 |
 | Sorting by amount or name | V3, D1 |
 | Script categories and popularity | O7, DO7, S2 chips and groups |
+| Stopping a run in progress (a stop call that ends the script at its next instruction, request, browser wait or question, and a "stopped" outcome distinct from a failure). Dropping the run's future doesn't stop its script today | S4, S4b, S5b, S8, code sheet, DO7c, DO7d, D4b |
 | Renaming a session | M5 |
 | Plan catalogue and purchase | M9 |
 | Deleting the account | M12b |
@@ -632,7 +660,8 @@ left out (principle 5), not faked.
 ## Delivery
 
 1. **New shell, no SDK change:** tokens, fonts, `AppTabBar` / `AppSidebar`, V1, V3–V7, V9, V11,
-   S1–S4 with live run state only, M1, M5–M8, O1–O5, O7, O8, X1, code sheet, K1–K4.
+   S1–S4 with live run state only, M1, M5–M8, O1–O5, O7, O8, X1, code sheet, K1–K4; Arrêter
+   (S4b, S5b, D4b and the stop actions on S4, S8, DO7c, DO7d) as soon as the SDK can stop a run.
 2. **Automation visible:** run records and scheduling → S5, S6, R2–R4, V2, statuses everywhere.
 3. **Trust:** recovery kit, password check, last seen → O6, O9, M2–M4.
 4. **Triage:** provenance, unconfirmed flag, delete → R1 and D3 triage, Source facet, V8 delete,

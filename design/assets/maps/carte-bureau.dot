@@ -37,6 +37,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
   "D2" [label="D2\nDocument" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D3" [label="D3\nArrivées" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D4" [label="D4\nSources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D4b" [label="D4b\nSource en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D5" [label="D5\nMoi" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D6" [label="D6\nTout le coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
 }
@@ -78,6 +79,8 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "SIDE" -> "D1" [color="#1F4D3A" penwidth=1.6 label="catégorie"];
 "SIDE" -> "D3" [color="#1F4D3A" penwidth=1.6 label="Arrivées"];
 "SIDE" -> "D4" [color="#1F4D3A" penwidth=1.6 label="Sources"];
+"D4" -> "D4b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Lancer"];
+"D4b" -> "D4" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Arrêter"];
 "SIDE" -> "D5" [color="#1F4D3A" penwidth=1.6 label="pierre (avatar)"];
 "D1" -> "D2" [color="#1F4D3A" penwidth=1.6];
 "T1" -> "D1" [color="#1F4D3A" penwidth=1.6 label="carte"];

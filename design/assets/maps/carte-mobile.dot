@@ -53,7 +53,9 @@ subgraph "cluster_sources" { label="Sources (S)"; fontname="Inter SemiBold"; fon
   "S2" [label="S2\nCatalogue" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S3" [label="S3\nConnecter" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S4" [label="S4\nRécupération" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S4b" [label="S4b\nRécupération arrêtée" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S5" [label="S5\nDétail" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S5b" [label="S5b\nDétail, en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S6" [label="S6\nEn échec" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S6b" [label="S6b\nSite changé" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S8" [label="S8\nVérification demandée" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
@@ -88,6 +90,12 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "R1" -> "R1c" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="code expiré"];
 "S6" -> "S6b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="site changé"];
 "S4" -> "S8" [color="#2C5582" style=dashed penwidth=1.4 label="vérification"];
+"S4" -> "S4b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Arrêter"];
+"S8" -> "S4b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Arrêter"];
+"S4b" -> "S1" [color="#1F4D3A" penwidth=1.6 label="Revenir aux sources"];
+"S4b" -> "S4" [color="#1F4D3A" penwidth=1.6 label="Relancer"];
+"S5" -> "S5b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Lancer"];
+"S5b" -> "S5" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Arrêter"];
 "TABS" -> "V1" [color="#1F4D3A" penwidth=1.6 label="Coffre"];
 "TABS" -> "R1" [color="#1F4D3A" penwidth=1.6 label="Arrivées"];
 "TABS" -> "K1" [color="#1F4D3A" penwidth=1.6 label="Scanner"];

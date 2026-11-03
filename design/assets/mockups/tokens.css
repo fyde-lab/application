@@ -138,6 +138,8 @@
 .st.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
 .st.now .dot{border:2px solid var(--warn)}
 .st.idle{color:var(--muted)}
+.sspin{width:12px;height:12px;border-radius:50%;border:2px solid var(--pwash);border-top-color:var(--primary);flex:none}
+.st.stop .dot{background:var(--sunk);border-color:var(--bstrong);color:var(--muted)}
 .kbd{font:500 12px "Plex Mono";color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:1px 6px;background:var(--bg)}
 
 /* plan quota counter (source picker) */
