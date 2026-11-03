@@ -318,8 +318,8 @@ would expire unseen.
 - **Lancer** (S5, D4, R2) runs the source now, on the device where it's tapped: one sign-in,
   asked for by the user.
 - **Arrêter** stops a run in progress, on the device running it. It's offered wherever that run
-  is shown with room for an action: S4 and DO7c (text button "Arrêter la récupération" under
-  the primary, which stays "Continuer en arrière-plan" / "Source suivante"), S5 and D4's
+  is shown with room for an action: S4 (text button "Arrêter la récupération" under the
+  primary, which stays "Continuer en arrière-plan"), S5 and D4's
   detail panel (Lancer's slot turns into an outlined Arrêter while it runs, S5b and D4b), the
   code sheet and S8 (text button "Arrêter la récupération"). Never in S1's rows or D4's table:
   a row stays one tap target, and stopping by mistake would throw away a sign-in.
@@ -582,7 +582,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 3 with their state | Connect installs the script and starts its first run |
-| DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante; a line under them "Arrêter la récupération d'EDF · les documents déjà arrivés restent" | Moving on doesn't stop the run; its state stays in the brand panel. Arrêter freezes the stepper as in S4b, the brand panel saying "arrêtée", and leaves Source suivante as the way on |
+| DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel. No Arrêter here: the first run is short, and it can be stopped from DO7d or, later, D4 |
 | DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Arrêter la récupération / Valider. An e-mail code uses the same card: "Code reçu par e-mail", the masked address, a spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
 | DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
 | DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, stopped with "Arrêtée · n documents gardés" and Relancer, or skipped with Réessayer), Continuer, "Ajouter une autre source" | — |
@@ -652,7 +652,7 @@ left out (principle 5), not faked.
 | First-page thumbnails | V3, D1, D2 |
 | Sorting by amount or name | V3, D1 |
 | Script categories and popularity | O7, DO7, S2 chips and groups |
-| Stopping a run in progress (a stop call that ends the script at its next instruction, request, browser wait or question, and a "stopped" outcome distinct from a failure). Dropping the run's future doesn't stop its script today | S4, S4b, S5b, S8, code sheet, DO7c, DO7d, D4b |
+| Stopping a run in progress (a stop call that ends the script at its next instruction, request, browser wait or question, and a "stopped" outcome distinct from a failure). Dropping the run's future doesn't stop its script today | S4, S4b, S5b, S8, code sheet, DO7d, D4b |
 | Renaming a session | M5 |
 | Plan catalogue and purchase | M9 |
 | Deleting the account | M12b |
@@ -661,7 +661,7 @@ left out (principle 5), not faked.
 
 1. **New shell, no SDK change:** tokens, fonts, `AppTabBar` / `AppSidebar`, V1, V3–V7, V9, V11,
    S1–S4 with live run state only, M1, M5–M8, O1–O5, O7, O8, X1, code sheet, K1–K4; Arrêter
-   (S4b, S5b, D4b and the stop actions on S4, S8, DO7c, DO7d) as soon as the SDK can stop a run.
+   (S4b, S5b, D4b and the stop actions on S4, S8, DO7d) as soon as the SDK can stop a run.
 2. **Automation visible:** run records and scheduling → S5, S6, R2–R4, V2, statuses everywhere.
 3. **Trust:** recovery kit, password check, last seen → O6, O9, M2–M4.
 4. **Triage:** provenance, unconfirmed flag, delete → R1 and D3 triage, Source facet, V8 delete,

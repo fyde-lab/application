@@ -112,7 +112,7 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
   **DO6** → **DO6b** → **DO7**.
 - **DO7** (or **DO7h** at the limit) → **DO7b** for each ticked source → **DO7c** while it runs.
   From DO7c: a code asked by SMS or e-mail (**DO7d**, one card for both; its "Arrêter la
-  récupération" stops the run, as DO7c's own link does), "Source suivante" back to
+  récupération" stops the run), "Source suivante" back to
   DO7b, or **DO7g** after the last source. **DO7f** is DO7b after a refused password; skipping
   the last source also reaches DO7g. DO7g or "Passer" → **DO8**.
 - DO8 and DO9 open the vault.
