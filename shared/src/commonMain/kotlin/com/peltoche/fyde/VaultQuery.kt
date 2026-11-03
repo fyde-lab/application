@@ -35,6 +35,18 @@ data class VaultQuery(
     val filtersActive: Boolean
         get() = category != null || subcategory != null || type != null || year != null
 
+    /** The typed words, for highlighting them in the results. */
+    val terms: List<String>
+        get() = text.split(Regex("\\s+")).filter { it.isNotEmpty() }
+
+    /**
+     * Whether the search page lists results (V5) rather than its shortcuts
+     * (V4): once there's text, a type or a year. A category alone is the
+     * scope a category page's search opened with, so still V4.
+     */
+    val showsResults: Boolean
+        get() = text.isNotBlank() || type != null || year != null
+
     /**
      * Picks [category]. Its subcategory is dropped along with it: each
      * subcategory belongs to exactly one category, so the old one can't

@@ -25,6 +25,7 @@ import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
+import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.vault_load_failed
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.theme.AppAppearance
@@ -36,6 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
@@ -61,6 +63,12 @@ private const val SERVER_REACHABILITY_POLL_INTERVAL_MS = 5_000L
  * same pace as [SERVER_REACHABILITY_POLL_INTERVAL_MS].
  */
 private const val SESSION_CHECK_INTERVAL_MS = 5_000L
+
+/**
+ * How long the vault's search waits after a keystroke before searching, so
+ * typing a word runs one search rather than one per letter.
+ */
+private const val SEARCH_DEBOUNCE_MS = 250L
 
 /** How many documents the vault's home lists as its latest arrivals. */
 private const val LATEST_ARRIVALS = 5L
@@ -896,9 +904,26 @@ private suspend fun loadVaultCategory(page: VaultPage.Category): VaultCategoryCo
 }
 
 /**
+ * The search page's chips and, once it [VaultQuery.showsResults], every
+ * document found: most relevant first for typed text, newest first for a
+ * type or year alone.
+ */
+private suspend fun loadVaultSearch(query: VaultQuery): VaultSearchContents {
+    val text = query.text.trim()
+    val filters = query.toSearchFilters()
+    val facets = FydeSdk.searchDocumentFacets(text, filters).getOrThrow()
+    val documents = if (query.showsResults) {
+        searchAllDocuments(text, filters, if (text.isNotEmpty()) FydeSearchOrder.RELEVANCE else FydeSearchOrder.NEWEST)
+    } else {
+        emptyList()
+    }
+    return VaultSearchContents(query, vaultFilterOptions(facets, query), documents)
+}
+
+/**
  * Owns the `fyde-sdk` connection and the changelog subscription, and maps
- * their results into [VaultUiState]: the home's summary and the open
- * category's contents, both reloaded on every changelog event. Holds which
+ * their results into [VaultUiState]: the home's summary, the open
+ * category's contents and the open search, all reloaded on every changelog event. Holds which
  * page is open ([VaultFocus]); [VaultScreen] only draws it.
  */
 @Composable
@@ -914,6 +939,7 @@ private fun VaultContainer(
     var focus by remember { mutableStateOf(VaultFocus()) }
     var home by remember { mutableStateOf<VaultHome?>(null) }
     var category by remember { mutableStateOf<VaultCategoryContents?>(null) }
+    var search by remember { mutableStateOf<VaultSearchContents?>(null) }
     var serverReachable by remember { mutableStateOf(true) }
     var deviceCount by remember { mutableStateOf<Int?>(null) }
     var isUploading by remember { mutableStateOf(false) }
@@ -930,9 +956,9 @@ private fun VaultContainer(
         if (fresh != open) focus = focus.copy(document = fresh)
     }
 
-    suspend fun reportLoadFailure(error: Throwable) {
+    suspend fun reportLoadFailure(error: Throwable, message: StringResource = Res.string.vault_load_failed) {
         if (error is CancellationException) throw error
-        loadError = getString(Res.string.vault_load_failed, error.userMessage())
+        loadError = getString(message, error.userMessage())
     }
 
     // Picks one or more local files and uploads each via fyde-sdk,
@@ -1012,6 +1038,22 @@ private fun VaultContainer(
             .onFailure { reportLoadFailure(it) }
     }
 
+    // Typing restarts this effect, so a search only runs once the text has
+    // stood still for SEARCH_DEBOUNCE_MS; picking a chip searches at once.
+    val searchQuery = (focus.page as? VaultPage.Search)?.query
+    LaunchedEffect(connected, changeKey, searchQuery) {
+        if (searchQuery == null) search = null
+        if (!connected || searchQuery == null) return@LaunchedEffect
+        if (searchQuery.text.isNotBlank() && searchQuery.text != search?.query?.text) delay(SEARCH_DEBOUNCE_MS)
+        runCatching { loadVaultSearch(searchQuery) }
+            .onSuccess {
+                search = it
+                loadError = null
+                refreshOpenDocument(it.documents)
+            }
+            .onFailure { reportLoadFailure(it, Res.string.search_failed) }
+    }
+
     // Polls fyde-sdk's own reachability check independently of the changelog
     // stream above, so the Import button and the offline note reflect
     // whether calls into the SDK are currently expected to succeed.
@@ -1029,6 +1071,7 @@ private fun VaultContainer(
             else -> VaultUiState.Loaded(
                 home = home,
                 category = category,
+                search = search,
                 serverReachable = serverReachable,
                 deviceCount = deviceCount,
                 isUploading = isUploading,

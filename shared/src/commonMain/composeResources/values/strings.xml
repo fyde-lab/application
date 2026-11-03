@@ -236,7 +236,6 @@
     <string name="offline_banner">Offline: the server can’t be reached. Uploading is paused until it’s back.</string>
 
     <!-- Document list -->
-    <string name="search_documents_placeholder">Search documents</string>
     <string name="no_documents_title">No documents yet</string>
     <string name="no_documents_description">Documents you import will show up here.</string>
     <string name="no_documents_match">No documents match “%1$s”</string>
@@ -322,6 +321,12 @@
     <string name="vault_save">Save</string>
     <string name="vault_viewer_close">Close</string>
     <string name="vault_viewer_decrypted">Decrypted on this device</string>
+    <string name="vault_search">Search</string>
+    <string name="vault_search_in">Search in %1$s</string>
+    <string name="vault_search_types">By document type</string>
+    <string name="vault_search_local">Searched on this device, in the documents’ text.</string>
+    <string name="filter_year">Year</string>
+    <string name="filter_year_all">Any year</string>
 
     <!-- Navigation -->
     <string name="app_title">Fyde</string>

@@ -1,6 +1,9 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,10 +20,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,17 +64,24 @@ import com.peltoche.fyde.resources.vault_import
 import com.peltoche.fyde.resources.vault_latest
 import com.peltoche.fyde.resources.vault_sealed
 import com.peltoche.fyde.resources.vault_sealed_devices
+import com.peltoche.fyde.resources.vault_search
+import com.peltoche.fyde.resources.vault_search_in
 import com.peltoche.fyde.resources.vault_title
 import com.peltoche.fyde.resources.vault_unclassified
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
+import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
+import com.peltoche.fyde.theme.appFocusRing
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
-/** Which vault page is open: the home's categories (V1, D6), or one category's documents (V3, D1). */
+/**
+ * Which vault page is open: the home's categories (V1, D6), one category's
+ * documents (V3, D1), or the search (V4, V5).
+ */
 sealed interface VaultPage {
     data object Home : VaultPage
 
@@ -80,6 +94,9 @@ sealed interface VaultPage {
     ) : VaultPage {
         val query: VaultQuery get() = VaultQuery(category = category, subcategory = subcategory, year = year)
     }
+
+    /** The search for [query], opened from [origin], where Annuler returns. */
+    data class Search(val query: VaultQuery, val origin: VaultPage) : VaultPage
 }
 
 /**
@@ -110,20 +127,33 @@ data class VaultCategoryContents(
     val documents: List<FydeDocument>,
 )
 
+/**
+ * What the search page shows for [query]: the facet chips' choices (V4's
+ * type shortcuts among them) and, once [VaultQuery.showsResults], the
+ * documents found, most relevant first.
+ */
+data class VaultSearchContents(
+    val query: VaultQuery,
+    val options: VaultFilterOptions,
+    val documents: List<FydeDocument>,
+)
+
 sealed interface VaultUiState {
     data object Connecting : VaultUiState
 
     data class ConnectFailed(val message: String, val onRetry: () -> Unit) : VaultUiState
 
     /**
-     * Connected. [home] and [category] are `null` until loaded; [category]
-     * may still hold an earlier page's contents while the open one loads.
+     * Connected. [home], [category] and [search] are `null` until loaded;
+     * [category] and [search] may still hold an earlier query's contents
+     * while the open one loads.
      * [deviceCount] is `null` if the sessions couldn't be listed. [notice]
      * is the last action's failure, [loadError] why the page couldn't load.
      */
     data class Loaded(
         val home: VaultHome? = null,
         val category: VaultCategoryContents? = null,
+        val search: VaultSearchContents? = null,
         val serverReachable: Boolean = true,
         val deviceCount: Int? = null,
         val isUploading: Boolean = false,
@@ -198,6 +228,13 @@ internal class Vault(
 
     fun openPage(page: VaultPage) = onFocusChange(VaultFocus(page = page))
 
+    /** Opens the search from the open page, within [category] when there's one. */
+    fun openSearch(category: FydeCategory? = null) =
+        openPage(VaultPage.Search(VaultQuery(category = category), origin = focus.page))
+
+    /** Edits the open search, closing any document opened from its results. */
+    fun search(page: VaultPage.Search) = onFocusChange(VaultFocus(page = page))
+
     fun openDocument(document: FydeDocument) = onFocusChange(focus.copy(document = document, viewerOpen = false))
 
     fun closeDocument() = onFocusChange(focus.copy(document = null, viewerOpen = false))
@@ -231,29 +268,34 @@ private fun NarrowVault(vault: Vault, modifier: Modifier) {
             }
             document != null -> key(document.id) { DocumentPage(vault, document) }
             page is VaultPage.Category -> CategoryPage(vault, page)
+            page is VaultPage.Search -> SearchPage(vault, page)
             else -> HomePage(vault)
         }
     }
 }
 
 /**
- * Expanded: the home (D6) or a category's grid (D1); with a document open,
- * its pass and content beside the category's list (D2), or in the home's
- * place when it was opened from there.
+ * Expanded: the home (D6), a category's grid (D1) or the search; with a
+ * document open, its pass and content beside the category's list or the
+ * search's results (D2), or in the home's place when it was opened from there.
  */
 @Composable
 private fun WideVault(vault: Vault, modifier: Modifier) {
     val document = vault.focus.document
     val page = vault.focus.page
     when {
-        document != null && page is VaultPage.Category -> Row(modifier = modifier) {
+        document != null && page !is VaultPage.Home -> Row(modifier = modifier) {
             Box(
                 modifier = Modifier
                     .width(AppDimensions.documentListColumn)
                     .fillMaxHeight()
                     .background(AppColors.surface),
             ) {
-                CategoryListColumn(vault, page, selected = document)
+                when (page) {
+                    is VaultPage.Category -> CategoryListColumn(vault, page, selected = document)
+                    is VaultPage.Search -> SearchPage(vault, page, selected = document)
+                    VaultPage.Home -> Unit
+                }
             }
             AppDivider(vertical = true)
             key(document.id) { DocumentBeside(vault, document, onBack = null) }
@@ -263,6 +305,9 @@ private fun WideVault(vault: Vault, modifier: Modifier) {
         }
         page is VaultPage.Category -> AppContentContainer(modifier = modifier, width = AppContentWidth.List) {
             CategoryGridPage(vault, page)
+        }
+        page is VaultPage.Search -> AppContentContainer(modifier = modifier, width = AppContentWidth.Detail) {
+            SearchPage(vault, page)
         }
         else -> AppContentContainer(modifier = modifier, width = AppContentWidth.List) { HomePage(vault) }
     }
@@ -289,6 +334,8 @@ private fun HomePage(vault: Vault) {
                 )
                 SealLine(vault.state.deviceCount)
             }
+            SearchLauncher(vault, category = null)
+            Spacer(Modifier.width(AppSpacing.space3))
             ImportAction(vault)
         }
         VaultNotes(vault)
@@ -344,6 +391,48 @@ private fun SealLine(deviceCount: Int?) {
             style = AppTypography.caption,
             color = AppColors.textMuted,
         )
+    }
+}
+
+/**
+ * Opens the search, within [category] if given: a field-looking button in
+ * the Expanded headers (D1, D6), a circle below and in narrow columns.
+ */
+@Composable
+internal fun SearchLauncher(
+    vault: Vault,
+    category: FydeCategory?,
+    asField: Boolean = LocalAppWindowSizeClass.current == AppWindowSizeClass.Expanded,
+) {
+    val label = if (category != null) {
+        stringResource(Res.string.vault_search_in, category.label())
+    } else {
+        stringResource(Res.string.vault_search)
+    }
+    if (asField) {
+        val interactionSource = remember { MutableInteractionSource() }
+        Row(
+            modifier = Modifier
+                .width(AppDimensions.searchLauncherWidth)
+                .heightIn(min = AppDimensions.touchTargetMin)
+                .clip(AppShapes.input)
+                .clickable(interactionSource = interactionSource, indication = ripple(), role = Role.Button) {
+                    vault.openSearch(category)
+                }
+                .appFocusRing(interactionSource, shape = AppShapes.input)
+                .background(AppColors.surface)
+                .border(AppDimensions.borderHairline, AppColors.borderStrong, AppShapes.input)
+                .padding(horizontal = AppSpacing.space4),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SearchGlyph(modifier = Modifier.size(AppIconSize.sm))
+            Spacer(Modifier.width(AppSpacing.space3))
+            Text(text = label, style = AppTypography.body, color = AppColors.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+    } else {
+        AppCircleButton(onClick = { vault.openSearch(category) }, contentDescription = label) {
+            SearchGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+        }
     }
 }
 
@@ -446,6 +535,7 @@ internal fun VaultDocumentRow(
     subtitle: String?,
     onClick: () -> Unit,
     selected: Boolean = false,
+    highlightTerms: List<String> = emptyList(),
 ) {
     DocumentRow(
         title = document.name,
@@ -454,6 +544,7 @@ internal fun VaultDocumentRow(
         color = document.category.colors(),
         onClick = onClick,
         selected = selected,
+        highlightTerms = highlightTerms,
         icon = { tint -> CategoryGlyph(document.category, tint) },
     )
 }

@@ -68,13 +68,15 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   at Expanded (`AppNavigationTopBar`, with Settings and the screen's `primaryAction` at its
   far end), a bottom bar below.
 - Vault (Coffre): `VaultScreen.kt` (home V1/D6 and the shared pieces), `VaultCategoryPage.kt`
-  (V3, D1, D2's list column), `VaultDocumentPage.kt` (V6, V7, D2's pass and preview), backed by
-  `App.kt`'s `VaultContainer`, which holds the open page as a `VaultFocus` and reloads the home
-  (category facets, each category's newest, latest arrivals) and the open category (facets
-  without and with the subcategory, every page of results) on each changelog event. Below
+  (V3, D1, D2's list column), `VaultSearchPage.kt` (V4, V5), `VaultDocumentPage.kt` (V6, V7, D2's
+  pass and preview), backed by `App.kt`'s `VaultContainer`, which holds the open page as a
+  `VaultFocus` and reloads the home (category facets, each category's newest, latest arrivals),
+  the open category (facets without and with the subcategory, every page of results) and the open
+  search (`VaultQuery`, debounced while typing, RELEVANCE order) on each changelog event. Below
   Expanded one page at a time; at Expanded D1's card grid, and an open document beside its
-  category's list (D2). Device counts come from `listSessions`. What the SDK can't back
-  (amounts, issuers, an "À classer" card, sharing, reclassifying) is left out.
+  category's list or the search's results (D2). A category page's search starts within it. Device counts come from `listSessions`. What the SDK can't back
+  (amounts, issuers, an "À classer" card, sharing, reclassifying, recent searches, the Source
+  facet) is left out.
 - Sources: `SourcesTabScreen.kt` (the design's S1–S7, D4), backed by `App.kt`'s
   `SourcesTabContainer` (scrapers only; quota from `getUsage`). S1–S6 are pages at
   Compact/Medium; Expanded is D4, a table sortable by source and status beside a detail panel.

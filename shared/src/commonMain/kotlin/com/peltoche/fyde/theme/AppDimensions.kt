@@ -106,6 +106,9 @@ object AppDimensions {
     /** D2's pass column, between the list and the preview. */
     val documentPassColumn: Dp = 360.dp
 
+    /** The vault's search launcher in the Expanded headers (D1, D6). */
+    val searchLauncherWidth: Dp = 300.dp
+
     /** `AppBackButton`'s circle — design-system.md § Compact: "a 44pt circular back button". */
     val backButton: Dp = 44.dp
 
