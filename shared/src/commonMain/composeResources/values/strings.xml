@@ -236,16 +236,13 @@
     <string name="offline_banner">Offline: the server can’t be reached. Uploading is paused until it’s back.</string>
 
     <!-- Document list -->
-    <string name="documents_title">Documents</string>
     <string name="search_documents_placeholder">Search documents</string>
-    <string name="dismiss">Dismiss</string>
     <string name="no_documents_title">No documents yet</string>
     <string name="no_documents_description">Documents you import will show up here.</string>
     <string name="no_documents_match">No documents match “%1$s”</string>
     <string name="no_documents_match_filters">No documents match the current filters.</string>
     <string name="no_matches_title">No matches</string>
     <string name="clear_filters">Clear filters</string>
-    <string name="upload_document">Upload document</string>
     <string name="upload_failed">Upload failed: %1$s</string>
     <string name="uploads_failed">%1$d of %2$d uploads failed</string>
     <plurals name="uploads_succeeded">
@@ -255,8 +252,6 @@
     <string name="settings">Settings</string>
     <string name="log_out">Log out</string>
     <string name="clear_search">Clear search</string>
-    <string name="select_document_title">Select a document</string>
-    <string name="select_document_description">Choose a document from the list to preview it here.</string>
     <plurals name="documents_count">
         <item quantity="one">%1$d document</item>
         <item quantity="other">%1$d documents</item>
@@ -268,36 +263,17 @@
 
     <!-- Document filters -->
     <string name="filter_type">Type</string>
-    <string name="filter_period">Period</string>
     <string name="filter_type_all">All types</string>
-    <string name="filter_type_pdf">PDF</string>
-    <string name="filter_type_image">Images</string>
-    <string name="filter_type_spreadsheet">Spreadsheets</string>
-    <string name="filter_type_text">Text documents</string>
-    <string name="filter_type_other">Other</string>
-    <string name="filter_period_any">Any time</string>
-    <string name="filter_period_30_days">Last 30 days</string>
-    <string name="filter_period_this_year">This year</string>
-    <string name="filter_period_last_year">Last year</string>
     <string name="filter_category">Category</string>
     <string name="filter_category_all">All categories</string>
-    <string name="filter_subcategory">Subcategory</string>
-    <string name="filter_subcategory_all">All subcategories</string>
     <string name="search_failed">Search failed: %1$s</string>
 
     <!-- Document detail -->
-    <string name="document_details_title">Details</string>
-    <string name="document_detail_type">Type</string>
-    <string name="document_detail_document_type">Document type</string>
     <string name="document_detail_size">Size</string>
-    <string name="document_detail_created">Created</string>
-    <string name="document_detail_category">Category</string>
-    <string name="document_detail_subcategory">Subcategory</string>
     <string name="document_detail_value_unset">—</string>
-    <string name="document_download">Download</string>
+    <string name="save_dialog_title">Save</string>
     <string name="document_saved">Saved “%1$s”</string>
     <string name="document_save_failed">Couldn’t save “%1$s”</string>
-    <string name="document_preview_title">Document preview</string>
     <string name="preview_unavailable_title">No preview available</string>
     <string name="preview_unavailable_description">%1$s files can’t be previewed here. Download the file to open it.</string>
     <string name="preview_load_failed_title">Couldn’t load this document</string>
@@ -306,9 +282,50 @@
     <string name="pdf_render_failed_description">The file may be damaged. Download it to open it in another app.</string>
     <string name="pdf_preview_unavailable">PDF preview isn’t available on Web yet.</string>
 
+    <!-- Vault (Coffre) -->
+    <string name="vault_load_failed">Couldn’t load the vault: %1$s</string>
+    <string name="vault_title">Vault</string>
+    <string name="vault_add">Add to vault</string>
+    <string name="vault_import">Import</string>
+    <string name="vault_sealed">Sealed</string>
+    <plurals name="vault_sealed_devices">
+        <item quantity="one">Sealed · %1$d device</item>
+        <item quantity="other">Sealed · %1$d devices</item>
+    </plurals>
+    <string name="vault_latest">Latest arrivals</string>
+    <!-- %1$s category, %2$s document count -->
+    <string name="vault_category_card_description">%1$s, %2$s</string>
+    <!-- %1$s category, %2$s document count, %3$s newest document -->
+    <string name="vault_category_card_description_latest">%1$s, %2$s, latest: %3$s</string>
+    <string name="vault_category_overline">Category</string>
+    <string name="vault_all_count">All · %1$d</string>
+    <!-- %1$s facet value, %2$d its document count -->
+    <string name="vault_facet_count">%1$s · %2$d</string>
+    <string name="vault_year_before">Before %1$d</string>
+    <string name="vault_sort_newest">Sort: newest first</string>
+    <string name="vault_sort_oldest">Sort: oldest first</string>
+    <string name="vault_unclassified">Unfiled</string>
+    <string name="vault_pass_received">Received</string>
+    <string name="vault_pass_format">Format</string>
+    <string name="vault_fact_arrived">Arrived</string>
+    <string name="vault_fact_in_vault">In the vault</string>
+    <string name="vault_fact_encrypted">Encrypted</string>
+    <plurals name="vault_fact_encrypted_devices">
+        <item quantity="one">Encrypted · %1$d device</item>
+        <item quantity="other">Encrypted · %1$d devices</item>
+    </plurals>
+    <string name="vault_fact_filed">Filed under</string>
+    <!-- %1$s category, %2$s subcategory -->
+    <string name="vault_filed_path">%1$s › %2$s</string>
+    <!-- %1$s typeCode, %2$s size -->
+    <string name="vault_file_caption">%1$s · %2$s</string>
+    <string name="vault_save">Save</string>
+    <string name="vault_viewer_close">Close</string>
+    <string name="vault_viewer_decrypted">Decrypted on this device</string>
+
     <!-- Navigation -->
     <string name="app_title">Fyde</string>
-    <string name="nav_documents">Documents</string>
+    <string name="nav_vault">Vault</string>
     <string name="encryption_badge_title">End-to-end encryption</string>
     <string name="encryption_badge_description">Your documents are secured</string>
 
@@ -332,6 +349,22 @@
     <string name="month_10">Oct</string>
     <string name="month_11">Nov</string>
     <string name="month_12">Dec</string>
+    <!-- %1$d day, %2$s month abbreviation: a date in the current year -->
+    <string name="date_format_short">%2$s %1$d</string>
+    <string name="month_heading_1">January</string>
+    <string name="month_heading_2">February</string>
+    <string name="month_heading_3">March</string>
+    <string name="month_heading_4">April</string>
+    <string name="month_heading_5">May</string>
+    <string name="month_heading_6">June</string>
+    <string name="month_heading_7">July</string>
+    <string name="month_heading_8">August</string>
+    <string name="month_heading_9">September</string>
+    <string name="month_heading_10">October</string>
+    <string name="month_heading_11">November</string>
+    <string name="month_heading_12">December</string>
+    <!-- %1$s month name, %2$d year -->
+    <string name="month_heading_year">%1$s %2$d</string>
 
     <!-- Document classification labels -->
     <string name="category_housing">Housing</string>

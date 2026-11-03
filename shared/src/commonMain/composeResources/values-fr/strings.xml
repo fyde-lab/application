@@ -236,16 +236,13 @@
     <string name="offline_banner">Hors ligne : le serveur est injoignable. L’import reprendra dès son retour.</string>
 
     <!-- Document list -->
-    <string name="documents_title">Documents</string>
     <string name="search_documents_placeholder">Rechercher des documents</string>
-    <string name="dismiss">Fermer</string>
     <string name="no_documents_title">Aucun document pour le moment</string>
     <string name="no_documents_description">Les documents que vous importez apparaîtront ici.</string>
     <string name="no_documents_match">Aucun document ne correspond à « %1$s »</string>
     <string name="no_documents_match_filters">Aucun document ne correspond aux filtres actuels.</string>
     <string name="no_matches_title">Aucun résultat</string>
     <string name="clear_filters">Effacer les filtres</string>
-    <string name="upload_document">Importer un document</string>
     <string name="upload_failed">Échec de l’import : %1$s</string>
     <string name="uploads_failed">%1$d import(s) sur %2$d ont échoué</string>
     <plurals name="uploads_succeeded">
@@ -255,8 +252,6 @@
     <string name="settings">Paramètres</string>
     <string name="log_out">Se déconnecter</string>
     <string name="clear_search">Effacer la recherche</string>
-    <string name="select_document_title">Sélectionnez un document</string>
-    <string name="select_document_description">Choisissez un document dans la liste pour le prévisualiser ici.</string>
     <plurals name="documents_count">
         <item quantity="one">%1$d document</item>
         <item quantity="other">%1$d documents</item>
@@ -268,36 +263,17 @@
 
     <!-- Document filters -->
     <string name="filter_type">Type</string>
-    <string name="filter_period">Période</string>
     <string name="filter_type_all">Tous les types</string>
-    <string name="filter_type_pdf">PDF</string>
-    <string name="filter_type_image">Images</string>
-    <string name="filter_type_spreadsheet">Tableurs</string>
-    <string name="filter_type_text">Documents texte</string>
-    <string name="filter_type_other">Autres</string>
-    <string name="filter_period_any">Toutes les dates</string>
-    <string name="filter_period_30_days">30 derniers jours</string>
-    <string name="filter_period_this_year">Cette année</string>
-    <string name="filter_period_last_year">L’année dernière</string>
     <string name="filter_category">Catégorie</string>
     <string name="filter_category_all">Toutes les catégories</string>
-    <string name="filter_subcategory">Sous-catégorie</string>
-    <string name="filter_subcategory_all">Toutes les sous-catégories</string>
     <string name="search_failed">Échec de la recherche : %1$s</string>
 
     <!-- Document detail -->
-    <string name="document_details_title">Détails</string>
-    <string name="document_detail_type">Type</string>
-    <string name="document_detail_document_type">Type de document</string>
     <string name="document_detail_size">Taille</string>
-    <string name="document_detail_created">Créé le</string>
-    <string name="document_detail_category">Catégorie</string>
-    <string name="document_detail_subcategory">Sous-catégorie</string>
     <string name="document_detail_value_unset">—</string>
-    <string name="document_download">Télécharger</string>
+    <string name="save_dialog_title">Enregistrer</string>
     <string name="document_saved">« %1$s » enregistré</string>
     <string name="document_save_failed">Impossible d’enregistrer « %1$s »</string>
-    <string name="document_preview_title">Aperçu du document</string>
     <string name="preview_unavailable_title">Aucun aperçu disponible</string>
     <string name="preview_unavailable_description">Les fichiers %1$s ne peuvent pas être prévisualisés ici. Téléchargez le fichier pour l’ouvrir.</string>
     <string name="preview_load_failed_title">Impossible de charger ce document</string>
@@ -306,9 +282,45 @@
     <string name="pdf_render_failed_description">Le fichier est peut-être endommagé. Téléchargez-le pour l’ouvrir dans une autre application.</string>
     <string name="pdf_preview_unavailable">L’aperçu PDF n’est pas encore disponible sur le Web.</string>
 
+    <!-- Vault (Coffre) -->
+    <string name="vault_load_failed">Impossible de charger le coffre : %1$s</string>
+    <string name="vault_title">Coffre</string>
+    <string name="vault_add">Ajouter au coffre</string>
+    <string name="vault_import">Importer</string>
+    <string name="vault_sealed">Scellé</string>
+    <plurals name="vault_sealed_devices">
+        <item quantity="one">Scellé · %1$d appareil</item>
+        <item quantity="other">Scellé · %1$d appareils</item>
+    </plurals>
+    <string name="vault_latest">Derniers arrivés</string>
+    <string name="vault_category_card_description">%1$s, %2$s</string>
+    <string name="vault_category_card_description_latest">%1$s, %2$s, dernier : %3$s</string>
+    <string name="vault_category_overline">Catégorie</string>
+    <string name="vault_all_count">Tout · %1$d</string>
+    <string name="vault_facet_count">%1$s · %2$d</string>
+    <string name="vault_year_before">Avant %1$d</string>
+    <string name="vault_sort_newest">Trier : plus récents d’abord</string>
+    <string name="vault_sort_oldest">Trier : plus anciens d’abord</string>
+    <string name="vault_unclassified">À classer</string>
+    <string name="vault_pass_received">Reçu</string>
+    <string name="vault_pass_format">Format</string>
+    <string name="vault_fact_arrived">Arrivée</string>
+    <string name="vault_fact_in_vault">Dans le coffre</string>
+    <string name="vault_fact_encrypted">Chiffré</string>
+    <plurals name="vault_fact_encrypted_devices">
+        <item quantity="one">Chiffré · %1$d appareil</item>
+        <item quantity="other">Chiffré · %1$d appareils</item>
+    </plurals>
+    <string name="vault_fact_filed">Classement</string>
+    <string name="vault_filed_path">%1$s › %2$s</string>
+    <string name="vault_file_caption">%1$s · %2$s</string>
+    <string name="vault_save">Enregistrer</string>
+    <string name="vault_viewer_close">Fermer</string>
+    <string name="vault_viewer_decrypted">Déchiffré sur cet appareil</string>
+
     <!-- Navigation -->
     <string name="app_title">Fyde</string>
-    <string name="nav_documents">Documents</string>
+    <string name="nav_vault">Coffre</string>
     <string name="encryption_badge_title">Chiffrement de bout en bout</string>
     <string name="encryption_badge_description">Vos documents sont sécurisés</string>
 
@@ -332,6 +344,20 @@
     <string name="month_10">oct.</string>
     <string name="month_11">nov.</string>
     <string name="month_12">déc.</string>
+    <string name="date_format_short">%1$d %2$s</string>
+    <string name="month_heading_1">Janvier</string>
+    <string name="month_heading_2">Février</string>
+    <string name="month_heading_3">Mars</string>
+    <string name="month_heading_4">Avril</string>
+    <string name="month_heading_5">Mai</string>
+    <string name="month_heading_6">Juin</string>
+    <string name="month_heading_7">Juillet</string>
+    <string name="month_heading_8">Août</string>
+    <string name="month_heading_9">Septembre</string>
+    <string name="month_heading_10">Octobre</string>
+    <string name="month_heading_11">Novembre</string>
+    <string name="month_heading_12">Décembre</string>
+    <string name="month_heading_year">%1$s %2$d</string>
 
     <!-- Document classification labels -->
     <string name="category_housing">Logement</string>

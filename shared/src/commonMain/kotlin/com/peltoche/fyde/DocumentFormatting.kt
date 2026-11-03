@@ -1,8 +1,6 @@
 package com.peltoche.fyde
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.category_housing
 import com.peltoche.fyde.resources.category_telecom
@@ -46,6 +44,7 @@ import com.peltoche.fyde.resources.subcategory_food_delivery
 import com.peltoche.fyde.resources.subcategory_media
 import com.peltoche.fyde.resources.subcategory_cloud_software
 import com.peltoche.fyde.resources.date_format
+import com.peltoche.fyde.resources.date_format_short
 import com.peltoche.fyde.resources.decimal_separator
 import com.peltoche.fyde.resources.document_type_invoice
 import com.peltoche.fyde.resources.document_type_receipt
@@ -66,11 +65,6 @@ import com.peltoche.fyde.resources.document_type_fee_summary
 import com.peltoche.fyde.resources.document_type_booking
 import com.peltoche.fyde.resources.document_type_medical_document
 import com.peltoche.fyde.resources.document_type_other
-import com.peltoche.fyde.resources.filter_type_image
-import com.peltoche.fyde.resources.filter_type_other
-import com.peltoche.fyde.resources.filter_type_pdf
-import com.peltoche.fyde.resources.filter_type_spreadsheet
-import com.peltoche.fyde.resources.filter_type_text
 import com.peltoche.fyde.resources.month_1
 import com.peltoche.fyde.resources.month_10
 import com.peltoche.fyde.resources.month_11
@@ -83,13 +77,27 @@ import com.peltoche.fyde.resources.month_6
 import com.peltoche.fyde.resources.month_7
 import com.peltoche.fyde.resources.month_8
 import com.peltoche.fyde.resources.month_9
+import com.peltoche.fyde.resources.month_heading_1
+import com.peltoche.fyde.resources.month_heading_2
+import com.peltoche.fyde.resources.month_heading_3
+import com.peltoche.fyde.resources.month_heading_4
+import com.peltoche.fyde.resources.month_heading_5
+import com.peltoche.fyde.resources.month_heading_6
+import com.peltoche.fyde.resources.month_heading_7
+import com.peltoche.fyde.resources.month_heading_8
+import com.peltoche.fyde.resources.month_heading_9
+import com.peltoche.fyde.resources.month_heading_10
+import com.peltoche.fyde.resources.month_heading_11
+import com.peltoche.fyde.resources.month_heading_12
+import com.peltoche.fyde.resources.month_heading_year
 import com.peltoche.fyde.resources.size_bytes
 import com.peltoche.fyde.resources.size_gigabytes
 import com.peltoche.fyde.resources.size_kilobytes
 import com.peltoche.fyde.resources.size_megabytes
-import com.peltoche.fyde.theme.AppColors
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 // Everything here turns a document field into text in the UI's own language.
 // Found via review: dates were a fixed YYYY-MM-DD, sizes were truncated
@@ -152,6 +160,31 @@ internal fun localizedDate(epochSeconds: Long): String {
     val date = civilDate(epochSeconds)
     return stringResource(Res.string.date_format, date.day, stringResource(MONTHS[date.month - 1]), date.year)
 }
+
+/** [localizedDate] without the year when it's this year's: "Oct 12" / "12 oct.", as the vault's lists show dates. */
+@Composable
+internal fun localizedShortDate(epochSeconds: Long): String {
+    val date = civilDate(epochSeconds)
+    if (date.year != currentYear()) return localizedDate(epochSeconds)
+    return stringResource(Res.string.date_format_short, date.day, stringResource(MONTHS[date.month - 1]))
+}
+
+private val MONTH_HEADINGS = listOf(
+    Res.string.month_heading_1, Res.string.month_heading_2, Res.string.month_heading_3, Res.string.month_heading_4,
+    Res.string.month_heading_5, Res.string.month_heading_6, Res.string.month_heading_7, Res.string.month_heading_8,
+    Res.string.month_heading_9, Res.string.month_heading_10, Res.string.month_heading_11, Res.string.month_heading_12,
+)
+
+/** A month heading a list's documents ("October"), with its year unless it's this year ("October 2025"). */
+@Composable
+internal fun localizedMonthHeading(year: Long, month: Int): String {
+    val name = stringResource(MONTH_HEADINGS[month - 1])
+    return if (year == currentYear()) name else stringResource(Res.string.month_heading_year, name, year)
+}
+
+/** This year, in the UTC calendar [civilDate] uses. */
+@OptIn(ExperimentalTime::class)
+internal fun currentYear(): Long = civilDate(Clock.System.now().epochSeconds).year
 
 /**
  * [bytes] in the largest unit it reaches, with one decimal below 10 of that
@@ -269,17 +302,11 @@ internal fun FydeDocumentType.label(): String = stringResource(
 )
 
 /**
- * What kind of file a document is, derived from its content type: what the
- * Type filter groups by, what picks [FileTypeIcon]'s tint, and what decides
- * how (or whether) it can be previewed in the app.
+ * What kind of file a document is, derived from its content type: what
+ * decides how (or whether) it can be previewed in the app, and its type
+ * code's fallback.
  */
-enum class DocumentKind(val label: StringResource) {
-    PDF(Res.string.filter_type_pdf),
-    IMAGE(Res.string.filter_type_image),
-    SPREADSHEET(Res.string.filter_type_spreadsheet),
-    TEXT(Res.string.filter_type_text),
-    OTHER(Res.string.filter_type_other),
-}
+enum class DocumentKind { PDF, IMAGE, SPREADSHEET, TEXT, OTHER }
 
 internal val FydeDocument.kind: DocumentKind
     get() = documentKindOf(contentType)
@@ -325,21 +352,3 @@ internal val FydeDocument.downloadFileName: String
         }
         return "$name.$extension"
     }
-
-/**
- * [FileTypeIcon]'s accent per [DocumentKind], drawn only from the app's two
- * brand accents — `primary` and `secondary`, the latter already scoped by
- * design-system.md's Color table to "folder/document-type accents" — plus
- * two blends between them, so the kinds stay visually distinct without
- * reaching for a semantic-state color (`success`/`warning`/`error` mean
- * "this succeeded/needs caution/failed" everywhere else) or inventing a
- * fifth hue the "one disciplined accent" rule doesn't allow for.
- */
-@Composable
-internal fun DocumentKind.tint(): Color = when (this) {
-    DocumentKind.PDF -> AppColors.primary
-    DocumentKind.SPREADSHEET -> AppColors.secondary
-    DocumentKind.IMAGE -> lerp(AppColors.primary, AppColors.secondary, 0.5f)
-    DocumentKind.TEXT -> lerp(AppColors.secondary, AppColors.text, 0.3f)
-    DocumentKind.OTHER -> AppColors.textMuted
-}

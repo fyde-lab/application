@@ -8,6 +8,14 @@ class VaultQueryTest {
     private fun on(year: Long, month: Int = 6, day: Int = 1) = epochSeconds(CivilDate(year, month, day))
 
     @Test
+    fun epochSecondsIsTheInverseOfCivilDate() {
+        assertEquals(0L, epochSeconds(CivilDate(1970, 1, 1)))
+        assertEquals(1_709_164_800L, epochSeconds(CivilDate(2024, 2, 29)))
+        assertEquals(-86_400L, epochSeconds(CivilDate(1969, 12, 31)))
+        assertEquals(CivilDate(2026, 10, 11), civilDate(on(2026, 10, 11) + 12 * 3_600))
+    }
+
+    @Test
     fun yearBoundsCoverWholeUtcCalendarYears() {
         assertEquals(on(2025, 1, 1) to on(2026, 1, 1) - 1, YearFilter.In(2025).bounds())
         assertEquals(null to on(2024, 1, 1) - 1, YearFilter.Before(2024).bounds())

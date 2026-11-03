@@ -17,7 +17,6 @@ import com.peltoche.fyde.resources.document_saved
 import com.peltoche.fyde.resources.error_unknown
 import com.peltoche.fyde.resources.language_save_failed
 import com.peltoche.fyde.resources.log_out_failed
-import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.session_expired
 import com.peltoche.fyde.resources.sessions_disconnect_failed
 import com.peltoche.fyde.resources.sessions_disconnected
@@ -26,12 +25,12 @@ import com.peltoche.fyde.resources.upload_failed
 import com.peltoche.fyde.resources.uploads_failed
 import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
+import com.peltoche.fyde.resources.vault_load_failed
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.theme.AppAppearance
 import com.peltoche.fyde.theme.AppTheme
 import com.peltoche.fyde.theme.AppThemeOption
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -41,14 +40,14 @@ import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
 /**
- * How many cached documents [listAllDocuments] fetches per call. The list
+ * How many documents [searchAllDocuments] fetches per call. The list
  * itself isn't capped: pages are fetched until one comes back short.
  */
 private const val DOCUMENT_PAGE_SIZE = 100L
 
 /**
- * How often to poll [FydeSdk.isServerReachable] while the document list is
- * open. Found via review: it used to poll every 200ms — five calls a second,
+ * How often to poll [FydeSdk.isServerReachable] while the vault is open.
+ * Found via review: it used to poll every 200ms — five calls a second,
  * for a banner that only needs to notice an outage within a few seconds,
  * which on a phone is battery spent for nothing.
  */
@@ -63,11 +62,8 @@ private const val SERVER_REACHABILITY_POLL_INTERVAL_MS = 5_000L
  */
 private const val SESSION_CHECK_INTERVAL_MS = 5_000L
 
-/**
- * How long typing in the search field must pause before it's searched, so a
- * word isn't searched once per letter. Filter picks aren't delayed.
- */
-private const val SEARCH_DEBOUNCE_MS = 250L
+/** How many documents the vault's home lists as its latest arrivals. */
+private const val LATEST_ARRIVALS = 5L
 
 /**
  * How many [FydeSdk.fetchIcon] calls [SourcesTabContainer] keeps in
@@ -155,7 +151,7 @@ private sealed interface Screen {
      */
     data object FetchingSource : Screen
 
-    data object Documents : Screen
+    data object Vault : Screen
     data object Settings : Screen
     data object Scripts : Screen
 }
@@ -296,7 +292,7 @@ private fun AppContent(
                     language = savedLanguage
                 }
                 if (FydeSdk.isConnected().getOrDefault(false)) {
-                    screen = Screen.Documents
+                    screen = Screen.Vault
                 }
             }
             .onFailure {
@@ -337,7 +333,7 @@ private fun AppContent(
             }
                 .onSuccess { outcome ->
                     screen = when (outcome) {
-                        FydeLoginOutcome.LoggedIn -> Screen.Documents
+                        FydeLoginOutcome.LoggedIn -> Screen.Vault
                         is FydeLoginOutcome.SessionLimitReached -> Screen.SessionLimit(
                             username = username,
                             password = password,
@@ -530,7 +526,7 @@ private fun AppContent(
         skippedSourceIds = emptySet()
         sourceSelection = emptySet()
         sourcesQuery = ""
-        screen = Screen.Documents
+        screen = Screen.Vault
     }
 
     // Installs [script] with what was typed (publishing the values, encrypted,
@@ -676,7 +672,7 @@ private fun AppContent(
                 onSkip = {
                     sourceSelection = emptySet()
                     sourcesQuery = ""
-                    screen = Screen.Documents
+                    screen = Screen.Vault
                 },
             )
             Screen.ConnectSource -> connectQueue.getOrNull(connectIndex)?.let { script ->
@@ -714,7 +710,7 @@ private fun AppContent(
                     onNext = ::nextSource,
                 )
             }
-            Screen.Documents -> DocumentsScreen(
+            Screen.Vault -> VaultContainer(
                 onOpenSettings = { screen = Screen.Settings },
                 onOpenScripts = { screen = Screen.Scripts },
             )
@@ -733,7 +729,7 @@ private fun AppContent(
                             .onFailure { languageError = getString(Res.string.language_save_failed, it.userMessage()) }
                     }
                 },
-                onOpenDocuments = { screen = Screen.Documents },
+                onOpenVault = { screen = Screen.Vault },
                 onOpenScripts = { screen = Screen.Scripts },
                 // Found via review: this used to only navigate back to Login,
                 // leaving the session token, the master key and the decrypted
@@ -782,7 +778,7 @@ private fun AppContent(
             )
             Screen.Scripts -> SourcesTabContainer(
                 scraperRuns = scraperRuns,
-                onOpenDocuments = { screen = Screen.Documents },
+                onOpenVault = { screen = Screen.Vault },
                 onOpenSettings = { screen = Screen.Settings },
                 onOpenPlan = {
                     settingsSection = SettingsSection.Plan
@@ -833,9 +829,9 @@ private fun AppContent(
 /**
  * Connects to the fyde server and then runs [credentialCall] (either
  * [FydeSdk.login] or [FydeSdk.register]) against that connection, so the
- * session token it stores is set before [DocumentsScreen] opens the
+ * session token it stores is set before [VaultContainer] opens the
  * changelog stream. [FydeSdk.initialize] is safe to call again from
- * [DocumentsScreen] afterwards — it's a no-op reconnect.
+ * [VaultContainer] afterwards — it's a no-op reconnect.
  */
 private suspend fun <T> authenticate(
     username: String,
@@ -847,113 +843,116 @@ private suspend fun <T> authenticate(
         onFailure = { Result.failure(it) },
     )
 
-/**
- * Every document cached locally, newest first. [FydeSdk.listDocuments]
- * pages oldest-first, so the screen's old single 100-document page silently
- * showed the *oldest* 100 and hid every newer one; this fetches every page.
- */
-private suspend fun listAllDocuments(): Result<List<FydeDocument>> = runCatching {
-    buildList {
-        var offset = 0L
-        do {
-            val page = FydeSdk.listDocuments(offset = offset, limit = DOCUMENT_PAGE_SIZE).getOrThrow()
-            addAll(page)
-            offset += page.size
-        } while (page.size.toLong() == DOCUMENT_PAGE_SIZE)
-    }.sortedByDescending { it.createdAt }
-}
-
-/**
- * Every document [FydeSdk.searchDocuments] finds for [text] and [filters],
- * best match first, fetching every page like [listAllDocuments].
- */
-private suspend fun searchAllDocuments(text: String, filters: FydeSearchFilters): List<FydeDocument> = buildList {
+/** Every document [FydeSdk.searchDocuments] finds for [text] and [filters] in [order], fetching every page. */
+private suspend fun searchAllDocuments(text: String, filters: FydeSearchFilters, order: FydeSearchOrder): List<FydeDocument> = buildList {
     var offset = 0L
     do {
-        val page = FydeSdk.searchDocuments(text, filters, FydeSearchOrder.RELEVANCE, offset, DOCUMENT_PAGE_SIZE).getOrThrow()
+        val page = FydeSdk.searchDocuments(text, filters, order, offset, DOCUMENT_PAGE_SIZE).getOrThrow()
         addAll(page)
         offset += page.size
     } while (page.size.toLong() == DOCUMENT_PAGE_SIZE)
 }
 
-/** What a [DocumentSearch] found, and which filter choices `fyde-sdk` says are still worth offering for it. */
-private class SearchOutcome(val results: List<FydeDocument>, val filterOptions: DocumentFilterOptions)
-
 /**
- * Runs [search] through `fyde-sdk`: its facets (the filter choices still
- * worth offering, see [FydeSearchFacets]) and its results. A [DocumentKind]
- * has to be turned into the exact content types the SDK filters on first,
- * which only the SDK's own content-type facet knows — so with a kind picked,
- * facets are asked for twice: once to learn those content types (that facet
- * ignores the content-type filter anyway), then again with them applied, for
- * every other facet to be narrowed by the kind too.
+ * The vault's home: each category's count (from the facets, so categories
+ * without documents are left out) and newest document, in
+ * [CategoryDisplayOrder], then the latest arrivals of any category.
  */
-private suspend fun runSearch(search: DocumentSearch, now: Long): Result<SearchOutcome> = runCatching {
-    var filters = search.toSearchFilters(now)
-    var facets = FydeSdk.searchDocumentFacets(search.text, filters).getOrThrow()
-    val kind = search.kind
-    if (kind != null) {
-        val contentTypes = contentTypesOf(kind, facets)
-        // No document of that kind is left (e.g. it was deleted): nothing
-        // can match, which an empty filter list (no constraint) can't say.
-        if (contentTypes.isEmpty()) return@runCatching SearchOutcome(emptyList(), filterOptions(facets, search, now))
-        filters = search.toSearchFilters(now, contentTypes)
-        facets = FydeSdk.searchDocumentFacets(search.text, filters).getOrThrow()
+private suspend fun loadVaultHome(): VaultHome {
+    val counts = FydeSdk.searchDocumentFacets("", FydeSearchFilters()).getOrThrow()
+        .categories.associate { it.value to it.count }
+    val categories = CategoryDisplayOrder.mapNotNull { category ->
+        val count = counts[category]?.takeIf { it > 0 } ?: return@mapNotNull null
+        val newest = FydeSdk.searchDocuments("", FydeSearchFilters(categories = listOf(category)), FydeSearchOrder.NEWEST, 0, 1)
+            .getOrThrow().firstOrNull()
+        VaultCategorySummary(category, count, newest)
     }
-    SearchOutcome(searchAllDocuments(search.text, filters), filterOptions(facets, search, now))
+    val latest = FydeSdk.searchDocuments("", FydeSearchFilters(), FydeSearchOrder.NEWEST, 0, LATEST_ARRIVALS).getOrThrow()
+    return VaultHome(categories, latest)
 }
 
-@OptIn(ExperimentalTime::class)
-private fun nowEpochSeconds(): Long = Clock.System.now().epochSeconds
+/**
+ * A category page's documents and chips. "Tout" counts the category within
+ * the picked year, whatever the subcategory: the category facet ignores the
+ * category filter, so asking without the subcategory gives it. The year
+ * chips need the subcategory applied (the date span ignores only the date
+ * filters), hence a second facets call when one is picked.
+ */
+private suspend fun loadVaultCategory(page: VaultPage.Category): VaultCategoryContents {
+    val query = page.query
+    val withoutSubcategory = FydeSdk.searchDocumentFacets("", query.copy(subcategory = null).toSearchFilters()).getOrThrow()
+    val facets = if (page.subcategory == null) {
+        withoutSubcategory
+    } else {
+        FydeSdk.searchDocumentFacets("", query.toSearchFilters()).getOrThrow()
+    }
+    val order = if (page.newestFirst) FydeSearchOrder.NEWEST else FydeSearchOrder.OLDEST
+    return VaultCategoryContents(
+        page = page,
+        allCount = withoutSubcategory.categories.firstOrNull { it.value == page.category }?.count ?: 0,
+        options = vaultFilterOptions(facets, query),
+        documents = searchAllDocuments("", query.toSearchFilters(), order),
+    )
+}
 
 /**
  * Owns the `fyde-sdk` connection and the changelog subscription, and maps
- * their results into [DocumentListUiState]. Deliberately has no opinion on
- * how that state is drawn — see [DocumentListScreen] for the visual design,
- * which can change without touching anything in this function.
+ * their results into [VaultUiState]: the home's summary and the open
+ * category's contents, both reloaded on every changelog event. Holds which
+ * page is open ([VaultFocus]); [VaultScreen] only draws it.
  */
 @Composable
-private fun DocumentsScreen(
+private fun VaultContainer(
     onOpenSettings: () -> Unit,
     onOpenScripts: () -> Unit,
 ) {
     var retryKey by remember { mutableStateOf(0) }
-    var uiState by remember { mutableStateOf<DocumentListUiState>(DocumentListUiState.Connecting) }
+    var connected by remember { mutableStateOf(false) }
+    var connectError by remember { mutableStateOf<String?>(null) }
+    // Bumped on every changelog event, and by Retry after a failed load.
+    var changeKey by remember { mutableStateOf(0) }
+    var focus by remember { mutableStateOf(VaultFocus()) }
+    var home by remember { mutableStateOf<VaultHome?>(null) }
+    var category by remember { mutableStateOf<VaultCategoryContents?>(null) }
+    var serverReachable by remember { mutableStateOf(true) }
+    var deviceCount by remember { mutableStateOf<Int?>(null) }
     var isUploading by remember { mutableStateOf(false) }
-    // What the search field and filter chips show, applied as it changes.
-    var search by remember { mutableStateOf(DocumentSearch()) }
-    // [search]'s text once typing pauses; see SEARCH_DEBOUNCE_MS.
-    var settledText by remember { mutableStateOf("") }
+    var notice by remember { mutableStateOf<String?>(null) }
+    var loadError by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
-    fun showBanner(message: String) {
-        val current = uiState as? DocumentListUiState.Loaded ?: return
-        uiState = current.copy(
-            banner = message,
-            onDismissBanner = { (uiState as? DocumentListUiState.Loaded)?.let { latest -> uiState = latest.copy(banner = null) } },
-        )
+    // A reload can bring the open document's new metadata (its
+    // classification landing after the upload, say).
+    fun refreshOpenDocument(documents: List<FydeDocument>) {
+        val open = focus.document ?: return
+        val fresh = documents.firstOrNull { it.id == open.id } ?: return
+        if (fresh != open) focus = focus.copy(document = fresh)
+    }
+
+    suspend fun reportLoadFailure(error: Throwable) {
+        if (error is CancellationException) throw error
+        loadError = getString(Res.string.vault_load_failed, error.userMessage())
     }
 
     // Picks one or more local files and uploads each via fyde-sdk,
     // sequentially (one FydeClient, so no concurrent calls into it). No
     // manual refresh is needed on success: each upload publishes a "created"
     // changelog event, which the initialize() callback below is already
-    // listening for and will re-list documents in response to.
+    // listening for and will reload the vault in response to.
     val pickDocuments = rememberDocumentPicker { paths ->
         if (paths.isEmpty()) return@rememberDocumentPicker
         isUploading = true
+        notice = null
         scope.launch {
             val failures = paths.mapNotNull { path -> FydeSdk.uploadDocument(path).exceptionOrNull() }
             val succeeded = paths.size - failures.size
             if (failures.isNotEmpty()) {
-                showBanner(
-                    if (paths.size == 1) {
-                        getString(Res.string.upload_failed, failures.first().userMessage())
-                    } else {
-                        getString(Res.string.uploads_failed, failures.size, paths.size)
-                    },
-                )
+                notice = if (paths.size == 1) {
+                    getString(Res.string.upload_failed, failures.first().userMessage())
+                } else {
+                    getString(Res.string.uploads_failed, failures.size, paths.size)
+                }
             }
             isUploading = false
             if (succeeded > 0) snackbarHostState.showSnackbar(getPluralString(Res.plurals.uploads_succeeded, succeeded, succeeded))
@@ -966,98 +965,102 @@ private fun DocumentsScreen(
             if (saved) {
                 snackbarHostState.showSnackbar(getString(Res.string.document_saved, fileName))
             } else {
-                showBanner(getString(Res.string.document_save_failed, fileName))
+                notice = getString(Res.string.document_save_failed, fileName)
             }
         }
     }
 
+    // fyde-sdk consumes the changelog in the background for the lifetime of
+    // the session (started by login/register, or immediately here if one is
+    // already persisted); its callback only says something changed.
     LaunchedEffect(retryKey) {
-        uiState = DocumentListUiState.Connecting
-
-        // Re-lists the cached documents every time a new changelog event
-        // comes in, so the screen stays in sync with what fyde-sdk has
-        // materialized locally. fyde-sdk consumes the changelog in the
-        // background for the lifetime of the session (started by login/
-        // register, or immediately here if one is already persisted), so
-        // no separate streaming call is needed.
-        val initResult = FydeSdk.initialize(BuildConfig.SERVER_URL) {
-            scope.launch {
-                val current = uiState as? DocumentListUiState.Loaded
-                val refreshed = listAllDocuments().getOrElse { current?.documents ?: emptyList() }
-                uiState = current?.copy(documents = refreshed) ?: DocumentListUiState.Loaded(documents = refreshed)
-            }
-        }
+        connected = false
+        connectError = null
+        val initResult = FydeSdk.initialize(BuildConfig.SERVER_URL) { scope.launch { changeKey++ } }
         if (initResult.isFailure) {
-            uiState = DocumentListUiState.ConnectFailed(
-                message = initResult.exceptionOrNull()?.userMessage() ?: getString(Res.string.error_unknown),
-                onRetry = { retryKey++ },
-            )
+            connectError = initResult.exceptionOrNull()?.userMessage() ?: getString(Res.string.error_unknown)
             return@LaunchedEffect
         }
+        connected = true
+    }
 
-        uiState = DocumentListUiState.Loaded(documents = null)
-        val documents = listAllDocuments().getOrElse { emptyList() }
-        uiState = (uiState as? DocumentListUiState.Loaded)?.copy(documents = documents) ?: DocumentListUiState.Loaded(documents)
+    LaunchedEffect(connected, changeKey) {
+        if (!connected) return@LaunchedEffect
+        runCatching { loadVaultHome() }
+            .onSuccess {
+                home = it
+                loadError = null
+                refreshOpenDocument(it.latest)
+            }
+            .onFailure { reportLoadFailure(it) }
+        FydeSdk.listSessions().getOrNull()?.let { deviceCount = it.size }
+    }
+
+    // A newer page (a chip picked, the sort flipped) cancels one still
+    // loading. The last contents stay up meanwhile within the same category,
+    // so its chips don't vanish while picking one.
+    val categoryPage = focus.page as? VaultPage.Category
+    LaunchedEffect(connected, changeKey, categoryPage) {
+        if (!connected || categoryPage == null) return@LaunchedEffect
+        if (category?.page?.category != categoryPage.category) category = null
+        runCatching { loadVaultCategory(categoryPage) }
+            .onSuccess {
+                category = it
+                loadError = null
+                refreshOpenDocument(it.documents)
+            }
+            .onFailure { reportLoadFailure(it) }
     }
 
     // Polls fyde-sdk's own reachability check independently of the changelog
-    // stream above, so the upload button and the offline banner reflect
-    // whether calls into the SDK are currently expected to succeed. Only
-    // polls once loaded, the only state that shows it, so a failed
-    // connection doesn't log a failure every tick.
-    LaunchedEffect(retryKey) {
-        while (true) {
-            if (uiState is DocumentListUiState.Loaded) {
-                val reachable = FydeSdk.isServerReachable().getOrDefault(false)
-                (uiState as? DocumentListUiState.Loaded)?.let { current ->
-                    if (current.serverReachable != reachable) uiState = current.copy(serverReachable = reachable)
-                }
-            }
+    // stream above, so the Import button and the offline note reflect
+    // whether calls into the SDK are currently expected to succeed.
+    LaunchedEffect(connected) {
+        while (connected) {
+            serverReachable = FydeSdk.isServerReachable().getOrDefault(false)
             delay(SERVER_REACHABILITY_POLL_INTERVAL_MS)
         }
     }
 
-    LaunchedEffect(search.text) {
-        if (search.text.isNotBlank()) delay(SEARCH_DEBOUNCE_MS)
-        settledText = search.text
-    }
-
-    // Searches through fyde-sdk whenever the settled search changes, and
-    // again whenever the cached documents do (every changelog event re-lists
-    // them above), so results and filter choices never go stale. A newer
-    // search cancels one still running. A failure keeps the last results.
-    val cachedDocuments = (uiState as? DocumentListUiState.Loaded)?.documents
-    val settledSearch = search.copy(text = settledText)
-    LaunchedEffect(settledSearch, cachedDocuments) {
-        if (cachedDocuments == null) return@LaunchedEffect
-        runSearch(settledSearch, nowEpochSeconds())
-            .onSuccess { outcome ->
-                (uiState as? DocumentListUiState.Loaded)?.let { current ->
-                    uiState = current.copy(results = outcome.results, filterOptions = outcome.filterOptions)
-                }
-            }
-            .onFailure { showBanner(getString(Res.string.search_failed, it.userMessage())) }
-    }
-
-    DocumentListScreen(
-        state = (uiState as? DocumentListUiState.Loaded)?.copy(search = search) ?: uiState,
+    VaultScreen(
+        state = when {
+            connectError != null -> VaultUiState.ConnectFailed(message = connectError.orEmpty(), onRetry = { retryKey++ })
+            !connected -> VaultUiState.Connecting
+            else -> VaultUiState.Loaded(
+                home = home,
+                category = category,
+                serverReachable = serverReachable,
+                deviceCount = deviceCount,
+                isUploading = isUploading,
+                notice = notice,
+                loadError = loadError,
+            )
+        },
+        focus = focus,
+        onFocusChange = {
+            focus = it
+            notice = null
+        },
         onUpload = pickDocuments,
-        isUploading = isUploading,
         // Listings carry no content: fetch it right before saving.
-        onDownload = { document ->
+        onSave = { document ->
+            notice = null
             scope.launch {
                 val content = FydeSdk.getDocumentContent(document.id).getOrNull()
                 if (content != null) {
                     saveDocument(document.downloadFileName, content)
                 } else {
-                    showBanner(getString(Res.string.document_save_failed, document.name))
+                    notice = getString(Res.string.document_save_failed, document.name)
                 }
             }
         },
         loadContent = { document -> FydeSdk.getDocumentContent(document.id) },
-        onSearchChange = { search = it },
-        onOpenSettings = onOpenSettings,
+        onRetryLoad = {
+            loadError = null
+            changeKey++
+        },
         onOpenScripts = onOpenScripts,
+        onOpenSettings = onOpenSettings,
     )
 }
 
@@ -1072,7 +1075,7 @@ private fun DocumentsScreen(
 @Composable
 private fun SourcesTabContainer(
     scraperRuns: ScraperRuns,
-    onOpenDocuments: () -> Unit,
+    onOpenVault: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenPlan: () -> Unit,
 ) {
@@ -1215,7 +1218,7 @@ private fun SourcesTabContainer(
             }
         },
         onOpenPlan = onOpenPlan,
-        onOpenDocuments = onOpenDocuments,
+        onOpenVault = onOpenVault,
         onOpenSettings = onOpenSettings,
     )
 }

@@ -1,15 +1,9 @@
 package com.peltoche.fyde
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -40,13 +33,12 @@ import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
 import com.peltoche.fyde.resources.encryption_badge_description
 import com.peltoche.fyde.resources.encryption_badge_title
-import com.peltoche.fyde.resources.nav_documents
+import com.peltoche.fyde.resources.nav_vault
 import com.peltoche.fyde.resources.nav_scripts
 import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
-import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.stringResource
@@ -61,7 +53,7 @@ import org.jetbrains.compose.resources.stringResource
  * names, so they were folded into one, Scripts, shown as Sources (see
  * [SourcesTabScreen]).
  */
-enum class TopLevelDestination { Documents, Scripts, Settings }
+enum class TopLevelDestination { Vault, Scripts, Settings }
 
 /**
  * The one snackbar host every top-level destination shows transient
@@ -73,9 +65,9 @@ enum class TopLevelDestination { Documents, Scripts, Settings }
 val LocalAppSnackbarHostState = staticCompositionLocalOf { SnackbarHostState() }
 
 /**
- * The shell every top-level destination ([DocumentListScreen],
+ * The shell every top-level destination ([VaultScreen],
  * [SourcesTabScreen], [SettingsScreen]) and its drill-downs
- * (a source's pages, the compact document detail) compose into, so
+ * (a category, a document, a source's pages) compose into, so
  * navigation is one decision made once rather than re-derived per screen.
  *
  * Navigation is present at every [AppWindowSizeClass] — a top bar at
@@ -83,20 +75,20 @@ val LocalAppSnackbarHostState = staticCompositionLocalOf { SnackbarHostState() }
  * desktop-only, which left Scripts unreachable below 840dp, and left it a
  * dead end (no back, no nav) if the window shrank while it was open.
  *
- * At Expanded the top bar carries the product's name, Documents and Scripts
+ * At Expanded the top bar carries the product's name, Vault and Scripts
  * as tabs, then the encryption indicator, Settings and [primaryAction] at
  * its far end. It replaced a sidebar that spent a whole column on two
  * destinations. [primaryAction] is only drawn there: below Expanded a screen
  * keeps its primary action in its own [topBar].
  *
  * Medium gets the bottom bar too, not `AppNavigationLayout`'s rail: the rail
- * takes ~80dp of width, and Medium's document two-pane layout (fixed 360dp
- * list) can't spare it — at 600dp it would leave the preview pane ~120dp.
+ * takes ~80dp of width a Medium window's three-column category grid can't
+ * spare.
  */
 @Composable
 fun TopLevelScaffold(
     current: TopLevelDestination,
-    onOpenDocuments: () -> Unit,
+    onOpenVault: () -> Unit,
     onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -117,7 +109,7 @@ fun TopLevelScaffold(
             // The top bar has Settings as an icon at its far end; the
             // bottom bar has no such end, so there it's a regular item.
             includeSettings = !isDesktop,
-            onOpenDocuments = onOpenDocuments,
+            onOpenVault = onOpenVault,
             onOpenScripts = onOpenScripts,
             onOpenSettings = onOpenSettings,
         ),
@@ -137,14 +129,7 @@ fun TopLevelScaffold(
         topBar = topBar,
         snackbarHost = { AppSnackbarHost(snackbarHostState) },
     ) { contentPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            content(contentPadding)
-            // Settings' seal card already says it, at the top of its menu;
-            // Sources' detail panel takes the margin the badge would sit in.
-            if (isDesktop && current == TopLevelDestination.Documents) {
-                MarginEncryptionBadge(modifier = Modifier.padding(contentPadding))
-            }
-        }
+        content(contentPadding)
     }
 }
 
@@ -152,17 +137,15 @@ fun TopLevelScaffold(
 private fun appNavigationItems(
     current: TopLevelDestination,
     includeSettings: Boolean,
-    onOpenDocuments: () -> Unit,
+    onOpenVault: () -> Unit,
     onOpenScripts: () -> Unit,
     onOpenSettings: () -> Unit,
 ): List<AppNavigationItem> {
-    // Labelled after the destination it opens ("Documents", also its
-    // title), not after one feature of it — found via review: it was
-    // "Search" in the nav, "Documents" in the title bar and "My documents"
-    // in the sidebar header, three names for one place.
+    // Labelled after the destination it opens ("Vault", also its title),
+    // not after one feature of it, so one place has one name.
     val items = mutableListOf(
-        navigationItem(stringResource(Res.string.nav_documents), current == TopLevelDestination.Documents, onOpenDocuments) { tint ->
-            DocumentGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md))
+        navigationItem(stringResource(Res.string.nav_vault), current == TopLevelDestination.Vault, onOpenVault) { tint ->
+            GridGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md))
         },
         navigationItem(stringResource(Res.string.nav_scripts), current == TopLevelDestination.Scripts, onOpenScripts) { tint ->
             CodeGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md))
@@ -231,7 +214,7 @@ private fun SettingsButton(selected: Boolean, onClick: () -> Unit) {
 }
 
 /**
- * The top bar's compact form of [EncryptionBadge]: the lock alone, its
+ * The end-to-end-encryption indicator: the lock alone, its
  * title and description in a tooltip on hover and in its accessibility
  * label. Not a button — it states a property of the app, there is nothing
  * to open.
@@ -253,54 +236,6 @@ private fun EncryptionIndicator() {
             contentAlignment = Alignment.Center,
         ) {
             LockGlyph(tint = AppColors.textMuted, modifier = Modifier.size(AppIconSize.md))
-        }
-    }
-}
-
-/**
- * The full [EncryptionBadge] in the window's bottom-start corner, in the
- * margin the centered content leaves free — only when that margin is wide
- * enough to hold it, so it never covers content on a narrower window (the
- * top bar's [EncryptionIndicator] still says it there).
- */
-@Composable
-private fun MarginEncryptionBadge(modifier: Modifier = Modifier) {
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        val margin = (maxWidth - AppDimensions.maxWidthList) / 2
-        if (margin >= MarginBadgeWidth + AppSpacing.space5 * 2) {
-            EncryptionBadge(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(AppSpacing.space5)
-                    .width(MarginBadgeWidth),
-            )
-        }
-    }
-}
-
-private val MarginBadgeWidth = 240.dp
-
-/**
- * A static end-to-end-encryption trust badge (a real property of this app,
- * see the top-level design docs). Shown in the desktop window's free margin
- * (see [MarginEncryptionBadge]); Settings says the same with its seal card,
- * on every window size.
- */
-@Composable
-internal fun EncryptionBadge(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(AppRadius.md)
-            .background(AppColors.tintOf(AppColors.success))
-            .padding(AppSpacing.space3),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        LockGlyph(modifier = Modifier.size(18.dp))
-        Spacer(Modifier.width(AppSpacing.space3))
-        Column {
-            Text(stringResource(Res.string.encryption_badge_title), style = AppTypography.caption, color = AppColors.text)
-            Text(stringResource(Res.string.encryption_badge_description), style = AppTypography.micro, color = AppColors.textMuted)
         }
     }
 }
