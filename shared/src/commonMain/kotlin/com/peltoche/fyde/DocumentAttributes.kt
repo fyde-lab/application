@@ -88,7 +88,7 @@ internal val FydeDocument.period: Period?
 internal enum class PassTemplate { BILL, PAYSLIP, TAX_NOTICE, STATEMENT, CERTIFICATE, OTHER }
 
 /** A meta cell under the pass's perforation. */
-internal enum class PassCell { PERIOD, REFERENCE, RECEIVED, GROSS_PAY, TAX_YEAR, ISSUED, FORMAT }
+internal enum class PassCell { PERIOD, REFERENCE, DUE, GROSS_PAY, TAX_YEAR, ISSUED, FORMAT }
 
 /** What a pass's line under the headline says. */
 internal sealed interface PassLine {
@@ -140,12 +140,18 @@ private fun FydeDocument.hasHeadline(template: PassTemplate): Boolean = when (te
     else -> amount(headlineAttribute(template)!!) != null
 }
 
+/**
+ * Each template's cells in order of preference; the first three set are
+ * shown. The date the document reached the vault is never one: the facts
+ * already show it, and it says nothing about the document itself.
+ */
 private fun candidateCells(template: PassTemplate): List<PassCell> = when (template) {
-    PassTemplate.BILL -> listOf(PassCell.PERIOD, PassCell.REFERENCE, PassCell.RECEIVED)
-    PassTemplate.PAYSLIP -> listOf(PassCell.GROSS_PAY, PassCell.REFERENCE, PassCell.RECEIVED)
-    PassTemplate.TAX_NOTICE -> listOf(PassCell.TAX_YEAR, PassCell.REFERENCE, PassCell.RECEIVED)
-    PassTemplate.STATEMENT, PassTemplate.CERTIFICATE -> listOf(PassCell.REFERENCE, PassCell.ISSUED, PassCell.RECEIVED)
-    PassTemplate.OTHER -> listOf(PassCell.REFERENCE, PassCell.RECEIVED, PassCell.FORMAT)
+    PassTemplate.BILL -> listOf(PassCell.PERIOD, PassCell.REFERENCE, PassCell.DUE, PassCell.TAX_YEAR)
+    PassTemplate.PAYSLIP -> listOf(PassCell.GROSS_PAY, PassCell.REFERENCE, PassCell.TAX_YEAR, PassCell.DUE)
+    PassTemplate.TAX_NOTICE -> listOf(PassCell.TAX_YEAR, PassCell.REFERENCE, PassCell.DUE)
+    PassTemplate.STATEMENT -> listOf(PassCell.REFERENCE, PassCell.ISSUED, PassCell.DUE, PassCell.TAX_YEAR)
+    PassTemplate.CERTIFICATE -> listOf(PassCell.REFERENCE, PassCell.ISSUED, PassCell.TAX_YEAR)
+    PassTemplate.OTHER -> listOf(PassCell.REFERENCE, PassCell.DUE, PassCell.TAX_YEAR, PassCell.FORMAT)
 }
 
 private val PERIOD_ATTRIBUTES = setOf(AttributeNames.PERIOD_START, AttributeNames.PERIOD_END)
@@ -183,7 +189,8 @@ internal fun passLayout(document: FydeDocument): PassLayout {
             PassCell.GROSS_PAY -> document.amount(AttributeNames.GROSS_PAY) != null
             PassCell.TAX_YEAR -> document.integer(AttributeNames.TAX_YEAR) != null
             PassCell.ISSUED -> document.date(AttributeNames.ISSUED_ON) != null && AttributeNames.ISSUED_ON !in shown
-            PassCell.RECEIVED, PassCell.FORMAT -> true
+            PassCell.DUE -> document.date(AttributeNames.DUE_ON) != null && AttributeNames.DUE_ON !in shown
+            PassCell.FORMAT -> true
         }
     }.take(3)
     cells.forEach { cell ->
@@ -193,7 +200,8 @@ internal fun passLayout(document: FydeDocument): PassLayout {
             PassCell.GROSS_PAY -> shown += AttributeNames.GROSS_PAY
             PassCell.TAX_YEAR -> shown += AttributeNames.TAX_YEAR
             PassCell.ISSUED -> shown += AttributeNames.ISSUED_ON
-            PassCell.RECEIVED, PassCell.FORMAT -> Unit
+            PassCell.DUE -> shown += AttributeNames.DUE_ON
+            PassCell.FORMAT -> Unit
         }
     }
     return PassLayout(template, line, cells, shown)

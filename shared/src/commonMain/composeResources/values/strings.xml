@@ -304,7 +304,6 @@
     <string name="vault_sort_newest">Sort: newest first</string>
     <string name="vault_sort_oldest">Sort: oldest first</string>
     <string name="vault_unclassified">Unfiled</string>
-    <string name="vault_pass_received">Received</string>
     <string name="vault_pass_format">Format</string>
     <string name="vault_fact_arrived">Arrived</string>
     <string name="vault_fact_in_vault">In the vault</string>
@@ -517,7 +516,6 @@
     <!-- Components: what assistive tech announces for a busy button -->
     <string name="button_loading">Loading</string>
     <!-- Document attributes: the pass and Informations (design-system.md § Document pass). -->
-    <string name="vault_pass_received_f">Received</string>
     <string name="vault_pass_issued">Issued</string>
     <string name="vault_pass_issued_f">Issued</string>
     <string name="vault_pass_due_by">Due by %1$s</string>
