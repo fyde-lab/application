@@ -24,7 +24,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 | DO3, DO3b | Créer le coffre (Medium and Expanded; the stepper is left out until steps 2–4 exist, and a taken username is an error note, not a field error, until `FydeSdkException` carries the SDK's code) | `RegisterScreen.kt`, `AuthBrandPanel.kt`, `AppCheckbox`, `AppNote` |
 | O4, DO4b | Stockage indisponible (phone; desktop, at creation) | `InsecureStorageSheet.kt`, `AppBottomSheet`, `AlertTriangleGlyph` |
 | M1, M2, M3, M5, M6, M7, M8 | Moi as the Settings tab (still named Paramètres, like the other tabs' current names): drill-downs at Compact, master–detail at Medium and Expanded (menu as the 360 list column, Sécurité open by default). Left out until the SDK backs them: the profile card, M2's device tiles and the recovery-kit and password-check rows (so no M4), Aide, last-sync times in M5, Voir les offres in M6. M7 isn't persisted yet | `SettingsScreen.kt`, `SessionsSection.kt`, `PlanUsageSection.kt`, `AppDialog`, `SealHero`, `AppNote`, `AppRadio` |
-| V1, V3–V7, D1, D2, D6 | Coffre as the Vault tab: the home's category cards and latest arrivals (V1 at Compact, D6 at Expanded), a category's chips and month groups (V3, D1's card grid), the search (V4's type shortcuts, V5's Catégorie / Type / Année chips and highlighted results; opened from a circle, or a 300 field in D1's and D6's headers, within the category from a category page), a document's pass, facts and Enregistrer (V6, a page below Expanded; D2 at Expanded, beside its category's list with the content previewed in the rest of the window), V7's full-screen viewer below Expanded. The pass uses the name template, the SDK knowing no issuer or amount. Left out until the SDK backs them: amounts, issuers, keywords and thumbnails, the arrivals banner, the avatar, Partager, Reclasser, V8, V9 and swipe actions, the band's sources count, an "À classer" card, "à jour", the desktop sidebar, page counts, V4's recent searches, V5's Source facet, ⌘K | `VaultScreen.kt`, `VaultCategoryPage.kt`, `VaultSearchPage.kt`, `VaultDocumentPage.kt`, `DocumentPreview.kt`, `CategoryCard`, `CategoryBand`, `DocumentRow`, `DocumentCard`, `DocumentPass`, `AppChip`, `AppSearchField`, `AppDropdownMenu` |
+| V1, V3–V7, D1, D2, D6 | Coffre as the Vault tab: the home's category cards and latest arrivals (V1 at Compact, D6 at Expanded), a category's chips and month groups (V3, D1's card grid), the search (V4's type shortcuts, V5's Catégorie / Type / Année chips and highlighted results; opened from a circle, or a 300 field in D1's and D6's headers, within the category from a category page), a document's pass, Informations, facts and Enregistrer (V6, a page below Expanded; D2 at Expanded, beside its category's list with the content previewed in the rest of the window), V7's full-screen viewer below Expanded. The pass and Informations come from the document's attributes (see [Document pass](#document-pass)), as do rows' issuer and amount. Left out until the SDK backs them: keywords and thumbnails, the arrivals banner, the avatar, Partager, Reclasser, V8, V9 and swipe actions, the band's sources count, an "À classer" card, "à jour", the desktop sidebar, page counts, V4's recent searches, V5's Source facet, ⌘K | `VaultScreen.kt`, `VaultCategoryPage.kt`, `VaultSearchPage.kt`, `VaultDocumentPage.kt`, `DocumentPreview.kt`, `CategoryCard`, `CategoryBand`, `DocumentRow`, `DocumentCard`, `DocumentPass`, `AppChip`, `AppSearchField`, `AppDropdownMenu` |
 | S1–S7, D4 | Sources as the Sources tab: S1–S6 as pages at Compact and Medium, D4 at Expanded (a table sortable by source and état beside a 380 detail panel, `AppDimensions.sourceDetailPanelWidth`), S7 as an `AppDialog`. Statuses are this app session's runs only. Left out until the SDK backs them: S1's next run and per-row counts, S2's categories and "Le proposer", S3's Récupérer automatiquement, S5's stats, schedule, automatic switch, latest documents, pause and "Signaler un problème", S6's Saisir, D4's Dernier passage, Documents and Automatique columns | `SourcesTabScreen.kt`, `ConnectSourceScreen.kt`, `SourceFetchingScreen.kt`, `SourceStatus`, `RunStepper`, `AppCircleButton`, `AppDialog` |
 
 ## Reference screens
@@ -386,20 +386,54 @@ Plex Mono. Screen readers hear "3 sources choisies sur 5"; the count is announce
 ### Document pass
 
 The detail of a document is a pass in its category colours: issuer and type, a headline value
-in `passAmount`, one line under it, a perforation, and up to three meta cells. Templates by
-document type, each cell shown only when its attribute is set:
+in `passAmount`, one line under it, a perforation, and up to three meta cells. Every slot is
+filled from the document's attributes (`Metadata::attributes`, the server's default
+definitions: `issuer`, `issued_on`, `reference`, `period_start`, `period_end`, `total_amount`,
+`due_on`, `gross_pay`, `net_pay`, `tax_year`, `tax_amount`), never parsed from its name or
+content. A template applies only when its headline attribute is set; otherwise the document
+gets the "Autre" template. Cells are the first three set in the listed order; an unset one is
+skipped, never shown as "—".
 
 ![Pass templates](assets/sheets/modeles-cartes.png)
 
-| Document type | Headline | Line under | Meta cells |
-|---|---|---|---|
-| Facture | Amount | "À régler avant le …" / "Payée le …" | Période · Référence · Reçue |
-| Bulletin de paie | Net à payer | Month | Brut · Heures · Employeur |
-| Avis d'imposition | Remboursement (+) or montant dû | Expected date | Revenus · Réf. fiscal · Parts |
-| Attestation, carte | "Valide jusqu'au …" | — | Contrat · Numéro · Reçue |
-| Réservation | Route or place | Date and time | Voiture · Place · Prix |
-| Relevé, autre | Document name | Period | Pages · Reçu |
-| À classer | Document name | "Ajouté par vous" | Pages · Ajouté |
+| Document type | Top left | Headline | Line under | Meta cells, in order |
+|---|---|---|---|---|
+| Facture, reçu, récapitulatif de frais | `issuer` | `total_amount` | "À régler avant le `due_on`", else "Émise le `issued_on`" | Période · Référence · Reçue |
+| Bulletin de paie | `issuer` | `net_pay` | "Net à payer · " + the month of `period_start` | Brut (`gross_pay`) · Référence · Reçu |
+| Avis d'imposition | `issuer` | `tax_amount`: negative → "+ 312 €" and "Remboursement", positive → "Montant dû" | That word · "prévu le" / "avant le" `due_on` | Revenus (`tax_year`) · Référence · Reçu |
+| Relevé, décompte de remboursement | `issuer` | `total_amount` | Période | Référence · Émis · Reçu |
+| Attestation, carte | `issuer` | "Valide jusqu'au `period_end`" | — | Référence · Émise · Reçue |
+| Autre, or headline unset | `issuer`, else the source | Document name (`title`) | Période, else "Émis le `issued_on`" | Référence · Reçu · Format |
+| À classer | "Ajouté par vous" | Document name | — | Pages · Ajouté |
+
+- **Période** is `period_start`–`period_end` as one value: a whole month is "septembre 2026",
+  a whole year "2025", anything else "sept.–oct." (the year added only when they differ).
+  One end alone shows as "depuis le …" / "jusqu'au …".
+- **Reçu(e)** is the document's `created_at`; **Émis(e)** is `issued_on`. Labels agree with
+  the type's gender in French ("Reçue" for a facture, "Reçu" for a relevé).
+- Pass cells nobody can fill (hours, tax shares, reference tax income, a booking's route, car
+  and seat) are dropped until a default attribute exists for them.
+- Screen readers read the pass as one sentence: "Facture EDF, 84,20 €, à régler avant le 27
+  octobre, période septembre–octobre, référence 3001 4471, reçue le 12 octobre".
+
+### Informations
+
+Under the file row (V6) or the pass (D2), an "Informations" section lists, one `kv` row each,
+every attribute the pass doesn't already show: each value appears once, on the pass or here.
+The section is hidden when nothing is left.
+
+- Order: default attributes in the order above, then any other attribute (one a script or the
+  user defined) by name.
+- Labels: default attributes have wording in every language ("Émise le", "Référence",
+  "Montant TTC", "Échéance", "Brut", "Net à payer", "Revenus", "Impôt", "Émetteur",
+  "Période"). Any other attribute shows its name with underscores as spaces and the first
+  letter capitalised (`contract` → "Contract"): the server's definition descriptions are
+  English sentences, not labels.
+- Values by type: an amount in IBM Plex Mono, in the locale's format with its currency, never
+  rounded; a date in full ("10 octobre 2026"); an integer as a number (`tax_year` without
+  grouping); a float in the locale's decimals; a boolean as "Oui" / "Non"; a select as its
+  selected value; a string as is. Values never truncate: a long one wraps under its label.
+- Read-only: editing an attribute is not designed yet.
 
 ### Classification suggestion
 
@@ -479,8 +513,8 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | V3 | Catégorie | Category band; subcategory chips with counts; year chips; month groups of document rows | Sort newest or oldest first (`SearchOrder`; amount and name need the SDK); rows swipe to Partager / Reclasser, also in V8 |
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
 | V5 | Résultats | Facet chips Catégorie / Type / Année / Source; matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
-| V6 | Document | Pass, file row with thumbnail, facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) |
-| V6b | Document (sombre) | V6 in the dark theme: the pass on its dark category fill | Dark reference for passes |
+| V6 | Document | Pass, file row with thumbnail, Informations (the attributes not on the pass), facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) and [Informations](#informations) |
+| V6b | Document (sombre) | V6 in the dark theme: the pass on its dark category fill, Informations on `surface` | Dark reference for passes |
 | V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…" |
 | V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Reclasser, Informations techniques, Supprimer de tous mes appareils | Delete confirms that it reaches every device |
 | V8b | Actions (sombre) | V8 in the dark theme | Dark reference for sheets and the scrim |
@@ -553,7 +587,7 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | ID | Screen | Layout |
 |---|---|---|
 | D1 | Catégorie | Sidebar · header, search, Importer · subcategory pills · 4-column cards with first-page thumbnails |
-| D2 | Document | Sidebar · 400dp list · pass and facts · live preview |
+| D2 | Document | Sidebar · 400dp list · pass, Informations and facts · live preview |
 | D3 | Arrivées | Sidebar · queue with inline code card · preview · classification panel with C'est bon (Enter) |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
 | D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
@@ -619,8 +653,9 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `AppTabBar` | New | Replaces `AppNavigationBar` |
 | `AppSidebar` | New | Replaces `AppNavigationTopBar` and `AppNavigationRail`; selected row = fill + 3dp `primary` leading bar + SemiBold |
 | `CategoryCard`, `CategoryBand` | Landed (V1, V3) | Card: 132 tall (`AppDimensions.categoryCardHeight`) on the category's fill, a 38 `categoryTile` square (white at 62%, both themes) with the icon in ink and the count in ink above the name (`section`) and the newest document (`caption`, `categoryCaption`); one control for screen readers; `CategoryCardPlaceholder` while loading. Band: 52 tile, name in `title`, count under it. Glyphs in `CategoryGlyphs.kt`, the category → fill, ink and icon mapping in `VaultCategories.kt`. Still the current card radius |
-| `DocumentRow`, `DocumentCard` | Landed (V3, V5, D1, D2) | Row: the category's tile (fill and ink; no thumbnails yet), title (`bodyEmphasis`, matched words on `highlight`), subtitle, date; `selected` fills it with the category (D2). Amount and pending are left out until the SDK carries them. Card: D1's grid cell, a preview well holding the tile, then title and date |
-| `DocumentPass` | Landed (V6, D2) | Issuer and type in ink, headline in `passAmount` (`DocumentPassHeadline.Value`) or `title` for a name, the line under it, a dashed perforation in ink at 40%, up to three `DocumentPassCell`s. The caller picks the template; today only "Relevé, autre" (the SDK has no amounts, issuers or references yet) |
+| `DocumentRow`, `DocumentCard` | Landed (V3, V5, D1, D2) | Row: the category's tile (fill and ink; no thumbnails yet), title (`bodyEmphasis`, matched words on `highlight`), subtitle (`issuer` · date, the date alone without an issuer), the pass's headline amount at the end in `data` (nothing when the template has no amount); `selected` fills it with the category (D2). Pending is left out until the SDK carries it. Card: D1's grid cell, a preview well holding the tile, then title and date |
+| `DocumentPass` | Landed (V6, D2) | Issuer and type in ink, headline in `passAmount` (`DocumentPassHeadline.Value`) or `title` for a name, the line under it, a dashed perforation in ink at 40%, up to three `DocumentPassCell`s. The caller picks the template from the document's type and attributes (see [Document pass](#document-pass)) |
+| `DocumentAttributes` | New (V6, D2) | The [Informations](#informations) section: a `section` heading and a `surface` group of label / value rows, values formatted by attribute type, amounts in `data` |
 | `ArrivalsBanner`, `ClassificationSuggestion` | New | — |
 | `OneTimeCodeField` | New | See [Verification code](#verification-code) |
 | `SourceStatus`, `RunStepper` | Landed (S1, DO7c) | See [Source status](#source-status). `SourceStatus`: 12 glyph and caption Medium in the state's colour (spinner `primary`, clock `warning`, alert `error`, check `success`, muted stop square when stopped, muted clock when queued). `RunStepper`'s stopped step: the dot on `sunk` with a `borderStrong` ring and the stop square in `textMuted`, later steps idle |
@@ -651,6 +686,7 @@ left out (principle 5), not faked.
 | Replay progress and per-device last seen | O9, M5, M2 |
 | First-page thumbnails | V3, D1, D2 |
 | Sorting by amount or name | V3, D1 |
+| Default attributes for the dropped pass cells (hours, tax shares, reference tax income, a booking's route, car and seat) | V6, D2 |
 | Script categories and popularity | O7, DO7, S2 chips and groups |
 | Stopping a run in progress (a stop call that ends the script at its next instruction, request, browser wait or question, and a "stopped" outcome distinct from a failure). Dropping the run's future doesn't stop its script today | S4, S4b, S5b, S8, code sheet, DO7d, D4b |
 | Renaming a session | M5 |
