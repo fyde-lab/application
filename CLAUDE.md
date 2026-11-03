@@ -74,9 +74,11 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   the open category (facets without and with the subcategory, every page of results) and the open
   search (`VaultQuery`, debounced while typing, RELEVANCE order) on each changelog event. Below
   Expanded one page at a time; at Expanded D1's card grid, and an open document beside its
-  category's list or the search's results (D2). A category page's search starts within it. Device counts come from `listSessions`. What the SDK can't back
-  (amounts, issuers, an "À classer" card, sharing, reclassifying, recent searches, the Source
-  facet) is left out.
+  category's list or the search's results (D2). A category page's search starts within it. Device counts come from `listSessions`. A document's
+  pass template, its Informations rows and its rows' issuer and amount come from its attributes
+  (`FydeDocument.attributes`): the rules are pure functions in `DocumentAttributes.kt` (tested in
+  `DocumentAttributesTest`), their wording in `DocumentAttributesText.kt`. What the SDK can't back
+  (an "À classer" card, sharing, reclassifying, recent searches, the Source facet) is left out.
 - Sources: `SourcesTabScreen.kt` (the design's S1–S7, D4), backed by `App.kt`'s
   `SourcesTabContainer` (scrapers only; quota from `getUsage`). S1–S6 are pages at
   Compact/Medium; Expanded is D4, a table sortable by source and status beside a detail panel.

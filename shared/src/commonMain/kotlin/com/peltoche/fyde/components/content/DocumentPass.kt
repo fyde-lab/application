@@ -20,6 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,7 +50,8 @@ enum class DocumentPassHeadline {
  * pass: [issuer] and [type] on top, a [headline] and the [line] under it, a
  * perforation, then up to three [cells], all on the category's fill. The
  * caller picks the template by document type and passes only the cells whose
- * attribute is set.
+ * attribute is set. A [description] replaces what screen readers read with
+ * one sentence ("Facture EDF, 84,20 €, à régler avant le 27 octobre…").
  */
 @Composable
 fun DocumentPass(
@@ -60,10 +63,21 @@ fun DocumentPass(
     color: AppCategoryColor,
     modifier: Modifier = Modifier,
     headlineKind: DocumentPassHeadline = DocumentPassHeadline.Value,
+    description: String? = null,
     icon: @Composable (tint: Color) -> Unit,
 ) {
     Column(
         modifier = modifier
+            .then(
+                if (description != null) {
+                    Modifier.clearAndSetSemantics {
+                        contentDescription = description
+                        heading()
+                    }
+                } else {
+                    Modifier
+                },
+            )
             .fillMaxWidth()
             .clip(AppShapes.card)
             .background(color.fill)

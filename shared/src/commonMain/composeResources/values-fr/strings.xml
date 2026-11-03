@@ -509,4 +509,55 @@
 
     <!-- Components: what assistive tech announces for a busy button -->
     <string name="button_loading">Chargement</string>
+    <!-- Document attributes: the pass and Informations (design-system.md § Document pass). -->
+    <string name="vault_pass_received_f">Reçue</string>
+    <string name="vault_pass_issued">Émis</string>
+    <string name="vault_pass_issued_f">Émise</string>
+    <string name="vault_pass_due_by">À régler avant le %1$s</string>
+    <string name="vault_pass_issued_on">Émis le %1$s</string>
+    <string name="vault_pass_issued_on_f">Émise le %1$s</string>
+    <string name="vault_pass_net_pay">Net à payer</string>
+    <string name="vault_pass_net_pay_month">Net à payer · %1$s</string>
+    <string name="vault_pass_refund">Remboursement</string>
+    <string name="vault_pass_amount_due">Montant dû</string>
+    <string name="vault_pass_refund_on">Remboursement · prévu le %1$s</string>
+    <string name="vault_pass_amount_due_by">Montant dû · avant le %1$s</string>
+    <string name="vault_pass_valid_until">Valide jusqu’au %1$s</string>
+    <string name="vault_pass_refund_amount">+ %1$s</string>
+    <string name="vault_info_heading">Informations</string>
+    <string name="attribute_issued_on">Émis le</string>
+    <string name="attribute_issued_on_f">Émise le</string>
+    <string name="attribute_issuer">Émetteur</string>
+    <string name="attribute_reference">Référence</string>
+    <string name="attribute_period">Période</string>
+    <string name="attribute_period_start">Début de période</string>
+    <string name="attribute_period_end">Fin de période</string>
+    <string name="attribute_total_amount">Montant TTC</string>
+    <string name="attribute_due_on">Échéance</string>
+    <string name="attribute_gross_pay">Brut</string>
+    <string name="attribute_net_pay">Net à payer</string>
+    <string name="attribute_tax_year">Revenus</string>
+    <string name="attribute_tax_amount">Impôt</string>
+    <string name="attribute_yes">Oui</string>
+    <string name="attribute_no">Non</string>
+    <string name="period_from">Depuis le %1$s</string>
+    <string name="period_until">Jusqu’au %1$s</string>
+    <string name="period_range">%1$s–%2$s</string>
+    <string name="amount_format">%1$s %2$s</string>
+    <string name="grouping_separator"> </string>
+    <string name="date_format_long">%1$d %2$s %3$d</string>
+    <string name="date_format_long_no_year">%1$d %2$s</string>
+    <string name="month_year_format">%1$s %2$d</string>
+    <string name="month_long_1">janvier</string>
+    <string name="month_long_2">février</string>
+    <string name="month_long_3">mars</string>
+    <string name="month_long_4">avril</string>
+    <string name="month_long_5">mai</string>
+    <string name="month_long_6">juin</string>
+    <string name="month_long_7">juillet</string>
+    <string name="month_long_8">août</string>
+    <string name="month_long_9">septembre</string>
+    <string name="month_long_10">octobre</string>
+    <string name="month_long_11">novembre</string>
+    <string name="month_long_12">décembre</string>
 </resources>

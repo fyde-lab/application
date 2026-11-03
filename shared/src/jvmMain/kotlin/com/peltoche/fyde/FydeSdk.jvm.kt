@@ -24,6 +24,7 @@ import uniffi.fyde_sdk.FfiScriptType
 import uniffi.fyde_sdk.FfiSearchFacets
 import uniffi.fyde_sdk.FfiSearchFilters
 import uniffi.fyde_sdk.FfiSearchOrder
+import uniffi.fyde_sdk.FfiAttribute
 import uniffi.fyde_sdk.FfiCategory
 import uniffi.fyde_sdk.FfiSubcategory
 import uniffi.fyde_sdk.FfiStorage
@@ -570,7 +571,18 @@ private fun FfiMetadata.toFydeDocument() = FydeDocument(
     documentType = type?.toFydeDocumentType(),
     category = category?.toFydeCategory(),
     subcategory = subcategory?.toFydeSubcategory(),
+    attributes = attributes.mapValues { (_, attribute) -> attribute.toFydeAttribute() },
 )
+
+private fun FfiAttribute.toFydeAttribute(): FydeAttribute = when (this) {
+    is FfiAttribute.String -> FydeAttribute.Text(value)
+    is FfiAttribute.Integer -> FydeAttribute.Integer(value)
+    is FfiAttribute.Float -> FydeAttribute.Decimal(value)
+    is FfiAttribute.Boolean -> FydeAttribute.Bool(value)
+    is FfiAttribute.Date -> FydeAttribute.Date(value)
+    is FfiAttribute.Amount -> FydeAttribute.Amount(minorUnits, currency)
+    is FfiAttribute.Select -> FydeAttribute.Select(selected, options)
+}
 
 private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
     id = id,

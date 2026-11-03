@@ -16,7 +16,24 @@ data class FydeDocument(
     val documentType: FydeDocumentType?,
     val category: FydeCategory?,
     val subcategory: FydeSubcategory?,
+    /** Typed values by attribute name (`issuer`, `total_amount`...), mirroring the SDK's `Metadata::attributes`. */
+    val attributes: Map<String, FydeAttribute> = emptyMap(),
 )
+
+/**
+ * One typed value of a document's attributes, mirroring the SDK's
+ * `FfiAttribute`. Amounts are minor units of their ISO 4217 currency (cents
+ * for `"EUR"`), never floats; dates are ISO 8601 `YYYY-MM-DD`.
+ */
+sealed interface FydeAttribute {
+    data class Text(val value: String) : FydeAttribute
+    data class Integer(val value: Long) : FydeAttribute
+    data class Decimal(val value: Double) : FydeAttribute
+    data class Bool(val value: Boolean) : FydeAttribute
+    data class Date(val value: String) : FydeAttribute
+    data class Amount(val minorUnits: Long, val currency: String) : FydeAttribute
+    data class Select(val selected: String, val options: List<String>) : FydeAttribute
+}
 
 /**
  * The part of life a document is about (housing, money, taxes...),

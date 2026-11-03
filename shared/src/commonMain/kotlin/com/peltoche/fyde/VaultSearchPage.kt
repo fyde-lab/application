@@ -201,7 +201,6 @@ private fun SearchResults(vault: Vault, page: VaultPage.Search, contents: VaultS
                     if (index > 0) AppDivider()
                     VaultDocumentRow(
                         document = document,
-                        subtitle = listOfNotNull(document.categoryLabel(), document.documentType?.label()).joinToString(" · "),
                         onClick = { vault.openDocument(document) },
                         selected = document.id == selected?.id,
                         highlightTerms = contents.query.terms,

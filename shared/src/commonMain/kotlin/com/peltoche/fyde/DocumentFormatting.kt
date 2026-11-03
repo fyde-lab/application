@@ -156,18 +156,25 @@ private val MONTHS = listOf(
 
 /** [epochSeconds] as a short date in the UI language: "Oct 12, 2026" / "12 oct. 2026". */
 @Composable
-internal fun localizedDate(epochSeconds: Long): String {
-    val date = civilDate(epochSeconds)
-    return stringResource(Res.string.date_format, date.day, stringResource(MONTHS[date.month - 1]), date.year)
-}
+internal fun localizedDate(epochSeconds: Long): String = localizedDate(civilDate(epochSeconds))
+
+@Composable
+internal fun localizedDate(date: CivilDate): String =
+    stringResource(Res.string.date_format, date.day, stringResource(MONTHS[date.month - 1]), date.year)
 
 /** [localizedDate] without the year when it's this year's: "Oct 12" / "12 oct.", as the vault's lists show dates. */
 @Composable
-internal fun localizedShortDate(epochSeconds: Long): String {
-    val date = civilDate(epochSeconds)
-    if (date.year != currentYear()) return localizedDate(epochSeconds)
+internal fun localizedShortDate(epochSeconds: Long): String = localizedShortDate(civilDate(epochSeconds))
+
+@Composable
+internal fun localizedShortDate(date: CivilDate): String {
+    if (date.year != currentYear()) return localizedDate(date)
     return stringResource(Res.string.date_format_short, date.day, stringResource(MONTHS[date.month - 1]))
 }
+
+/** A short month name ("oct."), as [localizedShortDate] writes it. */
+@Composable
+internal fun localizedShortMonth(month: Int): String = stringResource(MONTHS[month - 1])
 
 private val MONTH_HEADINGS = listOf(
     Res.string.month_heading_1, Res.string.month_heading_2, Res.string.month_heading_3, Res.string.month_heading_4,

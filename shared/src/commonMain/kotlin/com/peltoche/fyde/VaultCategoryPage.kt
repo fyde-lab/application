@@ -257,7 +257,6 @@ private fun CategoryRows(vault: Vault, documents: List<FydeDocument>, selected: 
             if (index > 0) AppDivider()
             VaultDocumentRow(
                 document = document,
-                subtitle = listOfNotNull(document.subcategory?.label(), document.documentType?.label()).joinToString(" · "),
                 onClick = { vault.openDocument(document) },
                 selected = document.id == selected?.id,
             )
