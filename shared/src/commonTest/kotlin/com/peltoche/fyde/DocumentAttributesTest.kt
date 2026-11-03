@@ -44,9 +44,14 @@ class DocumentAttributesTest {
         assertEquals(
             listOf(
                 InformationRow.Value(AttributeNames.ISSUED_ON, date("2026-10-10")),
+                InformationRow.Value(AttributeNames.ISSUER, text("EDF")),
+                InformationRow.Value(AttributeNames.REFERENCE, text("3001 4471")),
+                InformationRow.Covers(Period.Months(CivilDate(2026, 9, 1), CivilDate(2026, 10, 31))),
+                InformationRow.Value(AttributeNames.TOTAL_AMOUNT, eur(8420)),
+                InformationRow.Value(AttributeNames.DUE_ON, date("2026-10-27")),
                 InformationRow.Value("contract", text("CTR 3001 4471 22")),
             ),
-            informationRows(invoice, layout),
+            informationRows(invoice),
         )
     }
 
@@ -63,7 +68,13 @@ class DocumentAttributesTest {
         assertEquals(PassTemplate.OTHER, layout.template)
         assertEquals(PassLine.IssuedOn(CivilDate(2026, 10, 10)), layout.line)
         assertEquals(listOf(PassCell.REFERENCE, PassCell.FORMAT), layout.cells)
-        assertEquals(emptyList(), informationRows(invoice, layout))
+        assertEquals(
+            listOf(
+                InformationRow.Value(AttributeNames.ISSUED_ON, date("2026-10-10")),
+                InformationRow.Value(AttributeNames.REFERENCE, text("A-1")),
+            ),
+            informationRows(invoice),
+        )
     }
 
     @Test
@@ -73,7 +84,7 @@ class DocumentAttributesTest {
         val layout = passLayout(invoice)
 
         assertEquals(PassTemplate.OTHER, layout.template)
-        assertEquals(listOf(InformationRow.Value(AttributeNames.TOTAL_AMOUNT, text("84,20"))), informationRows(invoice, layout))
+        assertEquals(listOf(InformationRow.Value(AttributeNames.TOTAL_AMOUNT, text("84,20"))), informationRows(invoice))
     }
 
     @Test
@@ -91,7 +102,14 @@ class DocumentAttributesTest {
         assertEquals(PassTemplate.PAYSLIP, layout.template)
         assertEquals(PassLine.NetPay(Period.Month(2026, 9)), layout.line)
         assertEquals(listOf(PassCell.GROSS_PAY), layout.cells)
-        assertEquals(emptyList(), informationRows(payslip, layout))
+        assertEquals(
+            listOf(
+                InformationRow.Covers(Period.Month(2026, 9)),
+                InformationRow.Value(AttributeNames.GROSS_PAY, eur(245000)),
+                InformationRow.Value(AttributeNames.NET_PAY, eur(191244)),
+            ),
+            informationRows(payslip),
+        )
     }
 
     @Test
@@ -124,11 +142,19 @@ class DocumentAttributesTest {
 
         assertEquals(PassTemplate.STATEMENT, layout.template)
         assertEquals(listOf(PassCell.REFERENCE, PassCell.DUE, PassCell.TAX_YEAR), layout.cells)
-        assertEquals(emptyList(), informationRows(statement, layout))
+        assertEquals(
+            listOf(
+                InformationRow.Value(AttributeNames.REFERENCE, text("R-12")),
+                InformationRow.Value(AttributeNames.TOTAL_AMOUNT, eur(4200)),
+                InformationRow.Value(AttributeNames.DUE_ON, date("2026-11-15")),
+                InformationRow.Value(AttributeNames.TAX_YEAR, FydeAttribute.Integer(2025)),
+            ),
+            informationRows(statement),
+        )
     }
 
     @Test
-    fun aCertificateIsValidUntilItsPeriodEndAndListsItsStartAlone() {
+    fun aCertificateIsValidUntilItsPeriodEndAndListsItsWholePeriod() {
         val certificate = document(
             FydeDocumentType.INSURANCE_CERTIFICATE,
             AttributeNames.PERIOD_START to date("2026-01-01"),
@@ -140,13 +166,13 @@ class DocumentAttributesTest {
         assertEquals(PassTemplate.CERTIFICATE, layout.template)
         assertNull(layout.line)
         assertEquals(
-            listOf(InformationRow.Value(AttributeNames.PERIOD_START, date("2026-01-01"))),
-            informationRows(certificate, layout),
+            listOf(InformationRow.Covers(Period.Year(2026))),
+            informationRows(certificate),
         )
     }
 
     @Test
-    fun informationsMergesAPeriodLeftOffThePassAndOrdersDefaultsFirst() {
+    fun informationsMergesAPeriodAndOrdersDefaultsFirst() {
         val payslip = document(
             FydeDocumentType.PAYSLIP,
             AttributeNames.NET_PAY to eur(100),
@@ -157,12 +183,13 @@ class DocumentAttributesTest {
             AttributeNames.ISSUER to FydeAttribute.Integer(1),
         )
 
-        val rows = informationRows(payslip, passLayout(payslip))
+        val rows = informationRows(payslip)
 
         assertEquals(
             listOf(
                 InformationRow.Value(AttributeNames.ISSUER, FydeAttribute.Integer(1)),
                 InformationRow.Covers(Period.Days(CivilDate(2026, 9, 3), CivilDate(2026, 9, 30))),
+                InformationRow.Value(AttributeNames.NET_PAY, eur(100)),
                 InformationRow.Value("alpha", FydeAttribute.Integer(3)),
                 InformationRow.Value("zeta", FydeAttribute.Bool(true)),
             ),
