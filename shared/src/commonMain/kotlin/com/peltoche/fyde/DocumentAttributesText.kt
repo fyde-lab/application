@@ -203,21 +203,21 @@ internal fun passText(document: FydeDocument, layout: PassLayout, fallbackIssuer
         )
         PassTemplate.OTHER -> document.name
     }
-    val line = when (val line = layout.line) {
+    val line = when (val passLine = layout.line) {
         null -> null
-        is PassLine.DueBy -> stringResource(Res.string.vault_pass_due_by, localizedLongDate(line.date, withYear = false))
+        is PassLine.DueBy -> stringResource(Res.string.vault_pass_due_by, localizedLongDate(passLine.date, withYear = false))
         is PassLine.IssuedOn -> stringResource(
             if (feminine) Res.string.vault_pass_issued_on_f else Res.string.vault_pass_issued_on,
-            localizedLongDate(line.date, withYear = false),
+            localizedLongDate(passLine.date, withYear = false),
         )
-        is PassLine.NetPay -> line.month?.let { stringResource(Res.string.vault_pass_net_pay_month, localizedPeriod(it)) }
+        is PassLine.NetPay -> passLine.month?.let { stringResource(Res.string.vault_pass_net_pay_month, localizedPeriod(it)) }
             ?: stringResource(Res.string.vault_pass_net_pay)
         is PassLine.Tax -> when {
-            line.date == null -> stringResource(if (line.refund) Res.string.vault_pass_refund else Res.string.vault_pass_amount_due)
-            line.refund -> stringResource(Res.string.vault_pass_refund_on, localizedLongDate(line.date, withYear = false))
-            else -> stringResource(Res.string.vault_pass_amount_due_by, localizedLongDate(line.date, withYear = false))
+            passLine.date == null -> stringResource(if (passLine.refund) Res.string.vault_pass_refund else Res.string.vault_pass_amount_due)
+            passLine.refund -> stringResource(Res.string.vault_pass_refund_on, localizedLongDate(passLine.date, withYear = false))
+            else -> stringResource(Res.string.vault_pass_amount_due_by, localizedLongDate(passLine.date, withYear = false))
         }
-        is PassLine.Covers -> localizedPeriod(line.period)
+        is PassLine.Covers -> localizedPeriod(passLine.period)
     }
     val cells = layout.cells.map { cell ->
         when (cell) {
