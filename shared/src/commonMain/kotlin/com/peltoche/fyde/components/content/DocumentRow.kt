@@ -139,16 +139,20 @@ fun CategoryFillTile(size: Dp, color: AppCategoryColor, modifier: Modifier = Mod
     }
 }
 
-/** [text] with every occurrence of each of [terms] on [background], ignoring case. */
+/**
+ * [text] with every occurrence of each of [terms] on [background], ignoring
+ * case and accents the way the SDK's search matches them.
+ */
 internal fun highlighted(text: String, terms: List<String>, background: Color): AnnotatedString {
-    val needles = terms.map { it.trim() }.filter { it.isNotEmpty() }
+    val needles = terms.map { folded(it.trim()) }.filter { it.isNotEmpty() }
     if (needles.isEmpty()) return AnnotatedString(text)
+    val haystack = folded(text)
     val marked = BooleanArray(text.length)
     for (needle in needles) {
-        var from = text.indexOf(needle, ignoreCase = true)
+        var from = haystack.indexOf(needle)
         while (from >= 0) {
             for (i in from until from + needle.length) marked[i] = true
-            from = text.indexOf(needle, startIndex = from + needle.length, ignoreCase = true)
+            from = haystack.indexOf(needle, startIndex = from + needle.length)
         }
     }
     return buildAnnotatedString {
@@ -164,3 +168,15 @@ internal fun highlighted(text: String, terms: List<String>, background: Color): 
         }
     }
 }
+
+/** [text] lowercased with its accents dropped, one character for one so indices still line up. */
+private fun folded(text: String): String = buildString(text.length) {
+    for (c in text) {
+        val lower = c.lowercaseChar()
+        val i = ACCENTED.indexOf(lower)
+        append(if (i >= 0) UNACCENTED[i] else lower)
+    }
+}
+
+private const val ACCENTED = "àáâãäåçèéêëìíîïñòóôõöùúûüýÿ"
+private const val UNACCENTED = "aaaaaaceeeeiiiinooooouuuuyy"
