@@ -100,3 +100,22 @@ private const val YEAR_CHOICES = 3
 
 private fun <T> List<FydeFacetCount<T>>.withSelected(selected: T?): List<FydeFacetCount<T>> =
     if (selected == null || any { it.value == selected }) this else this + FydeFacetCount(selected, 0)
+
+/** One month's documents in a vault list, under its heading. */
+data class MonthGroup(val year: Long, val month: Int, val documents: List<FydeDocument>)
+
+/**
+ * [documents] cut into runs of the same calendar month, in the order the SDK
+ * returned them (newest or oldest first), for a list's month headings.
+ */
+internal fun monthGroups(documents: List<FydeDocument>): List<MonthGroup> = buildList {
+    for (document in documents) {
+        val date = civilDate(document.createdAt)
+        val last = lastOrNull()
+        if (last != null && last.year == date.year && last.month == date.month) {
+            set(lastIndex, last.copy(documents = last.documents + document))
+        } else {
+            add(MonthGroup(date.year, date.month, listOf(document)))
+        }
+    }
+}

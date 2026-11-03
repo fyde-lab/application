@@ -172,7 +172,7 @@ fun SettingsScreen(
     onAppearanceChange: (AppAppearance) -> Unit = {},
     currentLanguage: String?,
     onLanguageChange: (String) -> Unit,
-    onOpenDocuments: () -> Unit,
+    onOpenVault: () -> Unit,
     onOpenScripts: () -> Unit = {},
     onLogout: () -> Unit = {},
     isLoggingOut: Boolean = false,
@@ -206,7 +206,7 @@ fun SettingsScreen(
 
     TopLevelScaffold(
         current = TopLevelDestination.Settings,
-        onOpenDocuments = onOpenDocuments,
+        onOpenVault = onOpenVault,
         onOpenScripts = onOpenScripts,
         // Re-selecting Settings goes back to its menu, like a drill-down's back.
         onOpenSettings = { onOpenSectionChange(null) },

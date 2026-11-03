@@ -211,7 +211,7 @@ fun SourcesTabScreen(
     onRun: (FydeScript) -> Unit,
     onRemove: (FydeScript) -> Unit,
     onOpenPlan: () -> Unit,
-    onOpenDocuments: () -> Unit,
+    onOpenVault: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -219,7 +219,7 @@ fun SourcesTabScreen(
     var removing by remember { mutableStateOf<FydeScript?>(null) }
     TopLevelScaffold(
         current = TopLevelDestination.Scripts,
-        onOpenDocuments = onOpenDocuments,
+        onOpenVault = onOpenVault,
         // Re-selecting the tab from one of its pages returns to the list.
         onOpenScripts = {
             onFocusChange(null)

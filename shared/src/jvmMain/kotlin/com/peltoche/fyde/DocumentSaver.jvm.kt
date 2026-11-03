@@ -6,7 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import com.peltoche.fyde.resources.Res
-import com.peltoche.fyde.resources.document_download
+import com.peltoche.fyde.resources.save_dialog_title
 import java.awt.FileDialog
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 actual fun rememberDocumentSaver(onResult: (fileName: String, saved: Boolean?) -> Unit): (fileName: String, bytes: ByteArray) -> Unit {
     val latestOnResult by rememberUpdatedState(onResult)
-    val title by rememberUpdatedState(stringResource(Res.string.document_download))
+    val title by rememberUpdatedState(stringResource(Res.string.save_dialog_title))
     val window by rememberUpdatedState(LocalAppWindow.current)
     val scope = rememberCoroutineScope()
     return remember {

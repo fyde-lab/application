@@ -9,8 +9,8 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through this repo's own 
 - **`App.kt` owns every `FydeSdk` call** and maps results into each screen's `*UiState`;
   screens stay presentation-only.
 - **Never filter documents or compute filter choices in the app.** Search and filter chips go
-  through `FydeSdk.searchDocuments`/`searchDocumentFacets` (see `DocumentSearch.kt`); the chips
-  only offer what the SDK's facets return.
+  through `FydeSdk.searchDocuments`/`searchDocumentFacets` (see `VaultQuery.kt`); the chips
+  only offer what the SDK's facets return. Grouping the SDK's results by month for display is fine.
 - **Don't handle `SessionExpired` per screen.** Each platform's `sdkCall` reports
   `FfiException.SessionExpired` to `SessionExpiry` (`FydeSdkException.kt`); `App.kt` collects
   it and returns to `LoginScreen`. `App.kt` also polls `FydeSdk.isConnected` while signed in,
@@ -64,11 +64,17 @@ unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's na
 
 Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 
-- Shell: `TopLevelScaffold.kt` hosts Documents, Sources (`TopLevelDestination.Scripts`), Settings — a top navigation bar
+- Shell: `TopLevelScaffold.kt` hosts the Vault (Coffre), Sources (`TopLevelDestination.Scripts`), Settings — a top navigation bar
   at Expanded (`AppNavigationTopBar`, with Settings and the screen's `primaryAction` at its
   far end), a bottom bar below.
-- Documents: `DocumentListScreen.kt` (list, detail, preview, download), state hoisted as a
-  `DocumentSearch` in `App.kt`'s `DocumentsScreen`.
+- Vault (Coffre): `VaultScreen.kt` (home V1/D6 and the shared pieces), `VaultCategoryPage.kt`
+  (V3, D1, D2's list column), `VaultDocumentPage.kt` (V6, V7, D2's pass and preview), backed by
+  `App.kt`'s `VaultContainer`, which holds the open page as a `VaultFocus` and reloads the home
+  (category facets, each category's newest, latest arrivals) and the open category (facets
+  without and with the subcategory, every page of results) on each changelog event. Below
+  Expanded one page at a time; at Expanded D1's card grid, and an open document beside its
+  category's list (D2). Device counts come from `listSessions`. What the SDK can't back
+  (amounts, issuers, an "À classer" card, sharing, reclassifying) is left out.
 - Sources: `SourcesTabScreen.kt` (the design's S1–S7, D4), backed by `App.kt`'s
   `SourcesTabContainer` (scrapers only; quota from `getUsage`). S1–S6 are pages at
   Compact/Medium; Expanded is D4, a table sortable by source and status beside a detail panel.
@@ -116,14 +122,14 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   fails): at the limit unticked sources dim and can't be ticked. On desktop the cards scroll inside a
   fixed-height grid so the connect button stays under them. No back button (it would
   regenerate the recovery key) and no category chips (scripts have no category yet). Passer →
-  Documents; Connecter → `ConnectSourceScreen`, keeping the ticks for its back button.
+  Vault; Connecter → `ConnectSourceScreen`, keeping the ticks for its back button.
 - `ConnectSourceScreen` (S3 inside onboarding at Compact, DO7b at Medium/Expanded in
   `VaultCreationSplitLayout`, whose brand panel lists the ticked sources as `VaultSource`s):
   each ticked source in turn, `App.kt` holding the queue (`connectQueue`/`connectIndex`). One
   field per script parameter (`ScriptParameterField`, `ScriptParameters.kt`, shared with the Sources tab);
   Connecter installs and enables it, then `ScraperRuns.runOnceInstalled` queues its first run
   until the installation has synced to this device, and opens `SourceFetchingScreen`. Passer
-  cette source / back move along the queue; after the last source → Documents until DO7d–DO7g
+  cette source / back move along the queue; after the last source → Vault until DO7d–DO7g
   and DO8 exist. No "Récupérer automatiquement" switch: fyde-sdk has no scheduled runs.
 - `SourceFetchingScreen` (DO7c at Medium/Expanded, a stacked version at Compact): the connected
   source's first run as a `RunStepper` (Connexion → Recherche → Téléchargement i / n →
