@@ -51,8 +51,6 @@ import com.peltoche.fyde.resources.vault_pass_issued_on
 import com.peltoche.fyde.resources.vault_pass_issued_on_f
 import com.peltoche.fyde.resources.vault_pass_net_pay
 import com.peltoche.fyde.resources.vault_pass_net_pay_month
-import com.peltoche.fyde.resources.vault_pass_received
-import com.peltoche.fyde.resources.vault_pass_received_f
 import com.peltoche.fyde.resources.vault_pass_refund
 import com.peltoche.fyde.resources.vault_pass_refund_amount
 import com.peltoche.fyde.resources.vault_pass_refund_on
@@ -121,7 +119,7 @@ internal fun localizedTaxAmount(amount: FydeAttribute.Amount): String =
 
 /**
  * Whether French words a document of [type] in the feminine ("une facture":
- * "Reçue", "Émise le"). English has one form, so its strings repeat it.
+ * "Émise", "Émise le"). English has one form, so its strings repeat it.
  */
 internal fun isFeminine(type: FydeDocumentType?): Boolean = when (type) {
     FydeDocumentType.INVOICE, FydeDocumentType.INSURANCE_CERTIFICATE, FydeDocumentType.INSURANCE_CARD,
@@ -226,9 +224,9 @@ internal fun passText(document: FydeDocument, layout: PassLayout, fallbackIssuer
                 stringResource(Res.string.attribute_reference),
                 document.text(AttributeNames.REFERENCE)!!,
             )
-            PassCell.RECEIVED -> DocumentPassCell(
-                stringResource(if (feminine) Res.string.vault_pass_received_f else Res.string.vault_pass_received),
-                localizedShortDate(document.createdAt),
+            PassCell.DUE -> DocumentPassCell(
+                stringResource(Res.string.attribute_due_on),
+                localizedShortDate(document.date(AttributeNames.DUE_ON)!!),
             )
             PassCell.GROSS_PAY -> DocumentPassCell(
                 stringResource(Res.string.attribute_gross_pay),

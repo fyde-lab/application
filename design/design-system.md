@@ -398,23 +398,26 @@ skipped, never shown as "—".
 
 | Document type | Top left | Headline | Line under | Meta cells, in order |
 |---|---|---|---|---|
-| Facture, reçu, récapitulatif de frais | `issuer` | `total_amount` | "À régler avant le `due_on`", else "Émise le `issued_on`" | Période · Référence · Reçue |
-| Bulletin de paie | `issuer` | `net_pay` | "Net à payer · " + the month of `period_start` | Brut (`gross_pay`) · Référence · Reçu |
-| Avis d'imposition | `issuer` | `tax_amount`: negative → "+ 312 €" and "Remboursement", positive → "Montant dû" | That word · "prévu le" / "avant le" `due_on` | Revenus (`tax_year`) · Référence · Reçu |
-| Relevé, décompte de remboursement | `issuer` | `total_amount` | Période | Référence · Émis · Reçu |
-| Attestation, carte | `issuer` | "Valide jusqu'au `period_end`" | — | Référence · Émise · Reçue |
-| Autre, or headline unset | `issuer`, else the source | Document name (`title`) | Période, else "Émis le `issued_on`" | Référence · Reçu · Format |
-| À classer | "Ajouté par vous" | Document name | — | Pages · Ajouté |
+| Facture, reçu, récapitulatif de frais | `issuer` | `total_amount` | "À régler avant le `due_on`", else "Émise le `issued_on`" | Période · Référence · Échéance · Revenus |
+| Bulletin de paie | `issuer` | `net_pay` | "Net à payer · " + the month of `period_start` | Brut (`gross_pay`) · Référence · Revenus · Échéance |
+| Avis d'imposition | `issuer` | `tax_amount`: negative → "+ 312 €" and "Remboursement", positive → "Montant dû" | That word · "prévu le" / "avant le" `due_on` | Revenus (`tax_year`) · Référence · Échéance |
+| Relevé, décompte de remboursement | `issuer` | `total_amount` | Période | Référence · Émis · Échéance · Revenus |
+| Attestation, carte | `issuer` | "Valide jusqu'au `period_end`" | — | Référence · Émise · Revenus |
+| Autre, or headline unset | `issuer`, else the source | Document name (`title`) | Période, else "Émis le `issued_on`" | Référence · Échéance · Revenus · Format |
+| À classer | "Ajouté par vous" | Document name | — | Pages · Format |
 
 - **Période** is `period_start`–`period_end` as one value: a whole month is "septembre 2026",
   a whole year "2025", anything else "sept.–oct." (the year added only when they differ).
   One end alone shows as "depuis le …" / "jusqu'au …".
-- **Reçu(e)** is the document's `created_at`; **Émis(e)** is `issued_on`. Labels agree with
-  the type's gender in French ("Reçue" for a facture, "Reçu" for a relevé).
+- **Échéance** is `due_on`, **Revenus** `tax_year`, **Émis(e)** `issued_on`; a cell never repeats
+  what the line already says (a facture's due date). Labels agree with the type's gender in French
+  ("Émise" for a facture, "Émis" for a relevé).
+- The date a document reached the vault is never a cell: it says nothing about the document, and
+  the facts already show it (Arrivée).
 - Pass cells nobody can fill (hours, tax shares, reference tax income, a booking's route, car
   and seat) are dropped until a default attribute exists for them.
 - Screen readers read the pass as one sentence: "Facture EDF, 84,20 €, à régler avant le 27
-  octobre, période septembre–octobre, référence 3001 4471, reçue le 12 octobre".
+  octobre, période septembre–octobre, référence 3001 4471".
 
 ### Informations
 

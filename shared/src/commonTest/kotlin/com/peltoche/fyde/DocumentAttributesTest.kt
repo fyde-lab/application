@@ -40,7 +40,7 @@ class DocumentAttributesTest {
 
         assertEquals(PassTemplate.BILL, layout.template)
         assertEquals(PassLine.DueBy(CivilDate(2026, 10, 27)), layout.line)
-        assertEquals(listOf(PassCell.PERIOD, PassCell.REFERENCE, PassCell.RECEIVED), layout.cells)
+        assertEquals(listOf(PassCell.PERIOD, PassCell.REFERENCE), layout.cells)
         assertEquals(
             listOf(
                 InformationRow.Value(AttributeNames.ISSUED_ON, date("2026-10-10")),
@@ -62,7 +62,7 @@ class DocumentAttributesTest {
 
         assertEquals(PassTemplate.OTHER, layout.template)
         assertEquals(PassLine.IssuedOn(CivilDate(2026, 10, 10)), layout.line)
-        assertEquals(listOf(PassCell.REFERENCE, PassCell.RECEIVED, PassCell.FORMAT), layout.cells)
+        assertEquals(listOf(PassCell.REFERENCE, PassCell.FORMAT), layout.cells)
         assertEquals(emptyList(), informationRows(invoice, layout))
     }
 
@@ -90,7 +90,7 @@ class DocumentAttributesTest {
 
         assertEquals(PassTemplate.PAYSLIP, layout.template)
         assertEquals(PassLine.NetPay(Period.Month(2026, 9)), layout.line)
-        assertEquals(listOf(PassCell.GROSS_PAY, PassCell.RECEIVED), layout.cells)
+        assertEquals(listOf(PassCell.GROSS_PAY), layout.cells)
         assertEquals(emptyList(), informationRows(payslip, layout))
     }
 
@@ -107,7 +107,24 @@ class DocumentAttributesTest {
 
         assertEquals(PassTemplate.TAX_NOTICE, layout.template)
         assertEquals(PassLine.Tax(refund = true, date = CivilDate(2026, 8, 29)), layout.line)
-        assertEquals(listOf(PassCell.TAX_YEAR, PassCell.RECEIVED), layout.cells)
+        assertEquals(listOf(PassCell.TAX_YEAR), layout.cells)
+    }
+
+    @Test
+    fun aDueDateOrAnIncomeYearNotOnTheLineFillsTheCells() {
+        val statement = document(
+            FydeDocumentType.STATEMENT,
+            AttributeNames.TOTAL_AMOUNT to eur(4200),
+            AttributeNames.REFERENCE to text("R-12"),
+            AttributeNames.DUE_ON to date("2026-11-15"),
+            AttributeNames.TAX_YEAR to FydeAttribute.Integer(2025),
+        )
+
+        val layout = passLayout(statement)
+
+        assertEquals(PassTemplate.STATEMENT, layout.template)
+        assertEquals(listOf(PassCell.REFERENCE, PassCell.DUE, PassCell.TAX_YEAR), layout.cells)
+        assertEquals(emptyList(), informationRows(statement, layout))
     }
 
     @Test
