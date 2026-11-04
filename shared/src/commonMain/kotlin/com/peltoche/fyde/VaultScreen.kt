@@ -178,19 +178,19 @@ fun VaultScreen(
     onSave: (FydeDocument) -> Unit,
     loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     onRetryLoad: () -> Unit,
-    onOpenScripts: () -> Unit,
-    onOpenSettings: () -> Unit,
+    navigation: TopLevelNavigation,
     modifier: Modifier = Modifier,
 ) {
-    val windowSizeClass = LocalAppWindowSizeClass.current
     TopLevelScaffold(
-        current = TopLevelDestination.Vault,
-        // Re-selecting the tab from one of its pages returns home.
-        onOpenVault = { onFocusChange(VaultFocus()) },
-        onOpenScripts = onOpenScripts,
-        onOpenSettings = onOpenSettings,
+        navigation = navigation.copy(
+            // Re-selecting the tab from one of its pages returns home.
+            onOpenVault = { onFocusChange(VaultFocus()) },
+            onOpenCategory = { onFocusChange(VaultFocus(page = VaultPage.Category(it))) },
+        ),
+        selection = focus.page.sidebarSelection(),
         modifier = modifier,
     ) { contentPadding ->
+        val windowSizeClass = LocalAppWindowSizeClass.current
         val pageModifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background)
         when (state) {
             VaultUiState.Connecting -> AppLoading(modifier = pageModifier, message = stringResource(Res.string.connecting_message))
@@ -212,6 +212,13 @@ fun VaultScreen(
             }
         }
     }
+}
+
+/** The sidebar's item for this page: a search keeps the one it was opened from. */
+private fun VaultPage.sidebarSelection(): SidebarSelection = when (this) {
+    VaultPage.Home -> SidebarSelection.Vault
+    is VaultPage.Category -> SidebarSelection.Category(category)
+    is VaultPage.Search -> origin.sidebarSelection()
 }
 
 /** Everything the vault's pages read and call, passed down as one. */

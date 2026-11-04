@@ -325,8 +325,10 @@
     <!-- Navigation -->
     <string name="app_title">Fyde</string>
     <string name="nav_vault">Coffre</string>
-    <string name="encryption_badge_title">Chiffrement de bout en bout</string>
-    <string name="encryption_badge_description">Vos documents sont sécurisés</string>
+    <string name="sidebar_all_vault">Tout le coffre</string>
+    <string name="sidebar_categories">Catégories</string>
+    <!-- %1$s sidebar item, %2$s its count -->
+    <string name="sidebar_item_count">%1$s, %2$s</string>
 
     <!-- File sizes and dates. %1$s is an already-formatted number. -->
     <string name="size_bytes">%1$s o</string>

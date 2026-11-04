@@ -64,9 +64,13 @@ unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's na
 
 Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 
-- Shell: `TopLevelScaffold.kt` hosts the Vault (Coffre), Sources (`TopLevelDestination.Scripts`), Settings — a top navigation bar
-  at Expanded (`AppNavigationTopBar`, with Settings and the screen's `primaryAction` at its
-  far end), a bottom bar below.
+- Shell: `TopLevelScaffold.kt` hosts the Vault (Coffre), Sources, Settings — a bottom bar at
+  Compact, T2's 80dp icon rail at Medium and the 260dp sidebar at Expanded (D6/T1), both in
+  `AppSidebar.kt`: Whole vault, the categories with their counts, Sources, the seal line,
+  Settings, the figures from `App.kt`'s `loadSidebarSummary`. The content beside it gets the
+  size class of the window's width minus the sidebar. Size classes are computed from
+  `LocalWindowInfo`, never measured with `BoxWithConstraints`: a class change during layout
+  disposes open popups mid-pass and crashes the desktop renderer.
 - Vault (Coffre): `VaultScreen.kt` (home V1/D6 and the shared pieces), `VaultCategoryPage.kt`
   (V3, D1, D2's list column), `VaultSearchPage.kt` (V4, V5), `VaultDocumentPage.kt` (V6, V7, D2's
   pass and preview), backed by `App.kt`'s `VaultContainer`, which holds the open page as a

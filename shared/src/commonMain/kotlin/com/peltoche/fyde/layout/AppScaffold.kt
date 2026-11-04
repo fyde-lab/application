@@ -1,7 +1,6 @@
 package com.peltoche.fyde.layout
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,8 +18,6 @@ fun AppScaffold(
     modifier: Modifier = Modifier,
     windowSizeClass: AppWindowSizeClass = LocalAppWindowSizeClass.current,
     navigationItems: List<AppNavigationItem> = emptyList(),
-    navigationHeader: (@Composable () -> Unit)? = null,
-    navigationTrailing: (@Composable RowScope.() -> Unit)? = null,
     topBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
@@ -29,8 +26,6 @@ fun AppScaffold(
         navigationItems = navigationItems,
         modifier = modifier,
         windowSizeClass = windowSizeClass,
-        header = navigationHeader,
-        trailing = navigationTrailing,
     ) {
         Scaffold(
             topBar = topBar,
