@@ -172,8 +172,7 @@ fun SettingsScreen(
     onAppearanceChange: (AppAppearance) -> Unit = {},
     currentLanguage: String?,
     onLanguageChange: (String) -> Unit,
-    onOpenVault: () -> Unit,
-    onOpenScripts: () -> Unit = {},
+    navigation: TopLevelNavigation,
     onLogout: () -> Unit = {},
     isLoggingOut: Boolean = false,
     logoutError: String? = null,
@@ -185,7 +184,6 @@ fun SettingsScreen(
     disconnectSessionError: String? = null,
     modifier: Modifier = Modifier,
 ) {
-    val windowSizeClass = LocalAppWindowSizeClass.current
     var confirmingLogout by remember { mutableStateOf(false) }
     val ui = SettingsUi(
         appearance = currentAppearance,
@@ -205,16 +203,15 @@ fun SettingsScreen(
     )
 
     TopLevelScaffold(
-        current = TopLevelDestination.Settings,
-        onOpenVault = onOpenVault,
-        onOpenScripts = onOpenScripts,
         // Re-selecting Settings goes back to its menu, like a drill-down's back.
-        onOpenSettings = { onOpenSectionChange(null) },
+        navigation = navigation.copy(onOpenSettings = { onOpenSectionChange(null) }),
+        selection = SidebarSelection.Settings,
         modifier = modifier,
         topBar = {
+            val windowSizeClass = LocalAppWindowSizeClass.current
             val section = openSection
             when {
-                // At Expanded the title heads the menu column, so the page runs up to the navigation bar.
+                // At Expanded the title heads the menu column, so the page runs up to the top of the window.
                 windowSizeClass == AppWindowSizeClass.Expanded -> Unit
                 windowSizeClass == AppWindowSizeClass.Compact && section != null -> DrillDownBar(
                     parentTitle = stringResource(section.parent?.title ?: Res.string.settings_title),
@@ -224,6 +221,7 @@ fun SettingsScreen(
             }
         },
     ) { contentPadding ->
+        val windowSizeClass = LocalAppWindowSizeClass.current
         val contentModifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background)
         when (windowSizeClass) {
             AppWindowSizeClass.Compact -> CompactSettings(ui, openSection, contentModifier)
