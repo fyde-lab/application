@@ -17,9 +17,9 @@ use fyde_sdk::{
     Attribute, AttributeDefinition, AttributeType, Category, ChangelogEvent, Client, ClientConfig,
     Document, DocumentType, Error, ErrorCode, ErrorContext as _, EventType, FacetCount,
     InstallScriptRequest, InstalledScript, LogLevel, LoginOutcome, Metadata, OpenSession,
-    ProgressEvent, ProgressStep, Script, ScriptMetadata, ScriptParameter, ScriptParameterType,
-    ScriptType, SearchFacets, SearchFilters, SearchOrder, SearchQuery, SetAttributeRequest,
-    Storage, Subcategory, UploadRequest, Usage, system_language,
+    PasswordAnalysis, PasswordStrength, ProgressEvent, ProgressStep, Script, ScriptMetadata,
+    ScriptParameter, ScriptParameterType, ScriptType, SearchFacets, SearchFilters, SearchOrder,
+    SearchQuery, SetAttributeRequest, Storage, Subcategory, UploadRequest, Usage, system_language,
 };
 
 // Keeps the generated Kotlin package `uniffi.fyde_sdk` (the namespace
@@ -612,6 +612,50 @@ impl From<Usage> for FfiUsage {
             enabled_scripts: usage.enabled_scripts(),
             open_sessions: usage.open_sessions(),
             total_size: usage.total_size(),
+        }
+    }
+}
+
+/// How hard a password looks to guess, weakest first, mirroring
+/// [`PasswordStrength`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
+pub enum FfiPasswordStrength {
+    Weak,
+    Fair,
+    Strong,
+    VeryStrong,
+}
+
+impl From<PasswordStrength> for FfiPasswordStrength {
+    fn from(strength: PasswordStrength) -> Self {
+        match strength {
+            PasswordStrength::Weak => Self::Weak,
+            PasswordStrength::Fair => Self::Fair,
+            PasswordStrength::Strong => Self::Strong,
+            PasswordStrength::VeryStrong => Self::VeryStrong,
+        }
+    }
+}
+
+/// What the SDK makes of a password being typed, for a strength meter,
+/// mirroring [`PasswordAnalysis`]: its score (0 to 100), its strength, its
+/// length in characters, and whether `create_user`/`change_password` accept
+/// it.
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct FfiPasswordAnalysis {
+    pub score: u8,
+    pub strength: FfiPasswordStrength,
+    pub length: u32,
+    pub is_accepted: bool,
+}
+
+impl From<PasswordAnalysis> for FfiPasswordAnalysis {
+    fn from(analysis: PasswordAnalysis) -> Self {
+        Self {
+            score: analysis.score(),
+            strength: analysis.strength().into(),
+            length: analysis.length(),
+            is_accepted: analysis.is_accepted(),
         }
     }
 }
@@ -1344,6 +1388,32 @@ impl FydeClient {
             .await
     }
 
+    /// Changes the signed-in account's password from `old_password` to
+    /// `new_password`, keeping every document readable and every other
+    /// device signed in. Refuses a new password `analyze_password` doesn't
+    /// accept; fails with `UsernameUnknown` for a session opened before the
+    /// SDK cached its username (signing in again fixes it). Mirrors
+    /// [`fyde_sdk::UsersService::change_password`].
+    pub async fn change_password(
+        &self,
+        old_password: String,
+        new_password: String,
+    ) -> Result<(), FfiError> {
+        self.localized(
+            self.inner
+                .users()
+                .change_password(&old_password, &new_password),
+        )
+        .await
+    }
+
+    /// Rates `password` for a strength meter, the same verdict
+    /// `create_user`/`change_password` enforce. Local, never fails. Mirrors
+    /// [`fyde_sdk::UsersService::analyze_password`].
+    pub fn analyze_password(&self, password: String) -> FfiPasswordAnalysis {
+        self.inner.users().analyze_password(&password).into()
+    }
+
     /// Persists `token` as the session token attached to every subsequent
     /// authenticated request, overwriting any token already stored.
     /// `create_user`/`login` already do this as part of opening a session;
@@ -1964,6 +2034,21 @@ mod tests {
     fn ffi_error_has_a_variant_for_every_error_code() {
         for &code in ErrorCode::ALL {
             assert_eq!(FfiError::new(code, "wording").code(), code);
+        }
+    }
+
+    #[test]
+    fn password_strength_conversion_maps_every_strength() {
+        for (strength, expected) in [
+            (PasswordStrength::Weak, FfiPasswordStrength::Weak),
+            (PasswordStrength::Fair, FfiPasswordStrength::Fair),
+            (PasswordStrength::Strong, FfiPasswordStrength::Strong),
+            (
+                PasswordStrength::VeryStrong,
+                FfiPasswordStrength::VeryStrong,
+            ),
+        ] {
+            assert_eq!(FfiPasswordStrength::from(strength), expected);
         }
     }
 
