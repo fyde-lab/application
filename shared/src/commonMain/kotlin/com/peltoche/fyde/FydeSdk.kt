@@ -489,6 +489,22 @@ data class FydePlanUsage(
     val totalSize: Long,
 )
 
+/** How hard a password is to guess, weakest first. Mirrors `fyde-sdk`'s `FfiPasswordStrength`. */
+enum class FydePasswordStrength { Weak, Fair, Strong, VeryStrong }
+
+/**
+ * The SDK's verdict on a candidate password, mirroring `FfiPasswordAnalysis`:
+ * [score] from 0 to 4, [length] in characters. A password that isn't
+ * [isAccepted] (one rated [FydePasswordStrength.Weak]) is refused when an
+ * account is created or a password changed.
+ */
+data class FydePasswordAnalysis(
+    val score: Int,
+    val strength: FydePasswordStrength,
+    val length: Int,
+    val isAccepted: Boolean,
+)
+
 /** What [FydeSdk.login] did, once the credentials checked out. Mirrors `fyde-sdk`'s `FfiLoginOutcome`. */
 sealed interface FydeLoginOutcome {
     /** A session was opened for this device. */
@@ -632,6 +648,18 @@ expect object FydeSdk {
      * [`crate::UsersService::generate_recovery_key`].
      */
     suspend fun generateRecoveryKey(): Result<List<String>>
+
+    /**
+     * Changes the signed-in account's password. Documents stay readable, the
+     * recovery key stays valid and every device stays signed in. Fails if
+     * [currentPassword] is wrong, if [newPassword] is too weak, or if this
+     * device's session predates the SDK remembering the username (log out
+     * and back in). Mirrors [`crate::UsersService::change_password`].
+     */
+    suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit>
+
+    /** Rates a candidate password, as account creation and [changePassword] will. Mirrors `fyde_sdk::analyze_password`. */
+    suspend fun analyzePassword(password: String): Result<FydePasswordAnalysis>
 
     /**
      * Lists documents previously cached locally, oldest first, one page at a

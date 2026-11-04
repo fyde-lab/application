@@ -90,7 +90,11 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - Settings (`SettingsScreen.kt`, the design's Moi M1–M3 and M5–M8): a menu (seal card,
   Sécurité, Appareils, Offre et usage, Apparence et langue, logout) whose pages push inside the
   tab at Compact and open beside it at Medium/Expanded; which page is open is screen state.
-  Pages: Sécurité and Ce que voit le serveur (static), `SessionsSection.kt` (M5, `listSessions`;
+  Pages: Sécurité and Ce que voit le serveur (static), Changer le mot de passe (M11, reached from
+  Sécurité: `FydeSdk.changePassword`, its meter from `FydeSdk.analyzePassword` as the new one is
+  typed, refusing what the SDK rates weak; back to Sécurité with a snackbar on success; the SDK
+  takes the username it stored at login, so a session opened before it did must log in again),
+  `SessionsSection.kt` (M5, `listSessions`;
   revoke another device via `revokeSession` after confirmation, then re-fetch sessions and
   usage), `PlanUsageSection.kt` (M6, `FydeSdk.getUsage`, re-fetched each time Settings opens),
   appearance and language (M7; the light/dark `theme/AppAppearance.kt` is held in `App()` above

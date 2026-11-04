@@ -347,7 +347,7 @@ private fun WideRegisterPane(form: RegisterFormState, onBack: () -> Unit, modifi
                 )
                 if (form.password.isNotEmpty()) {
                     Spacer(Modifier.height(AppSpacing.space3))
-                    PasswordStrengthMeter(form.password)
+                    PasswordStrengthMeter(passwordStrength(form.password), form.password.length)
                 }
                 Spacer(Modifier.height(AppSpacing.space5))
                 AppTextField(
@@ -440,8 +440,7 @@ internal fun passwordStrength(password: String): PasswordStrength = when {
 
 /** O3's meter under the password: four 4dp bars, lit in `warning` while weak or fair, `success` above, then the verdict. */
 @Composable
-private fun PasswordStrengthMeter(password: String) {
-    val strength = passwordStrength(password)
+internal fun PasswordStrengthMeter(strength: PasswordStrength, length: Int) {
     val lit = if (strength.bars <= PasswordStrength.Fair.bars) AppColors.warning else AppColors.success
     Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2), modifier = Modifier.fillMaxWidth()) {
         repeat(PasswordStrength.entries.size) { index ->
@@ -458,9 +457,9 @@ private fun PasswordStrengthMeter(password: String) {
     Text(
         text = when (strength) {
             PasswordStrength.Weak -> stringResource(Res.string.password_strength_weak)
-            PasswordStrength.Fair -> stringResource(Res.string.password_strength_fair, password.length)
-            PasswordStrength.Strong -> stringResource(Res.string.password_strength_strong, password.length)
-            PasswordStrength.VeryStrong -> stringResource(Res.string.password_strength_very_strong, password.length)
+            PasswordStrength.Fair -> stringResource(Res.string.password_strength_fair, length)
+            PasswordStrength.Strong -> stringResource(Res.string.password_strength_strong, length)
+            PasswordStrength.VeryStrong -> stringResource(Res.string.password_strength_very_strong, length)
         },
         style = AppTypography.caption,
         color = AppColors.textMuted,
