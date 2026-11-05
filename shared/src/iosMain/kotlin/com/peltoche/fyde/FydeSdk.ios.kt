@@ -17,6 +17,8 @@ import uniffi.fyde_sdk.FfiLogLevel
 import uniffi.fyde_sdk.FfiLoginOutcome
 import uniffi.fyde_sdk.FfiMetadata
 import uniffi.fyde_sdk.FfiOpenSession
+import uniffi.fyde_sdk.FfiPasswordAnalysis
+import uniffi.fyde_sdk.FfiPasswordStrength
 import uniffi.fyde_sdk.FfiProgressEvent
 import uniffi.fyde_sdk.FfiProgressStep
 import uniffi.fyde_sdk.FfiScript
@@ -192,6 +194,12 @@ actual object FydeSdk {
     actual suspend fun generateRecoveryKey(): Result<List<String>> = withClient("generateRecoveryKey") { client ->
         client.generateRecoveryKey().split(' ')
     }
+
+    actual suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> =
+        withClient("changePassword") { client -> client.changePassword(currentPassword, newPassword) }
+
+    actual suspend fun analyzePassword(password: String): Result<FydePasswordAnalysis> =
+        withClient("analyzePassword") { client -> client.analyzePassword(password).toFydePasswordAnalysis() }
 
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> =
         withClient("listDocuments") { client ->
@@ -518,6 +526,18 @@ private fun FfiUsage.toFydePlanUsage() = FydePlanUsage(
     enabledScripts = enabledScripts.toInt(),
     openSessions = openSessions.toInt(),
     totalSize = totalSize.toLong(),
+)
+
+private fun FfiPasswordAnalysis.toFydePasswordAnalysis() = FydePasswordAnalysis(
+    score = score.toInt(),
+    strength = when (strength) {
+        FfiPasswordStrength.WEAK -> FydePasswordStrength.Weak
+        FfiPasswordStrength.FAIR -> FydePasswordStrength.Fair
+        FfiPasswordStrength.STRONG -> FydePasswordStrength.Strong
+        FfiPasswordStrength.VERY_STRONG -> FydePasswordStrength.VeryStrong
+    },
+    length = length.toInt(),
+    isAccepted = isAccepted,
 )
 
 private fun FfiOpenSession.toFydeOpenSession() = FydeOpenSession(

@@ -4,6 +4,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.change_password_done
+import com.peltoche.fyde.resources.change_password_failed
 import com.peltoche.fyde.resources.connect_source_failed
 import com.peltoche.fyde.resources.source_credentials_saved
 import com.peltoche.fyde.resources.source_remove_failed
@@ -253,6 +255,8 @@ private fun AppContent(
     var sessionsAttempt by remember { mutableStateOf(0) }
     var disconnectingSessionId by remember { mutableStateOf<String?>(null) }
     var disconnectSessionError by remember { mutableStateOf<String?>(null) }
+    var isChangingPassword by remember { mutableStateOf(false) }
+    var changePasswordError by remember { mutableStateOf<String?>(null) }
     // The recovery key's words while Screen.RecoveryKit is open, dropped as
     // soon as it closes.
     var recoveryKit by remember { mutableStateOf<RecoveryKitUiState>(RecoveryKitUiState.Generating) }
@@ -483,6 +487,10 @@ private fun AppContent(
         }
         logoutError = null
         languageError = null
+    }
+
+    LaunchedEffect(settingsSection) {
+        if (settingsSection != SettingsSection.ChangePassword) changePasswordError = null
     }
 
     // Same for the devices list, which other devices change by connecting or
@@ -848,6 +856,22 @@ private fun AppContent(
                 },
                 disconnectingSessionId = disconnectingSessionId,
                 disconnectSessionError = disconnectSessionError,
+                analyzePassword = { FydeSdk.analyzePassword(it) },
+                onChangePassword = { current, new ->
+                    changePasswordError = null
+                    isChangingPassword = true
+                    scope.launch {
+                        val changed = FydeSdk.changePassword(current, new)
+                            .onFailure { changePasswordError = getString(Res.string.change_password_failed, it.userMessage()) }
+                        isChangingPassword = false
+                        if (changed.isSuccess) {
+                            if (settingsSection == SettingsSection.ChangePassword) settingsSection = SettingsSection.Security
+                            snackbarHostState.showSnackbar(getString(Res.string.change_password_done))
+                        }
+                    }
+                },
+                isChangingPassword = isChangingPassword,
+                changePasswordError = changePasswordError,
             )
             Screen.Scripts -> SourcesTabContainer(
                 scraperRuns = scraperRuns,

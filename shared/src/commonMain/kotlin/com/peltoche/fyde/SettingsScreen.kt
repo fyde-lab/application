@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -34,8 +36,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,6 +52,7 @@ import com.peltoche.fyde.components.content.SealHero
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.form.AppRadio
+import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.layout.AppContentContainer
@@ -59,11 +64,20 @@ import com.peltoche.fyde.layout.screenMargin
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.appearance_text_size_note
 import com.peltoche.fyde.resources.cancel
+import com.peltoche.fyde.resources.change_password_confirm
+import com.peltoche.fyde.resources.change_password_current
+import com.peltoche.fyde.resources.change_password_intro
+import com.peltoche.fyde.resources.change_password_kit_note
+import com.peltoche.fyde.resources.change_password_new
+import com.peltoche.fyde.resources.change_password_row_subtitle
+import com.peltoche.fyde.resources.change_password_submitting
+import com.peltoche.fyde.resources.change_password_title
 import com.peltoche.fyde.resources.language_section_title
 import com.peltoche.fyde.resources.log_out
 import com.peltoche.fyde.resources.log_out_confirm_text
 import com.peltoche.fyde.resources.log_out_confirm_title_computer
 import com.peltoche.fyde.resources.log_out_confirm_title_device
+import com.peltoche.fyde.resources.passwords_mismatch
 import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.security_sealed_text
 import com.peltoche.fyde.resources.security_sealed_title
@@ -123,25 +137,32 @@ private enum class AppLanguage(val code: String, val displayName: String) {
 
 /**
  * The pages Settings opens onto: M1's rows ([Security], [Devices], [Plan],
- * [Appearance]) and [ServerView], reached from inside [Security] (M3).
+ * [Appearance]), and [ServerView] (M3) and [ChangePassword] (M11), reached
+ * from inside [Security].
  */
 enum class SettingsSection(val title: StringResource) {
     Security(Res.string.settings_security),
     ServerView(Res.string.security_server_view),
+    ChangePassword(Res.string.change_password_title),
     Devices(Res.string.sessions_section_title),
     Plan(Res.string.settings_plan),
     Appearance(Res.string.settings_appearance),
     ;
 
     /** The M1 row this page belongs to, and where its back button leads. */
-    val parent: SettingsSection? get() = if (this == ServerView) Security else null
+    val parent: SettingsSection?
+        get() = when (this) {
+            ServerView, ChangePassword -> Security
+            else -> null
+        }
 }
 
 /**
  * The Settings destination, design-system.md's Moi (M1–M8).
  *
  * At Compact it's M1: the seal card, then one row per page — Sécurité (M2,
- * leading to Ce que voit le serveur, M3), Appareils (M5), Offre et usage
+ * leading to Changer le mot de passe, M11, and Ce que voit le serveur, M3),
+ * Appareils (M5), Offre et usage
  * (M6), Apparence et langue (M7) — and logging out (M8). Each page pushes
  * inside the tab, under a bar with the 44 back circle. At Medium and Expanded
  * the same menu is the list column of a master–detail split and the page
@@ -152,6 +173,10 @@ enum class SettingsSection(val title: StringResource) {
  * Left out until the SDK can back them: the profile card (no username
  * getter), M2's device tiles and last-sync times, the recovery-kit and
  * password-check rows, Aide, and Voir les offres.
+ *
+ * M11 rates the new password with [analyzePassword] as it's typed and
+ * submits through [onChangePassword], busy while [isChangingPassword];
+ * [changePasswordError] says why it failed.
  *
  * [currentAppearance] is switched by [onAppearanceChange] (see
  * [AppAppearance]); [currentLanguage] by [onLanguageChange], which `App.kt`
@@ -182,6 +207,10 @@ fun SettingsScreen(
     onDisconnectSession: (FydeOpenSession) -> Unit = {},
     disconnectingSessionId: String? = null,
     disconnectSessionError: String? = null,
+    analyzePassword: suspend (String) -> Result<FydePasswordAnalysis> = { Result.failure(UnsupportedOperationException()) },
+    onChangePassword: (currentPassword: String, newPassword: String) -> Unit = { _, _ -> },
+    isChangingPassword: Boolean = false,
+    changePasswordError: String? = null,
     modifier: Modifier = Modifier,
 ) {
     var confirmingLogout by remember { mutableStateOf(false) }
@@ -196,6 +225,10 @@ fun SettingsScreen(
         onDisconnectSession = onDisconnectSession,
         disconnectingSessionId = disconnectingSessionId,
         disconnectSessionError = disconnectSessionError,
+        analyzePassword = analyzePassword,
+        onChangePassword = onChangePassword,
+        isChangingPassword = isChangingPassword,
+        changePasswordError = changePasswordError,
         isLoggingOut = isLoggingOut,
         logoutError = logoutError,
         onLogOut = { confirmingLogout = true },
@@ -255,6 +288,10 @@ private class SettingsUi(
     val onDisconnectSession: (FydeOpenSession) -> Unit,
     val disconnectingSessionId: String?,
     val disconnectSessionError: String?,
+    val analyzePassword: suspend (String) -> Result<FydePasswordAnalysis>,
+    val onChangePassword: (String, String) -> Unit,
+    val isChangingPassword: Boolean,
+    val changePasswordError: String?,
     val isLoggingOut: Boolean,
     val logoutError: String?,
     val onLogOut: () -> Unit,
@@ -275,16 +312,25 @@ private fun CompactSettings(ui: SettingsUi, section: SettingsSection?, modifier:
         } else {
             // Each page starts at its top; the menu keeps its own scroll for the way back.
             key(section) {
-                Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                    Spacer(Modifier.height(AppSpacing.space3))
-                    Text(text = stringResource(section.title), style = AppTypography.display, color = AppColors.text)
-                    Spacer(Modifier.height(AppSpacing.space5))
-                    SettingsPage(ui, section)
-                    Spacer(Modifier.height(AppSpacing.space7))
+                if (section == SettingsSection.ChangePassword) {
+                    ChangePasswordPage(ui, pinnedButton = true)
+                } else {
+                    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                        CompactPageTitle(section)
+                        SettingsPage(ui, section)
+                        Spacer(Modifier.height(AppSpacing.space7))
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun CompactPageTitle(section: SettingsSection) {
+    Spacer(Modifier.height(AppSpacing.space3))
+    Text(text = stringResource(section.title), style = AppTypography.display, color = AppColors.text)
+    Spacer(Modifier.height(AppSpacing.space5))
 }
 
 /**
@@ -353,8 +399,12 @@ private fun WideSettings(ui: SettingsUi, section: SettingsSection, windowSizeCla
 @Composable
 private fun ColumnScope.SettingsPage(ui: SettingsUi, section: SettingsSection) {
     when (section) {
-        SettingsSection.Security -> SecurityPage(onOpenServerView = { ui.onOpen(SettingsSection.ServerView) })
+        SettingsSection.Security -> SecurityPage(
+            onOpenChangePassword = { ui.onOpen(SettingsSection.ChangePassword) },
+            onOpenServerView = { ui.onOpen(SettingsSection.ServerView) },
+        )
         SettingsSection.ServerView -> ServerViewPage()
+        SettingsSection.ChangePassword -> ChangePasswordPage(ui, pinnedButton = false)
         SettingsSection.Devices -> SessionsSection(
             state = ui.sessions,
             planUsage = ui.planUsage,
@@ -564,9 +614,9 @@ private fun SettingsLinkRow(
     }
 }
 
-/** M2 as far as the SDK backs it: the seal, what it means, and the way to what the server sees. */
+/** M2 as far as the SDK backs it: the seal, what it means, and the ways to M11 and to what the server sees. */
 @Composable
-private fun SecurityPage(onOpenServerView: () -> Unit) {
+private fun SecurityPage(onOpenChangePassword: () -> Unit, onOpenServerView: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         SealHero()
         Spacer(Modifier.height(AppSpacing.space4))
@@ -587,12 +637,147 @@ private fun SecurityPage(onOpenServerView: () -> Unit) {
     Spacer(Modifier.height(AppSpacing.space7))
     SettingsGroup {
         SettingsLinkRow(
+            label = stringResource(Res.string.change_password_title),
+            supporting = stringResource(Res.string.change_password_row_subtitle),
+            icon = { PencilGlyph(modifier = it, tint = AppColors.primary) },
+            onClick = onOpenChangePassword,
+        )
+        AppDivider()
+        SettingsLinkRow(
             label = stringResource(Res.string.security_server_view),
             supporting = stringResource(Res.string.security_server_view_subtitle),
             icon = { ServerGlyph(modifier = it, tint = AppColors.primary) },
             onClick = onOpenServerView,
         )
     }
+}
+
+/**
+ * M11: the current password, the new one with the SDK's strength meter, its
+ * confirmation (DO3b's mismatch rule), and a note that the recovery kit
+ * stays valid. Submitting waits for the SDK's verdict on what's typed and
+ * refuses a password it rates weak, as it would. At Compact ([pinnedButton])
+ * the fields scroll above a button pinned at the foot; beside the menu the
+ * button follows the note.
+ */
+@Composable
+private fun ChangePasswordPage(ui: SettingsUi, pinnedButton: Boolean) {
+    var current by remember { mutableStateOf("") }
+    var new by remember { mutableStateOf("") }
+    var confirm by remember { mutableStateOf("") }
+    var confirmBlurred by remember { mutableStateOf(false) }
+    var submitAttempted by remember { mutableStateOf(false) }
+    var analyzedFor by remember { mutableStateOf<String?>(null) }
+    var analysis by remember { mutableStateOf<FydePasswordAnalysis?>(null) }
+    LaunchedEffect(new) {
+        if (new.isEmpty()) {
+            analysis = null
+        } else {
+            // Without a verdict (the SDK failed to give one), the SDK still checks on submit.
+            analysis = ui.analyzePassword(new).getOrNull()
+        }
+        analyzedFor = new
+    }
+
+    val busy = ui.isChangingPassword
+    val matches = confirm == new
+    val accepted = analyzedFor == new && analysis?.isAccepted != false
+    val canSubmit = !busy && current.isNotEmpty() && new.isNotEmpty() && matches && accepted
+    val showMismatch = (confirmBlurred || submitAttempted) && confirm.isNotEmpty() && !matches
+    val submit = {
+        submitAttempted = true
+        if (canSubmit) ui.onChangePassword(current, new)
+    }
+
+    val fields: @Composable () -> Unit = {
+        Text(text = stringResource(Res.string.change_password_intro), style = AppTypography.body, color = AppColors.textMuted)
+        ui.changePasswordError?.let { message ->
+            Spacer(Modifier.height(AppSpacing.space5))
+            SettingsErrorNote(message)
+        }
+        Spacer(Modifier.height(AppSpacing.space6))
+        AppTextField(
+            value = current,
+            onValueChange = { current = it },
+            label = stringResource(Res.string.change_password_current),
+            enabled = !busy,
+            isPassword = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        )
+        Spacer(Modifier.height(AppSpacing.space5))
+        AppTextField(
+            value = new,
+            onValueChange = { new = it },
+            label = stringResource(Res.string.change_password_new),
+            enabled = !busy,
+            isPassword = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        )
+        analysis?.takeIf { new.isNotEmpty() }?.let {
+            Spacer(Modifier.height(AppSpacing.space3))
+            PasswordStrengthMeter(it.strength.toPasswordStrength(), it.length)
+        }
+        Spacer(Modifier.height(AppSpacing.space5))
+        AppTextField(
+            value = confirm,
+            onValueChange = { confirm = it },
+            label = stringResource(Res.string.change_password_confirm),
+            enabled = !busy,
+            isPassword = true,
+            revealable = false,
+            trailingIcon = if (confirm.isNotEmpty() && matches) {
+                { CheckGlyph(modifier = Modifier.size(AppIconSize.md)) }
+            } else {
+                null
+            },
+            errorText = if (showMismatch) stringResource(Res.string.passwords_mismatch) else null,
+            modifier = Modifier.onFocusChanged { if (!it.hasFocus && confirm.isNotEmpty()) confirmBlurred = true },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+            keyboardActions = KeyboardActions(onGo = { submit() }),
+        )
+        Spacer(Modifier.height(AppSpacing.space5))
+        AppNote(
+            message = stringResource(Res.string.change_password_kit_note),
+            kind = AppNoteKind.Ok,
+            icon = { tint -> KeyGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+        )
+    }
+    val button: @Composable () -> Unit = {
+        AppButton(
+            text = stringResource(Res.string.change_password_title),
+            onClick = submit,
+            enabled = canSubmit,
+            loading = busy,
+            loadingText = stringResource(Res.string.change_password_submitting),
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+
+    if (pinnedButton) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
+                CompactPageTitle(SettingsSection.ChangePassword)
+                fields()
+                Spacer(Modifier.height(AppSpacing.space6))
+            }
+            Box(modifier = Modifier.fillMaxWidth().padding(top = AppSpacing.space4, bottom = AppSpacing.space5)) {
+                button()
+            }
+        }
+    } else {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            fields()
+            Spacer(Modifier.height(AppSpacing.space6))
+            button()
+        }
+    }
+}
+
+private fun FydePasswordStrength.toPasswordStrength(): PasswordStrength = when (this) {
+    FydePasswordStrength.Weak -> PasswordStrength.Weak
+    FydePasswordStrength.Fair -> PasswordStrength.Fair
+    FydePasswordStrength.Strong -> PasswordStrength.Strong
+    FydePasswordStrength.VeryStrong -> PasswordStrength.VeryStrong
 }
 
 /** M3: what the server can never read, then what it does see, in plain words. */

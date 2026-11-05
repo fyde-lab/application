@@ -465,6 +465,16 @@
     <string name="security_sealed_text">Only your devices hold the key. The server only ever sees encrypted data go by.</string>
     <string name="security_server_view">What the server sees</string>
     <string name="security_server_view_subtitle">Sizes, upload times, number of devices</string>
+    <string name="change_password_title">Change password</string>
+    <string name="change_password_row_subtitle">Your devices stay signed in</string>
+    <string name="change_password_intro">Your documents stay readable and your devices stay signed in.</string>
+    <string name="change_password_current">Current password</string>
+    <string name="change_password_new">New password</string>
+    <string name="change_password_confirm">Confirm the new password</string>
+    <string name="change_password_kit_note">Your recovery kit stays valid.</string>
+    <string name="change_password_submitting">Changing the password…</string>
+    <string name="change_password_done">Password changed</string>
+    <string name="change_password_failed">Couldn’t change your password: %1$s</string>
     <string name="server_view_intro">The Fyde server relays your encrypted data between your devices. Here, plainly, is what it can and can’t read.</string>
     <string name="server_view_never_title">Never sees</string>
     <string name="server_view_never_content">The content of your documents</string>

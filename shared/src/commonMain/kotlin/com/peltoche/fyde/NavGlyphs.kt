@@ -653,6 +653,25 @@ fun ServerGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted
     }
 }
 
+/** A pencil — changing the password (M2). Traced from `i-pencil` in `icons.svg`. */
+@Composable
+fun PencilGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        val body = Path().apply {
+            moveTo(15.5f * unit, 4.5f * unit)
+            lineTo(19.5f * unit, 8.5f * unit)
+            lineTo(8.5f * unit, 19.5f * unit)
+            lineTo(4.5f * unit, 19.5f * unit)
+            lineTo(4.5f * unit, 15.5f * unit)
+            close()
+        }
+        drawPath(body, color = tint, style = stroke)
+        drawLine(tint, Offset(13f * unit, 7f * unit), Offset(17f * unit, 11f * unit), stroke.width, StrokeCap.Round)
+    }
+}
+
 /** A globe — the sites a source may reach (S3, DO7b). Traced from `i-globe` in `icons.svg`. */
 @Composable
 fun GlobeGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {

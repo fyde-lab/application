@@ -423,8 +423,9 @@ skipped, never shown as "—".
 ### Informations
 
 Under the file row (V6) or the pass (D2), an "Informations" section lists, one `kv` row each,
-every attribute the pass doesn't already show: each value appears once, on the pass or here.
-The section is hidden when nothing is left.
+every attribute of the document, including those the pass already shows: it is the complete
+record, the pass a summary. `period_start` and `period_end`, when both are set, read as one
+"Période" row. The section is hidden when the document has no attribute.
 
 - Order: default attributes in the order above, then any other attribute (one a script or the
   user defined) by name.
@@ -517,7 +518,7 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | V3 | Catégorie | Category band; subcategory chips with counts; year chips; month groups of document rows | Sort newest or oldest first (`SearchOrder`; amount and name need the SDK); rows swipe to Partager / Reclasser, also in V8 |
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
 | V5 | Résultats | Facet chips Catégorie / Type / Année / Source; matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
-| V6 | Document | Pass, file row with thumbnail, Informations (the attributes not on the pass), facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) and [Informations](#informations) |
+| V6 | Document | Pass, file row with thumbnail, Informations (every attribute), facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) and [Informations](#informations) |
 | V6b | Document (sombre) | V6 in the dark theme: the pass on its dark category fill, Informations on `surface` | Dark reference for passes |
 | V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…" |
 | V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Reclasser, Informations techniques, Supprimer de tous mes appareils | Delete confirms that it reaches every device |
