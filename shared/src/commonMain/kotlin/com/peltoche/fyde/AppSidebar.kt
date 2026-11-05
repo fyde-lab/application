@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.CategoryFillTile
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
 import com.peltoche.fyde.resources.nav_scripts
@@ -59,15 +60,12 @@ import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.resources.sidebar_all_vault
 import com.peltoche.fyde.resources.sidebar_categories
 import com.peltoche.fyde.resources.sidebar_item_count
-import com.peltoche.fyde.resources.vault_sealed
-import com.peltoche.fyde.resources.vault_sealed_devices
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppRadius
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.theme.appFocusRing
-import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /** What the sidebar highlights: a destination, or one of the vault's categories. */
@@ -117,7 +115,6 @@ internal fun AppSidebar(
                 label = stringResource(Res.string.sidebar_all_vault),
                 count = summary.total,
                 selected = selection == SidebarSelection.Vault,
-                selectedFill = AppColors.selectionSurface,
                 onClick = navigation.onOpenVault,
             ) { tint -> GridGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md)) }
             Column(
@@ -133,12 +130,10 @@ internal fun AppSidebar(
                     )
                 }
                 summary.categories.forEach { (category, count) ->
-                    val colors = category.colors()
                     SidebarRow(
                         label = category.label(),
                         count = count,
                         selected = selection == SidebarSelection.Category(category),
-                        selectedFill = colors.fill,
                         onClick = { navigation.onOpenCategory(category) },
                     ) {
                         CategoryTile(category, size = 24.dp, iconSize = AppIconSize.sm, shape = RoundedCornerShape(7.dp))
@@ -149,7 +144,6 @@ internal fun AppSidebar(
                 label = stringResource(Res.string.nav_scripts),
                 count = summary.sourceCount?.toLong(),
                 selected = selection == SidebarSelection.Sources,
-                selectedFill = AppColors.selectionSurface,
                 onClick = navigation.onOpenScripts,
             ) { tint -> PlugGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md)) }
             SealRow(summary.deviceCount)
@@ -157,7 +151,6 @@ internal fun AppSidebar(
                 label = stringResource(Res.string.settings),
                 count = null,
                 selected = selection == SidebarSelection.Settings,
-                selectedFill = AppColors.selectionSurface,
                 onClick = navigation.onOpenSettings,
             ) { tint -> GearGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md)) }
         }
@@ -231,13 +224,12 @@ internal fun AppSidebarRail(
     }
 }
 
-/** One sidebar row: selected, it takes [selectedFill] (its category's for a category) and a primary leading bar. */
+/** One sidebar row: selected, it takes the selection fill and a primary leading bar. */
 @Composable
 private fun SidebarRow(
     label: String,
     count: Long?,
     selected: Boolean,
-    selectedFill: Color,
     onClick: () -> Unit,
     leading: @Composable (tint: Color) -> Unit,
 ) {
@@ -248,7 +240,7 @@ private fun SidebarRow(
             .height(SidebarRowHeight)
             .appFocusRing(interactionSource, shape = AppRadius.lg)
             .clip(AppRadius.lg)
-            .selectionMarker(selected, selectedFill)
+            .selectionMarker(selected)
             .selectable(
                 selected = selected,
                 interactionSource = interactionSource,
@@ -285,11 +277,7 @@ private fun SealRow(deviceCount: Int?) {
     ) {
         ShieldGlyph(modifier = Modifier.size(AppIconSize.md))
         Text(
-            text = if (deviceCount != null) {
-                pluralStringResource(Res.plurals.vault_sealed_devices, deviceCount, deviceCount)
-            } else {
-                stringResource(Res.string.vault_sealed)
-            },
+            text = sealedText(deviceCount),
             style = AppTypography.body.copy(fontWeight = FontWeight.Medium),
             color = AppColors.success,
             maxLines = 1,
@@ -319,7 +307,7 @@ private fun RailCell(
                 .size(RailCellSize)
                 .appFocusRing(interactionSource, shape = RailCellShape)
                 .clip(RailCellShape)
-                .selectionMarker(selected, AppColors.selectionSurface)
+                .selectionMarker(selected)
                 .selectable(
                     selected = selected,
                     interactionSource = interactionSource,
@@ -341,19 +329,16 @@ private fun RailCell(
 
 @Composable
 private fun CategoryTile(category: FydeCategory, size: Dp, iconSize: Dp, shape: Shape) {
-    val colors = category.colors()
-    Box(
-        modifier = Modifier.size(size).clip(shape).background(colors.fill),
-        contentAlignment = Alignment.Center,
-    ) {
-        CategoryGlyph(category, tint = colors.ink, modifier = Modifier.size(iconSize))
+    CategoryFillTile(size = size, color = category.colors(), shape = shape, iconSize = iconSize) { tint ->
+        CategoryGlyph(category, tint = tint)
     }
 }
 
 /** The selected item's fill and its 3dp primary bar along the leading edge, inside the item's clip. */
 @Composable
-private fun Modifier.selectionMarker(selected: Boolean, fill: Color): Modifier {
+private fun Modifier.selectionMarker(selected: Boolean): Modifier {
     if (!selected) return this
+    val fill = AppColors.selectionSurface
     val bar = AppColors.primary
     return background(fill).drawBehind {
         val width = SelectionBarWidth.toPx()

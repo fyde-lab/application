@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalWindowInfo
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
+import com.peltoche.fyde.components.navigation.AppNavigationBar
 import com.peltoche.fyde.components.navigation.AppNavigationItem
-import com.peltoche.fyde.layout.AppScaffold
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
@@ -77,7 +77,12 @@ data class TopLevelNavigation(
  * icon rail and Expanded the full sidebar (design-system.md § Layout, T2 and
  * T1/D1–D6). Beside the sidebar, the content gets the window size class of
  * the width left to it, so a page lays itself out for the room it really has
- * (computed, not measured: see [AppWindowSizeClassProvider]).
+ * (computed, not measured: see [AppWindowSizeClassProvider]) — but never
+ * Compact, whose phone pages (drill-down bars, stacked dialogs) don't belong
+ * beside a sidebar.
+ *
+ * One layout tree at every size, so crossing a breakpoint keeps the
+ * content's state instead of rebuilding it.
  */
 @Composable
 fun TopLevelScaffold(
@@ -89,32 +94,34 @@ fun TopLevelScaffold(
 ) {
     val windowSizeClass = LocalAppWindowSizeClass.current
     val snackbarHostState = LocalAppSnackbarHostState.current
-    if (windowSizeClass == AppWindowSizeClass.Compact) {
-        AppScaffold(
-            modifier = modifier,
-            windowSizeClass = AppWindowSizeClass.Compact,
-            navigationItems = bottomBarItems(navigation, selection),
-            topBar = topBar,
-            snackbarHost = { AppSnackbarHost(snackbarHostState) },
-            content = content,
-        )
-        return
+    val windowWidth = LocalWindowInfo.current.containerDpSize.width
+    val contentSizeClass = when (windowSizeClass) {
+        AppWindowSizeClass.Expanded -> maxOf(AppWindowSizeClass.Medium, appWindowSizeClassOf(windowWidth - SidebarWidth))
+        else -> windowSizeClass
     }
-    val expanded = windowSizeClass == AppWindowSizeClass.Expanded
-    val contentWidth = LocalWindowInfo.current.containerDpSize.width - if (expanded) SidebarWidth else SidebarRailWidth
     Row(modifier = modifier.fillMaxSize()) {
-        if (expanded) {
-            AppSidebar(navigation, selection)
-        } else {
-            AppSidebarRail(navigation, selection)
+        when (windowSizeClass) {
+            AppWindowSizeClass.Compact -> Unit
+            AppWindowSizeClass.Medium -> AppSidebarRail(navigation, selection)
+            AppWindowSizeClass.Expanded -> AppSidebar(navigation, selection)
         }
         Box(modifier = Modifier.weight(1f)) {
-            CompositionLocalProvider(LocalAppWindowSizeClass provides appWindowSizeClassOf(contentWidth)) {
+            CompositionLocalProvider(LocalAppWindowSizeClass provides contentSizeClass) {
                 Scaffold(
                     topBar = topBar,
+                    bottomBar = {
+                        if (windowSizeClass == AppWindowSizeClass.Compact) {
+                            AppNavigationBar(items = bottomBarItems(navigation, selection))
+                        }
+                    },
                     snackbarHost = { AppSnackbarHost(snackbarHostState) },
                     containerColor = AppColors.background,
-                    contentWindowInsets = ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Vertical + WindowInsetsSides.End),
+                    // Beside a sidebar, it keeps clear of the leading edge's insets itself.
+                    contentWindowInsets = if (windowSizeClass == AppWindowSizeClass.Compact) {
+                        ScaffoldDefaults.contentWindowInsets
+                    } else {
+                        ScaffoldDefaults.contentWindowInsets.only(WindowInsetsSides.Vertical + WindowInsetsSides.End)
+                    },
                     content = content,
                 )
             }

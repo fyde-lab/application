@@ -34,6 +34,7 @@ import com.peltoche.fyde.theme.AppAppearance
 import com.peltoche.fyde.theme.AppTheme
 import com.peltoche.fyde.theme.AppThemeOption
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -493,31 +494,55 @@ private fun AppContent(
         sessions = fetchSessions()
     }
 
-    // The sidebar's figures, fetched as each destination opens and on every
-    // change; not at Compact, which has no sidebar.
     val signedIn = screen == Screen.Vault || screen == Screen.Settings || screen == Screen.Scripts
     val showsSidebar = LocalAppWindowSizeClass.current != AppWindowSizeClass.Compact
-    LaunchedEffect(screen, showsSidebar, documentChanges, accountChanged) {
-        if (!signedIn) {
-            sidebarSummary = SidebarSummary()
-            vaultEntry = VaultFocus()
-            return@LaunchedEffect
-        }
-        if (showsSidebar) sidebarSummary = loadSidebarSummary(sidebarSummary)
+    // VaultContainer reads vaultEntry once, as it opens, so it's spent then:
+    // any later way into the vault opens on its home.
+    LaunchedEffect(signedIn, screen) {
+        if (!signedIn) sidebarSummary = SidebarSummary()
+        if (!signedIn || screen == Screen.Vault) vaultEntry = VaultFocus()
     }
-    val navigation = TopLevelNavigation(
-        summary = sidebarSummary,
-        onOpenVault = {
-            vaultEntry = VaultFocus()
-            screen = Screen.Vault
-        },
-        onOpenCategory = { category ->
-            vaultEntry = VaultFocus(page = VaultPage.Category(category))
-            screen = Screen.Vault
-        },
-        onOpenScripts = { screen = Screen.Scripts },
-        onOpenSettings = { screen = Screen.Settings },
-    )
+    // The sidebar's figures, not at Compact, which has no sidebar. Document
+    // counts follow the changelog; sources and devices, which documents don't
+    // change, follow each destination's opening and this device's own changes.
+    // A failed call keeps the figures it would have replaced.
+    LaunchedEffect(signedIn, showsSidebar, documentChanges) {
+        if (!signedIn || !showsSidebar) return@LaunchedEffect
+        val facets = FydeSdk.searchDocumentFacets("", FydeSearchFilters()).getOrNull() ?: return@LaunchedEffect
+        sidebarSummary = sidebarSummary.copy(
+            // Every document has a content type, so that facet's counts add up to the vault's total.
+            total = facets.contentTypes.sumOf { it.count },
+            categories = sidebarCategoriesOf(facets),
+        )
+    }
+    LaunchedEffect(screen, showsSidebar, accountChanged) {
+        if (!signedIn || !showsSidebar) return@LaunchedEffect
+        coroutineScope {
+            val usage = async { FydeSdk.getUsage().getOrNull() }
+            val sessions = async { FydeSdk.listSessions().getOrNull() }
+            val sourceCount = usage.await()?.enabledScripts
+            val deviceCount = sessions.await()?.size
+            sidebarSummary = sidebarSummary.copy(
+                sourceCount = sourceCount ?: sidebarSummary.sourceCount,
+                deviceCount = deviceCount ?: sidebarSummary.deviceCount,
+            )
+        }
+    }
+    val navigation = remember(sidebarSummary) {
+        TopLevelNavigation(
+            summary = sidebarSummary,
+            onOpenVault = {
+                vaultEntry = VaultFocus()
+                screen = Screen.Vault
+            },
+            onOpenCategory = { category ->
+                vaultEntry = VaultFocus(page = VaultPage.Category(category))
+                screen = Screen.Vault
+            },
+            onOpenScripts = { screen = Screen.Scripts },
+            onOpenSettings = { screen = Screen.Settings },
+        )
+    }
 
     // Generated once as the recovery kit opens (and on retry): each call
     // replaces the account's previous key, so it isn't asked for again
@@ -923,23 +948,10 @@ private suspend fun loadVaultHome(): VaultHome {
     return VaultHome(categories, latest)
 }
 
-/**
- * The sidebar's figures. Each part keeps [previous]'s value when its call
- * fails. Every document has a content type, so that facet's counts add up
- * to the vault's total.
- */
-private suspend fun loadSidebarSummary(previous: SidebarSummary): SidebarSummary {
-    val facets = FydeSdk.searchDocumentFacets("", FydeSearchFilters()).getOrNull()
-    val usage = FydeSdk.getUsage().getOrNull()
-    val counts = facets?.categories?.associate { it.value to it.count }
-    return SidebarSummary(
-        total = facets?.contentTypes?.sumOf { it.count } ?: previous.total,
-        categories = counts?.let {
-            CategoryDisplayOrder.mapNotNull { category -> counts[category]?.takeIf { it > 0 }?.let { SidebarCategory(category, it) } }
-        } ?: previous.categories,
-        sourceCount = usage?.enabledScripts ?: previous.sourceCount,
-        deviceCount = usage?.openSessions ?: previous.deviceCount,
-    )
+/** The categories holding documents, in [CategoryDisplayOrder], with their counts. */
+private fun sidebarCategoriesOf(facets: FydeSearchFacets): List<SidebarCategory> {
+    val counts = facets.categories.associate { it.value to it.count }
+    return CategoryDisplayOrder.mapNotNull { category -> counts[category]?.takeIf { it > 0 }?.let { SidebarCategory(category, it) } }
 }
 
 /**
