@@ -126,8 +126,8 @@ class ScraperRuns(
     /** The ids of every running script [stop] was asked for, until its run has ended. */
     val stoppingIds: Set<String> get() = active.filterValues { it.stopping }.keys
 
-    /** The oldest question still waiting for an answer, if any. */
-    val question: PendingQuestion? get() = questions.firstOrNull()
+    /** The oldest question still waiting for an answer, if any, leaving out those of runs being stopped. */
+    val question: PendingQuestion? get() = questions.firstOrNull { active[it.scriptId]?.stopping != true }
 
     /** [scriptId]'s run in progress, if it's running. */
     fun runOf(scriptId: String): ScraperRun? = active[scriptId]
@@ -173,6 +173,7 @@ class ScraperRuns(
                 else -> ScraperRunOutcome.Succeeded(run.found)
             }
             outcomeByScript[script.id] = outcome
+            dismissQuestions(script.id)
             active -= script.id
             when (outcome) {
                 is ScraperRunOutcome.Succeeded ->
@@ -195,13 +196,18 @@ class ScraperRuns(
      * Arrêter). Returns at once; the run stays in [runningIds], with
      * [ScraperRun.stopping] set, until it has really ended, then its outcome
      * is [ScraperRunOutcome.Stopped]. Its question, if it was waiting on one,
-     * is dismissed: fyde-sdk drops that answer anyway.
+     * is hidden at once but only answered once the run has ended: an empty
+     * answer reaching the script before the stop would fail it as MFA_FAILED.
      */
     fun stop(scriptId: String) {
-        val run = active[scriptId] ?: return
+        val run = active[scriptId]
+        if (run == null) {
+            // A question fyde-sdk was still handing over as its run ended.
+            dismissQuestions(scriptId)
+            return
+        }
         if (run.stopping) return
         run.stopping = true
-        questions.filter { it.scriptId == scriptId }.forEach { it.answer.complete("") }
         if (run.awaitingInstallation) return // `start` sees `stopping` once the wait ends.
         scope.launch {
             // Between leaving `awaitInstallation` and fyde-sdk registering the
@@ -212,6 +218,11 @@ class ScraperRuns(
                 delay(STOP_RETRY_MS)
             }
         }
+    }
+
+    /** Answers [scriptId]'s pending questions with nothing; fyde-sdk drops an ended run's answers. */
+    private fun dismissQuestions(scriptId: String) {
+        questions.filter { it.scriptId == scriptId }.forEach { it.answer.complete("") }
     }
 
     /**
