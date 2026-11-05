@@ -211,23 +211,22 @@ fun SourcesTabScreen(
     onRun: (FydeScript) -> Unit,
     onRemove: (FydeScript) -> Unit,
     onOpenPlan: () -> Unit,
-    onOpenVault: () -> Unit,
-    onOpenSettings: () -> Unit,
+    navigation: TopLevelNavigation,
     modifier: Modifier = Modifier,
 ) {
-    val windowSizeClass = LocalAppWindowSizeClass.current
     var removing by remember { mutableStateOf<FydeScript?>(null) }
     TopLevelScaffold(
-        current = TopLevelDestination.Scripts,
-        onOpenVault = onOpenVault,
         // Re-selecting the tab from one of its pages returns to the list.
-        onOpenScripts = {
-            onFocusChange(null)
-            onCatalogueOpenChange(false)
-        },
-        onOpenSettings = onOpenSettings,
+        navigation = navigation.copy(
+            onOpenScripts = {
+                onFocusChange(null)
+                onCatalogueOpenChange(false)
+            },
+        ),
+        selection = SidebarSelection.Sources,
         modifier = modifier,
     ) { contentPadding ->
+        val windowSizeClass = LocalAppWindowSizeClass.current
         val pageModifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background)
         when (state) {
             SourcesTabUiState.Connecting -> AppLoading(modifier = pageModifier, message = stringResource(Res.string.connecting_message))

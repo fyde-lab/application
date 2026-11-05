@@ -330,8 +330,10 @@
     <!-- Navigation -->
     <string name="app_title">Fyde</string>
     <string name="nav_vault">Vault</string>
-    <string name="encryption_badge_title">End-to-end encryption</string>
-    <string name="encryption_badge_description">Your documents are secured</string>
+    <string name="sidebar_all_vault">Whole vault</string>
+    <string name="sidebar_categories">Categories</string>
+    <!-- %1$s sidebar item, %2$s its count -->
+    <string name="sidebar_item_count">%1$s, %2$s</string>
 
     <!-- File sizes and dates. %1$s is an already-formatted number. -->
     <string name="size_bytes">%1$s B</string>

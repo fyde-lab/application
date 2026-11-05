@@ -76,6 +76,11 @@ fun GridGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
 fun SortGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
     PathGlyph(SortPaths, modifier, tint, strokeWidth)
 
+/** The Sources destination. */
+@Composable
+fun PlugGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(PlugPaths, modifier, tint, strokeWidth)
+
 @Composable
 private fun PathGlyph(paths: List<Path>, modifier: Modifier, tint: Color, strokeWidth: Dp) {
     Canvas(modifier = modifier) {
@@ -145,5 +150,7 @@ private val GridPaths = listOf(
     rect(4f, 13.5f, 6.5f, 6.5f, 1f),
     rect(13.5f, 13.5f, 6.5f, 6.5f, 1f),
 )
+
+private val PlugPaths = listOf(svg("M9 3v4M15 3v4M6.5 7h11v4a5.5 5.5 0 0 1-11 0zM12 16.5V21"))
 
 private val SortPaths = listOf(svg("M7 4.5v15M3.5 16 7 19.5l3.5-3.5M17 19.5v-15M13.5 8 17 4.5 20.5 8"))

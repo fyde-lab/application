@@ -27,7 +27,9 @@ import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.vault_load_failed
+import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
+import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.theme.AppAppearance
 import com.peltoche.fyde.theme.AppTheme
 import com.peltoche.fyde.theme.AppThemeOption
@@ -281,6 +283,16 @@ private fun AppContent(
         FydeSdk.setScraperHandler(scraperRuns)
         onDispose { FydeSdk.setScraperHandler(null) }
     }
+    // Bumped on every changelog event, whichever screen is open: the vault
+    // reloads on it, and so does the sidebar on every destination.
+    var documentChanges by remember { mutableStateOf(0) }
+    // Bumped once a source is connected or removed or a device signed out,
+    // for the sidebar's counts.
+    var accountChanged by remember { mutableStateOf(0) }
+    var sidebarSummary by remember { mutableStateOf(SidebarSummary()) }
+    // The vault page the next visit opens on: home, or the category picked
+    // in the sidebar from another destination.
+    var vaultEntry by remember { mutableStateOf(VaultFocus()) }
 
     // Startup check: if a session token is already persisted from a previous
     // run, skip straight to the document list instead of making the user log
@@ -480,6 +492,32 @@ private fun AppContent(
         sessions = SessionsUiState.Loading
         sessions = fetchSessions()
     }
+
+    // The sidebar's figures, fetched as each destination opens and on every
+    // change; not at Compact, which has no sidebar.
+    val signedIn = screen == Screen.Vault || screen == Screen.Settings || screen == Screen.Scripts
+    val showsSidebar = LocalAppWindowSizeClass.current != AppWindowSizeClass.Compact
+    LaunchedEffect(screen, showsSidebar, documentChanges, accountChanged) {
+        if (!signedIn) {
+            sidebarSummary = SidebarSummary()
+            vaultEntry = VaultFocus()
+            return@LaunchedEffect
+        }
+        if (showsSidebar) sidebarSummary = loadSidebarSummary(sidebarSummary)
+    }
+    val navigation = TopLevelNavigation(
+        summary = sidebarSummary,
+        onOpenVault = {
+            vaultEntry = VaultFocus()
+            screen = Screen.Vault
+        },
+        onOpenCategory = { category ->
+            vaultEntry = VaultFocus(page = VaultPage.Category(category))
+            screen = Screen.Vault
+        },
+        onOpenScripts = { screen = Screen.Scripts },
+        onOpenSettings = { screen = Screen.Settings },
+    )
 
     // Generated once as the recovery kit opens (and on retry): each call
     // replaces the account's previous key, so it isn't asked for again
@@ -719,8 +757,10 @@ private fun AppContent(
                 )
             }
             Screen.Vault -> VaultContainer(
-                onOpenSettings = { screen = Screen.Settings },
-                onOpenScripts = { screen = Screen.Scripts },
+                initialFocus = vaultEntry,
+                documentChanges = documentChanges,
+                onDocumentChange = { scope.launch { documentChanges++ } },
+                navigation = navigation,
             )
             Screen.Settings -> SettingsScreen(
                 openSection = settingsSection,
@@ -737,8 +777,7 @@ private fun AppContent(
                             .onFailure { languageError = getString(Res.string.language_save_failed, it.userMessage()) }
                     }
                 },
-                onOpenVault = { screen = Screen.Vault },
-                onOpenScripts = { screen = Screen.Scripts },
+                navigation = navigation,
                 // Found via review: this used to only navigate back to Login,
                 // leaving the session token, the master key and the decrypted
                 // document cache on the device — so a relaunch logged straight
@@ -774,6 +813,7 @@ private fun AppContent(
                             }
                         sessions = fetchSessions()
                         planUsage = fetchPlanUsage()
+                        accountChanged++
                         disconnectingSessionId = null
                         // Last: showSnackbar suspends until the message is gone.
                         if (revoked.isSuccess) {
@@ -786,8 +826,8 @@ private fun AppContent(
             )
             Screen.Scripts -> SourcesTabContainer(
                 scraperRuns = scraperRuns,
-                onOpenVault = { screen = Screen.Vault },
-                onOpenSettings = { screen = Screen.Settings },
+                onSourcesChange = { accountChanged++ },
+                navigation = navigation,
                 onOpenPlan = {
                     settingsSection = SettingsSection.Plan
                     screen = Screen.Settings
@@ -884,6 +924,25 @@ private suspend fun loadVaultHome(): VaultHome {
 }
 
 /**
+ * The sidebar's figures. Each part keeps [previous]'s value when its call
+ * fails. Every document has a content type, so that facet's counts add up
+ * to the vault's total.
+ */
+private suspend fun loadSidebarSummary(previous: SidebarSummary): SidebarSummary {
+    val facets = FydeSdk.searchDocumentFacets("", FydeSearchFilters()).getOrNull()
+    val usage = FydeSdk.getUsage().getOrNull()
+    val counts = facets?.categories?.associate { it.value to it.count }
+    return SidebarSummary(
+        total = facets?.contentTypes?.sumOf { it.count } ?: previous.total,
+        categories = counts?.let {
+            CategoryDisplayOrder.mapNotNull { category -> counts[category]?.takeIf { it > 0 }?.let { SidebarCategory(category, it) } }
+        } ?: previous.categories,
+        sourceCount = usage?.enabledScripts ?: previous.sourceCount,
+        deviceCount = usage?.openSessions ?: previous.deviceCount,
+    )
+}
+
+/**
  * A category page's documents and chips. "Tout" counts the category within
  * the picked year, whatever the subcategory: the category facet ignores the
  * category filter, so asking without the subcategory gives it. The year
@@ -932,15 +991,18 @@ private suspend fun loadVaultSearch(query: VaultQuery): VaultSearchContents {
  */
 @Composable
 private fun VaultContainer(
-    onOpenSettings: () -> Unit,
-    onOpenScripts: () -> Unit,
+    initialFocus: VaultFocus,
+    documentChanges: Int,
+    onDocumentChange: () -> Unit,
+    navigation: TopLevelNavigation,
 ) {
     var retryKey by remember { mutableStateOf(0) }
     var connected by remember { mutableStateOf(false) }
     var connectError by remember { mutableStateOf<String?>(null) }
-    // Bumped on every changelog event, and by Retry after a failed load.
-    var changeKey by remember { mutableStateOf(0) }
-    var focus by remember { mutableStateOf(VaultFocus()) }
+    // Bumped by Retry after a failed load; the changelog bumps documentChanges.
+    var reloadKey by remember { mutableStateOf(0) }
+    val changeKey = documentChanges to reloadKey
+    var focus by remember { mutableStateOf(initialFocus) }
     var home by remember { mutableStateOf<VaultHome?>(null) }
     var category by remember { mutableStateOf<VaultCategoryContents?>(null) }
     var search by remember { mutableStateOf<VaultSearchContents?>(null) }
@@ -1006,7 +1068,7 @@ private fun VaultContainer(
     LaunchedEffect(retryKey) {
         connected = false
         connectError = null
-        val initResult = FydeSdk.initialize(BuildConfig.SERVER_URL) { scope.launch { changeKey++ } }
+        val initResult = FydeSdk.initialize(BuildConfig.SERVER_URL) { onDocumentChange() }
         if (initResult.isFailure) {
             connectError = initResult.exceptionOrNull()?.userMessage() ?: getString(Res.string.error_unknown)
             return@LaunchedEffect
@@ -1104,10 +1166,9 @@ private fun VaultContainer(
         loadContent = { document -> FydeSdk.getDocumentContent(document.id) },
         onRetryLoad = {
             loadError = null
-            changeKey++
+            reloadKey++
         },
-        onOpenScripts = onOpenScripts,
-        onOpenSettings = onOpenSettings,
+        navigation = navigation,
     )
 }
 
@@ -1122,8 +1183,8 @@ private fun VaultContainer(
 @Composable
 private fun SourcesTabContainer(
     scraperRuns: ScraperRuns,
-    onOpenVault: () -> Unit,
-    onOpenSettings: () -> Unit,
+    onSourcesChange: () -> Unit,
+    navigation: TopLevelNavigation,
     onOpenPlan: () -> Unit,
 ) {
     var retryKey by remember { mutableStateOf(0) }
@@ -1213,6 +1274,7 @@ private fun SourcesTabContainer(
             install(script, parameters) { error ->
                 if (error == null) {
                     refreshQuota()
+                    onSourcesChange()
                     scraperRuns.runOnceInstalled(script, parameters)
                     focus = SourceFocus.Fetching(script.id)
                     catalogueOpen = false
@@ -1257,6 +1319,7 @@ private fun SourcesTabContainer(
                     if (error == null) {
                         if (focus?.scriptId == script.id) focus = null
                         refreshQuota()
+                        onSourcesChange()
                         snackbarHostState.showSnackbar(getString(Res.string.source_removed, script.name))
                     } else {
                         snackbarHostState.showSnackbar(getString(Res.string.source_remove_failed, script.name, error.userMessage()))
@@ -1265,8 +1328,7 @@ private fun SourcesTabContainer(
             }
         },
         onOpenPlan = onOpenPlan,
-        onOpenVault = onOpenVault,
-        onOpenSettings = onOpenSettings,
+        navigation = navigation,
     )
 }
 
