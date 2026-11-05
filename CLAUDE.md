@@ -67,8 +67,11 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - Shell: `TopLevelScaffold.kt` hosts the Vault (Coffre), Sources, Settings — a bottom bar at
   Compact, T2's 80dp icon rail at Medium and the 260dp sidebar at Expanded (D6/T1), both in
   `AppSidebar.kt`: Whole vault, the categories with their counts, Sources, the seal line,
-  Settings, the figures from `App.kt`'s `loadSidebarSummary`. The content beside it gets the
-  size class of the window's width minus the sidebar. Size classes are computed from
+  Settings. `App.kt` holds its figures: document counts from the facets, reloaded on each
+  changelog event; source and device counts (`getUsage`, `listSessions`) as each destination
+  opens and after this device changes them. The content beside it gets the size class of the
+  window's width minus the sidebar, never below Medium. One layout tree at every size, so
+  crossing a breakpoint keeps the content's state. Size classes are computed from
   `LocalWindowInfo`, never measured with `BoxWithConstraints`: a class change during layout
   disposes open popups mid-pass and crashes the desktop renderer.
 - Vault (Coffre): `VaultScreen.kt` (home V1/D6 and the shared pieces), `VaultCategoryPage.kt`

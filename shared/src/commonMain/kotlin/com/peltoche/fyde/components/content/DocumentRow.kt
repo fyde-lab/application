@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -130,12 +131,19 @@ fun DocumentCard(
 
 /** A tile in the category's own fill, its icon in the category's ink — for a category's mark off its fill. */
 @Composable
-fun CategoryFillTile(size: Dp, color: AppCategoryColor, modifier: Modifier = Modifier, icon: @Composable (tint: Color) -> Unit) {
+fun CategoryFillTile(
+    size: Dp,
+    color: AppCategoryColor,
+    modifier: Modifier = Modifier,
+    shape: Shape = AppShapes.iconTile,
+    iconSize: Dp = AppIconSize.md,
+    icon: @Composable (tint: Color) -> Unit,
+) {
     Box(
-        modifier = modifier.size(size).clip(AppShapes.iconTile).background(color.fill),
+        modifier = modifier.size(size).clip(shape).background(color.fill),
         contentAlignment = Alignment.Center,
     ) {
-        Box(Modifier.size(AppIconSize.md), propagateMinConstraints = true) { icon(color.ink) }
+        Box(Modifier.size(iconSize), propagateMinConstraints = true) { icon(color.ink) }
     }
 }
 

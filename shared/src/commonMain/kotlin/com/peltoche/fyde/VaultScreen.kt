@@ -388,16 +388,16 @@ private fun SealLine(deviceCount: Int?) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = AppSpacing.space2)) {
         ShieldGlyph(modifier = Modifier.size(AppIconSize.sm))
         Spacer(Modifier.width(AppSpacing.space2))
-        Text(
-            text = if (deviceCount != null) {
-                pluralStringResource(Res.plurals.vault_sealed_devices, deviceCount, deviceCount)
-            } else {
-                stringResource(Res.string.vault_sealed)
-            },
-            style = AppTypography.caption,
-            color = AppColors.textMuted,
-        )
+        Text(text = sealedText(deviceCount), style = AppTypography.caption, color = AppColors.textMuted)
     }
+}
+
+/** "Scellé · 3 appareils", or "Scellé" while the device count is unknown. */
+@Composable
+internal fun sealedText(deviceCount: Int?): String = if (deviceCount != null) {
+    pluralStringResource(Res.plurals.vault_sealed_devices, deviceCount, deviceCount)
+} else {
+    stringResource(Res.string.vault_sealed)
 }
 
 /**
