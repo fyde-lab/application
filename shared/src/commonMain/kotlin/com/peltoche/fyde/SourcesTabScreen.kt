@@ -92,7 +92,9 @@ import com.peltoche.fyde.resources.source_fetch_background
 import com.peltoche.fyde.resources.source_fetch_continue
 import com.peltoche.fyde.resources.source_fetch_finished
 import com.peltoche.fyde.resources.source_fetch_title_failed
+import com.peltoche.fyde.resources.source_fetching_back
 import com.peltoche.fyde.resources.source_fetching_background
+import com.peltoche.fyde.resources.source_fetching_stop
 import com.peltoche.fyde.resources.source_fetching_title
 import com.peltoche.fyde.resources.source_last_run
 import com.peltoche.fyde.resources.source_remove
