@@ -1,6 +1,7 @@
 package com.peltoche.fyde
 
 import platform.Foundation.NSApplicationSupportDirectory
+import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSLog
@@ -71,6 +72,19 @@ private fun defaultDataDirectory(): String {
 }
 
 /**
+ * Where the sdk downloads its on-device models: the caches directory, since
+ * they aren't user data and can always be downloaded again (and never under
+ * [defaultDataDirectory]'s client directory, which logout empties).
+ */
+private fun defaultModelsDirectory(): String {
+    val cachesPath = (
+        NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)
+            .firstOrNull() as? String
+        ) ?: "${NSHomeDirectory()}/Library/Caches"
+    return "$cachesPath/models"
+}
+
+/**
  * Runs [block], turning any failure into a [FydeSdkException] whose
  * [FydeSdkException.userMessage] the UI can show as is, and logging it, since
  * the UI never shows the technical description. A fyde-sdk [FfiException]
@@ -131,6 +145,7 @@ actual object FydeSdk {
                     // "ios" subdirectory of the data directory.
                     clientName = "ios",
                     storage = FfiStorage.Disk(path = defaultDataDirectory()),
+                    modelsDir = defaultModelsDirectory(),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so

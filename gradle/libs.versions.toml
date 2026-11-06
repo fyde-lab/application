@@ -16,6 +16,9 @@ junit = "4.13.2"
 kotlin = "2.4.20"
 kotlin-wrappers = "2026.9.1"
 kotlinx-coroutines = "1.11.0"
+# The ONNX Runtime fyde-sdk loads on Android (see ../sdk/CLAUDE.md's "ONNX
+# Runtime" section): keep it on the release fyde-sdk links on other targets.
+onnxruntime = "1.28.0"
 material3 = "1.12.0-alpha03"
 pdfbox = "3.0.3"
 uniffiKotlinMultiplatform = "1.2.2"
@@ -42,6 +45,7 @@ compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-previ
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
 pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxruntime" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -70,6 +70,17 @@ private fun defaultDataDirectory(): String {
 }
 
 /**
+ * Where the sdk downloads its on-device models: the XDG cache directory, since
+ * they aren't user data and can always be downloaded again (and never under
+ * [defaultDataDirectory]'s client directory, which logout empties).
+ */
+private fun defaultModelsDirectory(): String {
+    val cacheHome = System.getenv("XDG_CACHE_HOME")?.takeIf { it.isNotBlank() }
+        ?: "${System.getProperty("user.home")}/.cache"
+    return File(cacheHome, "fyde/models").absolutePath
+}
+
+/**
  * Runs [block], turning any failure into a [FydeSdkException] whose
  * [FydeSdkException.userMessage] the UI can show as is, and logging it, since
  * the UI never shows the technical description. A fyde-sdk [FfiException]
@@ -132,6 +143,7 @@ actual object FydeSdk {
                     // "desktop" subdirectory of the data directory.
                     clientName = "desktop",
                     storage = FfiStorage.Disk(path = defaultDataDirectory()),
+                    modelsDir = defaultModelsDirectory(),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so

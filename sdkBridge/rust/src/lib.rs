@@ -1118,6 +1118,9 @@ pub struct FfiClientConfig {
     pub url: String,
     pub client_name: String,
     pub storage: FfiStorage,
+    /// See [`ClientConfig::models_dir`]: never inside `storage`'s client
+    /// directory, which logout empties.
+    pub models_dir: String,
     pub log_level: FfiLogLevel,
 }
 
@@ -1127,6 +1130,7 @@ impl From<FfiClientConfig> for ClientConfig {
             url: config.url,
             client_name: config.client_name,
             storage: config.storage.into(),
+            models_dir: config.models_dir.into(),
             log_level: config.log_level.into(),
             on_log: None,
             on_document_change: None,
@@ -1856,6 +1860,27 @@ mod tests {
     use fyde_sdk::testing::{
         FakeChangelogEvent, FakeDocument, FakeMetadata, FakeOpenSession, FakeScript,
     };
+
+    #[test]
+    fn client_config_conversion_preserves_every_field() {
+        let ffi = FfiClientConfig {
+            url: "https://fyde.example".into(),
+            client_name: "android".into(),
+            storage: FfiStorage::Disk {
+                path: "/data/fyde".into(),
+            },
+            models_dir: "/cache/fyde/models".into(),
+            log_level: FfiLogLevel::Debug,
+        };
+
+        let config = ClientConfig::from(ffi);
+
+        assert_eq!(config.url, "https://fyde.example");
+        assert_eq!(config.client_name, "android");
+        assert_eq!(config.storage, Storage::Disk("/data/fyde".into()));
+        assert_eq!(config.models_dir, std::path::Path::new("/cache/fyde/models"));
+        assert_eq!(config.log_level, LogLevel::Debug);
+    }
 
     #[test]
     fn parse_uuid_accepts_a_canonical_uuid() {
