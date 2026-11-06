@@ -35,6 +35,15 @@ kotlin {
         iosArm64()
         iosSimulatorArm64()
     }
+
+    sourceSets {
+        androidMain.dependencies {
+            // fyde-sdk loads libonnxruntime.so at runtime on Android rather
+            // than linking it in: this ships it for every ABI. Only its native
+            // library is used, never its Java API.
+            runtimeOnly(libs.onnxruntime.android)
+        }
+    }
 }
 
 // rust/ (fyde-sdk-bridge) is this app's own UniFFI layer over fyde-sdk

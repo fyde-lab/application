@@ -64,6 +64,13 @@ private class AndroidLogListener : LogListener {
 private fun defaultDataDirectory(): String = appContext.filesDir.absolutePath
 
 /**
+ * Where the sdk downloads its on-device models: outside [defaultDataDirectory]
+ * (logout empties the client's directory there, and models aren't user data),
+ * and kept out of backups, since they can always be downloaded again.
+ */
+private fun defaultModelsDirectory(): String = File(appContext.noBackupFilesDir, "models").absolutePath
+
+/**
  * Runs [block], turning any failure into a [FydeSdkException] whose
  * [FydeSdkException.userMessage] the UI can show as is, and logging it, since
  * the UI never shows the technical description. A fyde-sdk [FfiException]
@@ -124,6 +131,7 @@ actual object FydeSdk {
                     // "android" subdirectory of the data directory.
                     clientName = "android",
                     storage = FfiStorage.Disk(path = defaultDataDirectory()),
+                    modelsDir = defaultModelsDirectory(),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so
