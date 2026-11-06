@@ -1621,13 +1621,12 @@ impl FydeClient {
         self.localized(self.inner.users().get_language()).await
     }
 
-    /// Creates a new script owned by the authenticated user, at version 1.
-    /// Mirrors [`fyde_sdk::ScriptsService::create_script`].
+    /// Creates a new script owned by the authenticated user, at version 1,
+    /// private: only an admin publishes one. Mirrors [`fyde_sdk::ScriptsService::create_script`].
     #[allow(clippy::too_many_arguments)]
     pub async fn create_script(
         &self,
         name: String,
-        is_public: bool,
         icon: Vec<u8>,
         script: String,
         description: String,
@@ -1642,7 +1641,6 @@ impl FydeClient {
                 .scripts()
                 .create_script(
                     &name,
-                    is_public,
                     icon,
                     &script,
                     &description,
@@ -1684,13 +1682,12 @@ impl FydeClient {
     }
 
     /// Updates a script owned by the authenticated user, incrementing its
-    /// version. Mirrors [`fyde_sdk::ScriptsService::update_script`].
+    /// version and making it private again. Mirrors [`fyde_sdk::ScriptsService::update_script`].
     #[allow(clippy::too_many_arguments)]
     pub async fn update_script(
         &self,
         id: String,
         name: String,
-        is_public: bool,
         icon: Vec<u8>,
         script: String,
         description: String,
@@ -1707,7 +1704,6 @@ impl FydeClient {
                 .update_script(
                     id,
                     &name,
-                    is_public,
                     icon,
                     &script,
                     &description,

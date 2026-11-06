@@ -726,13 +726,13 @@ expect object FydeSdk {
 
     /**
      * Creates a new [FydeScriptType.PARSER] script owned by the authenticated
-     * user, at version 1 — the only type the server accepts.
+     * user, at version 1 — the only type the server accepts. It's private:
+     * only an admin publishes a script.
      * Mirrors [`crate::ScriptsService::create_script`]; fails if
      * [initialize] hasn't been called yet.
      */
     suspend fun createScript(
         name: String,
-        isPublic: Boolean,
         icon: ByteArray,
         script: String,
         description: String,

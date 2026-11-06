@@ -248,7 +248,6 @@ actual object FydeSdk {
 
     actual suspend fun createScript(
         name: String,
-        isPublic: Boolean,
         icon: ByteArray,
         script: String,
         description: String,
@@ -259,7 +258,6 @@ actual object FydeSdk {
         withClient("createScript") { client ->
             client.createScript(
                 name,
-                isPublic,
                 icon,
                 script,
                 description,
