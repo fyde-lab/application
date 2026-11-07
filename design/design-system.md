@@ -670,6 +670,14 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `DeviceTile` | New | Device glyph, name, sync dot |
 | `UsageMeter` | Landed (M6) | Label (`bodyEmphasis`) and `used / limit` in `data`, the bar under them: `primary`, `warning` from 90% and at the limit (with a caption), `error` over. Private to `PlanUsageSection.kt` until another screen needs it |
 | `AppIconTile` | Restyle | 44 default; 36 (`AppDimensions.iconTileSmall`) beside body text, as in O1's promises; 52 (`iconTileLarge`) heading a sheet, as in O4 |
+| `AppImageTile` | Extracted | A neutral `AppIconTile` around a third-party logo (decoded by the caller, `ScriptIcon` for scripts), inset to 72%; the puzzle glyph at 45% without one |
+| `AppGroup`, `AppGroupCard`, `AppGroupRow` | Extracted | The `surface` group with a hairline border at `AppRadius.lg` that lists, settings and facts sit in (the screens' former `SettingsGroup`/`SettingsCard`); `AppGroupCard` pads it by `space5`. `AppGroupRow`: `space5` × `space3` padding, `space4` gaps, a min height from the density tiers; with `onClick` a button, with `selected` too a radio choice filled `selectionSurface`. `AppCard` and `AppListItem` still draw the previous card and row: they meet when the tokens migrate |
+| `AppSectionTitle` | Extracted | `section`, `space7` above (none when first on its page), `space3` below |
+| `AppErrorNote`, `AppRetryButton` | Extracted | `AppNote` `Error` with the alert glyph; an outlined Retry `space4` under it |
+| `AppListSkeleton` | Extracted | A list's place while it loads: an `AppGroup` of rows, a tile beside two bars, each list passing its own proportions |
+| `AppSegmentedMeter` | Extracted | N equal 4dp bars (`segmentedMeterHeight`), the first ones lit; O3's password strength |
+| `AppPageBar` | Extracted | The reference screens' centred bar below Expanded: the back circle, the title in `bodyEmphasis` centred, an optional trailing action. Not `AppTopBar` |
+| `CenteredScrollColumn` | Extracted (`layout/`) | Centred vertically, scrolling once taller: every sign-in and vault-creation form |
 
 Every new or changed component lands in `DesignSystemScreen.kt` in the same change.
 
