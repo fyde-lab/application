@@ -32,7 +32,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppRetryButton
@@ -578,33 +577,6 @@ internal fun DocumentRowSkeletons(count: Int = 4) {
         secondLine = Modifier.fillMaxWidth(0.35f).height(AppSpacing.space4),
         lineGap = AppSpacing.space3,
     )
-}
-
-/**
- * A page's bar below Expanded: back at the start, [title] centred, an
- * optional [trailing] action at the end.
- */
-@Composable
-internal fun VaultPageBar(title: String?, onBack: () -> Unit, trailing: (@Composable () -> Unit)? = null) {
-    Box(
-        modifier = Modifier.fillMaxWidth().heightIn(min = AppDimensions.topBarHeight),
-        contentAlignment = Alignment.Center,
-    ) {
-        AppBackButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart))
-        if (title != null) {
-            Text(
-                text = title,
-                style = AppTypography.bodyEmphasis,
-                color = AppColors.text,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = AppDimensions.backButton + AppSpacing.space3),
-            )
-        }
-        if (trailing != null) {
-            Box(modifier = Modifier.align(Alignment.CenterEnd)) { trailing() }
-        }
-    }
 }
 
 /** The document's category, or "À classer" without one. */

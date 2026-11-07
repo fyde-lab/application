@@ -37,6 +37,7 @@ import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.DocumentAttributes
 import com.peltoche.fyde.components.content.DocumentPass
+import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.icons.CloseGlyph
 import com.peltoche.fyde.icons.DownloadGlyph
@@ -68,7 +69,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun DocumentPage(vault: Vault, document: FydeDocument) {
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        VaultPageBar(title = document.pathTitle(), onBack = vault::closeDocument)
+        AppPageBar(title = document.pathTitle(), onBack = vault::closeDocument)
         VaultNotes(vault)
         Spacer(Modifier.height(AppSpacing.space3))
         DocumentDetails(
@@ -100,7 +101,7 @@ internal fun RowScope.DocumentBeside(vault: Vault, document: FydeDocument, onBac
                 .padding(horizontal = AppSpacing.space5),
         ) {
             if (onBack != null) {
-                VaultPageBar(title = document.pathTitle(), onBack = onBack)
+                AppPageBar(title = document.pathTitle(), onBack = onBack)
                 VaultNotes(vault)
             }
             Spacer(Modifier.height(AppSpacing.space5))

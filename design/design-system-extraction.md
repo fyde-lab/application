@@ -93,6 +93,9 @@ its page.
 
 ### 4. Centred page bar, three copies — medium value, low risk
 
+**Done:** `AppPageBar`; `VaultPageBar` and `PageBar` are gone, `DrillDownBar` passes its height, fill
+and margin as a modifier. Screenshots unchanged.
+
 `VaultPageBar` (`VaultScreen.kt`), `PageBar` (`SourcesTabScreen.kt:1155`) and `DrillDownBar`
 (`SettingsScreen.kt:426`): the back circle at the start, a centred `bodyEmphasis` title padded by
 `backButton + space3`, an optional trailing action. Differences: `PageBar` takes `enabled`;

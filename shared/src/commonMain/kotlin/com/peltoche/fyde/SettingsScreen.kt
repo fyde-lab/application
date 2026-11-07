@@ -57,6 +57,7 @@ import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.form.AppRadio
 import com.peltoche.fyde.components.form.AppTextField
+import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.icons.CheckGlyph
@@ -438,24 +439,14 @@ private fun ColumnScope.SettingsPage(ui: SettingsUi, section: SettingsSection) {
  */
 @Composable
 private fun DrillDownBar(parentTitle: String, onBack: () -> Unit) {
-    Box(
+    AppPageBar(
+        title = parentTitle,
+        onBack = onBack,
         modifier = Modifier
-            .fillMaxWidth()
             .height(AppDimensions.topBarHeight)
             .background(AppColors.background)
             .padding(horizontal = screenMargin(AppWindowSizeClass.Compact)),
-        contentAlignment = Alignment.Center,
-    ) {
-        AppBackButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart))
-        Text(
-            text = parentTitle,
-            style = AppTypography.bodyEmphasis,
-            color = AppColors.text,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = AppDimensions.backButton + AppSpacing.space3),
-        )
-    }
+    )
 }
 
 /**
