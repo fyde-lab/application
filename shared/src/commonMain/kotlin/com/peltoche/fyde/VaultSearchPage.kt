@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.focusRequester
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppChip
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.form.AppSearchField
@@ -198,7 +199,7 @@ private fun SearchResults(vault: Vault, page: VaultPage.Search, contents: VaultS
                 color = AppColors.textMuted,
                 modifier = Modifier.padding(top = AppSpacing.space5, bottom = AppSpacing.space3),
             )
-            SettingsGroup {
+            AppGroup {
                 contents.documents.forEachIndexed { index, document ->
                     if (index > 0) AppDivider()
                     VaultDocumentRow(

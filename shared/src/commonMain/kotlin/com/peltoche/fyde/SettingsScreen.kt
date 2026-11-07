@@ -47,6 +47,9 @@ import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppGroup
+import com.peltoche.fyde.components.content.AppGroupCard
+import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.content.SealHero
 import com.peltoche.fyde.components.feedback.AppErrorNote
@@ -465,7 +468,7 @@ private fun SettingsMenu(ui: SettingsUi, selected: SettingsSection?) {
     SealCard(onClick = { ui.onOpen(SettingsSection.Security) })
     Spacer(Modifier.height(AppSpacing.space4))
     val usage = (ui.planUsage as? PlanUsageUiState.Loaded)?.usage
-    SettingsGroup(modifier = if (selected != null) Modifier.selectableGroup() else Modifier) {
+    AppGroup(modifier = if (selected != null) Modifier.selectableGroup() else Modifier) {
         SettingsLinkRow(
             label = stringResource(Res.string.settings_security),
             icon = { KeyGlyph(modifier = it) },
@@ -498,7 +501,7 @@ private fun SettingsMenu(ui: SettingsUi, selected: SettingsSection?) {
         )
     }
     Spacer(Modifier.height(AppSpacing.space4))
-    SettingsGroup {
+    AppGroup {
         SettingsLinkRow(
             label = stringResource(
                 if (getPlatform().isDesktop) Res.string.settings_log_out_computer else Res.string.settings_log_out_device,
@@ -545,29 +548,8 @@ private fun SealCard(onClick: () -> Unit) {
     }
 }
 
-/** A `surface` group with a hairline border (`tokens.css`'s `.group`), as SessionLimitScreen's picker; rows add their own dividers. */
-@Composable
-internal fun SettingsGroup(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(AppRadius.lg)
-            .background(AppColors.surface)
-            .border(AppDimensions.borderHairline, AppColors.border, AppRadius.lg),
-        content = content,
-    )
-}
-
-/** A [SettingsGroup] with the card's inner padding, for content that isn't rows. */
-@Composable
-internal fun SettingsCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    SettingsGroup(modifier = modifier) {
-        Column(modifier = Modifier.fillMaxWidth().padding(AppSpacing.space5), content = content)
-    }
-}
-
 /**
- * One row of a [SettingsGroup] that opens something: [icon] (handed its
+ * One row of a [AppGroup] that opens something: [icon] (handed its
  * size), [label] over an optional [supporting] line, a muted trailing
  * [value], a chevron. [selected] is null where the row only navigates (M1
  * on a phone); otherwise it's one choice of the wide layouts' list column,
@@ -585,29 +567,11 @@ private fun SettingsLinkRow(
     showChevron: Boolean = true,
     enabled: Boolean = true,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val target = if (selected != null) {
-        Modifier.selectable(
-            selected = selected,
-            interactionSource = interactionSource,
-            indication = ripple(),
-            enabled = enabled,
-            role = Role.RadioButton,
-            onClick = onClick,
-        )
-    } else {
-        Modifier.clickable(interactionSource = interactionSource, indication = ripple(), enabled = enabled, role = Role.Button, onClick = onClick)
-    }
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(if (selected == true) AppColors.selectionSurface else Color.Transparent)
-            .then(target)
-            .appFocusRing(interactionSource, shape = AppRadius.none)
-            .heightIn(min = if (supporting != null) AppDimensions.rowHeightStandard else AppDimensions.rowHeightCompact)
-            .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
+    AppGroupRow(
+        minHeight = if (supporting != null) AppDimensions.rowHeightStandard else AppDimensions.rowHeightCompact,
+        onClick = onClick,
+        selected = selected,
+        enabled = enabled,
     ) {
         icon(Modifier.size(AppIconSize.md))
         Column(modifier = Modifier.weight(1f)) {
@@ -646,7 +610,7 @@ private fun SecurityPage(onOpenChangePassword: () -> Unit, onOpenServerView: () 
         )
     }
     Spacer(Modifier.height(AppSpacing.space7))
-    SettingsGroup {
+    AppGroup {
         SettingsLinkRow(
             label = stringResource(Res.string.change_password_title),
             supporting = stringResource(Res.string.change_password_row_subtitle),
@@ -823,7 +787,7 @@ private fun ServerViewPage() {
 
 @Composable
 private fun ServerViewCard(title: String, accent: Color, icon: @Composable (Modifier) -> Unit, items: List<StringResource>) {
-    SettingsCard {
+    AppGroupCard {
         Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3), verticalAlignment = Alignment.CenterVertically) {
             icon(Modifier.size(AppIconSize.md))
             Text(text = title, style = AppTypography.bodyEmphasis, color = accent)
@@ -867,7 +831,7 @@ private fun AppearancePage(ui: SettingsUi) {
     val currentLanguage = AppLanguage.fromCode(ui.language)
         ?: AppLanguage.fromCode(Locale.current.language)
         ?: AppLanguage.ENGLISH
-    SettingsGroup(modifier = Modifier.selectableGroup()) {
+    AppGroup(modifier = Modifier.selectableGroup()) {
         AppLanguage.entries.forEachIndexed { index, language ->
             if (index > 0) AppDivider()
             LanguageChoice(

@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppRetryButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppGroup
+import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
@@ -105,7 +107,7 @@ internal fun SessionsSection(
             AppErrorNote(state.message)
             AppRetryButton(onClick = state.onRetry)
         }
-        is SessionsUiState.Loaded -> SettingsGroup {
+        is SessionsUiState.Loaded -> AppGroup {
             state.sessions.forEachIndexed { index, session ->
                 if (index > 0) AppDivider()
                 SessionRow(session = session) {
@@ -156,14 +158,7 @@ internal fun SessionsSection(
  */
 @Composable
 private fun SessionRow(session: FydeOpenSession, trailingContent: @Composable () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = AppDimensions.rowHeightComfortable)
-            .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
-    ) {
+    AppGroupRow(minHeight = AppDimensions.rowHeightComfortable) {
         // 24, off AppIconSize's scale: the mockup's `.ic.lg`, as in SessionLimitScreen.
         val glyphModifier = Modifier.size(24.dp)
         if (isPhoneSession(session)) PhoneGlyph(modifier = glyphModifier) else LaptopGlyph(modifier = glyphModifier)
@@ -193,7 +188,7 @@ private fun SessionRow(session: FydeOpenSession, trailingContent: @Composable ()
 /** Shaped like two loaded rows (a glyph, a name over a date), so the page doesn't jump on load. */
 @Composable
 private fun SessionsSkeleton() {
-    SettingsGroup {
+    AppGroup {
         repeat(2) { index ->
             if (index > 0) AppDivider()
             Row(

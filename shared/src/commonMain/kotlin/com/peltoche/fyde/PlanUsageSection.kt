@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppRetryButton
+import com.peltoche.fyde.components.content.AppGroupCard
 import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.feedback.AppSkeleton
@@ -86,13 +87,13 @@ internal fun PlanUsageSection(state: PlanUsageUiState) {
         }
         is PlanUsageUiState.Loaded -> {
             val usage = state.usage
-            SettingsCard {
+            AppGroupCard {
                 Text(text = stringResource(Res.string.plan_your_plan), style = AppTypography.caption, color = AppColors.textMuted)
                 Spacer(Modifier.height(AppSpacing.space1))
                 Text(text = planName(usage.planId), style = AppTypography.title, color = AppColors.text)
             }
             Spacer(Modifier.height(AppSpacing.space4))
-            SettingsCard {
+            AppGroupCard {
                 Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space6)) {
                     UsageMeter(
                         label = stringResource(Res.string.usage_storage_label),
@@ -128,13 +129,13 @@ internal fun planName(planId: String): String = when (planId) {
 /** Shaped like the loaded page (the plan card, three meters), so it doesn't jump on load. */
 @Composable
 private fun PlanUsageSkeleton() {
-    SettingsCard {
+    AppGroupCard {
         AppSkeleton(Modifier.width(80.dp).height(14.dp))
         Spacer(Modifier.height(AppSpacing.space2))
         AppSkeleton(Modifier.width(120.dp).height(22.dp))
     }
     Spacer(Modifier.height(AppSpacing.space4))
-    SettingsCard {
+    AppGroupCard {
         Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space6)) {
             repeat(3) {
                 Column {
