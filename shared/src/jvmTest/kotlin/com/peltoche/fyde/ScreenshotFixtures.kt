@@ -108,9 +108,9 @@ internal object ScreenshotFixtures {
     )
 
     val screens: List<Pair<String, @Composable () -> Unit>> = listOf(
-        "welcome" to { WelcomeScreen(serverName = "doc.halium.fr", onCreateVault = {}, onOpenVault = {}) },
-        "login" to { LoginScreen(onLogIn = { _, _ -> }, onNavigateToRegister = {}, onBack = {}) },
-        "login-error" to {
+        shot("welcome") { WelcomeScreen(serverName = "doc.halium.fr", onCreateVault = {}, onOpenVault = {}) },
+        shot("login") { LoginScreen(onLogIn = { _, _ -> }, onNavigateToRegister = {}, onBack = {}) },
+        shot("login-error") {
             LoginScreen(
                 onLogIn = { _, _ -> },
                 onNavigateToRegister = {},
@@ -119,11 +119,11 @@ internal object ScreenshotFixtures {
                 errorMessage = "Identifiant ou mot de passe incorrect.",
             )
         },
-        "register" to { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}) },
-        "register-error" to { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}, errorMessage = "Ce nom d'utilisateur est déjà pris.") },
-        "recovery-generating" to { RecoveryKitScreen(state = RecoveryKitUiState.Generating, username = "pierre", onDone = {}, onLater = {}) },
-        "recovery-ready" to { RecoveryKitScreen(state = RecoveryKitUiState.Ready(recoveryWords), username = "pierre", onDone = {}, onLater = {}) },
-        "onboarding-sources" to {
+        shot("register") { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}) },
+        shot("register-error") { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}, errorMessage = "Ce nom d'utilisateur est déjà pris.") },
+        shot("recovery-generating") { RecoveryKitScreen(state = RecoveryKitUiState.Generating, username = "pierre", onDone = {}, onLater = {}) },
+        shot("recovery-ready") { RecoveryKitScreen(state = RecoveryKitUiState.Ready(recoveryWords), username = "pierre", onDone = {}, onLater = {}) },
+        shot("onboarding-sources") {
             SourcesScreen(
                 state = SourcesUiState.Loaded(scripts, SourceQuota("free", 0, 3)),
                 selected = setOf(edf.id),
@@ -134,13 +134,13 @@ internal object ScreenshotFixtures {
                 onSkip = {},
             )
         },
-        "onboarding-sources-loading" to {
+        shot("onboarding-sources-loading") {
             SourcesScreen(state = SourcesUiState.Loading, selected = emptySet(), onToggle = {}, query = "", onQueryChange = {}, onConnect = {}, onSkip = {})
         },
-        "connect-source" to {
+        shot("connect-source") {
             ConnectSourceScreen(script = ameli, position = 2, count = 3, sources = creationSources, onConnect = {}, onSkip = {}, onBack = {})
         },
-        "source-fetching" to {
+        shot("source-fetching") {
             SourceFetchingScreen(
                 script = ameli,
                 position = 2,
@@ -154,7 +154,7 @@ internal object ScreenshotFixtures {
                 onNext = {},
             )
         },
-        "source-fetching-failed" to {
+        shot("source-fetching-failed") {
             SourceFetchingScreen(
                 script = ameli,
                 position = 2,
@@ -168,30 +168,32 @@ internal object ScreenshotFixtures {
                 onNext = {},
             )
         },
-        "session-limit" to { SessionLimitScreen(maxSessions = 2, sessions = sessions.map { it.copy(isCurrent = false) }, onReplace = {}, onCancel = {}) },
-        "insecure-storage" to { InsecureStorageSheet(isRegistration = true, onContinue = {}, onRetry = {}, onDismiss = {}) },
-        "already-running" to { AlreadyRunningScreen(message = "Fyde est déjà ouvert sur cet appareil.", onRetry = {}) },
-        "vault-loading" to { vault(VaultUiState.Loaded(deviceCount = 2), VaultFocus()) },
-        "vault-home" to { vault(vaultLoaded, VaultFocus()) },
-        "vault-category" to { vault(vaultLoaded, VaultFocus(page = housingPage)) },
-        "vault-category-loading" to { vault(VaultUiState.Loaded(home = home), VaultFocus(page = housingPage)) },
-        "vault-search" to { vault(vaultLoaded, VaultFocus(page = VaultPage.Search(searchQuery, VaultPage.Home))) },
-        "vault-document" to { vault(vaultLoaded, VaultFocus(page = housingPage, document = invoice)) },
-        "vault-failed" to { vault(VaultUiState.ConnectFailed("Le serveur est injoignable.", onRetry = {}), VaultFocus()) },
-        "sources-tab" to { sourcesTab(sourcesTab, null) },
-        "sources-tab-loading" to { sourcesTab(SourcesTabUiState.Loaded(scripts = null), null) },
-        "sources-tab-detail" to { sourcesTab(sourcesTab, SourceFocus.Detail(edf.id)) },
-        "sources-tab-fetching" to { sourcesTab(sourcesTab, SourceFocus.Fetching(ameli.id)) },
-        "sources-tab-connect" to { sourcesTab(sourcesTab, SourceFocus.Connect(free.id)) },
-        "sources-tab-catalogue" to { sourcesTab(sourcesTab, null, catalogueOpen = true) },
-        "settings-menu" to { settings(null) },
-        "settings-loading" to {
+        shot("session-limit") { SessionLimitScreen(maxSessions = 2, sessions = sessions.map { it.copy(isCurrent = false) }, onReplace = {}, onCancel = {}) },
+        shot("insecure-storage") { InsecureStorageSheet(isRegistration = true, onContinue = {}, onRetry = {}, onDismiss = {}) },
+        shot("already-running") { AlreadyRunningScreen(message = "Fyde est déjà ouvert sur cet appareil.", onRetry = {}) },
+        shot("vault-loading") { vault(VaultUiState.Loaded(deviceCount = 2), VaultFocus()) },
+        shot("vault-home") { vault(vaultLoaded, VaultFocus()) },
+        shot("vault-category") { vault(vaultLoaded, VaultFocus(page = housingPage)) },
+        shot("vault-category-loading") { vault(VaultUiState.Loaded(home = home), VaultFocus(page = housingPage)) },
+        shot("vault-search") { vault(vaultLoaded, VaultFocus(page = VaultPage.Search(searchQuery, VaultPage.Home))) },
+        shot("vault-document") { vault(vaultLoaded, VaultFocus(page = housingPage, document = invoice)) },
+        shot("vault-failed") { vault(VaultUiState.ConnectFailed("Le serveur est injoignable.", onRetry = {}), VaultFocus()) },
+        shot("sources-tab") { sourcesTab(sourcesTab, null) },
+        shot("sources-tab-loading") { sourcesTab(SourcesTabUiState.Loaded(scripts = null), null) },
+        shot("sources-tab-detail") { sourcesTab(sourcesTab, SourceFocus.Detail(edf.id)) },
+        shot("sources-tab-fetching") { sourcesTab(sourcesTab, SourceFocus.Fetching(ameli.id)) },
+        shot("sources-tab-connect") { sourcesTab(sourcesTab, SourceFocus.Connect(free.id)) },
+        shot("sources-tab-catalogue") { sourcesTab(sourcesTab, null, catalogueOpen = true) },
+        shot("settings-menu") { settings(null) },
+        shot("settings-loading") {
             settings(SettingsSection.Devices, planUsage = PlanUsageUiState.Loading, sessions = SessionsUiState.Loading)
         },
-        "settings-plan-loading" to { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Loading) },
-        "settings-plan-failed" to { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Failed("Impossible de charger l'offre.", onRetry = {})) },
-    ) + SettingsSection.entries.map { section -> "settings-${section.name.lowercase()}" to @Composable { settings(section) } } +
-        listOf("design-system" to @Composable { DesignSystemScreen(onBack = {}) })
+        shot("settings-plan-loading") { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Loading) },
+        shot("settings-plan-failed") { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Failed("Impossible de charger l'offre.", onRetry = {})) },
+    ) + SettingsSection.entries.map { section -> shot("settings-${section.name.lowercase()}") { settings(section) } } +
+        listOf(shot("design-system") { DesignSystemScreen(onBack = {}) })
+
+    private fun shot(name: String, content: @Composable () -> Unit): Pair<String, @Composable () -> Unit> = name to content
 
     @Composable
     private fun vault(state: VaultUiState, focus: VaultFocus) {
