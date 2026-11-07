@@ -35,6 +35,7 @@ import com.peltoche.fyde.components.feedback.RunStepper
 import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.icons.InfoGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.CenteredScrollColumn
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.connect_source_position

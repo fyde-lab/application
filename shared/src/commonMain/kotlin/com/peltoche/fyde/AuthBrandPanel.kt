@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -15,14 +14,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,6 +34,7 @@ import com.peltoche.fyde.components.content.SealHero
 import com.peltoche.fyde.icons.CheckGlyph
 import com.peltoche.fyde.icons.LockGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.CenteredScrollColumn
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
@@ -488,30 +485,6 @@ private fun AuthBrandMark() {
             text = stringResource(Res.string.app_title),
             style = AppTypography.section,
             color = AppColors.onPrimary,
-        )
-    }
-}
-
-/**
- * A column centred vertically in the space it's given, that scrolls instead
- * once its content is taller — `Arrangement.Center` alone does nothing inside
- * `verticalScroll`, whose height is unbounded.
- */
-@Composable
-fun CenteredScrollColumn(
-    modifier: Modifier = Modifier,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    BoxWithConstraints(modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .heightIn(min = maxHeight),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = horizontalAlignment,
-            content = content,
         )
     }
 }

@@ -1,6 +1,5 @@
 package com.peltoche.fyde
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -32,11 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -44,7 +41,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
@@ -54,7 +50,6 @@ import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.AppGroupRow
-import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorNote
@@ -74,7 +69,6 @@ import com.peltoche.fyde.icons.CheckGlyph
 import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.icons.InfoGlyph
 import com.peltoche.fyde.icons.PlusGlyph
-import com.peltoche.fyde.icons.PuzzleGlyph
 import com.peltoche.fyde.icons.SearchGlyph
 import com.peltoche.fyde.icons.StopGlyph
 import com.peltoche.fyde.icons.SyncGlyph
@@ -1240,35 +1234,5 @@ private fun foldForSearch(text: String): String = buildString(text.length) {
                 else -> char.toString()
             },
         )
-    }
-}
-
-/**
- * [icon]'s image content never fills [ScriptIcon]'s full chip — publisher
- * logos arrive in wildly inconsistent shapes/paddings, so every logo is
- * inset the same amount and the chip reads as a uniform frame.
- */
-private const val ICON_IMAGE_SCALE = 0.72f
-private const val ICON_GLYPH_SCALE = 0.45f
-
-/**
- * A neutral chip showing [icon] (the script's own PNG logo, see
- * [FydeScript.icon]), decoded via [decodeIconBitmap]. Falls back to a drawn
- * [PuzzleGlyph] when [icon] is empty or isn't valid image data.
- */
-@Composable
-internal fun ScriptIcon(icon: ByteArray = ByteArray(0), modifier: Modifier = Modifier, size: Dp = AppDimensions.iconTile) {
-    val bitmap = remember(icon) { decodeIconBitmap(icon) }
-    AppIconTile(modifier = modifier, size = size) {
-        if (bitmap != null) {
-            Image(
-                bitmap = bitmap,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(size * ICON_IMAGE_SCALE).clip(AppRadius.sm),
-            )
-        } else {
-            PuzzleGlyph(tint = AppColors.textMuted, modifier = Modifier.size(size * ICON_GLYPH_SCALE))
-        }
     }
 }
