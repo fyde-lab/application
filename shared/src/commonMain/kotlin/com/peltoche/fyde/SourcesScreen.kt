@@ -58,6 +58,9 @@ import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.AppPlanQuota
 import com.peltoche.fyde.components.form.AppCheckbox
 import com.peltoche.fyde.components.form.AppSearchField
+import com.peltoche.fyde.icons.AlertGlyph
+import com.peltoche.fyde.icons.InfoGlyph
+import com.peltoche.fyde.icons.SearchGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res

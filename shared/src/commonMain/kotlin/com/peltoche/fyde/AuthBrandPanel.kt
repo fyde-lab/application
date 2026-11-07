@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.content.SealHero
+import com.peltoche.fyde.icons.CheckGlyph
+import com.peltoche.fyde.icons.LockGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res

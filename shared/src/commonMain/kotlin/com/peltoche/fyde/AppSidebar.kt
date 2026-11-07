@@ -53,6 +53,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.CategoryFillTile
+import com.peltoche.fyde.icons.GearGlyph
+import com.peltoche.fyde.icons.GridGlyph
+import com.peltoche.fyde.icons.PlugGlyph
+import com.peltoche.fyde.icons.ShieldGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
 import com.peltoche.fyde.resources.nav_scripts

@@ -1,4 +1,4 @@
-package com.peltoche.fyde
+package com.peltoche.fyde.icons
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable

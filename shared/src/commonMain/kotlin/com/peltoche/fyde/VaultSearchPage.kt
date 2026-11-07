@@ -31,6 +31,7 @@ import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.overlay.AppDropdownMenu
 import com.peltoche.fyde.components.overlay.AppDropdownMenuItem
+import com.peltoche.fyde.icons.SearchGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.clear_filters

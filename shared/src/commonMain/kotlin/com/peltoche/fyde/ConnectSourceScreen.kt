@@ -42,6 +42,9 @@ import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
+import com.peltoche.fyde.icons.AlertGlyph
+import com.peltoche.fyde.icons.GlobeGlyph
+import com.peltoche.fyde.icons.LockGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res

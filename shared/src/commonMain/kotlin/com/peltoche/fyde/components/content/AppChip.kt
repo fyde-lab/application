@@ -19,7 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.ChevronRightGlyph
+import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppRadius

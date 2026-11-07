@@ -28,6 +28,7 @@ import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.CategoryBand
 import com.peltoche.fyde.components.content.DocumentCard
 import com.peltoche.fyde.components.feedback.AppEmptyState
+import com.peltoche.fyde.icons.SortGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.clear_filters
 import com.peltoche.fyde.resources.documents_count

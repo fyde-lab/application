@@ -206,7 +206,7 @@ chips and the trailing actions of a row; size the glyph for looks and centre it 
 ### Iconography
 
 Stroke icons, 1.7 stroke on a 24 grid, round caps and joins, drawn as `Canvas` glyphs in
-`NavGlyphs.kt` / `DocumentGlyph.kt` (no icon font), traced from the matching `icons.svg` symbol
+`icons/NavGlyphs.kt` / `icons/DocumentGlyph.kt` (no icon font), traced from the matching `icons.svg` symbol
 on its 24-unit grid (e.g. `BoltGlyph` ← `i-bolt`, `SyncGlyph` ← `i-sync`). Sizes (`AppIconSize`): 13 inline, 16 in
 controls, 20 default, 24 tab bar and large tiles, 28+ only for heroes. Glyph colour is `text` at
 rest, `primary` when selected, the category ink on a category fill. The icon set in use is
@@ -657,7 +657,7 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `AppNote` | Landed (O2) | `Info` / `Ok` / `Warning` / `Error`: wash, icon in the kind's colour, text; replaces inline `AppBanner`, which screens drop as they're rebuilt |
 | `AppTabBar` | New | Replaces `AppNavigationBar` |
 | `AppSidebar` | Landed (D6, T1, T2) | `AppSidebar` (260, Expanded) and `AppSidebarRail` (80, Medium) in `AppSidebar.kt`, replacing `AppNavigationTopBar` and `AppNavigationRail` in the app (both stay in the catalogue); selected row = `selectionSurface` + 3dp `primary` leading bar + SemiBold |
-| `CategoryCard`, `CategoryBand` | Landed (V1, V3) | Card: 132 tall (`AppDimensions.categoryCardHeight`) on the category's fill, a 38 `categoryTile` square (white at 62%, both themes) with the icon in ink and the count in ink above the name (`section`) and the newest document (`caption`, `categoryCaption`); one control for screen readers; `CategoryCardPlaceholder` while loading. Band: 52 tile, name in `title`, count under it. Glyphs in `CategoryGlyphs.kt`, the category → fill, ink and icon mapping in `VaultCategories.kt`. Still the current card radius |
+| `CategoryCard`, `CategoryBand` | Landed (V1, V3) | Card: 132 tall (`AppDimensions.categoryCardHeight`) on the category's fill, a 38 `categoryTile` square (white at 62%, both themes) with the icon in ink and the count in ink above the name (`section`) and the newest document (`caption`, `categoryCaption`); one control for screen readers; `CategoryCardPlaceholder` while loading. Band: 52 tile, name in `title`, count under it. Glyphs in `icons/CategoryGlyphs.kt`, the category → fill, ink and icon mapping in `VaultCategories.kt`. Still the current card radius |
 | `DocumentRow`, `DocumentCard` | Landed (V3, V5, D1, D2) | Row: the category's tile (fill and ink; no thumbnails yet), title (`bodyEmphasis`, matched words on `highlight`), subtitle (`issuer` · date, the date alone without an issuer), the pass's headline amount at the end in `data` (nothing when the template has no amount); `selected` fills it with the category (D2). Pending is left out until the SDK carries it. Card: D1's grid cell, a preview well holding the tile, then title and date |
 | `DocumentPass` | Landed (V6, D2) | Issuer and type in ink, headline in `passAmount` (`DocumentPassHeadline.Value`) or `title` for a name, the line under it, a dashed perforation in ink at 40%, up to three `DocumentPassCell`s. The caller picks the template from the document's type and attributes (see [Document pass](#document-pass)) |
 | `DocumentAttributes` | Landed (V6, D2) | The [Informations](#informations) section: a `section` heading and a `surface` group of label / value rows, values formatted by attribute type, amounts in `data` |

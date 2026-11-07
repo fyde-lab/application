@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.ChevronRightGlyph
+import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.components.overlay.AppDropdownMenu
 import com.peltoche.fyde.components.overlay.AppDropdownMenuItem
 import com.peltoche.fyde.theme.AppColors

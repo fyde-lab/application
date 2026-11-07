@@ -23,7 +23,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import com.peltoche.fyde.EyeGlyph
+import com.peltoche.fyde.icons.EyeGlyph
 import com.peltoche.fyde.components.action.AppIconButton
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.hide_password

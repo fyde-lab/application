@@ -26,6 +26,9 @@ import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.overlay.AppDialog
+import com.peltoche.fyde.icons.InfoGlyph
+import com.peltoche.fyde.icons.LaptopGlyph
+import com.peltoche.fyde.icons.PhoneGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.devices_count_of_plan

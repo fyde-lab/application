@@ -3,6 +3,18 @@ package com.peltoche.fyde
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.peltoche.fyde.icons.BagGlyph
+import com.peltoche.fyde.icons.BriefcaseGlyph
+import com.peltoche.fyde.icons.DocumentGlyph
+import com.peltoche.fyde.icons.GiftGlyph
+import com.peltoche.fyde.icons.HeartGlyph
+import com.peltoche.fyde.icons.HomeGlyph
+import com.peltoche.fyde.icons.LandmarkGlyph
+import com.peltoche.fyde.icons.PhoneGlyph
+import com.peltoche.fyde.icons.RepeatGlyph
+import com.peltoche.fyde.icons.TrainGlyph
+import com.peltoche.fyde.icons.UsersGlyph
+import com.peltoche.fyde.icons.WalletGlyph
 import com.peltoche.fyde.theme.AppCategoryColor
 import com.peltoche.fyde.theme.AppColors
 
