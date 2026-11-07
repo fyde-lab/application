@@ -46,16 +46,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
-import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.content.SealHero
+import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.form.AppRadio
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.components.overlay.AppDialog
-import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.icons.CheckGlyph
 import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.icons.EyeGlyph
@@ -90,7 +90,6 @@ import com.peltoche.fyde.resources.log_out_confirm_text
 import com.peltoche.fyde.resources.log_out_confirm_title_computer
 import com.peltoche.fyde.resources.log_out_confirm_title_device
 import com.peltoche.fyde.resources.passwords_mismatch
-import com.peltoche.fyde.resources.retry
 import com.peltoche.fyde.resources.security_sealed_text
 import com.peltoche.fyde.resources.security_sealed_title
 import com.peltoche.fyde.resources.security_server_view
@@ -513,7 +512,7 @@ private fun SettingsMenu(ui: SettingsUi, selected: SettingsSection?) {
     }
     ui.logoutError?.let { message ->
         Spacer(Modifier.height(AppSpacing.space4))
-        SettingsErrorNote(message)
+        AppErrorNote(message)
     }
 }
 
@@ -705,7 +704,7 @@ private fun ChangePasswordPage(ui: SettingsUi, pinnedButton: Boolean) {
         Text(text = stringResource(Res.string.change_password_intro), style = AppTypography.body, color = AppColors.textMuted)
         ui.changePasswordError?.let { message ->
             Spacer(Modifier.height(AppSpacing.space5))
-            SettingsErrorNote(message)
+            AppErrorNote(message)
         }
         Spacer(Modifier.height(AppSpacing.space6))
         AppTextField(
@@ -848,7 +847,7 @@ private fun ServerViewCard(title: String, accent: Color, icon: @Composable (Modi
  */
 @Composable
 private fun AppearancePage(ui: SettingsUi) {
-    SectionTitle(stringResource(Res.string.theme_section_title), first = true)
+    AppSectionTitle(stringResource(Res.string.theme_section_title), first = true)
     Row(
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3),
         modifier = Modifier.fillMaxWidth().selectableGroup(),
@@ -862,7 +861,7 @@ private fun AppearancePage(ui: SettingsUi) {
             )
         }
     }
-    SectionTitle(stringResource(Res.string.language_section_title))
+    AppSectionTitle(stringResource(Res.string.language_section_title))
     // With no saved preference the app follows the platform locale, so that's
     // the one ticked rather than none.
     val currentLanguage = AppLanguage.fromCode(ui.language)
@@ -880,7 +879,7 @@ private fun AppearancePage(ui: SettingsUi) {
     }
     ui.languageError?.let { message ->
         Spacer(Modifier.height(AppSpacing.space4))
-        SettingsErrorNote(message)
+        AppErrorNote(message)
     }
     if (!getPlatform().isDesktop) {
         Spacer(Modifier.height(AppSpacing.space4))
@@ -984,41 +983,5 @@ private fun LogoutDialog(isLoggingOut: Boolean, onConfirm: () -> Unit, onDismiss
         onDismiss = onDismiss,
         destructive = true,
         confirmLoading = isLoggingOut,
-    )
-}
-
-/**
- * A section's label (Settings, Scripts), in the Section role above the group
- * it heads, spaced from the group before it — unless it's the [first] on its
- * page, right under the page's title.
- */
-@Composable
-internal fun SectionTitle(text: String, modifier: Modifier = Modifier, first: Boolean = false) {
-    Text(
-        text = text,
-        style = AppTypography.section,
-        color = AppColors.text,
-        modifier = modifier.padding(top = if (first) 0.dp else AppSpacing.space7, bottom = AppSpacing.space3),
-    )
-}
-
-/** Why a Settings page couldn't load or an action failed, inline where it applies (design-system.md: no banners). */
-@Composable
-internal fun SettingsErrorNote(message: String) {
-    AppNote(
-        message = message,
-        kind = AppNoteKind.Error,
-        icon = { tint -> AlertGlyph(modifier = Modifier.size(AppIconSize.sm), tint = tint) },
-    )
-}
-
-/** Retries a Settings page that failed to load, below its error note. */
-@Composable
-internal fun RetryButton(onClick: () -> Unit) {
-    AppButton(
-        text = stringResource(Res.string.retry),
-        onClick = onClick,
-        variant = AppButtonVariant.Outlined,
-        modifier = Modifier.padding(top = AppSpacing.space4),
     )
 }

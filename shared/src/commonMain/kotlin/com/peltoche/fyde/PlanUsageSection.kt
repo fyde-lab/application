@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.components.action.AppRetryButton
+import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppProgressBar
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.resources.Res
@@ -79,8 +81,8 @@ internal fun PlanUsageSection(state: PlanUsageUiState) {
     when (state) {
         PlanUsageUiState.Loading -> PlanUsageSkeleton()
         is PlanUsageUiState.Failed -> {
-            SettingsErrorNote(state.message)
-            RetryButton(onClick = state.onRetry)
+            AppErrorNote(state.message)
+            AppRetryButton(onClick = state.onRetry)
         }
         is PlanUsageUiState.Loaded -> {
             val usage = state.usage

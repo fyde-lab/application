@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.focusRequester
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppChip
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.overlay.AppDropdownMenu
@@ -111,7 +112,7 @@ private fun SearchBar(vault: Vault, page: VaultPage.Search, focusOnOpen: Boolean
 @Composable
 private fun TypeShortcuts(vault: Vault, page: VaultPage.Search, contents: VaultSearchContents?) {
     val types = contents?.options?.types?.takeIf { it.isNotEmpty() } ?: return
-    SectionTitle(stringResource(Res.string.vault_search_types))
+    AppSectionTitle(stringResource(Res.string.vault_search_types))
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3),
         verticalArrangement = Arrangement.spacedBy(AppSpacing.space3),
