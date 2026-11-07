@@ -153,8 +153,7 @@ internal fun SessionsSection(
 @Composable
 private fun SessionRow(session: FydeOpenSession, trailingContent: @Composable () -> Unit) {
     AppGroupRow(minHeight = AppDimensions.rowHeightComfortable) {
-        // 24, off AppIconSize's scale: the mockup's `.ic.lg`, as in SessionLimitScreen.
-        val glyphModifier = Modifier.size(24.dp)
+        val glyphModifier = Modifier.size(AppIconSize.prominent)
         if (isPhoneSession(session)) PhoneGlyph(modifier = glyphModifier) else LaptopGlyph(modifier = glyphModifier)
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -185,7 +184,7 @@ private fun SessionsSkeleton() {
     AppListSkeleton(
         rows = 2,
         rowHeight = AppDimensions.rowHeightComfortable,
-        tileSize = 24.dp,
+        tileSize = AppIconSize.prominent,
         firstLine = Modifier.width(160.dp).height(18.dp),
         secondLine = Modifier.width(120.dp).height(14.dp),
         lineGap = AppSpacing.space2,

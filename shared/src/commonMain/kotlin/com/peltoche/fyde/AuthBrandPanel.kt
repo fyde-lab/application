@@ -28,14 +28,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.content.SealHero
 import com.peltoche.fyde.icons.CheckGlyph
 import com.peltoche.fyde.icons.LockGlyph
@@ -127,7 +125,7 @@ fun SignInBrandPanel(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(Res.string.welcome_title),
             // The brand panel's title, 38/44 — larger than `display`, which heads the form beside it.
-            style = AppTypography.display.copy(fontSize = 38.sp, lineHeight = 44.sp),
+            style = AppTypography.brandHeadline,
             color = AppColors.onPrimary,
         )
         Spacer(Modifier.height(AppSpacing.space7))
@@ -202,7 +200,7 @@ fun VaultCreationBrandPanel(
     AuthBrandPanel(modifier, footer = footer) {
         Text(
             text = stringResource(Res.string.register_brand_title),
-            style = AppTypography.display.copy(fontSize = 38.sp, lineHeight = 44.sp),
+            style = AppTypography.brandHeadline,
             color = AppColors.onPrimary,
         )
         Spacer(Modifier.height(AppSpacing.space3))
@@ -291,14 +289,6 @@ fun AuthBrandBand(modifier: Modifier = Modifier, trailing: @Composable RowScope.
     }
 }
 
-/**
- * A done step's disc: the dark theme's `success`, legible on `primary` in
- * both themes as the mockup draws it (`desktop-auth.html`'s `.stp.done`),
- * with a near-black check.
- */
-private val StepDoneFill = Color(0xFF8FD1AE)
-private val StepDoneInk = Color(0xFF0B2418)
-
 private enum class StepState { Done, Current, ToDo }
 
 /**
@@ -354,7 +344,7 @@ private fun VaultStepRow(
 
 /**
  * A ticked source under the sources step (`desktop-sources.html`'s `.sub`):
- * an 18dp disc — white for the current one, [StepDoneFill] with a check once
+ * an 18dp disc — white for the current one, [AppColors.brandStepDoneFill] with a check once
  * connected, an outline otherwise — its name, and its state at the far end.
  */
 @Composable
@@ -371,12 +361,12 @@ private fun VaultSourceRow(source: VaultSource) {
                     when {
                         source.state == VaultSourceState.Current || source.state == VaultSourceState.Fetching ->
                             Modifier.background(AppColors.onPrimary)
-                        connected -> Modifier.background(StepDoneFill)
+                        connected -> Modifier.background(AppColors.brandStepDoneFill)
                         else -> Modifier.border(1.5.dp, AppColors.onPrimary.copy(alpha = 0.4f), CircleShape)
                     },
                 ),
         ) {
-            if (connected) CheckGlyph(modifier = Modifier.size(AppIconSize.xs), tint = StepDoneInk, strokeWidth = 2.dp)
+            if (connected) CheckGlyph(modifier = Modifier.size(AppIconSize.xs), tint = AppColors.brandStepDoneInk, strokeWidth = 2.dp)
         }
         Spacer(Modifier.width(AppSpacing.space3))
         Text(
@@ -405,7 +395,7 @@ private fun VaultSourceRow(source: VaultSource) {
     }
 }
 
-/** A step's number in a disc: [StepDoneFill] with a check once done, white while current, an outline still to do. */
+/** A step's number in a disc: [AppColors.brandStepDoneFill] with a check once done, white while current, an outline still to do. */
 @Composable
 private fun StepDisc(step: VaultCreationStep, state: StepState, size: Dp) {
     Box(
@@ -415,14 +405,14 @@ private fun StepDisc(step: VaultCreationStep, state: StepState, size: Dp) {
             .clip(CircleShape)
             .then(
                 when (state) {
-                    StepState.Done -> Modifier.background(StepDoneFill)
+                    StepState.Done -> Modifier.background(AppColors.brandStepDoneFill)
                     StepState.Current -> Modifier.background(AppColors.onPrimary)
                     StepState.ToDo -> Modifier.border(2.dp, AppColors.onPrimary.copy(alpha = 0.35f), CircleShape)
                 },
             ),
     ) {
         if (state == StepState.Done) {
-            CheckGlyph(modifier = Modifier.size(AppIconSize.sm), tint = StepDoneInk, strokeWidth = 2.dp)
+            CheckGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.brandStepDoneInk, strokeWidth = 2.dp)
         } else {
             Text(
                 text = (step.ordinal + 1).toString(),

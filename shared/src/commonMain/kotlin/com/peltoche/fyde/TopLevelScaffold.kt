@@ -31,6 +31,7 @@ import com.peltoche.fyde.resources.nav_scripts
 import com.peltoche.fyde.resources.nav_vault
 import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
 import org.jetbrains.compose.resources.stringResource
 
@@ -99,7 +100,7 @@ fun TopLevelScaffold(
     val snackbarHostState = LocalAppSnackbarHostState.current
     val windowWidth = LocalWindowInfo.current.containerDpSize.width
     val contentSizeClass = when (windowSizeClass) {
-        AppWindowSizeClass.Expanded -> maxOf(AppWindowSizeClass.Medium, appWindowSizeClassOf(windowWidth - SidebarWidth))
+        AppWindowSizeClass.Expanded -> maxOf(AppWindowSizeClass.Medium, appWindowSizeClassOf(windowWidth - AppDimensions.sidebarWidth))
         else -> windowSizeClass
     }
     Row(modifier = modifier.fillMaxSize()) {

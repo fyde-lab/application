@@ -115,4 +115,10 @@ object AppTypography {
 
     /** design-system.md's `passAmount`: the one large value heading a document pass. */
     val passAmount: TextStyle @Composable get() = MaterialTheme.typography.displayLarge
+
+    /** The sign-in and vault-creation brand panels' headline, 38/44: larger than [display]. */
+    val brandHeadline: TextStyle @Composable get() = display.copy(fontSize = 38.sp, lineHeight = 44.sp)
+
+    /** An uppercase group label in [micro], SemiBold and tracked (the sidebar's CATÉGORIES). */
+    val overline: TextStyle @Composable get() = micro.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.72.sp)
 }

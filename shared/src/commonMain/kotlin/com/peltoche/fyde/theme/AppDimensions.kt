@@ -91,6 +91,21 @@ object AppDimensions {
     /** D4's source detail panel, flush to the window's right edge beside the table. */
     val sourceDetailPanelWidth: Dp = 380.dp
 
+    /** T1/D1–D6's sidebar beside the content at Expanded. */
+    val sidebarWidth: Dp = 260.dp
+
+    /** T2's icon rail beside the content at Medium. */
+    val sidebarRailWidth: Dp = 80.dp
+
+    /** One row of the sidebar (a destination, a category, the seal). */
+    val sidebarRowHeight: Dp = 40.dp
+
+    /** One cell of the icon rail, its touch target and selection fill. */
+    val sidebarRailCell: Dp = 48.dp
+
+    /** The primary bar marking the selected row or rail cell. */
+    val selectionBarWidth: Dp = 3.dp
+
     /** `CategoryCard`'s fixed height (V1, D6): every card in the grid lines up whatever its caption. */
     val categoryCardHeight: Dp = 132.dp
 
@@ -163,6 +178,13 @@ object AppIconSize {
 
     /** Navigation destinations, the glyph inside an `AppIconTile`. */
     val md: Dp = 20.dp
+
+    /**
+     * design-system.md's 24 ("tab bar and large tiles", the mockups'
+     * `.ic.lg`): the icon rail's destinations, a device's glyph leading a
+     * two-line row, the seal card's shield, a sheet's warning.
+     */
+    val prominent: Dp = 24.dp
 
     /** The alert glyph inside `AppErrorState`'s circle — drawn edge to edge, so smaller than [xl] to read at the same weight. */
     val lg: Dp = 32.dp

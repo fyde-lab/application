@@ -530,7 +530,7 @@ private fun SealCard(onClick: () -> Unit) {
             .padding(AppSpacing.space5),
     ) {
         // 24, off AppIconSize's scale: the mockup's `.ic.lg`, as in SessionLimitScreen.
-        ShieldGlyph(modifier = Modifier.size(24.dp), tint = AppColors.success)
+        ShieldGlyph(modifier = Modifier.size(AppIconSize.prominent), tint = AppColors.success)
         Column(modifier = Modifier.weight(1f)) {
             Text(text = stringResource(Res.string.settings_seal_title), style = AppTypography.bodyEmphasis, color = AppColors.text)
             Text(text = stringResource(Res.string.settings_seal_subtitle), style = AppTypography.caption, color = AppColors.textMuted)

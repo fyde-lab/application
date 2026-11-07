@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
@@ -331,9 +330,8 @@ private fun SessionChoice(session: FydeOpenSession, selected: Boolean, enabled: 
             .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
     ) {
         AppRadio(selected = selected, enabled = enabled)
-        // 24, off AppIconSize's scale: the mockup's `.ic.lg`, sized to the
-        // two-line row as a leading illustration rather than an inline icon.
-        val glyphModifier = Modifier.size(24.dp)
+        // Sized to the two-line row as a leading illustration rather than an inline icon.
+        val glyphModifier = Modifier.size(AppIconSize.prominent)
         if (isPhoneSession(session)) {
             PhoneGlyph(modifier = glyphModifier)
         } else {
