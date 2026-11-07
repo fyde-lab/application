@@ -1,13 +1,8 @@
 package com.peltoche.fyde
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
@@ -16,7 +11,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,9 +20,9 @@ import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.feedback.AppErrorNote
+import com.peltoche.fyde.components.feedback.AppListSkeleton
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
-import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.icons.InfoGlyph
 import com.peltoche.fyde.icons.LaptopGlyph
@@ -188,24 +182,12 @@ private fun SessionRow(session: FydeOpenSession, trailingContent: @Composable ()
 /** Shaped like two loaded rows (a glyph, a name over a date), so the page doesn't jump on load. */
 @Composable
 private fun SessionsSkeleton() {
-    AppGroup {
-        repeat(2) { index ->
-            if (index > 0) AppDivider()
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = AppDimensions.rowHeightComfortable)
-                    .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
-            ) {
-                AppSkeleton(Modifier.size(24.dp))
-                Column {
-                    AppSkeleton(Modifier.width(160.dp).height(18.dp))
-                    Spacer(Modifier.height(AppSpacing.space2))
-                    AppSkeleton(Modifier.width(120.dp).height(14.dp))
-                }
-            }
-        }
-    }
+    AppListSkeleton(
+        rows = 2,
+        rowHeight = AppDimensions.rowHeightComfortable,
+        tileSize = 24.dp,
+        firstLine = Modifier.width(160.dp).height(18.dp),
+        secondLine = Modifier.width(120.dp).height(14.dp),
+        lineGap = AppSpacing.space2,
+    )
 }

@@ -45,10 +45,10 @@ import com.peltoche.fyde.components.content.DocumentRow
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppErrorState
+import com.peltoche.fyde.components.feedback.AppListSkeleton
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
-import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.icons.AlertTriangleGlyph
 import com.peltoche.fyde.icons.DocumentGlyph
@@ -570,25 +570,14 @@ internal fun VaultDocumentRow(
 /** A list's place while its documents load. */
 @Composable
 internal fun DocumentRowSkeletons(count: Int = 4) {
-    AppGroup {
-        repeat(count) { index ->
-            if (index > 0) AppDivider()
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = AppDimensions.rowHeightStandard)
-                    .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-            ) {
-                AppSkeleton(modifier = Modifier.size(AppDimensions.iconTile))
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
-                    AppSkeleton(modifier = Modifier.fillMaxWidth(0.6f).height(AppSpacing.space5))
-                    AppSkeleton(modifier = Modifier.fillMaxWidth(0.35f).height(AppSpacing.space4))
-                }
-            }
-        }
-    }
+    AppListSkeleton(
+        rows = count,
+        rowHeight = AppDimensions.rowHeightStandard,
+        tileSize = AppDimensions.iconTile,
+        firstLine = Modifier.fillMaxWidth(0.6f).height(AppSpacing.space5),
+        secondLine = Modifier.fillMaxWidth(0.35f).height(AppSpacing.space4),
+        lineGap = AppSpacing.space3,
+    )
 }
 
 /**

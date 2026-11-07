@@ -59,10 +59,10 @@ import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppErrorState
+import com.peltoche.fyde.components.feedback.AppListSkeleton
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
-import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.feedback.RunStepper
 import com.peltoche.fyde.components.feedback.SourceStatus
 import com.peltoche.fyde.components.feedback.SourceStatusKind
@@ -1197,25 +1197,15 @@ private fun Summary(script: FydeScript, maxLines: Int = 1) {
 /** Three placeholder rows while the scripts load. */
 @Composable
 private fun SkeletonRows() {
-    AppGroup {
-        repeat(3) { index ->
-            if (index > 0) AppDivider()
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = AppDimensions.rowHeightComfortable)
-                    .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
-            ) {
-                AppSkeleton(modifier = Modifier.size(AppDimensions.iconTile), shape = AppShapes.iconTile)
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppSpacing.space2)) {
-                    AppSkeleton(modifier = Modifier.fillMaxWidth(0.4f).height(AppSpacing.space5))
-                    AppSkeleton(modifier = Modifier.fillMaxWidth(0.6f).height(AppSpacing.space4))
-                }
-            }
-        }
-    }
+    AppListSkeleton(
+        rows = 3,
+        rowHeight = AppDimensions.rowHeightComfortable,
+        tileSize = AppDimensions.iconTile,
+        tileShape = AppShapes.iconTile,
+        firstLine = Modifier.fillMaxWidth(0.4f).height(AppSpacing.space5),
+        secondLine = Modifier.fillMaxWidth(0.6f).height(AppSpacing.space4),
+        lineGap = AppSpacing.space2,
+    )
 }
 
 /** A source's status line, worded for where its run is. */
