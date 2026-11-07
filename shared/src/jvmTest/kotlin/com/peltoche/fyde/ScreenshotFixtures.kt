@@ -1,6 +1,14 @@
 package com.peltoche.fyde
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppSpacing
 
 /** The screens [ScreenshotsJvmTest] renders, each in a fixed state from fake data. */
 internal object ScreenshotFixtures {
@@ -191,7 +199,18 @@ internal object ScreenshotFixtures {
         shot("settings-plan-loading") { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Loading) },
         shot("settings-plan-failed") { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Failed("Impossible de charger l'offre.", onRetry = {})) },
     ) + SettingsSection.entries.map { section -> shot("settings-${section.name.lowercase()}") { settings(section) } } +
-        listOf(shot("design-system") { DesignSystemScreen(onBack = {}) })
+        listOf(
+            shot("design-system") { DesignSystemScreen(onBack = {}) },
+            // Shown only once a password is typed, so rendered on its own.
+            shot("password-meter") {
+                Column(Modifier.background(AppColors.background).padding(AppSpacing.space5)) {
+                    PasswordStrength.entries.forEach { strength ->
+                        PasswordStrengthMeter(strength, length = 12)
+                        Spacer(Modifier.height(AppSpacing.space5))
+                    }
+                }
+            },
+        )
 
     private fun shot(name: String, content: @Composable () -> Unit): Pair<String, @Composable () -> Unit> = name to content
 
