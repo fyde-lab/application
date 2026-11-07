@@ -126,6 +126,10 @@ an `AppNote` overload), `AppRetryButton` (`components/action/`). Not merged: `So
 
 ### 6. Meters — low-medium value, low risk
 
+**Done:** `AppSegmentedMeter` and `AppDimensions.segmentedMeterHeight`; the wording stays in
+`PasswordStrengthMeter`. `ScreenshotsJvmTest` now renders the meter on its own (`password-meter`),
+unchanged.
+
 - `PasswordStrengthMeter` (`RegisterScreen.kt:443`, also used by Settings' Changer le mot de
   passe): four segments, hand-drawn at raw `4.dp` high with a raw `RoundedCornerShape(2.dp)`
   (= `AppRadius.xs`).

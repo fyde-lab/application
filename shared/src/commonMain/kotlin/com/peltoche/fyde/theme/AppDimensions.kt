@@ -67,6 +67,9 @@ object AppDimensions {
     /** `AppProgressBar`'s thickness, and the skeleton standing in for one. */
     val progressBarHeight: Dp = 6.dp
 
+    /** One bar of an `AppSegmentedMeter` (the password strength meter). */
+    val segmentedMeterHeight: Dp = 4.dp
+
     /** Elevation/Shape — hairline dividers and card edges. */
     val borderHairline: Dp = 1.dp
 

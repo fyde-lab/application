@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -25,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -34,12 +32,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
+import com.peltoche.fyde.components.feedback.AppSegmentedMeter
 import com.peltoche.fyde.components.form.AppCheckbox
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.icons.AlertGlyph
@@ -445,17 +443,7 @@ internal fun passwordStrength(password: String): PasswordStrength = when {
 @Composable
 internal fun PasswordStrengthMeter(strength: PasswordStrength, length: Int) {
     val lit = if (strength.bars <= PasswordStrength.Fair.bars) AppColors.warning else AppColors.success
-    Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space2), modifier = Modifier.fillMaxWidth()) {
-        repeat(PasswordStrength.entries.size) { index ->
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(if (index < strength.bars) lit else AppColors.border),
-            )
-        }
-    }
+    AppSegmentedMeter(segments = PasswordStrength.entries.size, lit = strength.bars, color = lit)
     Spacer(Modifier.height(AppSpacing.space2))
     Text(
         text = when (strength) {
