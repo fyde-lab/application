@@ -150,7 +150,7 @@ object AppDimensions {
 
 /**
  * Glyph sizes — design-system.md § Iconography. The app's glyphs are drawn
- * on a `Canvas` (see `NavGlyphs.kt`) and take their size from the caller's
+ * on a `Canvas` (see `icons/NavGlyphs.kt`) and take their size from the caller's
  * `Modifier.size`, so the scale lives here rather than in each glyph. A
  * size off this scale is an optical exception and says why where it's used.
  */

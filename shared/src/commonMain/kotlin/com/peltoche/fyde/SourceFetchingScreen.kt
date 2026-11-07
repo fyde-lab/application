@@ -32,6 +32,8 @@ import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.RunStep
 import com.peltoche.fyde.components.feedback.RunStepState
 import com.peltoche.fyde.components.feedback.RunStepper
+import com.peltoche.fyde.icons.AlertGlyph
+import com.peltoche.fyde.icons.InfoGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res

@@ -19,6 +19,8 @@ primitive (an icon, a token). Ranked by value against risk.
 
 ### 1. The design system depends on the screens' package (glyphs) — high value, low risk
 
+**Done:** the three files are in `icons/` (`com.peltoche.fyde.icons`); screenshots unchanged.
+
 `components/` imports 9 glyphs from `com.peltoche.fyde` (`AlertGlyph`, `CheckGlyph`,
 `ChevronRightGlyph`, `StopGlyph`, `ChevronLeftGlyph`, `ClockGlyph`, `CloseGlyph`, `EyeGlyph`,
 `LockGlyph`), so the design system can't be read or reused without the app. All 46 glyphs live

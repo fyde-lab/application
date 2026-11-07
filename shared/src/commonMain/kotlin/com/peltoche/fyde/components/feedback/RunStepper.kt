@@ -19,9 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.AlertGlyph
-import com.peltoche.fyde.CheckGlyph
-import com.peltoche.fyde.StopGlyph
+import com.peltoche.fyde.icons.AlertGlyph
+import com.peltoche.fyde.icons.CheckGlyph
+import com.peltoche.fyde.icons.StopGlyph
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize

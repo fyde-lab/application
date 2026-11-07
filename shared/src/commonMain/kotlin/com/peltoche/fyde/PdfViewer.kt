@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import com.peltoche.fyde.components.feedback.AppErrorState
+import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.pdf_render_failed_description
 import com.peltoche.fyde.resources.pdf_render_failed_title

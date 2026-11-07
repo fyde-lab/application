@@ -35,6 +35,11 @@ import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.DocumentAttributes
 import com.peltoche.fyde.components.content.DocumentPass
+import com.peltoche.fyde.icons.ChevronRightGlyph
+import com.peltoche.fyde.icons.CloseGlyph
+import com.peltoche.fyde.icons.DownloadGlyph
+import com.peltoche.fyde.icons.LockGlyph
+import com.peltoche.fyde.icons.PagesGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.vault_fact_arrived
 import com.peltoche.fyde.resources.vault_fact_encrypted

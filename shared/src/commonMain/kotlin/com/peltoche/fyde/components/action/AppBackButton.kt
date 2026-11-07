@@ -16,7 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.peltoche.fyde.ChevronLeftGlyph
+import com.peltoche.fyde.icons.ChevronLeftGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.theme.AppColors

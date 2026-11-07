@@ -23,6 +23,8 @@ import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.form.AppCheckbox
 import com.peltoche.fyde.components.overlay.AppBottomSheet
+import com.peltoche.fyde.icons.AlertTriangleGlyph
+import com.peltoche.fyde.icons.SyncGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.allow_insecure_storage_label
 import com.peltoche.fyde.resources.cancel

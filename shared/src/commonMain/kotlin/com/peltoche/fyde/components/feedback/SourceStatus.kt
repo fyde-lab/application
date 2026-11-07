@@ -12,10 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.peltoche.fyde.AlertGlyph
-import com.peltoche.fyde.CheckGlyph
-import com.peltoche.fyde.ClockGlyph
-import com.peltoche.fyde.StopGlyph
+import com.peltoche.fyde.icons.AlertGlyph
+import com.peltoche.fyde.icons.CheckGlyph
+import com.peltoche.fyde.icons.ClockGlyph
+import com.peltoche.fyde.icons.StopGlyph
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppSpacing

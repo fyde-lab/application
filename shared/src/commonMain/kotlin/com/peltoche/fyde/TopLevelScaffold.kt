@@ -19,6 +19,9 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
 import com.peltoche.fyde.components.navigation.AppNavigationBar
 import com.peltoche.fyde.components.navigation.AppNavigationItem
+import com.peltoche.fyde.icons.GearGlyph
+import com.peltoche.fyde.icons.GridGlyph
+import com.peltoche.fyde.icons.PlugGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass

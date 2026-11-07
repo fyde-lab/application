@@ -26,6 +26,9 @@ import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.SealHero
+import com.peltoche.fyde.icons.BoltGlyph
+import com.peltoche.fyde.icons.LockGlyph
+import com.peltoche.fyde.icons.SyncGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res

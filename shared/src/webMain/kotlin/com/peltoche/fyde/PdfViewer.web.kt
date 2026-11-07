@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.feedback.AppEmptyState
+import com.peltoche.fyde.icons.DocumentGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.pdf_preview_unavailable
 import com.peltoche.fyde.resources.preview_unavailable_title

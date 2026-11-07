@@ -45,6 +45,12 @@ import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.AppSkeleton
+import com.peltoche.fyde.icons.AlertGlyph
+import com.peltoche.fyde.icons.AlertTriangleGlyph
+import com.peltoche.fyde.icons.DocumentGlyph
+import com.peltoche.fyde.icons.PlusGlyph
+import com.peltoche.fyde.icons.SearchGlyph
+import com.peltoche.fyde.icons.ShieldGlyph
 import com.peltoche.fyde.layout.AppContentContainer
 import com.peltoche.fyde.layout.AppContentWidth
 import com.peltoche.fyde.layout.AppWindowSizeClass

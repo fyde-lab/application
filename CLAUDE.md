@@ -22,8 +22,8 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through this repo's own 
   change (e.g. a new `ProgressStep` needs an `FfiProgressStep` variant). Keep its uniffi
   namespace `fyde_sdk` (Kotlin package `uniffi.fyde_sdk`).
 - **Visual rules:** `design/design-system.md` is the source of truth (tokens in
-  `shared/.../theme/`, components in `shared/.../components/`). Root `DESIGN.md` is superseded —
-  don't implement against it.
+  `shared/.../theme/`, components in `shared/.../components/`, glyphs in `shared/.../icons/`).
+  Root `DESIGN.md` is superseded — don't implement against it.
 
 ## Commands
 

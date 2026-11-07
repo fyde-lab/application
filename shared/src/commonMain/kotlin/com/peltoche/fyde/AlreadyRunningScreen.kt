@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.peltoche.fyde.components.feedback.AppErrorState
+import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.already_running_title
 import com.peltoche.fyde.resources.retry
