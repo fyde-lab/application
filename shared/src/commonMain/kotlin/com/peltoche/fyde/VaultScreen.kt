@@ -37,6 +37,7 @@ import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppRetryButton
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.content.CategoryCard
 import com.peltoche.fyde.components.content.CategoryCardPlaceholder
@@ -375,7 +376,7 @@ private fun HomePage(vault: Vault) {
                 VaultGrid(items = home.categories, columns = columns) { summary -> CategorySummaryCard(vault, summary) }
                 if (home.latest.isNotEmpty()) {
                     AppSectionTitle(stringResource(Res.string.vault_latest))
-                    SettingsGroup {
+                    AppGroup {
                         home.latest.forEachIndexed { index, document ->
                             if (index > 0) AppDivider()
                             VaultDocumentRow(
@@ -569,7 +570,7 @@ internal fun VaultDocumentRow(
 /** A list's place while its documents load. */
 @Composable
 internal fun DocumentRowSkeletons(count: Int = 4) {
-    SettingsGroup {
+    AppGroup {
         repeat(count) { index ->
             if (index > 0) AppDivider()
             Row(

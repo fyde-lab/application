@@ -52,6 +52,8 @@ import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppGroup
+import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.feedback.AppEmptyState
@@ -458,7 +460,7 @@ private fun SourceListPage(tab: SourcesTab) {
 
 @Composable
 private fun SourceRows(tab: SourcesTab, scripts: List<FydeScript>) {
-    SettingsGroup {
+    AppGroup {
         scripts.forEachIndexed { index, script ->
             if (index > 0) AppDivider()
             SourceRow(
@@ -473,7 +475,7 @@ private fun SourceRows(tab: SourcesTab, scripts: List<FydeScript>) {
 /** One S1 row: tile, name, status (or what it fetches until it has one), chevron. */
 @Composable
 private fun SourceRow(script: FydeScript, status: SourceFetchStatus?, onClick: () -> Unit) {
-    ClickableRow(onClick = onClick, minHeight = AppDimensions.rowHeightComfortable) {
+    AppGroupRow(onClick = onClick, minHeight = AppDimensions.rowHeightComfortable) {
         ScriptIcon(icon = script.icon)
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -621,7 +623,7 @@ private fun SortHeader(
 /** One D4 row: tile and name, then its status — "—" until this app has run it. */
 @Composable
 private fun SourceTableRow(script: FydeScript, status: SourceFetchStatus?, selected: Boolean, onClick: () -> Unit) {
-    ClickableRow(
+    AppGroupRow(
         onClick = onClick,
         minHeight = AppDimensions.rowHeightStandard,
         background = if (selected) AppColors.selectionSurface else Color.Transparent,
@@ -736,7 +738,7 @@ private fun CatalogueMessage(text: String) {
 
 @Composable
 private fun CatalogueRows(tab: SourcesTab, scripts: List<FydeScript>) {
-    SettingsGroup {
+    AppGroup {
         scripts.forEachIndexed { index, script ->
             if (index > 0) AppDivider()
             val added = tab.isInstalled(script.id)
@@ -1000,7 +1002,7 @@ private fun SourceSettings(tab: SourcesTab, script: FydeScript, wide: Boolean) {
     val hasCredentials = script.parameters.isNotEmpty()
     if (!hasCredentials && script.allowedDomains.isEmpty()) return
     AppSectionTitle(stringResource(Res.string.source_settings))
-    SettingsGroup {
+    AppGroup {
         if (hasCredentials) {
             val openCredentials = { tab.onFocusChange(SourceFocus.Credentials(script.id)) }
             val label = stringResource(Res.string.source_credentials)
@@ -1010,7 +1012,7 @@ private fun SourceSettings(tab: SourcesTab, script: FydeScript, wide: Boolean) {
                     AppTextButton(text = stringResource(Res.string.source_edit), onClick = openCredentials, enabled = !tab.isPending(script.id))
                 }
             } else {
-                ClickableRow(onClick = openCredentials, minHeight = AppDimensions.rowHeightStandard, enabled = !tab.isPending(script.id)) {
+                AppGroupRow(onClick = openCredentials, minHeight = AppDimensions.rowHeightStandard, enabled = !tab.isPending(script.id)) {
                     SettingText(label = label, value = value, modifier = Modifier.weight(1f))
                     ChevronRightGlyph(modifier = Modifier.size(AppIconSize.sm))
                 }
@@ -1025,13 +1027,7 @@ private fun SourceSettings(tab: SourcesTab, script: FydeScript, wide: Boolean) {
 
 @Composable
 private fun SettingRow(label: String, value: String, trailing: (@Composable () -> Unit)? = null) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = AppDimensions.rowHeightStandard)
-            .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
-    ) {
+    AppGroupRow(horizontalArrangement = Arrangement.Start) {
         SettingText(label = label, value = value, modifier = Modifier.weight(1f))
         trailing?.invoke()
     }
@@ -1191,30 +1187,6 @@ private fun PageBar(
 }
 
 @Composable
-private fun ClickableRow(
-    onClick: () -> Unit,
-    minHeight: Dp,
-    enabled: Boolean = true,
-    background: Color = Color.Transparent,
-    horizontalPadding: Dp = AppSpacing.space5,
-    content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(background)
-            .clickable(interactionSource = interactionSource, indication = ripple(), enabled = enabled, role = Role.Button, onClick = onClick)
-            .appFocusRing(interactionSource, shape = AppRadius.none)
-            .heightIn(min = minHeight)
-            .padding(horizontal = horizontalPadding, vertical = AppSpacing.space3),
-        content = content,
-    )
-}
-
-@Composable
 private fun Summary(script: FydeScript, maxLines: Int = 1) {
     val summary = script.shortDescription.ifBlank { script.description }
     if (summary.isNotBlank()) {
@@ -1225,7 +1197,7 @@ private fun Summary(script: FydeScript, maxLines: Int = 1) {
 /** Three placeholder rows while the scripts load. */
 @Composable
 private fun SkeletonRows() {
-    SettingsGroup {
+    AppGroup {
         repeat(3) { index ->
             if (index > 0) AppDivider()
             Row(

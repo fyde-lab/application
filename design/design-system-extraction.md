@@ -40,6 +40,11 @@ logic) stay where they are. `components/navigation/AppTopBar.kt`'s private `Back
 
 ### 2. Surface groups and their rows, defined in `SettingsScreen.kt` and used everywhere — high value, low risk
 
+**Done:** `AppGroup`, `AppGroupCard` and `AppGroupRow`. `ClickableRow` is gone; `SettingsLinkRow`,
+`SettingRow`, `FactRow` and `SessionRow` lay out their content inside `AppGroupRow`.
+`SessionChoice` keeps its own row: its `selectable` uses the default indication and no fill, so
+moving it would change its feedback; no `SessionDeviceRow` was extracted. Screenshots unchanged.
+
 `SettingsGroup` (a `surface` column, `AppRadius.lg`, hairline border) and `SettingsCard` (the
 same with `space5` padding) are the app's actual card: 20 call sites across Settings, Sessions, PlanUsage, the Sources tab and the
 Vault's home, category, search and document pages. The design system's own `AppCard` draws something else

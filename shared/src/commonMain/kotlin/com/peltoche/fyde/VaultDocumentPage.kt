@@ -32,6 +32,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppGroup
+import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.DocumentAttributes
 import com.peltoche.fyde.components.content.DocumentPass
@@ -190,7 +192,7 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
         )
         if (onOpenFile != null) {
             Spacer(Modifier.height(AppSpacing.space5))
-            SettingsGroup { FileRow(document, size, onOpenFile) }
+            AppGroup { FileRow(document, size, onOpenFile) }
         }
         if (information.isNotEmpty()) {
             Spacer(Modifier.height(AppSpacing.space5))
@@ -201,7 +203,7 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
             )
         }
         Spacer(Modifier.height(AppSpacing.space5))
-        SettingsGroup {
+        AppGroup {
             FactRow(stringResource(Res.string.vault_fact_arrived), localizedDate(document.createdAt))
             AppDivider()
             val devices = vault.state.deviceCount
@@ -257,14 +259,7 @@ private fun FileRow(document: FydeDocument, size: String, onClick: () -> Unit) {
 
 @Composable
 private fun FactRow(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = AppDimensions.rowHeightCompact)
-            .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
-    ) {
+    AppGroupRow(minHeight = AppDimensions.rowHeightCompact) {
         Text(text = label, style = AppTypography.body, color = AppColors.textMuted, modifier = Modifier.weight(1f))
         Text(text = value, style = AppTypography.body, color = AppColors.text, textAlign = TextAlign.End)
     }

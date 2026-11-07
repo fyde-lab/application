@@ -25,6 +25,7 @@ import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.content.AppChip
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.CategoryBand
 import com.peltoche.fyde.components.content.DocumentCard
 import com.peltoche.fyde.components.feedback.AppEmptyState
@@ -253,7 +254,7 @@ private fun MonthHeading(group: MonthGroup) {
 /** One month's rows: "Énergie · Facture" under each name, [selected] marked. */
 @Composable
 private fun CategoryRows(vault: Vault, documents: List<FydeDocument>, selected: FydeDocument?) {
-    SettingsGroup {
+    AppGroup {
         documents.forEachIndexed { index, document ->
             if (index > 0) AppDivider()
             VaultDocumentRow(
