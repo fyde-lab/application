@@ -74,6 +74,9 @@ and min heights:
 
 ### 3. Skeleton list rows — medium value, low risk
 
+**Done:** `AppListSkeleton`; `SkeletonRows`, `DocumentRowSkeletons` and `SessionsSkeleton` keep
+their names and pass their proportions to it. Screenshots unchanged.
+
 Three copies of "group of N rows: tile + two bars" plus one card-shaped skeleton:
 
 | Composable | Rows | Row height | Tile | Bar widths | Bar gap |
