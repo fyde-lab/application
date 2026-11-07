@@ -20,8 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.components.action.AppRetryButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.AppSkeleton
@@ -94,14 +96,14 @@ internal fun SessionsSection(
     Text(text = intro, style = AppTypography.body, color = AppColors.textMuted)
     Spacer(Modifier.height(AppSpacing.space5))
     disconnectError?.let { message ->
-        SettingsErrorNote(message)
+        AppErrorNote(message)
         Spacer(Modifier.height(AppSpacing.space4))
     }
     when (state) {
         SessionsUiState.Loading -> SessionsSkeleton()
         is SessionsUiState.Failed -> {
-            SettingsErrorNote(state.message)
-            RetryButton(onClick = state.onRetry)
+            AppErrorNote(state.message)
+            AppRetryButton(onClick = state.onRetry)
         }
         is SessionsUiState.Loaded -> SettingsGroup {
             state.sessions.forEachIndexed { index, session ->

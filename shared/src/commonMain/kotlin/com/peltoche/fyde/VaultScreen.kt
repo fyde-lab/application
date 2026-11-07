@@ -35,11 +35,14 @@ import androidx.compose.ui.unit.Dp
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppCircleButton
+import com.peltoche.fyde.components.action.AppRetryButton
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.content.CategoryCard
 import com.peltoche.fyde.components.content.CategoryCardPlaceholder
 import com.peltoche.fyde.components.content.DocumentRow
 import com.peltoche.fyde.components.feedback.AppEmptyState
+import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppNote
@@ -371,7 +374,7 @@ private fun HomePage(vault: Vault) {
                 Spacer(Modifier.height(AppSpacing.space7))
                 VaultGrid(items = home.categories, columns = columns) { summary -> CategorySummaryCard(vault, summary) }
                 if (home.latest.isNotEmpty()) {
-                    SectionTitle(stringResource(Res.string.vault_latest))
+                    AppSectionTitle(stringResource(Res.string.vault_latest))
                     SettingsGroup {
                         home.latest.forEachIndexed { index, document ->
                             if (index > 0) AppDivider()
@@ -516,8 +519,8 @@ internal fun VaultNotes(vault: Vault) {
     }
     state.loadError?.let { error ->
         Column(modifier = Modifier.padding(top = AppSpacing.space5)) {
-            SettingsErrorNote(error)
-            RetryButton(onClick = vault.onRetryLoad)
+            AppErrorNote(error)
+            AppRetryButton(onClick = vault.onRetryLoad)
         }
     }
 }

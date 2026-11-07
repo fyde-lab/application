@@ -53,7 +53,9 @@ import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppIconTile
+import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.feedback.AppEmptyState
+import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppErrorState
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppNote
@@ -440,11 +442,11 @@ private fun SourceListPage(tab: SourcesTab) {
                 val needsYou = installed.filter { tab.statuses[it.id].needsUser() }
                 val others = installed - needsYou.toSet()
                 if (needsYou.isNotEmpty()) {
-                    SectionTitle(stringResource(Res.string.sources_tab_needs_you))
+                    AppSectionTitle(stringResource(Res.string.sources_tab_needs_you))
                     SourceRows(tab, needsYou)
                 }
                 if (others.isNotEmpty()) {
-                    SectionTitle(stringResource(Res.string.sources_tab_connected))
+                    AppSectionTitle(stringResource(Res.string.sources_tab_connected))
                     SourceRows(tab, others)
                 }
                 PlanLine(tab, centered = true, modifier = Modifier.fillMaxWidth().padding(top = AppSpacing.space5))
@@ -708,11 +710,11 @@ private fun CataloguePage(tab: SourcesTab, onBack: () -> Unit) {
                 val own = matches.filter { !it.isPublic }
                 if (matches.isEmpty()) CatalogueMessage(stringResource(Res.string.sources_no_match, tab.query.trim()))
                 if (public.isNotEmpty()) {
-                    SectionTitle(stringResource(Res.string.catalogue_all))
+                    AppSectionTitle(stringResource(Res.string.catalogue_all))
                     CatalogueRows(tab, public)
                 }
                 if (own.isNotEmpty()) {
-                    SectionTitle(stringResource(Res.string.catalogue_own))
+                    AppSectionTitle(stringResource(Res.string.catalogue_own))
                     CatalogueRows(tab, own)
                 }
             }
@@ -836,7 +838,7 @@ private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
             }
             Spacer(Modifier.height(AppSpacing.space5))
             when {
-                status is SourceFetchStatus.Failed -> ErrorNote(status.message)
+                status is SourceFetchStatus.Failed -> AppErrorNote(status.message)
                 // S4b: what it got stays, and Relancer picks up from there.
                 status is SourceFetchStatus.Stopped -> AppNote(
                     message = stringResource(Res.string.source_fetching_stopped_note),
@@ -940,12 +942,12 @@ private fun ColumnScope.DetailBody(tab: SourcesTab, script: FydeScript, wide: Bo
 
     if (status is SourceFetchStatus.Failed) {
         Spacer(Modifier.height(AppSpacing.space5))
-        ErrorNote(status.message)
+        AppErrorNote(status.message)
         Spacer(Modifier.height(AppSpacing.space5))
         UpdateForm(tab, script, autofocus = !wide)
     } else {
         if (status != null) {
-            SectionTitle(stringResource(Res.string.source_last_run))
+            AppSectionTitle(stringResource(Res.string.source_last_run))
             AppCard(modifier = Modifier.fillMaxWidth(), outlined = true) {
                 RunStepper(steps = sourceFetchSteps(status))
             }
@@ -997,7 +999,7 @@ private fun RunButton(tab: SourcesTab, script: FydeScript) {
 private fun SourceSettings(tab: SourcesTab, script: FydeScript, wide: Boolean) {
     val hasCredentials = script.parameters.isNotEmpty()
     if (!hasCredentials && script.allowedDomains.isEmpty()) return
-    SectionTitle(stringResource(Res.string.source_settings))
+    AppSectionTitle(stringResource(Res.string.source_settings))
     SettingsGroup {
         if (hasCredentials) {
             val openCredentials = { tab.onFocusChange(SourceFocus.Credentials(script.id)) }
@@ -1149,7 +1151,7 @@ private fun CredentialsFields(
     if (autofocus) LaunchedEffect(Unit) { focus.requestFocus() }
 
     if (form.errorMessage != null) {
-        ErrorNote(form.errorMessage)
+        AppErrorNote(form.errorMessage)
         Spacer(Modifier.height(AppSpacing.space5))
     }
     ConnectSourceFields(form, focus, focusedKey = firstSecret)
@@ -1218,15 +1220,6 @@ private fun Summary(script: FydeScript, maxLines: Int = 1) {
     if (summary.isNotBlank()) {
         Text(text = summary, style = AppTypography.caption, color = AppColors.textMuted, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
     }
-}
-
-@Composable
-private fun ErrorNote(message: String) {
-    AppNote(
-        message = message,
-        kind = AppNoteKind.Error,
-        icon = { tint -> AlertGlyph(modifier = Modifier.size(AppIconSize.sm), tint = tint) },
-    )
 }
 
 /** Three placeholder rows while the scripts load. */

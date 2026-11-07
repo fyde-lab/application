@@ -98,6 +98,8 @@ both stay.
 
 ### 5. Section title, error note and retry — medium value, low risk
 
+**Done:** `AppSectionTitle`, `AppErrorNote`, `AppRetryButton`; screenshots unchanged.
+
 Defined in `SettingsScreen.kt` and imported by 3–4 other screens:
 
 - `SectionTitle` (`section` style, `space7` above unless first, `space3` below) → used by
