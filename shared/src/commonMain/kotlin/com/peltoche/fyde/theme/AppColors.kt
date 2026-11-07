@@ -236,6 +236,16 @@ object AppColors {
     val category: AppCategoryColors @Composable get() = LocalAppExtendedColors.current.categories
 
     /**
+     * A done step's disc on the brand panel's `primary` fill: the dark
+     * theme's `success`, legible on `primary` in both themes as the mockup
+     * draws it (`desktop-auth.html`'s `.stp.done`).
+     */
+    val brandStepDoneFill: Color = Color(0xFF8FD1AE)
+
+    /** The near-black check on [brandStepDoneFill]. */
+    val brandStepDoneInk: Color = Color(0xFF0B2418)
+
+    /**
      * design-system.md § Color — a tinted container: [accent] at one low
      * alpha, for a small fill whose color carries meaning (a badge, a
      * warning banner, a file-kind tile, the error state's circle). One

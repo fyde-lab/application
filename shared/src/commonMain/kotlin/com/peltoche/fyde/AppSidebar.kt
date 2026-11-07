@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.CategoryFillTile
 import com.peltoche.fyde.icons.GearGlyph
@@ -65,8 +64,10 @@ import com.peltoche.fyde.resources.sidebar_all_vault
 import com.peltoche.fyde.resources.sidebar_categories
 import com.peltoche.fyde.resources.sidebar_item_count
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppRadius
+import com.peltoche.fyde.theme.AppShapes
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.theme.appFocusRing
@@ -93,7 +94,7 @@ internal fun AppSidebar(
     modifier: Modifier = Modifier,
 ) {
     val summary = navigation.summary
-    Row(modifier = modifier.width(SidebarWidth).fillMaxHeight()) {
+    Row(modifier = modifier.width(AppDimensions.sidebarWidth).fillMaxHeight()) {
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -128,7 +129,7 @@ internal fun AppSidebar(
                 if (summary.categories.isNotEmpty()) {
                     Text(
                         text = stringResource(Res.string.sidebar_categories).uppercase(),
-                        style = AppTypography.micro.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.72.sp),
+                        style = AppTypography.overline,
                         color = AppColors.textMuted,
                         modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = AppSpacing.space5, bottom = 6.dp),
                     )
@@ -173,7 +174,7 @@ internal fun AppSidebarRail(
     modifier: Modifier = Modifier,
 ) {
     val summary = navigation.summary
-    Row(modifier = modifier.width(SidebarRailWidth).fillMaxHeight()) {
+    Row(modifier = modifier.width(AppDimensions.sidebarRailWidth).fillMaxHeight()) {
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -193,7 +194,7 @@ internal fun AppSidebarRail(
                 count = summary.total,
                 selected = selection == SidebarSelection.Vault,
                 onClick = navigation.onOpenVault,
-            ) { tint -> GridGlyph(tint = tint, modifier = Modifier.size(24.dp)) }
+            ) { tint -> GridGlyph(tint = tint, modifier = Modifier.size(AppIconSize.prominent)) }
             Box(Modifier.padding(vertical = AppSpacing.space2).width(32.dp).height(1.dp).background(AppColors.border))
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
@@ -207,7 +208,7 @@ internal fun AppSidebarRail(
                         selected = selection == SidebarSelection.Category(category),
                         onClick = { navigation.onOpenCategory(category) },
                     ) {
-                        CategoryTile(category, size = AppIconSize.xl, iconSize = AppIconSize.md, shape = RailCellShape)
+                        CategoryTile(category, size = AppIconSize.xl, iconSize = AppIconSize.md, shape = AppShapes.sidebarRailCell)
                     }
                 }
             }
@@ -216,13 +217,13 @@ internal fun AppSidebarRail(
                 count = summary.sourceCount?.toLong(),
                 selected = selection == SidebarSelection.Sources,
                 onClick = navigation.onOpenScripts,
-            ) { tint -> PlugGlyph(tint = tint, modifier = Modifier.size(24.dp)) }
+            ) { tint -> PlugGlyph(tint = tint, modifier = Modifier.size(AppIconSize.prominent)) }
             RailCell(
                 label = stringResource(Res.string.settings),
                 count = null,
                 selected = selection == SidebarSelection.Settings,
                 onClick = navigation.onOpenSettings,
-            ) { tint -> GearGlyph(tint = tint, modifier = Modifier.size(24.dp)) }
+            ) { tint -> GearGlyph(tint = tint, modifier = Modifier.size(AppIconSize.prominent)) }
         }
         AppDivider(vertical = true)
     }
@@ -241,7 +242,7 @@ private fun SidebarRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(SidebarRowHeight)
+            .height(AppDimensions.sidebarRowHeight)
             .appFocusRing(interactionSource, shape = AppRadius.lg)
             .clip(AppRadius.lg)
             .selectionMarker(selected)
@@ -275,7 +276,7 @@ private fun SidebarRow(
 @Composable
 private fun SealRow(deviceCount: Int?) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(SidebarRowHeight).padding(horizontal = 10.dp),
+        modifier = Modifier.fillMaxWidth().height(AppDimensions.sidebarRowHeight).padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -308,9 +309,9 @@ private fun RailCell(
     ) {
         Box(
             modifier = Modifier
-                .size(RailCellSize)
-                .appFocusRing(interactionSource, shape = RailCellShape)
-                .clip(RailCellShape)
+                .size(AppDimensions.sidebarRailCell)
+                .appFocusRing(interactionSource, shape = AppShapes.sidebarRailCell)
+                .clip(AppShapes.sidebarRailCell)
                 .selectionMarker(selected)
                 .selectable(
                     selected = selected,
@@ -345,20 +346,14 @@ private fun Modifier.selectionMarker(selected: Boolean): Modifier {
     val fill = AppColors.selectionSurface
     val bar = AppColors.primary
     return background(fill).drawBehind {
-        val width = SelectionBarWidth.toPx()
+        val width = AppDimensions.selectionBarWidth.toPx()
         val x = if (layoutDirection == LayoutDirection.Rtl) size.width - width else 0f
         drawRect(bar, topLeft = Offset(x, 0f), size = Size(width, size.height))
     }
 }
 
 /** Both widths include the trailing divider. */
-internal val SidebarWidth = 260.dp
-internal val SidebarRailWidth = 80.dp
 
 /** The sidebar takes the window's leading edge, so it keeps clear of the system bars and cutouts there; the content handles the rest. */
 internal val SidebarInsets: WindowInsets
     @Composable get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.Start)
-private val SidebarRowHeight = 40.dp
-private val RailCellSize = 48.dp
-private val RailCellShape = RoundedCornerShape(12.dp)
-private val SelectionBarWidth = 3.dp

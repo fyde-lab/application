@@ -36,6 +36,9 @@ object AppShapes {
 
     /** `AppIconTile` (a row's, card's or header's leading visual) and its skeleton — `radius-md`, like the card it usually sits in. */
     val iconTile: Shape = AppRadius.md
+
+    /** One cell of the sidebar's icon rail (T2): its focus ring, fill and category tile. */
+    val sidebarRailCell: Shape = RoundedCornerShape(12.dp)
 }
 
 /**

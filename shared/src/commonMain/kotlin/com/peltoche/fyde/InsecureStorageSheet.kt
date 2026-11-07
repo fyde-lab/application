@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppTextButton
@@ -82,7 +81,7 @@ fun InsecureStorageSheet(
             AppIconTile(size = AppDimensions.iconTileLarge, tint = AppColors.warning) {
                 // 24, off AppIconSize's scale: design-system.md § Iconography
                 // sizes the glyph of a large tile at 24.
-                AlertTriangleGlyph(modifier = Modifier.size(24.dp), tint = AppColors.warning)
+                AlertTriangleGlyph(modifier = Modifier.size(AppIconSize.prominent), tint = AppColors.warning)
             }
             Spacer(Modifier.height(AppSpacing.space4))
             Text(

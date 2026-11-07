@@ -147,6 +147,13 @@ its levels are plan logic).
 
 ### 8. Raw values outside the design system — medium value, low risk
 
+**Done:** `AppIconSize.prominent` (24), `AppTypography.brandHeadline` and `overline`,
+`AppDimensions.sidebarWidth`/`sidebarRailWidth`/`sidebarRowHeight`/`sidebarRailCell`/
+`selectionBarWidth`, `AppShapes.sidebarRailCell`, `AppColors.brandStepDoneFill`/`brandStepDoneInk`.
+Left as they are, being one screen's own geometry: the sidebar's inline 10/14/18/6dp paddings and
+24dp category tile, `SourcesScreen`'s card shape and grid height, the recovery grid, the
+appearance tile. Screenshots unchanged.
+
 Literals in screen files that have no token, or duplicate one:
 
 | Value | Where | Proposal |
