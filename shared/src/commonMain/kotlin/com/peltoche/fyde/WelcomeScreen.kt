@@ -30,6 +30,7 @@ import com.peltoche.fyde.icons.BoltGlyph
 import com.peltoche.fyde.icons.LockGlyph
 import com.peltoche.fyde.icons.SyncGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.CenteredScrollColumn
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.welcome_create_vault

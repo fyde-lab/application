@@ -45,6 +45,7 @@ import com.peltoche.fyde.icons.DownloadGlyph
 import com.peltoche.fyde.icons.EyeGlyph
 import com.peltoche.fyde.icons.PagesGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.CenteredScrollColumn
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.recovery_kit_confirm

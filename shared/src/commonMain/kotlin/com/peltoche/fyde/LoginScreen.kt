@@ -39,6 +39,7 @@ import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.icons.ClockGlyph
 import com.peltoche.fyde.icons.KeyGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.CenteredScrollColumn
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.login_create_vault

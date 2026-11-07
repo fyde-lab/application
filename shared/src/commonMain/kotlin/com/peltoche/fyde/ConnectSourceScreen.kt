@@ -46,6 +46,7 @@ import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.icons.GlobeGlyph
 import com.peltoche.fyde.icons.LockGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
+import com.peltoche.fyde.layout.CenteredScrollColumn
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.connect_source_domains

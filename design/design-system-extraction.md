@@ -143,6 +143,11 @@ its levels are plan logic).
 
 ### 7. Other shared pieces in screen files — low value, low risk
 
+**Done:** `AppImageTile` (`components/content/`) draws the tile from a decoded `ImageBitmap`;
+`ScriptIcon` keeps the decoding (`decodeIconBitmap` is the app's `expect`, so moving it whole would
+make `components/` depend on the app again) and moves to its own `ScriptIcon.kt`.
+`CenteredScrollColumn` is in `layout/`. Screenshots unchanged.
+
 - `ScriptIcon` (`SourcesTabScreen.kt:1324`, used by 4 screens): a script's icon tile from its
   bytes, falling back to a glyph → `components/content/AppIconTile.kt` already holds the tile;
   `ScriptIcon` goes beside it as `AppImageTile(bytes, size)` (it takes `ByteArray`, no SDK type).
