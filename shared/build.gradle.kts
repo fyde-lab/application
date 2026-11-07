@@ -158,6 +158,11 @@ kotlin {
             implementation(project(":sdkBridge"))
             implementation(libs.pdfbox)
         }
+        // ScreenshotsJvmTest renders screens offscreen, which needs Skiko's
+        // native runtime for the host (the desktop app gets it the same way).
+        jvmTest.dependencies {
+            implementation(compose.desktop.currentOs)
+        }
         if (isMacOsHost) {
             iosMain.dependencies {
                 implementation(project(":sdkBridge"))
