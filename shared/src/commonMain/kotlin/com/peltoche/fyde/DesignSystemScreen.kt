@@ -36,13 +36,19 @@ import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppIconButton
+import com.peltoche.fyde.components.action.AppRetryButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppBadge
 import com.peltoche.fyde.components.content.AppBadgeVariant
 import com.peltoche.fyde.components.content.AppCard
 import com.peltoche.fyde.components.content.AppDivider
+import com.peltoche.fyde.components.content.AppGroup
+import com.peltoche.fyde.components.content.AppGroupCard
+import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.content.AppIconTile
+import com.peltoche.fyde.components.content.AppImageTile
 import com.peltoche.fyde.components.content.AppListItem
+import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.content.SealHero
 import com.peltoche.fyde.components.content.CategoryBand
 import com.peltoche.fyde.components.content.CategoryCard
@@ -55,12 +61,15 @@ import com.peltoche.fyde.components.content.DocumentPassCell
 import com.peltoche.fyde.components.content.DocumentPassHeadline
 import com.peltoche.fyde.components.content.DocumentRow
 import com.peltoche.fyde.components.feedback.AppEmptyState
+import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppErrorState
+import com.peltoche.fyde.components.feedback.AppListSkeleton
 import com.peltoche.fyde.components.feedback.AppLoading
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.feedback.AppPlanQuota
 import com.peltoche.fyde.components.feedback.AppProgressBar
+import com.peltoche.fyde.components.feedback.AppSegmentedMeter
 import com.peltoche.fyde.components.feedback.RunStep
 import com.peltoche.fyde.components.feedback.RunStepState
 import com.peltoche.fyde.components.feedback.RunStepper
@@ -77,6 +86,7 @@ import com.peltoche.fyde.components.navigation.AppNavigationBar
 import com.peltoche.fyde.components.navigation.AppNavigationItem
 import com.peltoche.fyde.components.navigation.AppNavigationRail
 import com.peltoche.fyde.components.navigation.AppNavigationTopBar
+import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.components.overlay.AppBottomSheet
 import com.peltoche.fyde.components.overlay.AppDialog
@@ -276,6 +286,30 @@ private fun FormsSection() {
 @Composable
 private fun ContentSection() {
     CatalogueSection("Content") {
+        CatalogueRow("AppGroup + AppGroupRow — plain, clickable, selected; AppGroupCard") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                AppGroup {
+                    AppGroupRow { Text("Plain row", style = AppTypography.body, color = AppColors.text) }
+                    AppDivider()
+                    AppGroupRow(onClick = {}) { Text("Clickable row", style = AppTypography.body, color = AppColors.text) }
+                    AppDivider()
+                    AppGroupRow(onClick = {}, selected = true) { Text("Selected row", style = AppTypography.body, color = AppColors.text) }
+                }
+                AppGroupCard { Text("Card content that isn't rows", style = AppTypography.body, color = AppColors.text) }
+            }
+        }
+        CatalogueRow("AppSectionTitle — first on its page / after a group") {
+            Column {
+                AppSectionTitle("First section", first = true)
+                AppSectionTitle("Following section")
+            }
+        }
+        CatalogueRow("AppImageTile — a logo / no image (fallback glyph)") {
+            Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                AppImageTile(image = null)
+                AppImageTile(image = null, size = AppDimensions.iconTileSmall)
+            }
+        }
         CatalogueRow("AppCard — plain / outlined / clickable") {
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
                 AppCard(modifier = Modifier.size(120.dp)) { Text("Plain", style = AppTypography.body, color = AppColors.text) }
@@ -443,6 +477,29 @@ private fun ContentSection() {
 @Composable
 private fun FeedbackSection() {
     CatalogueSection("Feedback") {
+        CatalogueRow("AppErrorNote + AppRetryButton") {
+            Column {
+                AppErrorNote("Couldn't load this page.")
+                AppRetryButton(onClick = {})
+            }
+        }
+        CatalogueRow("AppListSkeleton — a list's rows while it loads") {
+            AppListSkeleton(
+                rows = 2,
+                rowHeight = AppDimensions.rowHeightStandard,
+                tileSize = AppDimensions.iconTile,
+                firstLine = Modifier.fillMaxWidth(0.6f).height(AppSpacing.space5),
+                secondLine = Modifier.fillMaxWidth(0.35f).height(AppSpacing.space4),
+                lineGap = AppSpacing.space3,
+            )
+        }
+        CatalogueRow("AppSegmentedMeter — 1, 2, 4 of 4") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                AppSegmentedMeter(segments = 4, lit = 1, color = AppColors.warning)
+                AppSegmentedMeter(segments = 4, lit = 2, color = AppColors.warning)
+                AppSegmentedMeter(segments = 4, lit = 4, color = AppColors.success)
+            }
+        }
         CatalogueRow("AppNote — Info / Ok / Warning / Error") {
             Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
                 AppNote(message = "Search runs on this device.", kind = AppNoteKind.Info, icon = { tint -> SearchGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) })
@@ -556,6 +613,13 @@ private fun NavigationSection() {
     val navItems = listOf("Documents", "Shared", "Settings")
 
     CatalogueSection("Navigation") {
+        CatalogueRow("AppPageBar — title / no title / trailing action") {
+            Column {
+                AppPageBar(title = "Logement · Énergie", onBack = {})
+                AppPageBar(title = null, onBack = {})
+                AppPageBar(title = "Sources", onBack = {}, trailing = { AppIconButton(onClick = {}, contentDescription = "Add") { DotIcon() } })
+            }
+        }
         CatalogueRow("AppTopBar — this screen's own top bar, above, demonstrates both title sizes (with/without back)") {
             AppTopBar(title = "Top-level title", onBack = null)
         }
