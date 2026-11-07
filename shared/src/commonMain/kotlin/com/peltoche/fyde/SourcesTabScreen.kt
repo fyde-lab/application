@@ -67,6 +67,7 @@ import com.peltoche.fyde.components.feedback.RunStepper
 import com.peltoche.fyde.components.feedback.SourceStatus
 import com.peltoche.fyde.components.feedback.SourceStatusKind
 import com.peltoche.fyde.components.form.AppSearchField
+import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.icons.CheckGlyph
@@ -680,7 +681,7 @@ private fun statusRank(status: SourceFetchStatus?): Int = when (status) {
 private fun CataloguePage(tab: SourcesTab, onBack: () -> Unit) {
     val scripts = tab.state.scripts
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        PageBar(title = stringResource(Res.string.sources_tab_add), onBack = onBack)
+        AppPageBar(title = stringResource(Res.string.sources_tab_add), onBack = onBack)
         Spacer(Modifier.height(AppSpacing.space3))
         AppSearchField(
             value = tab.query,
@@ -799,7 +800,7 @@ private fun ConnectPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit)
         },
     )
     Column(modifier = Modifier.fillMaxSize()) {
-        PageBar(title = null, onBack = onBack, enabled = !form.isSubmitting)
+        AppPageBar(title = null, onBack = onBack, enabled = !form.isSubmitting)
         Column(modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(AppSpacing.space4))
             ConnectSourceForm(form, encryptedNote = Res.string.connect_source_encrypted)
@@ -820,7 +821,7 @@ private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
     val over = status is SourceFetchStatus.Succeeded || status is SourceFetchStatus.Failed || status is SourceFetchStatus.Stopped
     val leave = { tab.onFocusChange(null) }
     Column(modifier = Modifier.fillMaxSize()) {
-        PageBar(title = script.name, onBack = leave)
+        AppPageBar(title = script.name, onBack = leave)
         Column(modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(AppSpacing.space3))
             Text(
@@ -898,7 +899,7 @@ private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
 private fun DetailPage(tab: SourcesTab, script: FydeScript) {
     val failed = tab.statuses[script.id] is SourceFetchStatus.Failed
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        PageBar(
+        AppPageBar(
             title = null,
             onBack = { tab.onFocusChange(null) },
             trailing = if (failed) null else { { RunButton(tab, script) } },
@@ -1081,7 +1082,7 @@ private fun UpdateForm(tab: SourcesTab, script: FydeScript, autofocus: Boolean) 
 @Composable
 private fun CredentialsPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        PageBar(title = script.name, onBack = onBack, enabled = !tab.isPending(script.id))
+        AppPageBar(title = script.name, onBack = onBack, enabled = !tab.isPending(script.id))
         Spacer(Modifier.height(AppSpacing.space3))
         CredentialsBody(tab, script, autofocus = true)
         Spacer(Modifier.height(AppSpacing.space7))
@@ -1156,35 +1157,6 @@ private fun CredentialsFields(
 }
 
 // Shared pieces -------------------------------------------------------------------------------
-
-/** A page's bar: the back circle, an optional centred [title], an optional [trailing] action. */
-@Composable
-private fun PageBar(
-    title: String?,
-    onBack: () -> Unit,
-    enabled: Boolean = true,
-    trailing: (@Composable () -> Unit)? = null,
-) {
-    Box(
-        modifier = Modifier.fillMaxWidth().heightIn(min = AppDimensions.topBarHeight),
-        contentAlignment = Alignment.Center,
-    ) {
-        AppBackButton(onClick = onBack, enabled = enabled, modifier = Modifier.align(Alignment.CenterStart))
-        if (title != null) {
-            Text(
-                text = title,
-                style = AppTypography.bodyEmphasis,
-                color = AppColors.text,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(horizontal = AppDimensions.backButton + AppSpacing.space3),
-            )
-        }
-        if (trailing != null) {
-            Box(modifier = Modifier.align(Alignment.CenterEnd)) { trailing() }
-        }
-    }
-}
 
 @Composable
 private fun Summary(script: FydeScript, maxLines: Int = 1) {

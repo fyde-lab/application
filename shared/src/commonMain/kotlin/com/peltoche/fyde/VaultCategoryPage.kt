@@ -29,6 +29,7 @@ import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.CategoryBand
 import com.peltoche.fyde.components.content.DocumentCard
 import com.peltoche.fyde.components.feedback.AppEmptyState
+import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.icons.SortGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.clear_filters
@@ -54,7 +55,7 @@ internal fun CategoryPage(vault: Vault, page: VaultPage.Category) {
     val contents = vault.contents(page)
     val count = vault.categoryCount(page.category)
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        VaultPageBar(title = null, onBack = { vault.openPage(VaultPage.Home) }, trailing = { CategoryActions(vault, page) })
+        AppPageBar(title = null, onBack = { vault.openPage(VaultPage.Home) }, trailing = { CategoryActions(vault, page) })
         CategoryBand(
             name = page.category.label(),
             subtitle = count?.let { pluralStringResource(Res.plurals.documents_count, it.toInt(), it.toInt()) },
@@ -121,7 +122,7 @@ internal fun CategoryListColumn(vault: Vault, page: VaultPage.Category, selected
             .verticalScroll(rememberScrollState())
             .padding(horizontal = AppSpacing.space5),
     ) {
-        VaultPageBar(title = page.category.label(), onBack = vault::closeDocument, trailing = { CategoryActions(vault, page) })
+        AppPageBar(title = page.category.label(), onBack = vault::closeDocument, trailing = { CategoryActions(vault, page) })
         VaultNotes(vault)
         CategoryChips(vault, page, contents)
         CategoryDocuments(vault, page, contents) { documents -> CategoryRows(vault, documents, selected = selected) }
