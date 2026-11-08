@@ -725,23 +725,6 @@ expect object FydeSdk {
     suspend fun getLanguage(): Result<String?>
 
     /**
-     * Creates a new [FydeScriptType.PARSER] script owned by the authenticated
-     * user, at version 1 — the only type the server accepts. It's private:
-     * only an admin publishes a script.
-     * Mirrors [`crate::ScriptsService::create_script`]; fails if
-     * [initialize] hasn't been called yet.
-     */
-    suspend fun createScript(
-        name: String,
-        icon: ByteArray,
-        script: String,
-        description: String,
-        shortDescription: String,
-        allowedDomains: List<String>,
-        parameters: Map<String, FydeScriptParameter> = emptyMap(),
-    ): Result<FydeScript>
-
-    /**
      * Enables [scriptId] for the authenticated user, so it starts appearing
      * in [listUserScripts]. Mirrors [`crate::ScriptsService::enable_script`];
      * fails if [initialize] hasn't been called yet.
