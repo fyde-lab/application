@@ -260,28 +260,6 @@ actual object FydeSdk {
         client.getLanguage()
     }
 
-    actual suspend fun createScript(
-        name: String,
-        icon: ByteArray,
-        script: String,
-        description: String,
-        shortDescription: String,
-        allowedDomains: List<String>,
-        parameters: Map<String, FydeScriptParameter>,
-    ): Result<FydeScript> =
-        withClient("createScript") { client ->
-            client.createScript(
-                name,
-                icon,
-                script,
-                description,
-                shortDescription,
-                allowedDomains,
-                FfiScriptType.PARSER,
-                parameters.mapValues { (_, parameter) -> parameter.toFfiScriptParameter() },
-            ).toFydeScript()
-        }
-
     actual suspend fun enableScript(scriptId: String): Result<Unit> = withClient("enableScript") { client ->
         client.enableScript(scriptId)
     }
@@ -512,24 +490,10 @@ private fun FfiScriptParameterType.toFydeScriptParameterType() = when (this) {
     FfiScriptParameterType.BOOLEAN -> FydeScriptParameterType.BOOLEAN
 }
 
-private fun FydeScriptParameterType.toFfiScriptParameterType() = when (this) {
-    FydeScriptParameterType.STRING -> FfiScriptParameterType.STRING
-    FydeScriptParameterType.NUMBER -> FfiScriptParameterType.NUMBER
-    FydeScriptParameterType.BOOLEAN -> FfiScriptParameterType.BOOLEAN
-}
-
 private fun FfiScriptParameter.toFydeScriptParameter() = FydeScriptParameter(
     label = label,
     placeholder = placeholder,
     type = parameterType.toFydeScriptParameterType(),
-    required = required,
-    secret = secret,
-)
-
-private fun FydeScriptParameter.toFfiScriptParameter() = FfiScriptParameter(
-    label = label,
-    placeholder = placeholder,
-    parameterType = type.toFfiScriptParameterType(),
     required = required,
     secret = secret,
 )

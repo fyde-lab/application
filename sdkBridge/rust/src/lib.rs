@@ -1621,43 +1621,6 @@ impl FydeClient {
         self.localized(self.inner.users().get_language()).await
     }
 
-    /// Creates a new script owned by the authenticated user, at version 1,
-    /// private: only an admin publishes one. Mirrors [`fyde_sdk::ScriptsService::create_script`].
-    #[allow(clippy::too_many_arguments)]
-    pub async fn create_script(
-        &self,
-        name: String,
-        icon: Vec<u8>,
-        script: String,
-        description: String,
-        short_description: String,
-        allowed_domains: Vec<String>,
-        script_type: FfiScriptType,
-        parameters: HashMap<String, FfiScriptParameter>,
-    ) -> Result<FfiScript, FfiError> {
-        self.localized(async {
-            let script = self
-                .inner
-                .scripts()
-                .create_script(
-                    &name,
-                    icon,
-                    &script,
-                    &description,
-                    &short_description,
-                    allowed_domains,
-                    script_type.into(),
-                    parameters
-                        .into_iter()
-                        .map(|(key, parameter)| (key, parameter.into()))
-                        .collect(),
-                )
-                .await?;
-            Ok(script.into())
-        })
-        .await
-    }
-
     /// Fetches the script matching `id`. Mirrors
     /// [`fyde_sdk::ScriptsService::fetch_script`].
     pub async fn fetch_script(&self, id: String) -> Result<FfiScript, FfiError> {
@@ -1677,46 +1640,6 @@ impl FydeClient {
             let id = parse_uuid(&id)?;
             let icon = self.inner.icons().fetch_icon(id).await?;
             Ok(icon.content().to_vec())
-        })
-        .await
-    }
-
-    /// Updates a script owned by the authenticated user, incrementing its
-    /// version and making it private again. Mirrors [`fyde_sdk::ScriptsService::update_script`].
-    #[allow(clippy::too_many_arguments)]
-    pub async fn update_script(
-        &self,
-        id: String,
-        name: String,
-        icon: Vec<u8>,
-        script: String,
-        description: String,
-        short_description: String,
-        allowed_domains: Vec<String>,
-        script_type: FfiScriptType,
-        parameters: HashMap<String, FfiScriptParameter>,
-    ) -> Result<FfiScript, FfiError> {
-        self.localized(async {
-            let id = parse_uuid(&id)?;
-            let script = self
-                .inner
-                .scripts()
-                .update_script(
-                    id,
-                    &name,
-                    icon,
-                    &script,
-                    &description,
-                    &short_description,
-                    allowed_domains,
-                    script_type.into(),
-                    parameters
-                        .into_iter()
-                        .map(|(key, parameter)| (key, parameter.into()))
-                        .collect(),
-                )
-                .await?;
-            Ok(script.into())
         })
         .await
     }
