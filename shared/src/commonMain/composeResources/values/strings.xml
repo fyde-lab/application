@@ -336,7 +336,7 @@
     </plurals>
     <string name="vault_delete_confirm">Delete</string>
     <string name="vault_delete_shortcut">Del</string>
-    <string name="vault_delete_unavailable">Deleting documents isn’t available yet.</string>
+    <string name="vault_deleted">Document deleted</string>
     <string name="vault_viewer_decrypted">Decrypted on this device</string>
     <string name="vault_search">Search</string>
     <string name="vault_search_in">Search in %1$s</string>

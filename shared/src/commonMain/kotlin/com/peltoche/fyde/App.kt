@@ -29,7 +29,7 @@ import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.vault_load_failed
-import com.peltoche.fyde.resources.vault_delete_unavailable
+import com.peltoche.fyde.resources.vault_deleted
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
@@ -1209,9 +1209,19 @@ private fun VaultContainer(
             reloadKey++
         },
         onDeletionChange = { deletion = it },
-        // fyde-sdk records no deletion yet, so the dialog can only say so.
+        // The document leaves the lists once sync consumes the Deleted event,
+        // which reloads them like any other change.
         onDelete = { document ->
-            scope.launch { deletion = DocumentDeletion(document, error = getString(Res.string.vault_delete_unavailable)) }
+            deletion = DocumentDeletion(document, busy = true)
+            scope.launch {
+                FydeSdk.deleteDocument(document.id)
+                    .onSuccess {
+                        deletion = null
+                        if (focus.document?.id == document.id) focus = focus.copy(document = null, viewerOpen = false)
+                        snackbarHostState.showSnackbar(getString(Res.string.vault_deleted))
+                    }
+                    .onFailure { deletion = DocumentDeletion(document, error = it.userMessage()) }
+            }
         },
         navigation = navigation,
     )

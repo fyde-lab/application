@@ -238,6 +238,10 @@ actual object FydeSdk {
         client.uploadDocument(path)
     }
 
+    actual suspend fun deleteDocument(id: String): Result<Unit> = withClient("deleteDocument") { client ->
+        client.deleteDocument(id)
+    }
+
     actual suspend fun setLanguage(language: String): Result<Unit> = withClient("setLanguage") { client ->
         client.setLanguage(language)
     }
