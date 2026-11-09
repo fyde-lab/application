@@ -90,3 +90,23 @@ tasks.withType<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>().configureEach {
     ) - host
     onlyIf("builds only this host's desktop library") { target.get() !in skipped }
 }
+
+// The plugin points Android's cargo builds at the NDK's API 21 clang wrappers
+// (`armv7a-linux-androideabi21-clang`, …), a level it hard-codes whatever the
+// android target's minSdk. Below API 24, 32-bit bionic doesn't declare
+// fseeko/ftello once _FILE_OFFSET_BITS is 64, which Lua's lprefix.h sets, so
+// mlua-sys (via fyde-sdk's scrapers) fails to compile for armv7. Build against
+// the app's minSdk instead, rewriting the CC/CXX/linker wrappers the plugin set.
+val androidMinSdk: String = libs.versions.android.minSdk.get()
+tasks.withType<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>().configureEach {
+    val target = rustTarget.get()
+    if (target.isAndroid) {
+        val pluginWrapper = "${target.ndkLlvmTriple}21-clang"
+        val minSdkWrapper = "${target.ndkLlvmTriple}$androidMinSdk-clang"
+        val environment = additionalEnvironment.get()
+        check(environment.values.any { pluginWrapper in it }) {
+            "No $pluginWrapper in ${target.rustTriple}'s cargo environment: the uniffi plugin changed how it picks the NDK API level"
+        }
+        additionalEnvironment.set(environment.mapValues { (_, value) -> value.replace(pluginWrapper, minSdkWrapper) })
+    }
+}
