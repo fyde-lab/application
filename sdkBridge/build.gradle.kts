@@ -1,3 +1,5 @@
+import ch.ubique.uniffi.plugin.model.BuildTarget.RustTarget
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
@@ -67,18 +69,24 @@ uniffi {
     generateFromLibrary()
 }
 
-// Outside release builds (the plugin's `-PreleaseBuild=true`), fyde-sdk
-// serves its tokio runtime's tasks to tokio-console (127.0.0.1:6669; forward
-// it with `adb forward tcp:6669 tcp:6669` on Android). This plugin can't pass
-// `--features` to the `cargo build` it runs, only environment variables, so
-// `--cfg tokio_unstable` is what turns the SDK's `tokio-console` feature on
-// (see rust/Cargo.toml). Every cargo task (bindings library included) gets
-// the same RUSTFLAGS, so they don't keep invalidating each other's build cache.
-val isReleaseBuild: Boolean = providers.gradleProperty("releaseBuild").orNull == "true"
-
-if (!isReleaseBuild) {
-    val rustFlags = listOfNotNull(System.getenv("RUSTFLAGS"), "--cfg tokio_unstable").joinToString(" ")
-    tasks.withType<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>().configureEach {
-        additionalEnvironment.put("RUSTFLAGS", rustFlags)
-    }
+// In release builds (`-PreleaseBuild=true`) the plugin compiles the jvm()
+// library for all five desktop platforms (macOS arm64/x64, Linux arm64/x64,
+// Windows x64), a list it hard-codes, so a release build fails on any host
+// that can't cross-compile to all of them (Linux to Apple, for one). Desktop
+// packages are built per OS anyway (jpackage only targets its host), so build
+// only the host's: the jar's merge step just leaves the skipped platforms out.
+// Android's and iOS's targets aren't in that list and still build as before.
+// (Locals only inside configureEach: an onlyIf capturing the script's own
+// properties can't be stored in the configuration cache.)
+tasks.withType<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>().configureEach {
+    val target = rustTarget
+    val host = RustTarget.forCurrentPlatform
+    val skipped = setOf(
+        RustTarget.Aarch64AppleDarwin,
+        RustTarget.X64AppleDarwin,
+        RustTarget.Aarch64LinuxGnu,
+        RustTarget.X64LinuxGnu,
+        RustTarget.X64WindowsGnu,
+    ) - host
+    onlyIf("builds only this host's desktop library") { target.get() !in skipped }
 }
