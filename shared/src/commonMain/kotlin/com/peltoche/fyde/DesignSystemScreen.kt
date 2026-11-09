@@ -90,6 +90,11 @@ import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.components.navigation.AppTopBar
 import com.peltoche.fyde.components.overlay.AppBottomSheet
 import com.peltoche.fyde.components.overlay.AppDialog
+import com.peltoche.fyde.icons.MoreGlyph
+import com.peltoche.fyde.icons.PencilGlyph
+import com.peltoche.fyde.icons.TrashGlyph
+import com.peltoche.fyde.components.overlay.AppDropdownMenu
+import com.peltoche.fyde.components.overlay.AppDropdownMenuItem
 import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.icons.AlertTriangleGlyph
 import com.peltoche.fyde.icons.BoltGlyph
@@ -213,13 +218,16 @@ private fun ActionsSection(onShowSnackbar: () -> Unit) {
                 AppBackButton(onClick = {}, enabled = false)
             }
         }
-        CatalogueRow("AppCircleButton — enabled / disabled") {
+        CatalogueRow("AppCircleButton — enabled / disabled / active (D2b)") {
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
                 AppCircleButton(onClick = {}, contentDescription = "Add") {
                     PlusGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
                 }
                 AppCircleButton(onClick = {}, contentDescription = "Add", enabled = false) {
                     PlusGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.textMuted)
+                }
+                AppCircleButton(onClick = {}, contentDescription = "More", active = true) {
+                    MoreGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.primary)
                 }
             }
         }
@@ -738,11 +746,37 @@ private fun MockDocumentDetail() {
 @Composable
 private fun OverlaySection() {
     var showDialog by remember { mutableStateOf(false) }
+    var showTileDialog by remember { mutableStateOf(false) }
     var showSheet by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(false) }
 
     CatalogueSection("Overlay") {
         CatalogueRow("AppDialog — actions stacked at Compact, right-aligned wider (M8)") {
             AppButton(text = "Open dialog", onClick = { showDialog = true }, variant = AppButtonVariant.Outlined)
+        }
+        CatalogueRow("AppDialog — headed by a tile, focus on cancel, an error note (D2c)") {
+            AppButton(text = "Open dialog", onClick = { showTileDialog = true }, variant = AppButtonVariant.Outlined)
+        }
+        CatalogueRow("AppDropdownMenu — leading glyph, shortcut, destructive (D2b)") {
+            Box {
+                AppButton(text = "Open menu", onClick = { showMenu = true }, variant = AppButtonVariant.Outlined)
+                AppDropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                    AppDropdownMenuItem(
+                        text = "Rename",
+                        onClick = { showMenu = false },
+                        leadingIcon = { tint -> PencilGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+                        shortcut = "F2",
+                    )
+                    AppDivider()
+                    AppDropdownMenuItem(
+                        text = "Delete from all my devices",
+                        onClick = { showMenu = false },
+                        destructive = true,
+                        leadingIcon = { tint -> TrashGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+                        shortcut = "Del",
+                    )
+                }
+            }
         }
         CatalogueRow("AppBottomSheet — a bottom sheet at Compact, a centred panel wider (O4)") {
             AppButton(text = "Open bottom sheet", onClick = { showSheet = true }, variant = AppButtonVariant.Outlined)
@@ -759,6 +793,26 @@ private fun OverlaySection() {
             dismissLabel = "Cancel",
             onDismiss = { showDialog = false },
             destructive = true,
+        )
+    }
+
+    if (showTileDialog) {
+        AppDialog(
+            onDismissRequest = { showTileDialog = false },
+            title = "Delete this document?",
+            text = "“Electricity bill” will be erased from your vault and your 3 devices.",
+            confirmLabel = "Delete",
+            onConfirm = { showTileDialog = false },
+            dismissLabel = "Cancel",
+            onDismiss = { showTileDialog = false },
+            destructive = true,
+            icon = {
+                AppIconTile(size = AppDimensions.iconTileLarge, tint = AppColors.error) {
+                    TrashGlyph(modifier = Modifier.size(AppIconSize.prominent), tint = AppColors.error)
+                }
+            },
+            focusDismiss = true,
+            content = { AppErrorNote("The deletion couldn't be recorded.") },
         )
     }
 

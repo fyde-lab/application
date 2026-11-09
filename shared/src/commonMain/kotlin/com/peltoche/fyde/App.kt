@@ -29,6 +29,7 @@ import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.vault_load_failed
+import com.peltoche.fyde.resources.vault_delete_unavailable
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
@@ -1048,6 +1049,7 @@ private fun VaultContainer(
     var isUploading by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf<String?>(null) }
     var loadError by remember { mutableStateOf<String?>(null) }
+    var deletion by remember { mutableStateOf<DocumentDeletion?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
@@ -1180,6 +1182,7 @@ private fun VaultContainer(
                 isUploading = isUploading,
                 notice = notice,
                 loadError = loadError,
+                deletion = deletion,
             )
         },
         focus = focus,
@@ -1204,6 +1207,11 @@ private fun VaultContainer(
         onRetryLoad = {
             loadError = null
             reloadKey++
+        },
+        onDeletionChange = { deletion = it },
+        // fyde-sdk records no deletion yet, so the dialog can only say so.
+        onDelete = { document ->
+            scope.launch { deletion = DocumentDeletion(document, error = getString(Res.string.vault_delete_unavailable)) }
         },
         navigation = navigation,
     )

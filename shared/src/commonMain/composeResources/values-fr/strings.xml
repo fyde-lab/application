@@ -321,6 +321,17 @@
     <string name="vault_file_caption">%1$s · %2$s</string>
     <string name="vault_save">Enregistrer</string>
     <string name="vault_viewer_close">Fermer</string>
+    <string name="vault_document_actions">Actions du document</string>
+    <string name="vault_delete">Supprimer de tous mes appareils</string>
+    <string name="vault_delete_title">Supprimer ce document ?</string>
+    <string name="vault_delete_text">« %1$s » sera effacé de votre coffre et de tous vos appareils. Vous ne pourrez pas le retrouver.</string>
+    <plurals name="vault_delete_text_devices">
+        <item quantity="one">« %2$s » sera effacé de votre coffre et de votre appareil. Vous ne pourrez pas le retrouver.</item>
+        <item quantity="other">« %2$s » sera effacé de votre coffre et de vos %1$d appareils. Vous ne pourrez pas le retrouver.</item>
+    </plurals>
+    <string name="vault_delete_confirm">Supprimer</string>
+    <string name="vault_delete_shortcut">Suppr</string>
+    <string name="vault_delete_unavailable">La suppression des documents n’est pas encore disponible.</string>
     <string name="vault_viewer_decrypted">Déchiffré sur cet appareil</string>
     <string name="vault_search">Rechercher</string>
     <string name="vault_search_in">Rechercher dans %1$s</string>

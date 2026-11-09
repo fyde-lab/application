@@ -22,7 +22,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -37,13 +40,28 @@ import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.DocumentAttributes
 import com.peltoche.fyde.components.content.DocumentPass
+import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.navigation.AppPageBar
+import com.peltoche.fyde.components.overlay.AppBottomSheet
+import com.peltoche.fyde.components.overlay.AppDialog
+import com.peltoche.fyde.components.overlay.AppDropdownMenu
+import com.peltoche.fyde.components.overlay.AppDropdownMenuItem
 import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.icons.CloseGlyph
 import com.peltoche.fyde.icons.DownloadGlyph
 import com.peltoche.fyde.icons.LockGlyph
+import com.peltoche.fyde.icons.MoreGlyph
 import com.peltoche.fyde.icons.PagesGlyph
+import com.peltoche.fyde.icons.TrashGlyph
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.cancel
+import com.peltoche.fyde.resources.vault_delete
+import com.peltoche.fyde.resources.vault_delete_confirm
+import com.peltoche.fyde.resources.vault_delete_shortcut
+import com.peltoche.fyde.resources.vault_delete_text
+import com.peltoche.fyde.resources.vault_delete_text_devices
+import com.peltoche.fyde.resources.vault_delete_title
+import com.peltoche.fyde.resources.vault_document_actions
 import com.peltoche.fyde.resources.vault_fact_arrived
 import com.peltoche.fyde.resources.vault_fact_encrypted
 import com.peltoche.fyde.resources.vault_fact_encrypted_devices
@@ -65,11 +83,27 @@ import com.peltoche.fyde.theme.appFocusRing
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
-/** V6: a document's pass, its file (opening the viewer), its facts, and Save. */
+/**
+ * V6: a document's pass, its file (opening the viewer), its facts, and
+ * Save; "…" opens V8.
+ */
 @Composable
 internal fun DocumentPage(vault: Vault, document: FydeDocument) {
+    var actionsOpen by remember { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        AppPageBar(title = document.pathTitle(), onBack = vault::closeDocument)
+        AppPageBar(
+            title = document.pathTitle(),
+            onBack = vault::closeDocument,
+            trailing = {
+                AppCircleButton(
+                    onClick = { actionsOpen = true },
+                    contentDescription = stringResource(Res.string.vault_document_actions),
+                    active = actionsOpen,
+                ) {
+                    MoreGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+                }
+            },
+        )
         VaultNotes(vault)
         Spacer(Modifier.height(AppSpacing.space3))
         DocumentDetails(
@@ -78,6 +112,14 @@ internal fun DocumentPage(vault: Vault, document: FydeDocument) {
             onOpenFile = { vault.onFocusChange(vault.focus.copy(viewerOpen = true)) },
         )
         Spacer(Modifier.height(AppSpacing.space7))
+    }
+    if (actionsOpen) {
+        DocumentActionsSheet(
+            document = document,
+            onSave = { vault.onSave(document) },
+            onDelete = { vault.askDelete(document) },
+            onDismissRequest = { actionsOpen = false },
+        )
     }
 }
 
@@ -220,13 +262,158 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
             FactRow(stringResource(Res.string.vault_fact_filed), document.filedPath())
         }
         Spacer(Modifier.height(AppSpacing.space5))
-        AppButton(
-            text = stringResource(Res.string.vault_save),
-            onClick = { vault.onSave(document) },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { DownloadGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.onPrimary) },
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AppButton(
+                text = stringResource(Res.string.vault_save),
+                onClick = { vault.onSave(document) },
+                modifier = Modifier.weight(1f),
+                leadingIcon = { DownloadGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.onPrimary) },
+            )
+            // Below Expanded the page bar's "…" holds these (V8).
+            if (onOpenFile == null) DocumentActionsButton(onDelete = { vault.askDelete(document) })
+        }
+    }
+}
+
+/** D2b: "…" beside Save, opening the document's actions. */
+@Composable
+private fun DocumentActionsButton(onDelete: () -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        AppCircleButton(
+            onClick = { open = true },
+            contentDescription = stringResource(Res.string.vault_document_actions),
+            active = open,
+        ) {
+            MoreGlyph(modifier = Modifier.size(AppIconSize.md), tint = if (open) AppColors.primary else AppColors.text)
+        }
+        DocumentActionsMenu(expanded = open, onDismissRequest = { open = false }, onDelete = onDelete)
+    }
+}
+
+/**
+ * D2b's menu, from "…" or a right-click on a D2 row: what the SDK backs of
+ * V8 that the page doesn't already show, i.e. deleting.
+ */
+@Composable
+internal fun DocumentActionsMenu(expanded: Boolean, onDismissRequest: () -> Unit, onDelete: () -> Unit) {
+    val platform = getPlatform()
+    AppDropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
+        AppDropdownMenuItem(
+            text = stringResource(Res.string.vault_delete),
+            onClick = {
+                onDismissRequest()
+                onDelete()
+            },
+            destructive = true,
+            leadingIcon = { tint -> TrashGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+            shortcut = when {
+                !platform.isDesktop -> null
+                platform.usesCommandKey -> "⌘⌫"
+                else -> stringResource(Res.string.vault_delete_shortcut)
+            },
         )
     }
+}
+
+/**
+ * V8: the document's name and file over its actions — Save, then deleting
+ * apart in `error`. Partager, Renommer, Reclasser and Informations
+ * techniques wait for the SDK.
+ */
+@Composable
+private fun DocumentActionsSheet(
+    document: FydeDocument,
+    onSave: () -> Unit,
+    onDelete: () -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    AppBottomSheet(onDismissRequest = onDismissRequest) {
+        Column(modifier = Modifier.padding(horizontal = AppSpacing.space5)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
+            ) {
+                AppIconTile { PagesGlyph(modifier = Modifier.size(AppIconSize.md)) }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = document.name, style = AppTypography.bodyEmphasis, color = AppColors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        text = stringResource(Res.string.vault_file_caption, document.typeCode, localizedSize(document.size)),
+                        style = AppTypography.caption,
+                        color = AppColors.textMuted,
+                    )
+                }
+            }
+            Spacer(Modifier.height(AppSpacing.space5))
+            AppGroup {
+                AppGroupRow(onClick = {
+                    onDismissRequest()
+                    onSave()
+                }) {
+                    DownloadGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+                    Text(stringResource(Res.string.vault_save), style = AppTypography.body, color = AppColors.text)
+                }
+            }
+            Spacer(Modifier.height(AppSpacing.space4))
+            AppGroup {
+                AppGroupRow(onClick = {
+                    onDismissRequest()
+                    onDelete()
+                }) {
+                    TrashGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.error)
+                    Text(stringResource(Res.string.vault_delete), style = AppTypography.body, color = AppColors.error)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * V10 (below Expanded) and D2c (Expanded, headed by a trash tile, the focus
+ * on Annuler): erased from the vault and every device, for good. Stays up,
+ * busy, while the deletion runs, and with [DocumentDeletion.error] if it
+ * failed. The note that a source won't fetch it again waits for the SDK to
+ * remember deleted documents and say which source brought one.
+ */
+@Composable
+internal fun DeleteDocumentDialog(
+    deletion: DocumentDeletion,
+    deviceCount: Int?,
+    wide: Boolean,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val name = deletion.document.name
+    val error = deletion.error
+    AppDialog(
+        onDismissRequest = { if (!deletion.busy) onDismiss() },
+        title = stringResource(Res.string.vault_delete_title),
+        text = if (deviceCount != null) {
+            pluralStringResource(Res.plurals.vault_delete_text_devices, deviceCount, deviceCount, name)
+        } else {
+            stringResource(Res.string.vault_delete_text, name)
+        },
+        confirmLabel = stringResource(Res.string.vault_delete_confirm),
+        onConfirm = onConfirm,
+        dismissLabel = stringResource(Res.string.cancel),
+        onDismiss = onDismiss,
+        destructive = true,
+        confirmLoading = deletion.busy,
+        icon = if (wide) {
+            {
+                AppIconTile(size = AppDimensions.iconTileLarge, tint = AppColors.error) {
+                    TrashGlyph(modifier = Modifier.size(AppIconSize.prominent), tint = AppColors.error)
+                }
+            }
+        } else {
+            null
+        },
+        focusDismiss = wide,
+        content = error?.let { { AppErrorNote(it) } },
+    )
 }
 
 /** The document's file: its name, "PDF · 182 Ko", opening the viewer. */

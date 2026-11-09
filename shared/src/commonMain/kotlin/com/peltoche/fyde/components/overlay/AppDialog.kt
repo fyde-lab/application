@@ -13,9 +13,13 @@ import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
@@ -40,7 +44,9 @@ private val DialogMinWidth = 280.dp
  * below [text] — e.g. the field a question is answered in — and scrolls
  * with the dialog's body when it's taller than the window. [confirmLoading]
  * keeps the dialog up, its confirm spinning and cancel disabled, while the
- * confirmed action runs.
+ * confirmed action runs. [icon] heads it, above the title (D2c's tile).
+ * [focusDismiss] puts the keyboard focus on cancel as it opens, so Enter
+ * never confirms something irreversible (D2c).
  *
  * At Compact the actions stack full width, confirm first (M8); wider, they
  * sit right-aligned on one row, cancel before confirm.
@@ -59,9 +65,12 @@ fun AppDialog(
     destructive: Boolean = false,
     confirmEnabled: Boolean = true,
     confirmLoading: Boolean = false,
+    icon: (@Composable () -> Unit)? = null,
+    focusDismiss: Boolean = false,
     content: (@Composable () -> Unit)? = null,
 ) {
     val stacked = LocalAppWindowSizeClass.current == AppWindowSizeClass.Compact
+    val dismissFocus = remember { FocusRequester() }
     BasicAlertDialog(onDismissRequest = onDismissRequest, modifier = modifier) {
         Column(
             modifier = Modifier
@@ -70,6 +79,10 @@ fun AppDialog(
                 .background(AppColors.surfaceElevated)
                 .padding(AppSpacing.space7),
         ) {
+            if (icon != null) {
+                icon()
+                Spacer(Modifier.height(AppSpacing.space5))
+            }
             Text(title, style = AppTypography.section, color = AppColors.text)
             if (text != null || content != null) {
                 Spacer(Modifier.height(AppSpacing.space4))
@@ -83,7 +96,15 @@ fun AppDialog(
             }
             Spacer(Modifier.height(AppSpacing.space7))
             val dismiss: (@Composable (Modifier) -> Unit)? = if (dismissLabel != null && onDismiss != null) {
-                { dismissModifier -> AppTextButton(text = dismissLabel, onClick = onDismiss, enabled = !confirmLoading, modifier = dismissModifier) }
+                { dismissModifier ->
+                    AppTextButton(
+                        text = dismissLabel,
+                        onClick = onDismiss,
+                        enabled = !confirmLoading,
+                        modifier = dismissModifier.focusRequester(dismissFocus),
+                    )
+                    if (focusDismiss) LaunchedEffect(Unit) { dismissFocus.requestFocus() }
+                }
             } else {
                 null
             }

@@ -3,11 +3,13 @@ package com.peltoche.fyde
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,11 +24,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -35,6 +49,7 @@ import androidx.compose.ui.unit.Dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppRetryButton
+import com.peltoche.fyde.components.action.onSecondaryClick
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.AppSectionTitle
@@ -119,6 +134,12 @@ data class VaultFocus(
     val viewerOpen: Boolean = false,
 )
 
+/**
+ * A document the user asked to delete (V10, D2c), [busy] while its deletion
+ * runs, [error] why it failed, in the SDK's wording.
+ */
+data class DocumentDeletion(val document: FydeDocument, val busy: Boolean = false, val error: String? = null)
+
 /** A home card: how many documents [category] holds, and the newest of them. */
 data class VaultCategorySummary(val category: FydeCategory, val count: Long, val newest: FydeDocument?)
 
@@ -158,6 +179,7 @@ sealed interface VaultUiState {
      * while the open one loads.
      * [deviceCount] is `null` if the sessions couldn't be listed. [notice]
      * is the last action's failure, [loadError] why the page couldn't load.
+     * [deletion] is the document V10 / D2c asks about, while it's open.
      */
     data class Loaded(
         val home: VaultHome? = null,
@@ -168,6 +190,7 @@ sealed interface VaultUiState {
         val isUploading: Boolean = false,
         val notice: String? = null,
         val loadError: String? = null,
+        val deletion: DocumentDeletion? = null,
     ) : VaultUiState
 }
 
@@ -187,6 +210,8 @@ fun VaultScreen(
     onSave: (FydeDocument) -> Unit,
     loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     onRetryLoad: () -> Unit,
+    onDeletionChange: (DocumentDeletion?) -> Unit,
+    onDelete: (FydeDocument) -> Unit,
     navigation: TopLevelNavigation,
     modifier: Modifier = Modifier,
 ) {
@@ -212,11 +237,21 @@ fun VaultScreen(
                 onAction = state.onRetry,
             )
             is VaultUiState.Loaded -> {
-                val vault = Vault(state, focus, onFocusChange, onUpload, onSave, loadContent, onRetryLoad)
-                if (windowSizeClass == AppWindowSizeClass.Expanded) {
+                val vault = Vault(state, focus, onFocusChange, onUpload, onSave, loadContent, onRetryLoad, onDeletionChange)
+                val wide = windowSizeClass == AppWindowSizeClass.Expanded
+                if (wide) {
                     WideVault(vault, pageModifier)
                 } else {
                     NarrowVault(vault, pageModifier)
+                }
+                state.deletion?.let { deletion ->
+                    DeleteDocumentDialog(
+                        deletion = deletion,
+                        deviceCount = state.deviceCount,
+                        wide = wide,
+                        onConfirm = { onDelete(deletion.document) },
+                        onDismiss = { onDeletionChange(null) },
+                    )
                 }
             }
         }
@@ -239,6 +274,7 @@ internal class Vault(
     val onSave: (FydeDocument) -> Unit,
     val loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     val onRetryLoad: () -> Unit,
+    val onDeletionChange: (DocumentDeletion?) -> Unit,
 ) {
     val canUpload: Boolean get() = state.serverReachable && !state.isUploading
 
@@ -254,6 +290,9 @@ internal class Vault(
     fun openDocument(document: FydeDocument) = onFocusChange(focus.copy(document = document, viewerOpen = false))
 
     fun closeDocument() = onFocusChange(focus.copy(document = null, viewerOpen = false))
+
+    /** Opens V10 / D2c about [document]. */
+    fun askDelete(document: FydeDocument) = onDeletionChange(DocumentDeletion(document))
 
     /** Narrows or re-sorts the open category, keeping the open document beside it. */
     fun refine(page: VaultPage.Category) = onFocusChange(focus.copy(page = page))
@@ -300,24 +339,14 @@ private fun WideVault(vault: Vault, modifier: Modifier) {
     val document = vault.focus.document
     val page = vault.focus.page
     when {
-        document != null && page !is VaultPage.Home -> Row(modifier = modifier) {
-            Box(
-                modifier = Modifier
-                    .width(AppDimensions.documentListColumn)
-                    .fillMaxHeight()
-                    .background(AppColors.surface),
-            ) {
-                when (page) {
-                    is VaultPage.Category -> CategoryListColumn(vault, page, selected = document)
-                    is VaultPage.Search -> SearchPage(vault, page, selected = document)
-                    VaultPage.Home -> Unit
+        document != null -> DocumentShortcuts(vault, document, modifier) { shortcutsModifier ->
+            Row(modifier = shortcutsModifier) {
+                if (page !is VaultPage.Home) {
+                    DocumentBesideList(vault, page, document)
+                } else {
+                    key(document.id) { DocumentBeside(vault, document, onBack = vault::closeDocument) }
                 }
             }
-            AppDivider(vertical = true)
-            key(document.id) { DocumentBeside(vault, document, onBack = null) }
-        }
-        document != null -> Row(modifier = modifier) {
-            key(document.id) { DocumentBeside(vault, document, onBack = vault::closeDocument) }
         }
         page is VaultPage.Category -> AppContentContainer(modifier = modifier, width = AppContentWidth.List) {
             CategoryGridPage(vault, page)
@@ -327,6 +356,53 @@ private fun WideVault(vault: Vault, modifier: Modifier) {
         }
         else -> AppContentContainer(modifier = modifier, width = AppContentWidth.List) { HomePage(vault) }
     }
+}
+
+/** D2: the category's list or the search's results, then [document] beside them. */
+@Composable
+private fun RowScope.DocumentBesideList(vault: Vault, page: VaultPage, document: FydeDocument) {
+    Box(
+        modifier = Modifier
+            .width(AppDimensions.documentListColumn)
+            .fillMaxHeight()
+            .background(AppColors.surface),
+    ) {
+        when (page) {
+            is VaultPage.Category -> CategoryListColumn(vault, page, selected = document)
+            is VaultPage.Search -> SearchPage(vault, page, selected = document)
+            VaultPage.Home -> Unit
+        }
+    }
+    AppDivider(vertical = true)
+    key(document.id) { DocumentBeside(vault, document, onBack = null) }
+}
+
+/**
+ * Expanded with [document] open: ⌘⌫ (macOS) or Delete opens D2c. The area
+ * takes the focus as the document opens and again once D2c closes, so the
+ * keys reach it without a click; a focused text field keeps them.
+ */
+@Composable
+private fun DocumentShortcuts(
+    vault: Vault,
+    document: FydeDocument,
+    modifier: Modifier,
+    content: @Composable (Modifier) -> Unit,
+) {
+    val focus = remember { FocusRequester() }
+    val idle = vault.state.deletion == null
+    LaunchedEffect(document.id, idle) { if (idle) focus.requestFocus() }
+    content(
+        modifier
+            .focusRequester(focus)
+            .focusable()
+            .onKeyEvent { event ->
+                val delete = event.type == KeyEventType.KeyDown &&
+                    (event.key == Key.Delete || (event.key == Key.Backspace && event.isMetaPressed))
+                if (delete) vault.askDelete(document)
+                delete
+            },
+    )
 }
 
 /** V1 and D6: the title and seal, the category cards, the latest arrivals. */
@@ -545,7 +621,8 @@ internal fun <T> VaultGrid(
 
 /**
  * A document's row in its category's colours: its issuer and date under its
- * name, its pass's amount at the end (design-system.md § Components).
+ * name, its pass's amount at the end (design-system.md § Components). With
+ * [onDelete] (D2's list), a right-click opens D2b's menu on it.
  */
 @Composable
 internal fun VaultDocumentRow(
@@ -553,17 +630,24 @@ internal fun VaultDocumentRow(
     onClick: () -> Unit,
     selected: Boolean = false,
     highlightTerms: List<String> = emptyList(),
+    onDelete: (() -> Unit)? = null,
 ) {
-    DocumentRow(
-        title = document.name,
-        subtitle = listOfNotNull(document.issuer, localizedShortDate(document.createdAt)).joinToString(" · "),
-        amount = rowAmount(document),
-        color = document.category.colors(),
-        onClick = onClick,
-        selected = selected,
-        highlightTerms = highlightTerms,
-        icon = { tint -> CategoryGlyph(document.category, tint) },
-    )
+    var menuOpen by remember { mutableStateOf(false) }
+    Box(modifier = if (onDelete != null) Modifier.onSecondaryClick { menuOpen = true } else Modifier) {
+        DocumentRow(
+            title = document.name,
+            subtitle = listOfNotNull(document.issuer, localizedShortDate(document.createdAt)).joinToString(" · "),
+            amount = rowAmount(document),
+            color = document.category.colors(),
+            onClick = onClick,
+            selected = selected,
+            highlightTerms = highlightTerms,
+            icon = { tint -> CategoryGlyph(document.category, tint) },
+        )
+        if (onDelete != null) {
+            DocumentActionsMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }, onDelete = onDelete)
+        }
+    }
 }
 
 /** A list's place while its documents load. */
