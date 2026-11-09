@@ -709,6 +709,13 @@ expect object FydeSdk {
     suspend fun uploadDocument(path: String): Result<String>
 
     /**
+     * Publishes the deletion of the document [id] as a changelog event; it
+     * leaves the local cache, and [initialize]'s callback fires, once sync
+     * consumes it. Mirrors [`crate::DocumentsService::delete`].
+     */
+    suspend fun deleteDocument(id: String): Result<Unit>
+
+    /**
      * Persists [language] (a short code, e.g. "en", "fr") as this device's
      * UI language preference, read back by [getLanguage]. Mirrors
      * [`crate::UsersService::set_language`]; fails if [initialize] hasn't

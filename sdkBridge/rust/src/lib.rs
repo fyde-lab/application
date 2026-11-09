@@ -1576,6 +1576,19 @@ impl FydeClient {
         .await
     }
 
+    /// Publishes the deletion of the document `id` as a changelog event: it
+    /// leaves the local cache once the SDK's automatic sync consumes it,
+    /// which `on_document_change` then reports as an
+    /// [`FfiEventType::Deleted`] event. Mirrors
+    /// [`fyde_sdk::DocumentsService::delete`].
+    pub async fn delete_document(&self, id: String) -> Result<(), FfiError> {
+        self.localized(async {
+            let id = parse_uuid(&id)?;
+            self.inner.documents().delete(id).await
+        })
+        .await
+    }
+
     /// Persists `language` as this device's UI language preference — also
     /// the language every later [`FfiError`] is worded in. Mirrors
     /// [`fyde_sdk::UsersService::set_language`].
