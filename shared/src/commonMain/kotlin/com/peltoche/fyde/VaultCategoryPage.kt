@@ -262,6 +262,7 @@ private fun CategoryRows(vault: Vault, documents: List<FydeDocument>, selected: 
                 document = document,
                 onClick = { vault.openDocument(document) },
                 selected = document.id == selected?.id,
+                onDelete = { vault.askDelete(document) }.takeIf { selected != null },
             )
         }
     }

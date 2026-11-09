@@ -40,7 +40,8 @@ fun AppBackButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: B
 /**
  * A 44dp `surface` circle with a `border` hairline around one glyph: the
  * back button, and a header's lone action where a labelled button would
- * crowd the title (S1's "+").
+ * crowd the title (S1's "+"). [active] fills it with the `primary` wash
+ * while what it opens is open (D2b's "…").
  */
 @Composable
 fun AppCircleButton(
@@ -48,16 +49,18 @@ fun AppCircleButton(
     contentDescription: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    active: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val wash = AppColors.tintOf(AppColors.primary)
     Box(
         modifier = modifier
             .size(AppDimensions.backButton)
             .appFocusRing(interactionSource, shape = CircleShape)
             .clip(CircleShape)
-            .background(AppColors.surface)
-            .border(AppDimensions.borderHairline, AppColors.border, CircleShape)
+            .background(if (active) wash else AppColors.surface)
+            .border(AppDimensions.borderHairline, if (active) wash else AppColors.border, CircleShape)
             .clickable(
                 interactionSource = interactionSource,
                 indication = ripple(),

@@ -326,6 +326,17 @@
     <string name="vault_file_caption">%1$s · %2$s</string>
     <string name="vault_save">Save</string>
     <string name="vault_viewer_close">Close</string>
+    <string name="vault_document_actions">Document actions</string>
+    <string name="vault_delete">Delete from all my devices</string>
+    <string name="vault_delete_title">Delete this document?</string>
+    <string name="vault_delete_text">“%1$s” will be erased from your vault and from all your devices. You won’t be able to get it back.</string>
+    <plurals name="vault_delete_text_devices">
+        <item quantity="one">“%2$s” will be erased from your vault and your device. You won’t be able to get it back.</item>
+        <item quantity="other">“%2$s” will be erased from your vault and your %1$d devices. You won’t be able to get it back.</item>
+    </plurals>
+    <string name="vault_delete_confirm">Delete</string>
+    <string name="vault_delete_shortcut">Del</string>
+    <string name="vault_delete_unavailable">Deleting documents isn’t available yet.</string>
     <string name="vault_viewer_decrypted">Decrypted on this device</string>
     <string name="vault_search">Search</string>
     <string name="vault_search_in">Search in %1$s</string>

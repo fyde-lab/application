@@ -185,6 +185,15 @@ internal object ScreenshotFixtures {
         shot("vault-category-loading") { vault(VaultUiState.Loaded(home = home), VaultFocus(page = housingPage)) },
         shot("vault-search") { vault(vaultLoaded, VaultFocus(page = VaultPage.Search(searchQuery, VaultPage.Home))) },
         shot("vault-document") { vault(vaultLoaded, VaultFocus(page = housingPage, document = invoice)) },
+        shot("vault-document-delete") {
+            vault(vaultLoaded.copy(deletion = DocumentDeletion(invoice)), VaultFocus(page = housingPage, document = invoice))
+        },
+        shot("vault-document-delete-failed") {
+            vault(
+                vaultLoaded.copy(deletion = DocumentDeletion(invoice, error = "La suppression des documents n’est pas encore disponible.")),
+                VaultFocus(page = housingPage, document = invoice),
+            )
+        },
         shot("vault-failed") { vault(VaultUiState.ConnectFailed("Le serveur est injoignable.", onRetry = {}), VaultFocus()) },
         shot("sources-tab") { sourcesTab(sourcesTab, null) },
         shot("sources-tab-loading") { sourcesTab(SourcesTabUiState.Loaded(scripts = null), null) },
@@ -224,6 +233,8 @@ internal object ScreenshotFixtures {
             onSave = {},
             loadContent = { Result.success(null) },
             onRetryLoad = {},
+            onDeletionChange = {},
+            onDelete = {},
             navigation = navigation,
         )
     }

@@ -207,6 +207,7 @@ private fun SearchResults(vault: Vault, page: VaultPage.Search, contents: VaultS
                         onClick = { vault.openDocument(document) },
                         selected = document.id == selected?.id,
                         highlightTerms = contents.query.terms,
+                        onDelete = { vault.askDelete(document) }.takeIf { selected != null },
                     )
                 }
             }

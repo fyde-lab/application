@@ -651,6 +651,32 @@ fun LogoutGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.error, st
     }
 }
 
+/** A bin: deleting a document (V8, D2b, D2c). Traced from `i-trash` in `icons.svg`. */
+@Composable
+fun TrashGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.error, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        val path = Path().apply {
+            moveTo(4.5f * unit, 7f * unit)
+            lineTo(19.5f * unit, 7f * unit)
+            moveTo(9.5f * unit, 7f * unit)
+            lineTo(9.5f * unit, 4.5f * unit)
+            lineTo(14.5f * unit, 4.5f * unit)
+            lineTo(14.5f * unit, 7f * unit)
+            moveTo(6.5f * unit, 7f * unit)
+            lineTo(7.5f * unit, 20f * unit)
+            lineTo(16.5f * unit, 20f * unit)
+            lineTo(17.5f * unit, 7f * unit)
+            moveTo(10f * unit, 11f * unit)
+            lineTo(10f * unit, 16.5f * unit)
+            moveTo(14f * unit, 11f * unit)
+            lineTo(14f * unit, 16.5f * unit)
+        }
+        drawPath(path, color = tint, style = stroke)
+    }
+}
+
 /** Two stacked server units — what the server sees (M2). Traced from `i-server` in `icons.svg`. */
 @Composable
 fun ServerGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {

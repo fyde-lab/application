@@ -86,6 +86,9 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   (`FydeDocument.attributes`): the rules are pure functions in `DocumentAttributes.kt` (tested in
   `DocumentAttributesTest`), their wording in `DocumentAttributesText.kt`. What the SDK can't back
   (an "À classer" card, sharing, reclassifying, recent searches, the Source facet) is left out.
+  Deleting (V8's sheet, D2b's "…" menu and right-click, ⌘⌫ / Suppr, then V10 / D2c as a
+  `DocumentDeletion` in `VaultUiState.Loaded`) is drawn but stubbed: fyde-sdk has no delete
+  call, so `App.kt`'s `onDelete` only puts "not available yet" in the dialog's error note.
 - Sources: `SourcesTabScreen.kt` (the design's S1–S7, D4), backed by `App.kt`'s
   `SourcesTabContainer` (scrapers only; quota from `getUsage`). S1–S6 are pages at
   Compact/Medium; Expanded is D4, a table sortable by source and status beside a detail panel.
