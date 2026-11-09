@@ -1,6 +1,6 @@
 # Screen map
 
-How the 93 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
+How the 96 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
 graphs: the phone app, and desktop and tablet. Screen IDs and content are specified in
 [`design-system.md`](design-system.md); this page is only about the links between them.
 
@@ -56,7 +56,8 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 - **V2** is V1 while the first sources run; it becomes V1 once each has run. **V11** is V1 in
   dark mode, **X1** is V1 offline, **X2** is V1 with the text at 200%.
 - **V3** and **V5** open **V6 Document**. From V6: the file → **V7 Lecteur**; "…" → the **V8**
-  actions sheet, whose "Reclasser" opens the **V9** sheet. How the pass changes by document type
+  actions sheet, whose "Reclasser" opens the **V9** sheet and "Supprimer de tous mes appareils" the
+  **V10** dialog; confirming it returns to the list the document was opened from. How the pass changes by document type
   is a pattern, not a screen ([`modeles-cartes.png`](assets/sheets/modeles-cartes.png)).
 
 ### Capture (K1–K4)
@@ -123,7 +124,8 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 
 The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet, **T2** in portrait), a category (**D1**),
 **D3 Arrivées** and **D4 Sources**; while the selected source runs, D4's panel offers Arrêter in
-Lancer's place (**D4b**). D1 → **D2 Document**. The avatar row at the foot of the
+Lancer's place (**D4b**). D1 → **D2 Document**, whose "…" (or a right-click) opens the **D2b** menu;
+its "Supprimer de tous mes appareils" (or ⌘⌫) opens the **D2c** dialog, then the next document. The avatar row at the foot of the
 sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 
 ## Phone and desktop counterparts
@@ -136,6 +138,7 @@ sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 | V1 | D6, T1 and T2 (tablet) |
 | V3 | D1 |
 | V6 + V7 | D2 |
+| V8, V10 | D2b, D2c |
 | R1 | D3 |
 | S1 + S5 | D4 |
 | S5b | D4b |

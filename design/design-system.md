@@ -25,12 +25,12 @@ the old palette and type, with the reference's layout, copy and proportions):
 | O4, DO4b | Stockage indisponible (phone; desktop, at creation) | `InsecureStorageSheet.kt`, `AppBottomSheet`, `AlertTriangleGlyph` |
 | M1, M2, M3, M5, M6, M7, M8 | Moi as the Settings tab (still named Paramètres, like the other tabs' current names): drill-downs at Compact, master–detail at Medium and Expanded (menu as the 360 list column, Sécurité open by default). Left out until the SDK backs them: the profile card, M2's device tiles and the recovery-kit and password-check rows (so no M4), Aide, last-sync times in M5, Voir les offres in M6. M7 isn't persisted yet | `SettingsScreen.kt`, `SessionsSection.kt`, `PlanUsageSection.kt`, `AppDialog`, `SealHero`, `AppNote`, `AppRadio` |
 | T1, T2, sidebar | The shell beside every signed-in screen: the bottom bar at Compact, T2's 80dp icon rail at Medium (each category as its tile, a tooltip with its name and count), the 260dp sidebar at Expanded (D1–D6, T1): brand, Tout le coffre, CATÉGORIES with counts, Sources, the seal, then a Paramètres row. The content beside it gets the size class of the width left to it, never below Medium, so T1 lays out as Expanded (4-column cards) and T2 as Medium (3 columns). Left out until the SDK backs them: Arrivées, Scanner (Importer stays: no camera), the avatar row (a Paramètres row instead), T1's arrivals banner | `TopLevelScaffold.kt`, `AppSidebar.kt` |
-| V1, V3–V7, D1, D2, D6 | Coffre as the Vault tab: the home's category cards and latest arrivals (V1 at Compact, D6 at Expanded), a category's chips and month groups (V3, D1's card grid), the search (V4's type shortcuts, V5's Catégorie / Type / Année chips and highlighted results; opened from a circle, or a 300 field in D1's and D6's headers, within the category from a category page), a document's pass, Informations, facts and Enregistrer (V6, a page below Expanded; D2 at Expanded, beside its category's list with the content previewed in the rest of the window), V7's full-screen viewer below Expanded. The pass and Informations come from the document's attributes (see [Document pass](#document-pass)), as do rows' issuer and amount. Left out until the SDK backs them: keywords and thumbnails, the arrivals banner, the avatar, Partager, Reclasser, V8, V9 and swipe actions, the band's sources count, an "À classer" card, "à jour", page counts, V4's recent searches, V5's Source facet, ⌘K | `VaultScreen.kt`, `VaultCategoryPage.kt`, `VaultSearchPage.kt`, `VaultDocumentPage.kt`, `DocumentPreview.kt`, `CategoryCard`, `CategoryBand`, `DocumentRow`, `DocumentCard`, `DocumentPass`, `DocumentAttributes`, `AppChip`, `AppSearchField`, `AppDropdownMenu` |
+| V1, V3–V7, D1, D2, D6 | Coffre as the Vault tab: the home's category cards and latest arrivals (V1 at Compact, D6 at Expanded), a category's chips and month groups (V3, D1's card grid), the search (V4's type shortcuts, V5's Catégorie / Type / Année chips and highlighted results; opened from a circle, or a 300 field in D1's and D6's headers, within the category from a category page), a document's pass, Informations, facts and Enregistrer (V6, a page below Expanded; D2 at Expanded, beside its category's list with the content previewed in the rest of the window), V7's full-screen viewer below Expanded. The pass and Informations come from the document's attributes (see [Document pass](#document-pass)), as do rows' issuer and amount. Left out until the SDK backs them: keywords and thumbnails, the arrivals banner, the avatar, Partager, Reclasser, V8–V10, D2b, D2c and swipe actions, the band's sources count, an "À classer" card, "à jour", page counts, V4's recent searches, V5's Source facet, ⌘K | `VaultScreen.kt`, `VaultCategoryPage.kt`, `VaultSearchPage.kt`, `VaultDocumentPage.kt`, `DocumentPreview.kt`, `CategoryCard`, `CategoryBand`, `DocumentRow`, `DocumentCard`, `DocumentPass`, `DocumentAttributes`, `AppChip`, `AppSearchField`, `AppDropdownMenu` |
 | S1–S7, D4 | Sources as the Sources tab: S1–S6 as pages at Compact and Medium, D4 at Expanded (a table sortable by source and état beside a 380 detail panel, `AppDimensions.sourceDetailPanelWidth`), S7 as an `AppDialog`. Statuses are this app session's runs only. Arrêter on S4 (S4b once stopped), on S5 and D4's panel in Lancer's place, and on the code dialog (no S8 yet); the stopped disc is `surfaceElevated` until the tokens migrate. Left out until the SDK backs them: S1's next run and per-row counts, S2's categories and "Le proposer", S3's Récupérer automatiquement, S5's stats, schedule, automatic switch, latest documents, pause and "Signaler un problème", S6's Saisir, D4's Dernier passage, Documents and Automatique columns | `SourcesTabScreen.kt`, `ConnectSourceScreen.kt`, `SourceFetchingScreen.kt`, `SourceStatus`, `RunStepper`, `StopGlyph`, `AppCircleButton`, `AppDialog` |
 
 ## Reference screens
 
-Every screen of the app is drawn in `assets/screens/` (93 PNGs at 2×, phone frames at 390×844,
+Every screen of the app is drawn in `assets/screens/` (96 PNGs at 2×, phone frames at 390×844,
 desktop at 1440×900, tablet at 1194×834 or 834×1194 upright), rendered from the HTML in `assets/mockups/` by
 `render.py`; `sheets.py` assembles them into the contact sheets in `assets/sheets/`. To change a
 reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
@@ -240,7 +240,8 @@ becomes "Importer" (file picker, drag and drop) where there's no camera.
 
 Keyboard on desktop: ⌘K / Ctrl+K search, ↑↓ move the selection, Enter opens, Space
 previews, Esc closes the detail; in Arrivées, Enter confirms the classification and moves to the
-next, E edits. Right-click opens the same actions as V8.
+next, E edits. Right-click opens the same actions as V8 (D2b); ⌘⌫ / Suppr on a selected document
+opens D2c, as V8's delete does.
 
 ### Onboarding and access on Medium and Expanded
 
@@ -521,8 +522,9 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | V6 | Document | Pass, file row with thumbnail, Informations (every attribute), facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) and [Informations](#informations) |
 | V6b | Document (sombre) | V6 in the dark theme: the pass on its dark category fill, Informations on `surface` | Dark reference for passes |
 | V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…" |
-| V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Reclasser, Informations techniques, Supprimer de tous mes appareils | Delete confirms that it reaches every device |
+| V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Reclasser, Informations techniques, Supprimer de tous mes appareils | Delete opens V10 |
 | V8b | Actions (sombre) | V8 in the dark theme | Dark reference for sheets and the scrim |
+| V10 | Supprimer le document | Dialog over V6: the document's title, erased from the vault and every device, for good; for a document a source fetched, an info note that the source won't fetch it again; Supprimer (`error`) · Annuler | Supprimer stays busy until the deletion is recorded, then back to the list it came from (V3, V5 or V1) with a snackbar "Document supprimé", no undo: other devices drop it at once. On failure the dialog stays open with the SDK's wording in an error note. Never offered as a swipe action |
 | V9 | Reclasser | Category grid, subcategories, type, Enregistrer | Invalid category/subcategory pairs can't be picked |
 | V11 | Coffre sombre | Dark reference | — |
 
@@ -593,6 +595,8 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 |---|---|---|
 | D1 | Catégorie | Sidebar · header, search, Importer · subcategory pills · 4-column cards with first-page thumbnails |
 | D2 | Document | Sidebar · 400dp list · pass, Informations and facts · live preview |
+| D2b | Actions du document | D2 with "…" open: a menu with what the row's buttons don't hold (Partager, Renommer, Informations techniques), then a divider and Supprimer de tous mes appareils in `error`, each with its shortcut; right-click on a row opens the same menu |
+| D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the category if it was the last |
 | D3 | Arrivées | Sidebar · queue with inline code card · preview · classification panel with C'est bon (Enter) |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
 | D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
@@ -694,7 +698,8 @@ left out (principle 5), not faked.
 | Runs on a chosen device: once a day on open, in the background where the OS allows | S1, S3, S5, R2, D4, DO7b |
 | Provenance on document metadata (source script, device, fetched at) | V5 Source facet, V6, S5 |
 | Unconfirmed-classification flag | R1, D3, Arrivées badge |
-| Delete-document event | V8 |
+| Deleting a document (a `Deleted` changelog event: the type exists, no call records it) | V8, V10, D2b, D2c |
+| Remembering a deleted document so its source doesn't fetch it again (scrapers skip only what is still saved) | V10, D2c note |
 | Recovery key status, account recovery and password change (in fyde-sdk, not yet in the bindings) | M2, M4, O10, DO10 |
 | Replay progress and per-device last seen | O9, M5, M2 |
 | First-page thumbnails | V3, D1, D2 |
@@ -712,7 +717,7 @@ left out (principle 5), not faked.
    (S4b, S5b, D4b and the stop actions on S4, S8, DO7d).
 2. **Automation visible:** run records and scheduling → S5, S6, R2–R4, V2, statuses everywhere.
 3. **Trust:** recovery kit, password check, last seen → O6, O9, M2–M4.
-4. **Triage:** provenance, unconfirmed flag, delete → R1 and D3 triage, Source facet, V8 delete,
+4. **Triage:** provenance, unconfirmed flag, delete → R1 and D3 triage, Source facet, V8 delete (V10, D2b, D2c),
    thumbnails.
 
 ---

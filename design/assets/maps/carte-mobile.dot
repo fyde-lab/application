@@ -30,6 +30,7 @@ subgraph "cluster_vault" { label="Coffre (V, X)"; fontname="Inter SemiBold"; fon
   "V8" [label="V8\nActions" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "V8b" [label="V8b\nActions sombres" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "V9" [label="V9\nReclasser" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "V10" [label="V10\nSupprimer le document" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "V11" [label="V11\nCoffre sombre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "X1" [label="X1\nHors ligne" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "X2" [label="X2\nTexte à 200 %" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
@@ -137,6 +138,8 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "V6" -> "V7" [color="#1F4D3A" penwidth=1.6 label="fichier"];
 "V6" -> "V8" [color="#2C5582" style=dashed penwidth=1.4 label="…"];
 "V8" -> "V9" [color="#2C5582" style=dashed penwidth=1.4 label="Reclasser"];
+"V8" -> "V10" [color="#2C5582" style=dashed penwidth=1.4 label="Supprimer"];
+"V10" -> "V3" [color="#1F4D3A" penwidth=1.6 label="supprimé"];
 "V1" -> "V11" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "V1" -> "X1" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sans réseau"];
 "V1" -> "R1" [color="#1F4D3A" penwidth=1.6 label="bannière"];
