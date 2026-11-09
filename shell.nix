@@ -97,6 +97,11 @@ pkgs.mkShell {
     androidComposition.androidsdk
 
     jdk21
+    # jpackage's deb bundler (`:desktopApp:packageDeb`) needs dpkg-deb and
+    # fakeroot on PATH; without them it fails with "Invalid or unsupported
+    # type: [deb]".
+    dpkg
+    fakeroot
     libglvnd libx11 libxext libxrender libxtst libxi libxrandr
     libxcursor libxcomposite libxdamage libxfixes libxxf86vm
     fontconfig freetype
