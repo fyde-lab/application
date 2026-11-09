@@ -35,6 +35,8 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
   "T2" [label="T2\nTablette portrait" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D1" [label="D1\nCatégorie" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D2" [label="D2\nDocument" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D2b" [label="D2b\nActions du document" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D2c" [label="D2c\nSupprimer le document" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D3" [label="D3\nArrivées" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D4" [label="D4\nSources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D4b" [label="D4b\nSource en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
@@ -83,6 +85,10 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "D4b" -> "D4" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Arrêter"];
 "SIDE" -> "D5" [color="#1F4D3A" penwidth=1.6 label="pierre (avatar)"];
 "D1" -> "D2" [color="#1F4D3A" penwidth=1.6];
+"D2" -> "D2b" [color="#2C5582" style=dashed penwidth=1.4 label="… ou clic droit"];
+"D2b" -> "D2c" [color="#2C5582" style=dashed penwidth=1.4 label="Supprimer"];
+"D2" -> "D2c" [color="#2C5582" style=dashed penwidth=1.4 label="⌘⌫"];
+"D2c" -> "D2" [color="#1F4D3A" penwidth=1.6 label="document suivant"];
 "T1" -> "D1" [color="#1F4D3A" penwidth=1.6 label="carte"];
 subgraph cluster_legend { label="Légende"; fontname="Inter SemiBold"; fontsize=14; style=rounded; color="#CFCAC0";
   node [shape=plaintext fontsize=12 margin=0];
