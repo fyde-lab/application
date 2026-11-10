@@ -21,8 +21,8 @@ import com.peltoche.fyde.theme.AppColors
 
 /**
  * The category icons and the vault's own controls, traced from `i-xxx` in
- * `design/assets/mockups/icons.svg` (gift has no symbol there and is drawn in
- * the same hand). Unlike `NavGlyphs.kt`'s hand-placed shapes, these replay the
+ * `design/assets/mockups/icons.svg` (gift, id card, scale, paw, ticket and
+ * graduation cap have no symbol there and are drawn in the same hand). Unlike `NavGlyphs.kt`'s hand-placed shapes, these replay the
  * SVG's own 24-unit paths, scaled to the glyph's size.
  */
 
@@ -65,6 +65,26 @@ fun RepeatGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted
 @Composable
 fun GiftGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
     PathGlyph(GiftPaths, modifier, tint, strokeWidth)
+
+@Composable
+fun IdCardGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(IdCardPaths, modifier, tint, strokeWidth)
+
+@Composable
+fun ScaleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(ScalePaths, modifier, tint, strokeWidth)
+
+@Composable
+fun PawGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(PawPaths, modifier, tint, strokeWidth)
+
+@Composable
+fun TicketGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(TicketPaths, modifier, tint, strokeWidth)
+
+@Composable
+fun GraduationCapGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(GraduationCapPaths, modifier, tint, strokeWidth)
 
 /** The Coffre destination: its category grid. */
 @Composable
@@ -142,6 +162,35 @@ private val GiftPaths = listOf(
     rect(4f, 9f, 16f, 3.5f, 1f),
     svg("M5.5 12.5V19a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-6.5M12 9v11"),
     svg("M12 9C10.5 5.5 7 5.5 7.5 7.5 7.9 9 12 9 12 9zM12 9c1.5-3.5 5-3.5 4.5-1.5C16.1 9 12 9 12 9z"),
+)
+
+private val IdCardPaths = listOf(
+    rect(3f, 5.5f, 18f, 13f, 2f),
+    circle(8.5f, 10.5f, 2f),
+    svg("M5.5 15.5c.5-1.5 1.6-2.3 3-2.3s2.5.8 3 2.3M14 10h4.5M14 13.5h3"),
+)
+
+private val ScalePaths = listOf(
+    svg("M12 4v16M8 20h8M4 7.5h16"),
+    svg("M4 7.5 1.5 14a2.5 2.5 0 0 0 5 0zM20 7.5 17.5 14a2.5 2.5 0 0 0 5 0z"),
+)
+
+private val PawPaths = listOf(
+    circle(6.5f, 10.5f, 1.7f),
+    circle(9.7f, 6.3f, 1.8f),
+    circle(14.3f, 6.3f, 1.8f),
+    circle(17.5f, 10.5f, 1.7f),
+    svg("M12 12c-2.5 0-5 3.5-5 5.5 0 1.5 1.2 2.5 2.7 2.5.9 0 1.5-.5 2.3-.5s1.4.5 2.3.5c1.5 0 2.7-1 2.7-2.5 0-2-2.5-5.5-5-5.5z"),
+)
+
+private val TicketPaths = listOf(
+    svg("M3.5 8a1 1 0 0 1 1-1h15a1 1 0 0 1 1 1v2.5a1.5 1.5 0 0 0 0 3V16a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-2.5a1.5 1.5 0 0 0 0-3z"),
+    svg("M14.5 7v2M14.5 11v2M14.5 15v2"),
+)
+
+private val GraduationCapPaths = listOf(
+    svg("M2.5 9.5 12 5l9.5 4.5L12 14z"),
+    svg("M6.5 11.6V16c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3v-4.4M21.5 9.5V15"),
 )
 
 private val GridPaths = listOf(

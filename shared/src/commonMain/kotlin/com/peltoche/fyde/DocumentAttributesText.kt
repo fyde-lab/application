@@ -124,7 +124,9 @@ internal fun localizedTaxAmount(amount: FydeAttribute.Amount): String =
 internal fun isFeminine(type: FydeDocumentType?): Boolean = when (type) {
     FydeDocumentType.INVOICE, FydeDocumentType.INSURANCE_CERTIFICATE, FydeDocumentType.INSURANCE_CARD,
     FydeDocumentType.RIGHTS_CERTIFICATE, FydeDocumentType.TAX_RETURN, FydeDocumentType.TAX_CERTIFICATE,
-    FydeDocumentType.EMPLOYMENT_CERTIFICATE, FydeDocumentType.BOOKING,
+    FydeDocumentType.EMPLOYMENT_CERTIFICATE, FydeDocumentType.BOOKING, FydeDocumentType.ID_DOCUMENT,
+    FydeDocumentType.BROCHURE, FydeDocumentType.ATTESTATION, FydeDocumentType.PAYMENT_REMINDER,
+    FydeDocumentType.FINE, FydeDocumentType.WARRANTY,
     -> true
     else -> false
 }

@@ -31,8 +31,8 @@ internal object ScreenshotFixtures {
     private val payslip = document("d3", "Bulletin de paie février 2026", FydeCategory.WORK, FydeSubcategory.PAYSLIPS, FydeDocumentType.PAYSLIP, T0 - 12 * DAY)
     private val refund = document("d4", "Décompte de remboursement", FydeCategory.HEALTH, FydeSubcategory.HEALTH_INSURANCE, FydeDocumentType.REIMBURSEMENT_STATEMENT, T0 - 3 * DAY)
     private val tax = document("d5", "Avis d'impôt 2025", FydeCategory.TAXES, FydeSubcategory.INCOME_TAX, FydeDocumentType.TAX_NOTICE, T0 - 200 * DAY)
-    private val internet = document("d6", "Facture Freebox janvier", FydeCategory.HOUSING, FydeSubcategory.INTERNET, FydeDocumentType.INVOICE, T0 - 60 * DAY)
-    private val housing = listOf(invoice, water, internet)
+    private val rent = document("d6", "Quittance de loyer janvier", FydeCategory.HOUSING, FydeSubcategory.RENT, FydeDocumentType.RECEIPT, T0 - 60 * DAY)
+    private val housing = listOf(invoice, water, rent)
 
     private val sessions = listOf(
         FydeOpenSession("s1", "MacBook Pro de Pierre", T0 - 40 * DAY, isCurrent = true),
@@ -82,7 +82,7 @@ internal object ScreenshotFixtures {
             subcategories = listOf(
                 FydeFacetCount(FydeSubcategory.ENERGY, 1),
                 FydeFacetCount(FydeSubcategory.WATER, 1),
-                FydeFacetCount(FydeSubcategory.INTERNET, 1),
+                FydeFacetCount(FydeSubcategory.RENT, 1),
             ),
             years = listOf(YearFilter.In(2026)),
         ),
