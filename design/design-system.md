@@ -55,8 +55,8 @@ French and English.
 ## Principles
 
 1. **The vault is organised the way life is.** Documents are browsed by the SDK's categories
-   (Logement, Argent, Travail, Impôts, Santé, Télécom, Transport, Achats, Famille, Abonnements,
-   Dons) and their subcategories, then by year. Search is always one tap away, but browsing is the
+   (Logement, Argent, Travail, Impôts, Santé, Télécom, Transport, Achats, Famille, Identité,
+   Juridique, Éducation, Animaux, Loisirs, Abonnements, Dons) and their subcategories, then by year. Search is always one tap away, but browsing is the
    default on a phone.
 2. **The automation is visible.** Fetching documents is the reason to use Fyde, so its state is
    on screen at all times: what arrived, which source needs the user, when the next run is.
@@ -122,6 +122,11 @@ they never mean ok/warning/error, and they always come with the category's icon 
 | Transport | train | `#DDDBEF` / `#45428F` | `#26253B` / `#B4B1EC` |
 | Achats | bag | `#F0E1CF` / `#86501C` | `#3A2C1D` / `#E9B887` |
 | Famille | users | `#E9E3CB` / `#6A5B1E` | `#33301C` / `#DCCB8A` |
+| Identité | id card | `#D3E7EB` / `#1B5866` | `#1B3138` / `#8DCCDB` |
+| Juridique | scale | `#DDE1E7` / `#3F4A5C` | `#252A33` / `#B5C0D2` |
+| Éducation | graduation cap | `#DAEAD3` / `#3A6A2A` | `#213019` / `#A9D696` |
+| Animaux | paw | `#EFDCD2` / `#8A4325` | `#3A261D` / `#EDAF92` |
+| Loisirs | ticket | `#EDD9EE` / `#7A3580` | `#35223A` / `#E2A8E8` |
 | Abonnements | repeat | `#E3DCEC` / `#5D3F80` | `#2B2436` / `#C9B3E8` |
 | Dons | gift | `#DDE8CF` / `#4A6326` | `#26301C` / `#BCD69A` |
 | À classer | document | `#E6E3DB` / `#5B574F` | `#262A28` / `#B7B9B4` |

@@ -9,43 +9,77 @@ import com.peltoche.fyde.resources.category_taxes
 import com.peltoche.fyde.resources.category_health
 import com.peltoche.fyde.resources.category_work
 import com.peltoche.fyde.resources.category_family
+import com.peltoche.fyde.resources.category_identity
+import com.peltoche.fyde.resources.category_legal
 import com.peltoche.fyde.resources.category_transport
+import com.peltoche.fyde.resources.category_pets
 import com.peltoche.fyde.resources.category_shopping
+import com.peltoche.fyde.resources.category_leisure
+import com.peltoche.fyde.resources.category_education
 import com.peltoche.fyde.resources.category_subscriptions
 import com.peltoche.fyde.resources.category_donations
 import com.peltoche.fyde.resources.subcategory_energy
 import com.peltoche.fyde.resources.subcategory_water
-import com.peltoche.fyde.resources.subcategory_internet
 import com.peltoche.fyde.resources.subcategory_home_insurance
 import com.peltoche.fyde.resources.subcategory_home_services
+import com.peltoche.fyde.resources.subcategory_rent
+import com.peltoche.fyde.resources.subcategory_property
+import com.peltoche.fyde.resources.subcategory_works
 import com.peltoche.fyde.resources.subcategory_mobile
+import com.peltoche.fyde.resources.subcategory_internet
 import com.peltoche.fyde.resources.subcategory_banking
 import com.peltoche.fyde.resources.subcategory_savings
+import com.peltoche.fyde.resources.subcategory_investments
+import com.peltoche.fyde.resources.subcategory_loans
 import com.peltoche.fyde.resources.subcategory_gaming
 import com.peltoche.fyde.resources.subcategory_income_tax
 import com.peltoche.fyde.resources.subcategory_tax_certificates
+import com.peltoche.fyde.resources.subcategory_property_tax
+import com.peltoche.fyde.resources.subcategory_housing_tax
 import com.peltoche.fyde.resources.subcategory_health_insurance
 import com.peltoche.fyde.resources.subcategory_complementary_health
 import com.peltoche.fyde.resources.subcategory_care
+import com.peltoche.fyde.resources.subcategory_death_disability_cover
 import com.peltoche.fyde.resources.subcategory_payslips
 import com.peltoche.fyde.resources.subcategory_employment
 import com.peltoche.fyde.resources.subcategory_household_employer
+import com.peltoche.fyde.resources.subcategory_freelance
+import com.peltoche.fyde.resources.subcategory_unemployment
+import com.peltoche.fyde.resources.subcategory_retirement
 import com.peltoche.fyde.resources.subcategory_benefits
-import com.peltoche.fyde.resources.subcategory_childcare_school
+import com.peltoche.fyde.resources.subcategory_childcare
+import com.peltoche.fyde.resources.subcategory_id_documents
+import com.peltoche.fyde.resources.subcategory_civil_status
+import com.peltoche.fyde.resources.subcategory_inheritance_gifts
+import com.peltoche.fyde.resources.subcategory_company
+import com.peltoche.fyde.resources.subcategory_justice
 import com.peltoche.fyde.resources.subcategory_train
 import com.peltoche.fyde.resources.subcategory_flight
 import com.peltoche.fyde.resources.subcategory_road
 import com.peltoche.fyde.resources.subcategory_ride
 import com.peltoche.fyde.resources.subcategory_travel
+import com.peltoche.fyde.resources.subcategory_vehicle
+import com.peltoche.fyde.resources.subcategory_vehicle_insurance
+import com.peltoche.fyde.resources.subcategory_veterinary
+import com.peltoche.fyde.resources.subcategory_pet_care
+import com.peltoche.fyde.resources.subcategory_pet_insurance
+import com.peltoche.fyde.resources.subcategory_pet_supplies
 import com.peltoche.fyde.resources.subcategory_online
-import com.peltoche.fyde.resources.subcategory_pets
 import com.peltoche.fyde.resources.subcategory_groceries
 import com.peltoche.fyde.resources.subcategory_food_delivery
+import com.peltoche.fyde.resources.subcategory_electronics
+import com.peltoche.fyde.resources.subcategory_home_equipment
+import com.peltoche.fyde.resources.subcategory_clothing
+import com.peltoche.fyde.resources.subcategory_secondhand
+import com.peltoche.fyde.resources.subcategory_sports
+import com.peltoche.fyde.resources.subcategory_events
+import com.peltoche.fyde.resources.subcategory_associations
+import com.peltoche.fyde.resources.subcategory_school
+import com.peltoche.fyde.resources.subcategory_higher_education
+import com.peltoche.fyde.resources.subcategory_training
 import com.peltoche.fyde.resources.subcategory_media
 import com.peltoche.fyde.resources.subcategory_cloud_software
-import com.peltoche.fyde.resources.date_format
-import com.peltoche.fyde.resources.date_format_short
-import com.peltoche.fyde.resources.decimal_separator
+import com.peltoche.fyde.resources.subcategory_press
 import com.peltoche.fyde.resources.document_type_invoice
 import com.peltoche.fyde.resources.document_type_receipt
 import com.peltoche.fyde.resources.document_type_statement
@@ -64,7 +98,30 @@ import com.peltoche.fyde.resources.document_type_employment_certificate
 import com.peltoche.fyde.resources.document_type_fee_summary
 import com.peltoche.fyde.resources.document_type_booking
 import com.peltoche.fyde.resources.document_type_medical_document
+import com.peltoche.fyde.resources.document_type_quote
+import com.peltoche.fyde.resources.document_type_id_document
+import com.peltoche.fyde.resources.document_type_civil_status_record
+import com.peltoche.fyde.resources.document_type_letter
+import com.peltoche.fyde.resources.document_type_acknowledgement
+import com.peltoche.fyde.resources.document_type_form
+import com.peltoche.fyde.resources.document_type_payment_schedule
+import com.peltoche.fyde.resources.document_type_mandate
+import com.peltoche.fyde.resources.document_type_terms_and_conditions
+import com.peltoche.fyde.resources.document_type_brochure
+import com.peltoche.fyde.resources.document_type_timesheet
+import com.peltoche.fyde.resources.document_type_inspection_report
+import com.peltoche.fyde.resources.document_type_notarial_deed
+import com.peltoche.fyde.resources.document_type_attestation
+import com.peltoche.fyde.resources.document_type_payment_reminder
+import com.peltoche.fyde.resources.document_type_fine
+import com.peltoche.fyde.resources.document_type_warranty
+import com.peltoche.fyde.resources.document_type_resume
+import com.peltoche.fyde.resources.document_type_minutes
+import com.peltoche.fyde.resources.document_type_diploma
 import com.peltoche.fyde.resources.document_type_other
+import com.peltoche.fyde.resources.date_format
+import com.peltoche.fyde.resources.date_format_short
+import com.peltoche.fyde.resources.decimal_separator
 import com.peltoche.fyde.resources.month_1
 import com.peltoche.fyde.resources.month_10
 import com.peltoche.fyde.resources.month_11
@@ -240,8 +297,13 @@ internal fun FydeCategory.label(): String = stringResource(
         FydeCategory.HEALTH -> Res.string.category_health
         FydeCategory.WORK -> Res.string.category_work
         FydeCategory.FAMILY -> Res.string.category_family
+        FydeCategory.IDENTITY -> Res.string.category_identity
+        FydeCategory.LEGAL -> Res.string.category_legal
         FydeCategory.TRANSPORT -> Res.string.category_transport
+        FydeCategory.PETS -> Res.string.category_pets
         FydeCategory.SHOPPING -> Res.string.category_shopping
+        FydeCategory.LEISURE -> Res.string.category_leisure
+        FydeCategory.EDUCATION -> Res.string.category_education
         FydeCategory.SUBSCRIPTIONS -> Res.string.category_subscriptions
         FydeCategory.DONATIONS -> Res.string.category_donations
     },
@@ -252,34 +314,66 @@ internal fun FydeSubcategory.label(): String = stringResource(
     when (this) {
         FydeSubcategory.ENERGY -> Res.string.subcategory_energy
         FydeSubcategory.WATER -> Res.string.subcategory_water
-        FydeSubcategory.INTERNET -> Res.string.subcategory_internet
         FydeSubcategory.HOME_INSURANCE -> Res.string.subcategory_home_insurance
         FydeSubcategory.HOME_SERVICES -> Res.string.subcategory_home_services
+        FydeSubcategory.RENT -> Res.string.subcategory_rent
+        FydeSubcategory.PROPERTY -> Res.string.subcategory_property
+        FydeSubcategory.WORKS -> Res.string.subcategory_works
         FydeSubcategory.MOBILE -> Res.string.subcategory_mobile
+        FydeSubcategory.INTERNET -> Res.string.subcategory_internet
         FydeSubcategory.BANKING -> Res.string.subcategory_banking
         FydeSubcategory.SAVINGS -> Res.string.subcategory_savings
+        FydeSubcategory.INVESTMENTS -> Res.string.subcategory_investments
+        FydeSubcategory.LOANS -> Res.string.subcategory_loans
         FydeSubcategory.GAMING -> Res.string.subcategory_gaming
         FydeSubcategory.INCOME_TAX -> Res.string.subcategory_income_tax
         FydeSubcategory.TAX_CERTIFICATES -> Res.string.subcategory_tax_certificates
+        FydeSubcategory.PROPERTY_TAX -> Res.string.subcategory_property_tax
+        FydeSubcategory.HOUSING_TAX -> Res.string.subcategory_housing_tax
         FydeSubcategory.HEALTH_INSURANCE -> Res.string.subcategory_health_insurance
         FydeSubcategory.COMPLEMENTARY_HEALTH -> Res.string.subcategory_complementary_health
         FydeSubcategory.CARE -> Res.string.subcategory_care
+        FydeSubcategory.DEATH_DISABILITY_COVER -> Res.string.subcategory_death_disability_cover
         FydeSubcategory.PAYSLIPS -> Res.string.subcategory_payslips
         FydeSubcategory.EMPLOYMENT -> Res.string.subcategory_employment
         FydeSubcategory.HOUSEHOLD_EMPLOYER -> Res.string.subcategory_household_employer
+        FydeSubcategory.FREELANCE -> Res.string.subcategory_freelance
+        FydeSubcategory.UNEMPLOYMENT -> Res.string.subcategory_unemployment
+        FydeSubcategory.RETIREMENT -> Res.string.subcategory_retirement
         FydeSubcategory.BENEFITS -> Res.string.subcategory_benefits
-        FydeSubcategory.CHILDCARE_SCHOOL -> Res.string.subcategory_childcare_school
+        FydeSubcategory.CHILDCARE -> Res.string.subcategory_childcare
+        FydeSubcategory.ID_DOCUMENTS -> Res.string.subcategory_id_documents
+        FydeSubcategory.CIVIL_STATUS -> Res.string.subcategory_civil_status
+        FydeSubcategory.INHERITANCE_GIFTS -> Res.string.subcategory_inheritance_gifts
+        FydeSubcategory.COMPANY -> Res.string.subcategory_company
+        FydeSubcategory.JUSTICE -> Res.string.subcategory_justice
         FydeSubcategory.TRAIN -> Res.string.subcategory_train
         FydeSubcategory.FLIGHT -> Res.string.subcategory_flight
         FydeSubcategory.ROAD -> Res.string.subcategory_road
         FydeSubcategory.RIDE -> Res.string.subcategory_ride
         FydeSubcategory.TRAVEL -> Res.string.subcategory_travel
+        FydeSubcategory.VEHICLE -> Res.string.subcategory_vehicle
+        FydeSubcategory.VEHICLE_INSURANCE -> Res.string.subcategory_vehicle_insurance
+        FydeSubcategory.VETERINARY -> Res.string.subcategory_veterinary
+        FydeSubcategory.PET_CARE -> Res.string.subcategory_pet_care
+        FydeSubcategory.PET_INSURANCE -> Res.string.subcategory_pet_insurance
+        FydeSubcategory.PET_SUPPLIES -> Res.string.subcategory_pet_supplies
         FydeSubcategory.ONLINE -> Res.string.subcategory_online
-        FydeSubcategory.PETS -> Res.string.subcategory_pets
         FydeSubcategory.GROCERIES -> Res.string.subcategory_groceries
         FydeSubcategory.FOOD_DELIVERY -> Res.string.subcategory_food_delivery
+        FydeSubcategory.ELECTRONICS -> Res.string.subcategory_electronics
+        FydeSubcategory.HOME_EQUIPMENT -> Res.string.subcategory_home_equipment
+        FydeSubcategory.CLOTHING -> Res.string.subcategory_clothing
+        FydeSubcategory.SECONDHAND -> Res.string.subcategory_secondhand
+        FydeSubcategory.SPORTS -> Res.string.subcategory_sports
+        FydeSubcategory.EVENTS -> Res.string.subcategory_events
+        FydeSubcategory.ASSOCIATIONS -> Res.string.subcategory_associations
+        FydeSubcategory.SCHOOL -> Res.string.subcategory_school
+        FydeSubcategory.HIGHER_EDUCATION -> Res.string.subcategory_higher_education
+        FydeSubcategory.TRAINING -> Res.string.subcategory_training
         FydeSubcategory.MEDIA -> Res.string.subcategory_media
         FydeSubcategory.CLOUD_SOFTWARE -> Res.string.subcategory_cloud_software
+        FydeSubcategory.PRESS -> Res.string.subcategory_press
     },
 )
 
@@ -304,6 +398,26 @@ internal fun FydeDocumentType.label(): String = stringResource(
         FydeDocumentType.FEE_SUMMARY -> Res.string.document_type_fee_summary
         FydeDocumentType.BOOKING -> Res.string.document_type_booking
         FydeDocumentType.MEDICAL_DOCUMENT -> Res.string.document_type_medical_document
+        FydeDocumentType.QUOTE -> Res.string.document_type_quote
+        FydeDocumentType.ID_DOCUMENT -> Res.string.document_type_id_document
+        FydeDocumentType.CIVIL_STATUS_RECORD -> Res.string.document_type_civil_status_record
+        FydeDocumentType.LETTER -> Res.string.document_type_letter
+        FydeDocumentType.ACKNOWLEDGEMENT -> Res.string.document_type_acknowledgement
+        FydeDocumentType.FORM -> Res.string.document_type_form
+        FydeDocumentType.PAYMENT_SCHEDULE -> Res.string.document_type_payment_schedule
+        FydeDocumentType.MANDATE -> Res.string.document_type_mandate
+        FydeDocumentType.TERMS_AND_CONDITIONS -> Res.string.document_type_terms_and_conditions
+        FydeDocumentType.BROCHURE -> Res.string.document_type_brochure
+        FydeDocumentType.TIMESHEET -> Res.string.document_type_timesheet
+        FydeDocumentType.INSPECTION_REPORT -> Res.string.document_type_inspection_report
+        FydeDocumentType.NOTARIAL_DEED -> Res.string.document_type_notarial_deed
+        FydeDocumentType.ATTESTATION -> Res.string.document_type_attestation
+        FydeDocumentType.PAYMENT_REMINDER -> Res.string.document_type_payment_reminder
+        FydeDocumentType.FINE -> Res.string.document_type_fine
+        FydeDocumentType.WARRANTY -> Res.string.document_type_warranty
+        FydeDocumentType.RESUME -> Res.string.document_type_resume
+        FydeDocumentType.MINUTES -> Res.string.document_type_minutes
+        FydeDocumentType.DIPLOMA -> Res.string.document_type_diploma
         FydeDocumentType.OTHER -> Res.string.document_type_other
     },
 )

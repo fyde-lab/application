@@ -320,8 +320,13 @@ private fun FfiCategory.toFydeCategory() = when (this) {
     FfiCategory.HEALTH -> FydeCategory.HEALTH
     FfiCategory.WORK -> FydeCategory.WORK
     FfiCategory.FAMILY -> FydeCategory.FAMILY
+    FfiCategory.IDENTITY -> FydeCategory.IDENTITY
+    FfiCategory.LEGAL -> FydeCategory.LEGAL
     FfiCategory.TRANSPORT -> FydeCategory.TRANSPORT
+    FfiCategory.PETS -> FydeCategory.PETS
     FfiCategory.SHOPPING -> FydeCategory.SHOPPING
+    FfiCategory.LEISURE -> FydeCategory.LEISURE
+    FfiCategory.EDUCATION -> FydeCategory.EDUCATION
     FfiCategory.SUBSCRIPTIONS -> FydeCategory.SUBSCRIPTIONS
     FfiCategory.DONATIONS -> FydeCategory.DONATIONS
 }
@@ -329,34 +334,66 @@ private fun FfiCategory.toFydeCategory() = when (this) {
 private fun FfiSubcategory.toFydeSubcategory() = when (this) {
     FfiSubcategory.ENERGY -> FydeSubcategory.ENERGY
     FfiSubcategory.WATER -> FydeSubcategory.WATER
-    FfiSubcategory.INTERNET -> FydeSubcategory.INTERNET
     FfiSubcategory.HOME_INSURANCE -> FydeSubcategory.HOME_INSURANCE
     FfiSubcategory.HOME_SERVICES -> FydeSubcategory.HOME_SERVICES
+    FfiSubcategory.RENT -> FydeSubcategory.RENT
+    FfiSubcategory.PROPERTY -> FydeSubcategory.PROPERTY
+    FfiSubcategory.WORKS -> FydeSubcategory.WORKS
     FfiSubcategory.MOBILE -> FydeSubcategory.MOBILE
+    FfiSubcategory.INTERNET -> FydeSubcategory.INTERNET
     FfiSubcategory.BANKING -> FydeSubcategory.BANKING
     FfiSubcategory.SAVINGS -> FydeSubcategory.SAVINGS
+    FfiSubcategory.INVESTMENTS -> FydeSubcategory.INVESTMENTS
+    FfiSubcategory.LOANS -> FydeSubcategory.LOANS
     FfiSubcategory.GAMING -> FydeSubcategory.GAMING
     FfiSubcategory.INCOME_TAX -> FydeSubcategory.INCOME_TAX
     FfiSubcategory.TAX_CERTIFICATES -> FydeSubcategory.TAX_CERTIFICATES
+    FfiSubcategory.PROPERTY_TAX -> FydeSubcategory.PROPERTY_TAX
+    FfiSubcategory.HOUSING_TAX -> FydeSubcategory.HOUSING_TAX
     FfiSubcategory.HEALTH_INSURANCE -> FydeSubcategory.HEALTH_INSURANCE
     FfiSubcategory.COMPLEMENTARY_HEALTH -> FydeSubcategory.COMPLEMENTARY_HEALTH
     FfiSubcategory.CARE -> FydeSubcategory.CARE
+    FfiSubcategory.DEATH_DISABILITY_COVER -> FydeSubcategory.DEATH_DISABILITY_COVER
     FfiSubcategory.PAYSLIPS -> FydeSubcategory.PAYSLIPS
     FfiSubcategory.EMPLOYMENT -> FydeSubcategory.EMPLOYMENT
     FfiSubcategory.HOUSEHOLD_EMPLOYER -> FydeSubcategory.HOUSEHOLD_EMPLOYER
+    FfiSubcategory.FREELANCE -> FydeSubcategory.FREELANCE
+    FfiSubcategory.UNEMPLOYMENT -> FydeSubcategory.UNEMPLOYMENT
+    FfiSubcategory.RETIREMENT -> FydeSubcategory.RETIREMENT
     FfiSubcategory.BENEFITS -> FydeSubcategory.BENEFITS
-    FfiSubcategory.CHILDCARE_SCHOOL -> FydeSubcategory.CHILDCARE_SCHOOL
+    FfiSubcategory.CHILDCARE -> FydeSubcategory.CHILDCARE
+    FfiSubcategory.ID_DOCUMENTS -> FydeSubcategory.ID_DOCUMENTS
+    FfiSubcategory.CIVIL_STATUS -> FydeSubcategory.CIVIL_STATUS
+    FfiSubcategory.INHERITANCE_GIFTS -> FydeSubcategory.INHERITANCE_GIFTS
+    FfiSubcategory.COMPANY -> FydeSubcategory.COMPANY
+    FfiSubcategory.JUSTICE -> FydeSubcategory.JUSTICE
     FfiSubcategory.TRAIN -> FydeSubcategory.TRAIN
     FfiSubcategory.FLIGHT -> FydeSubcategory.FLIGHT
     FfiSubcategory.ROAD -> FydeSubcategory.ROAD
     FfiSubcategory.RIDE -> FydeSubcategory.RIDE
     FfiSubcategory.TRAVEL -> FydeSubcategory.TRAVEL
+    FfiSubcategory.VEHICLE -> FydeSubcategory.VEHICLE
+    FfiSubcategory.VEHICLE_INSURANCE -> FydeSubcategory.VEHICLE_INSURANCE
+    FfiSubcategory.VETERINARY -> FydeSubcategory.VETERINARY
+    FfiSubcategory.PET_CARE -> FydeSubcategory.PET_CARE
+    FfiSubcategory.PET_INSURANCE -> FydeSubcategory.PET_INSURANCE
+    FfiSubcategory.PET_SUPPLIES -> FydeSubcategory.PET_SUPPLIES
     FfiSubcategory.ONLINE -> FydeSubcategory.ONLINE
-    FfiSubcategory.PETS -> FydeSubcategory.PETS
     FfiSubcategory.GROCERIES -> FydeSubcategory.GROCERIES
     FfiSubcategory.FOOD_DELIVERY -> FydeSubcategory.FOOD_DELIVERY
+    FfiSubcategory.ELECTRONICS -> FydeSubcategory.ELECTRONICS
+    FfiSubcategory.HOME_EQUIPMENT -> FydeSubcategory.HOME_EQUIPMENT
+    FfiSubcategory.CLOTHING -> FydeSubcategory.CLOTHING
+    FfiSubcategory.SECONDHAND -> FydeSubcategory.SECONDHAND
+    FfiSubcategory.SPORTS -> FydeSubcategory.SPORTS
+    FfiSubcategory.EVENTS -> FydeSubcategory.EVENTS
+    FfiSubcategory.ASSOCIATIONS -> FydeSubcategory.ASSOCIATIONS
+    FfiSubcategory.SCHOOL -> FydeSubcategory.SCHOOL
+    FfiSubcategory.HIGHER_EDUCATION -> FydeSubcategory.HIGHER_EDUCATION
+    FfiSubcategory.TRAINING -> FydeSubcategory.TRAINING
     FfiSubcategory.MEDIA -> FydeSubcategory.MEDIA
     FfiSubcategory.CLOUD_SOFTWARE -> FydeSubcategory.CLOUD_SOFTWARE
+    FfiSubcategory.PRESS -> FydeSubcategory.PRESS
 }
 
 private fun FydeCategory.toFfiCategory() = when (this) {
@@ -367,8 +404,13 @@ private fun FydeCategory.toFfiCategory() = when (this) {
     FydeCategory.HEALTH -> FfiCategory.HEALTH
     FydeCategory.WORK -> FfiCategory.WORK
     FydeCategory.FAMILY -> FfiCategory.FAMILY
+    FydeCategory.IDENTITY -> FfiCategory.IDENTITY
+    FydeCategory.LEGAL -> FfiCategory.LEGAL
     FydeCategory.TRANSPORT -> FfiCategory.TRANSPORT
+    FydeCategory.PETS -> FfiCategory.PETS
     FydeCategory.SHOPPING -> FfiCategory.SHOPPING
+    FydeCategory.LEISURE -> FfiCategory.LEISURE
+    FydeCategory.EDUCATION -> FfiCategory.EDUCATION
     FydeCategory.SUBSCRIPTIONS -> FfiCategory.SUBSCRIPTIONS
     FydeCategory.DONATIONS -> FfiCategory.DONATIONS
 }
@@ -376,34 +418,66 @@ private fun FydeCategory.toFfiCategory() = when (this) {
 private fun FydeSubcategory.toFfiSubcategory() = when (this) {
     FydeSubcategory.ENERGY -> FfiSubcategory.ENERGY
     FydeSubcategory.WATER -> FfiSubcategory.WATER
-    FydeSubcategory.INTERNET -> FfiSubcategory.INTERNET
     FydeSubcategory.HOME_INSURANCE -> FfiSubcategory.HOME_INSURANCE
     FydeSubcategory.HOME_SERVICES -> FfiSubcategory.HOME_SERVICES
+    FydeSubcategory.RENT -> FfiSubcategory.RENT
+    FydeSubcategory.PROPERTY -> FfiSubcategory.PROPERTY
+    FydeSubcategory.WORKS -> FfiSubcategory.WORKS
     FydeSubcategory.MOBILE -> FfiSubcategory.MOBILE
+    FydeSubcategory.INTERNET -> FfiSubcategory.INTERNET
     FydeSubcategory.BANKING -> FfiSubcategory.BANKING
     FydeSubcategory.SAVINGS -> FfiSubcategory.SAVINGS
+    FydeSubcategory.INVESTMENTS -> FfiSubcategory.INVESTMENTS
+    FydeSubcategory.LOANS -> FfiSubcategory.LOANS
     FydeSubcategory.GAMING -> FfiSubcategory.GAMING
     FydeSubcategory.INCOME_TAX -> FfiSubcategory.INCOME_TAX
     FydeSubcategory.TAX_CERTIFICATES -> FfiSubcategory.TAX_CERTIFICATES
+    FydeSubcategory.PROPERTY_TAX -> FfiSubcategory.PROPERTY_TAX
+    FydeSubcategory.HOUSING_TAX -> FfiSubcategory.HOUSING_TAX
     FydeSubcategory.HEALTH_INSURANCE -> FfiSubcategory.HEALTH_INSURANCE
     FydeSubcategory.COMPLEMENTARY_HEALTH -> FfiSubcategory.COMPLEMENTARY_HEALTH
     FydeSubcategory.CARE -> FfiSubcategory.CARE
+    FydeSubcategory.DEATH_DISABILITY_COVER -> FfiSubcategory.DEATH_DISABILITY_COVER
     FydeSubcategory.PAYSLIPS -> FfiSubcategory.PAYSLIPS
     FydeSubcategory.EMPLOYMENT -> FfiSubcategory.EMPLOYMENT
     FydeSubcategory.HOUSEHOLD_EMPLOYER -> FfiSubcategory.HOUSEHOLD_EMPLOYER
+    FydeSubcategory.FREELANCE -> FfiSubcategory.FREELANCE
+    FydeSubcategory.UNEMPLOYMENT -> FfiSubcategory.UNEMPLOYMENT
+    FydeSubcategory.RETIREMENT -> FfiSubcategory.RETIREMENT
     FydeSubcategory.BENEFITS -> FfiSubcategory.BENEFITS
-    FydeSubcategory.CHILDCARE_SCHOOL -> FfiSubcategory.CHILDCARE_SCHOOL
+    FydeSubcategory.CHILDCARE -> FfiSubcategory.CHILDCARE
+    FydeSubcategory.ID_DOCUMENTS -> FfiSubcategory.ID_DOCUMENTS
+    FydeSubcategory.CIVIL_STATUS -> FfiSubcategory.CIVIL_STATUS
+    FydeSubcategory.INHERITANCE_GIFTS -> FfiSubcategory.INHERITANCE_GIFTS
+    FydeSubcategory.COMPANY -> FfiSubcategory.COMPANY
+    FydeSubcategory.JUSTICE -> FfiSubcategory.JUSTICE
     FydeSubcategory.TRAIN -> FfiSubcategory.TRAIN
     FydeSubcategory.FLIGHT -> FfiSubcategory.FLIGHT
     FydeSubcategory.ROAD -> FfiSubcategory.ROAD
     FydeSubcategory.RIDE -> FfiSubcategory.RIDE
     FydeSubcategory.TRAVEL -> FfiSubcategory.TRAVEL
+    FydeSubcategory.VEHICLE -> FfiSubcategory.VEHICLE
+    FydeSubcategory.VEHICLE_INSURANCE -> FfiSubcategory.VEHICLE_INSURANCE
+    FydeSubcategory.VETERINARY -> FfiSubcategory.VETERINARY
+    FydeSubcategory.PET_CARE -> FfiSubcategory.PET_CARE
+    FydeSubcategory.PET_INSURANCE -> FfiSubcategory.PET_INSURANCE
+    FydeSubcategory.PET_SUPPLIES -> FfiSubcategory.PET_SUPPLIES
     FydeSubcategory.ONLINE -> FfiSubcategory.ONLINE
-    FydeSubcategory.PETS -> FfiSubcategory.PETS
     FydeSubcategory.GROCERIES -> FfiSubcategory.GROCERIES
     FydeSubcategory.FOOD_DELIVERY -> FfiSubcategory.FOOD_DELIVERY
+    FydeSubcategory.ELECTRONICS -> FfiSubcategory.ELECTRONICS
+    FydeSubcategory.HOME_EQUIPMENT -> FfiSubcategory.HOME_EQUIPMENT
+    FydeSubcategory.CLOTHING -> FfiSubcategory.CLOTHING
+    FydeSubcategory.SECONDHAND -> FfiSubcategory.SECONDHAND
+    FydeSubcategory.SPORTS -> FfiSubcategory.SPORTS
+    FydeSubcategory.EVENTS -> FfiSubcategory.EVENTS
+    FydeSubcategory.ASSOCIATIONS -> FfiSubcategory.ASSOCIATIONS
+    FydeSubcategory.SCHOOL -> FfiSubcategory.SCHOOL
+    FydeSubcategory.HIGHER_EDUCATION -> FfiSubcategory.HIGHER_EDUCATION
+    FydeSubcategory.TRAINING -> FfiSubcategory.TRAINING
     FydeSubcategory.MEDIA -> FfiSubcategory.MEDIA
     FydeSubcategory.CLOUD_SOFTWARE -> FfiSubcategory.CLOUD_SOFTWARE
+    FydeSubcategory.PRESS -> FfiSubcategory.PRESS
 }
 
 private fun FfiDocumentType.toFydeDocumentType() = when (this) {
@@ -425,6 +499,26 @@ private fun FfiDocumentType.toFydeDocumentType() = when (this) {
     FfiDocumentType.FEE_SUMMARY -> FydeDocumentType.FEE_SUMMARY
     FfiDocumentType.BOOKING -> FydeDocumentType.BOOKING
     FfiDocumentType.MEDICAL_DOCUMENT -> FydeDocumentType.MEDICAL_DOCUMENT
+    FfiDocumentType.QUOTE -> FydeDocumentType.QUOTE
+    FfiDocumentType.ID_DOCUMENT -> FydeDocumentType.ID_DOCUMENT
+    FfiDocumentType.CIVIL_STATUS_RECORD -> FydeDocumentType.CIVIL_STATUS_RECORD
+    FfiDocumentType.LETTER -> FydeDocumentType.LETTER
+    FfiDocumentType.ACKNOWLEDGEMENT -> FydeDocumentType.ACKNOWLEDGEMENT
+    FfiDocumentType.FORM -> FydeDocumentType.FORM
+    FfiDocumentType.PAYMENT_SCHEDULE -> FydeDocumentType.PAYMENT_SCHEDULE
+    FfiDocumentType.MANDATE -> FydeDocumentType.MANDATE
+    FfiDocumentType.TERMS_AND_CONDITIONS -> FydeDocumentType.TERMS_AND_CONDITIONS
+    FfiDocumentType.BROCHURE -> FydeDocumentType.BROCHURE
+    FfiDocumentType.TIMESHEET -> FydeDocumentType.TIMESHEET
+    FfiDocumentType.INSPECTION_REPORT -> FydeDocumentType.INSPECTION_REPORT
+    FfiDocumentType.NOTARIAL_DEED -> FydeDocumentType.NOTARIAL_DEED
+    FfiDocumentType.ATTESTATION -> FydeDocumentType.ATTESTATION
+    FfiDocumentType.PAYMENT_REMINDER -> FydeDocumentType.PAYMENT_REMINDER
+    FfiDocumentType.FINE -> FydeDocumentType.FINE
+    FfiDocumentType.WARRANTY -> FydeDocumentType.WARRANTY
+    FfiDocumentType.RESUME -> FydeDocumentType.RESUME
+    FfiDocumentType.MINUTES -> FydeDocumentType.MINUTES
+    FfiDocumentType.DIPLOMA -> FydeDocumentType.DIPLOMA
     FfiDocumentType.OTHER -> FydeDocumentType.OTHER
 }
 
@@ -447,6 +541,26 @@ private fun FydeDocumentType.toFfiDocumentType() = when (this) {
     FydeDocumentType.FEE_SUMMARY -> FfiDocumentType.FEE_SUMMARY
     FydeDocumentType.BOOKING -> FfiDocumentType.BOOKING
     FydeDocumentType.MEDICAL_DOCUMENT -> FfiDocumentType.MEDICAL_DOCUMENT
+    FydeDocumentType.QUOTE -> FfiDocumentType.QUOTE
+    FydeDocumentType.ID_DOCUMENT -> FfiDocumentType.ID_DOCUMENT
+    FydeDocumentType.CIVIL_STATUS_RECORD -> FfiDocumentType.CIVIL_STATUS_RECORD
+    FydeDocumentType.LETTER -> FfiDocumentType.LETTER
+    FydeDocumentType.ACKNOWLEDGEMENT -> FfiDocumentType.ACKNOWLEDGEMENT
+    FydeDocumentType.FORM -> FfiDocumentType.FORM
+    FydeDocumentType.PAYMENT_SCHEDULE -> FfiDocumentType.PAYMENT_SCHEDULE
+    FydeDocumentType.MANDATE -> FfiDocumentType.MANDATE
+    FydeDocumentType.TERMS_AND_CONDITIONS -> FfiDocumentType.TERMS_AND_CONDITIONS
+    FydeDocumentType.BROCHURE -> FfiDocumentType.BROCHURE
+    FydeDocumentType.TIMESHEET -> FfiDocumentType.TIMESHEET
+    FydeDocumentType.INSPECTION_REPORT -> FfiDocumentType.INSPECTION_REPORT
+    FydeDocumentType.NOTARIAL_DEED -> FfiDocumentType.NOTARIAL_DEED
+    FydeDocumentType.ATTESTATION -> FfiDocumentType.ATTESTATION
+    FydeDocumentType.PAYMENT_REMINDER -> FfiDocumentType.PAYMENT_REMINDER
+    FydeDocumentType.FINE -> FfiDocumentType.FINE
+    FydeDocumentType.WARRANTY -> FfiDocumentType.WARRANTY
+    FydeDocumentType.RESUME -> FfiDocumentType.RESUME
+    FydeDocumentType.MINUTES -> FfiDocumentType.MINUTES
+    FydeDocumentType.DIPLOMA -> FfiDocumentType.DIPLOMA
     FydeDocumentType.OTHER -> FfiDocumentType.OTHER
 }
 

@@ -7,11 +7,16 @@ import com.peltoche.fyde.icons.BagGlyph
 import com.peltoche.fyde.icons.BriefcaseGlyph
 import com.peltoche.fyde.icons.DocumentGlyph
 import com.peltoche.fyde.icons.GiftGlyph
+import com.peltoche.fyde.icons.GraduationCapGlyph
 import com.peltoche.fyde.icons.HeartGlyph
 import com.peltoche.fyde.icons.HomeGlyph
+import com.peltoche.fyde.icons.IdCardGlyph
 import com.peltoche.fyde.icons.LandmarkGlyph
+import com.peltoche.fyde.icons.PawGlyph
 import com.peltoche.fyde.icons.PhoneGlyph
 import com.peltoche.fyde.icons.RepeatGlyph
+import com.peltoche.fyde.icons.ScaleGlyph
+import com.peltoche.fyde.icons.TicketGlyph
 import com.peltoche.fyde.icons.TrainGlyph
 import com.peltoche.fyde.icons.UsersGlyph
 import com.peltoche.fyde.icons.WalletGlyph
@@ -33,6 +38,11 @@ internal val CategoryDisplayOrder: List<FydeCategory> = listOf(
     FydeCategory.TRANSPORT,
     FydeCategory.SHOPPING,
     FydeCategory.FAMILY,
+    FydeCategory.IDENTITY,
+    FydeCategory.LEGAL,
+    FydeCategory.EDUCATION,
+    FydeCategory.PETS,
+    FydeCategory.LEISURE,
     FydeCategory.SUBSCRIPTIONS,
     FydeCategory.DONATIONS,
 )
@@ -51,6 +61,11 @@ internal fun FydeCategory?.colors(): AppCategoryColor {
         FydeCategory.TRANSPORT -> palette.transport
         FydeCategory.SHOPPING -> palette.shopping
         FydeCategory.FAMILY -> palette.family
+        FydeCategory.IDENTITY -> palette.identity
+        FydeCategory.LEGAL -> palette.legal
+        FydeCategory.EDUCATION -> palette.education
+        FydeCategory.PETS -> palette.pets
+        FydeCategory.LEISURE -> palette.leisure
         FydeCategory.SUBSCRIPTIONS -> palette.subscriptions
         FydeCategory.DONATIONS -> palette.donations
         null -> palette.unclassified
@@ -70,6 +85,11 @@ internal fun CategoryGlyph(category: FydeCategory?, tint: Color, modifier: Modif
         FydeCategory.TRANSPORT -> TrainGlyph(modifier, tint)
         FydeCategory.SHOPPING -> BagGlyph(modifier, tint)
         FydeCategory.FAMILY -> UsersGlyph(modifier, tint)
+        FydeCategory.IDENTITY -> IdCardGlyph(modifier, tint)
+        FydeCategory.LEGAL -> ScaleGlyph(modifier, tint)
+        FydeCategory.EDUCATION -> GraduationCapGlyph(modifier, tint)
+        FydeCategory.PETS -> PawGlyph(modifier, tint)
+        FydeCategory.LEISURE -> TicketGlyph(modifier, tint)
         FydeCategory.SUBSCRIPTIONS -> RepeatGlyph(modifier, tint)
         FydeCategory.DONATIONS -> GiftGlyph(modifier, tint)
         null -> DocumentGlyph(modifier, tint)
