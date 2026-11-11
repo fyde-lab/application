@@ -29,6 +29,7 @@ import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.vault_load_failed
+import com.peltoche.fyde.resources.document_moved
 import com.peltoche.fyde.resources.folder_created
 import com.peltoche.fyde.resources.folder_deleted
 import com.peltoche.fyde.resources.folder_moved
@@ -1068,6 +1069,7 @@ private fun VaultContainer(
     var loadError by remember { mutableStateOf<String?>(null) }
     var deletion by remember { mutableStateOf<DocumentDeletion?>(null) }
     var folderSheet by remember { mutableStateOf<FolderSheetState?>(null) }
+    var documentMove by remember { mutableStateOf<DocumentMove?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
@@ -1218,6 +1220,7 @@ private fun VaultContainer(
                 loadError = loadError,
                 deletion = deletion,
                 folderSheet = folderSheet,
+                documentMove = documentMove,
             )
         },
         focus = focus,
@@ -1277,6 +1280,19 @@ private fun VaultContainer(
             }
             FolderCallbacks(
                 onSheetChange = { folderSheet = it },
+                onDocumentMoveChange = { documentMove = it },
+                // The open document shows its new folder once sync consumes the move.
+                onMoveDocument = { document, folderId ->
+                    documentMove = DocumentMove(document, busy = true)
+                    scope.launch {
+                        FydeSdk.moveDocument(document.id, folderId)
+                            .onSuccess {
+                                documentMove = null
+                                snackbarHostState.showSnackbar(getString(Res.string.document_moved))
+                            }
+                            .onFailure { documentMove = DocumentMove(document, error = it.userMessage()) }
+                    }
+                },
                 onCreate = { parentId, form ->
                     publish(Res.string.folder_created) { FydeSdk.createFolder(parentId, form.name, form.description, form.appearance) }
                 },

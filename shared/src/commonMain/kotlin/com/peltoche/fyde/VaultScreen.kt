@@ -216,6 +216,7 @@ sealed interface VaultUiState {
         val loadError: String? = null,
         val deletion: DocumentDeletion? = null,
         val folderSheet: FolderSheetState? = null,
+        val documentMove: DocumentMove? = null,
     ) : VaultUiState
 }
 
@@ -273,6 +274,7 @@ fun VaultScreen(
                     NarrowVault(vault, pageModifier)
                 }
                 FolderSheets(vault)
+                MoveDocumentSheet(vault)
                 state.deletion?.let { deletion ->
                     DeleteDocumentDialog(
                         deletion = deletion,
@@ -324,6 +326,9 @@ internal class Vault(
 
     /** Opens a folder sheet (V12–V15, D7–D10). */
     fun openFolderSheet(sheet: FolderSheet) = folderCallbacks.onSheetChange(FolderSheetState(sheet))
+
+    /** Opens V9 about [document]. */
+    fun askMove(document: FydeDocument) = folderCallbacks.onDocumentMoveChange(DocumentMove(document))
 
     /** Opens V10 / D2c about [document]. */
     fun askDelete(document: FydeDocument) = onDeletionChange(DocumentDeletion(document))
@@ -697,6 +702,7 @@ internal fun VaultDocumentRow(
     highlightTerms: List<String> = emptyList(),
     showsFolder: Boolean = false,
     onDelete: (() -> Unit)? = null,
+    onMove: (() -> Unit)? = null,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val place = if (showsFolder) document.folderLabel() else document.issuer
@@ -712,7 +718,7 @@ internal fun VaultDocumentRow(
             icon = { tint -> DocumentFolderGlyph(document, tint) },
         )
         if (onDelete != null) {
-            DocumentActionsMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }, onDelete = onDelete)
+            DocumentActionsMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }, onDelete = onDelete, onMove = onMove)
         }
     }
 }

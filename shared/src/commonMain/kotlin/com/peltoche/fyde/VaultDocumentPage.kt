@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.peltoche.fyde.components.action.AppButton
+import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppGroup
@@ -50,11 +51,13 @@ import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.icons.CloseGlyph
 import com.peltoche.fyde.icons.DownloadGlyph
 import com.peltoche.fyde.icons.LockGlyph
+import com.peltoche.fyde.icons.FolderGlyph
 import com.peltoche.fyde.icons.MoreGlyph
 import com.peltoche.fyde.icons.PagesGlyph
 import com.peltoche.fyde.icons.TrashGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
+import com.peltoche.fyde.resources.document_move
 import com.peltoche.fyde.resources.vault_delete
 import com.peltoche.fyde.resources.vault_delete_confirm
 import com.peltoche.fyde.resources.vault_delete_shortcut
@@ -65,7 +68,6 @@ import com.peltoche.fyde.resources.vault_document_actions
 import com.peltoche.fyde.resources.vault_fact_arrived
 import com.peltoche.fyde.resources.vault_fact_encrypted
 import com.peltoche.fyde.resources.vault_fact_encrypted_devices
-import com.peltoche.fyde.resources.vault_fact_filed
 import com.peltoche.fyde.resources.vault_info_heading
 import com.peltoche.fyde.resources.vault_fact_in_vault
 import com.peltoche.fyde.resources.vault_file_caption
@@ -117,6 +119,7 @@ internal fun DocumentPage(vault: Vault, document: FydeDocument) {
             document = document,
             onSave = { vault.onSave(document) },
             onDelete = { vault.askDelete(document) },
+            onMove = { vault.askMove(document) },
             onDismissRequest = { actionsOpen = false },
         )
     }
@@ -232,6 +235,8 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
                 .joinToString(", "),
             icon = { tint -> DocumentFolderGlyph(document, tint) },
         )
+        Spacer(Modifier.height(AppSpacing.space4))
+        FilingCard(document, onMove = { vault.askMove(document) })
         if (onOpenFile != null) {
             Spacer(Modifier.height(AppSpacing.space5))
             AppGroup { FileRow(document, size, onOpenFile) }
@@ -257,8 +262,6 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
                     stringResource(Res.string.vault_fact_encrypted)
                 },
             )
-            AppDivider()
-            FactRow(stringResource(Res.string.vault_fact_filed), document.folderLabel())
         }
         Spacer(Modifier.height(AppSpacing.space5))
         Row(
@@ -272,14 +275,21 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
                 leadingIcon = { DownloadGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.onPrimary) },
             )
             // Below Expanded the page bar's "…" holds these (V8).
-            if (onOpenFile == null) DocumentActionsButton(onDelete = { vault.askDelete(document) })
+            if (onOpenFile == null) {
+                AppButton(
+                    text = stringResource(Res.string.document_move),
+                    onClick = { vault.askMove(document) },
+                    variant = AppButtonVariant.Outlined,
+                )
+                DocumentActionsButton(onDelete = { vault.askDelete(document) }, onMove = { vault.askMove(document) })
+            }
         }
     }
 }
 
 /** D2b: "…" beside Save, opening the document's actions. */
 @Composable
-private fun DocumentActionsButton(onDelete: () -> Unit) {
+private fun DocumentActionsButton(onDelete: () -> Unit, onMove: () -> Unit) {
     var open by remember { mutableStateOf(false) }
     Box {
         AppCircleButton(
@@ -289,7 +299,7 @@ private fun DocumentActionsButton(onDelete: () -> Unit) {
         ) {
             MoreGlyph(modifier = Modifier.size(AppIconSize.md), tint = if (open) AppColors.primary else AppColors.text)
         }
-        DocumentActionsMenu(expanded = open, onDismissRequest = { open = false }, onDelete = onDelete)
+        DocumentActionsMenu(expanded = open, onDismissRequest = { open = false }, onDelete = onDelete, onMove = onMove)
     }
 }
 
@@ -298,9 +308,19 @@ private fun DocumentActionsButton(onDelete: () -> Unit) {
  * V8 that the page doesn't already show, i.e. deleting.
  */
 @Composable
-internal fun DocumentActionsMenu(expanded: Boolean, onDismissRequest: () -> Unit, onDelete: () -> Unit) {
+internal fun DocumentActionsMenu(expanded: Boolean, onDismissRequest: () -> Unit, onDelete: () -> Unit, onMove: (() -> Unit)? = null) {
     val platform = getPlatform()
     AppDropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
+        if (onMove != null) {
+            AppDropdownMenuItem(
+                text = stringResource(Res.string.document_move),
+                onClick = {
+                    onDismissRequest()
+                    onMove()
+                },
+                leadingIcon = { tint -> FolderGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+            )
+        }
         AppDropdownMenuItem(
             text = stringResource(Res.string.vault_delete),
             onClick = {
@@ -328,6 +348,7 @@ private fun DocumentActionsSheet(
     document: FydeDocument,
     onSave: () -> Unit,
     onDelete: () -> Unit,
+    onMove: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
     AppBottomSheet(onDismissRequest = onDismissRequest) {
@@ -354,6 +375,13 @@ private fun DocumentActionsSheet(
                 }) {
                     DownloadGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
                     Text(stringResource(Res.string.vault_save), style = AppTypography.body, color = AppColors.text)
+                }
+                AppGroupRow(onClick = {
+                    onDismissRequest()
+                    onMove()
+                }) {
+                    FolderGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+                    Text(stringResource(Res.string.document_move), style = AppTypography.body, color = AppColors.text)
                 }
             }
             Spacer(Modifier.height(AppSpacing.space4))

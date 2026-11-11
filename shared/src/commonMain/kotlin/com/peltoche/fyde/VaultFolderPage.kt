@@ -386,6 +386,7 @@ private fun FolderRows(vault: Vault, documents: List<FydeDocument>, selected: Fy
                 onClick = { vault.openDocument(document) },
                 selected = document.id == selected?.id,
                 onDelete = { vault.askDelete(document) }.takeIf { selected != null },
+                onMove = { vault.askMove(document) }.takeIf { selected != null },
             )
         }
     }
