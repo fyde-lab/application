@@ -304,6 +304,14 @@ actual object FydeSdk {
         client.getLanguage()
     }
 
+    actual suspend fun getSetting(key: String): Result<String?> = withClient("getSetting") { client ->
+        client.getSetting(key)
+    }
+
+    actual suspend fun setSetting(key: String, value: String): Result<Unit> = withClient("setSetting") { client ->
+        client.setSetting(key, value)
+    }
+
     actual suspend fun enableScript(scriptId: String): Result<Unit> = withClient("enableScript") { client ->
         client.enableScript(scriptId)
     }

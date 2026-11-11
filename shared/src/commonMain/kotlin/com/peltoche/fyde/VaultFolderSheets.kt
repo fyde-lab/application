@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.action.AppButton
+import com.peltoche.fyde.components.action.AppButtonVariant
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.content.AppGroup
@@ -57,6 +58,7 @@ import com.peltoche.fyde.resources.documents_count
 import com.peltoche.fyde.resources.filing_unfiled
 import com.peltoche.fyde.resources.filing_filed
 import com.peltoche.fyde.resources.filing_file
+import com.peltoche.fyde.resources.filing_ok
 import com.peltoche.fyde.resources.filing_change
 import com.peltoche.fyde.resources.document_move_where
 import com.peltoche.fyde.resources.document_move_type_note
@@ -146,6 +148,8 @@ class FolderCallbacks(
     val onSheetChange: (FolderSheetState?) -> Unit = {},
     val onDocumentMoveChange: (DocumentMove?) -> Unit = {},
     val onMoveDocument: (document: FydeDocument, folderId: String?) -> Unit = { _, _ -> },
+    /** The filing card's "C'est bon": [document]'s folder is right. */
+    val onFilingReviewed: (document: FydeDocument) -> Unit = {},
     val onCreate: (parentId: String?, form: FolderForm) -> Unit = { _, _ -> },
     val onUpdate: (id: String, form: FolderForm) -> Unit = { _, _ -> },
     val onMove: (id: String, parentId: String?) -> Unit = { _, _ -> },
@@ -687,12 +691,15 @@ internal fun MoveDocumentSheet(vault: Vault) {
 /**
  * Under a document's pass: the folder Fyde put it in ("Rangé dans Travail ›
  * Bulletins de paie") with Modifier, or "Dans À classer" with Ranger — both
- * opening V9.
+ * opening V9 — and, until the user confirmed it ([onReviewed]), C'est bon.
  */
 @Composable
-internal fun FilingCard(document: FydeDocument, onMove: () -> Unit) {
+internal fun FilingCard(document: FydeDocument, onMove: () -> Unit, onReviewed: (() -> Unit)? = null) {
     val folders = LocalVaultFolders.current
     val filed = folders[document.folderId] != null
+    // À classer has nothing to confirm: Ranger is the only way on.
+    val asking = onReviewed != null && filed
+    val change = stringResource(if (filed) Res.string.filing_change else Res.string.filing_file)
     AppGroup {
         AppGroupRow {
             FolderFillTile(size = AppDimensions.iconTile, color = document.colors(), shape = AppShapes.iconTile, iconSize = AppIconSize.md) { tint ->
@@ -708,7 +715,20 @@ internal fun FilingCard(document: FydeDocument, onMove: () -> Unit) {
                     Text(text = document.folderLabel(), style = AppTypography.bodyEmphasis, color = AppColors.text)
                 }
             }
-            AppTextButton(text = stringResource(if (filed) Res.string.filing_change else Res.string.filing_file), onClick = onMove)
+            if (!asking) AppTextButton(text = change, onClick = onMove)
+        }
+        // Asking, the two answers get their own line under the folder.
+        if (asking) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = AppSpacing.space5, end = AppSpacing.space5, bottom = AppSpacing.space4),
+                horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                AppTextButton(text = change, onClick = onMove)
+                AppButton(text = stringResource(Res.string.filing_ok), onClick = onReviewed!!, variant = AppButtonVariant.Tonal)
+            }
         }
     }
 }

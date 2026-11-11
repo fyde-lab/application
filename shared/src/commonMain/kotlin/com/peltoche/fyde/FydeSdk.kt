@@ -793,6 +793,15 @@ expect object FydeSdk {
     suspend fun getLanguage(): Result<String?>
 
     /**
+     * The app's own setting [key] on this device, `null` if never set:
+     * local only, wiped on logout. Mirrors the SDK's public settings.
+     */
+    suspend fun getSetting(key: String): Result<String?>
+
+    /** Stores the app's own setting [key] on this device. */
+    suspend fun setSetting(key: String, value: String): Result<Unit>
+
+    /**
      * Enables [scriptId] for the authenticated user, so it starts appearing
      * in [listUserScripts]. Mirrors [`crate::ScriptsService::enable_script`];
      * fails if [initialize] hasn't been called yet.

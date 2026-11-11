@@ -99,6 +99,10 @@ actual object FydeSdk {
 
     actual suspend fun getLanguage(): Result<String?> = unsupported()
 
+    actual suspend fun getSetting(key: String): Result<String?> = unsupported()
+
+    actual suspend fun setSetting(key: String, value: String): Result<Unit> = unsupported()
+
     actual suspend fun enableScript(scriptId: String): Result<Unit> = unsupported()
 
     actual suspend fun disableScript(scriptId: String): Result<Unit> = unsupported()

@@ -103,8 +103,10 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   refusal (a taken name...) stays in the sheet. Deleting the open folder opens its parent.
   Moving a document (V9, `MoveDocumentSheet`, a `DocumentMove` in `VaultUiState.Loaded`): from
   V8's Déplacer, D2's Déplacer button and "…"/right-click menu, and the filing card under the
-  pass ("Rangé dans <path>" · Modifier, or "Dans À classer" · Ranger; no C'est bon, nothing
-  records it). The picker opens on the document's folder's level, its folder tagged Actuel;
+  pass ("Rangé dans <path>" · Modifier, or "Dans À classer" · Ranger). Until the user confirms
+  it, a filed document's card also asks C'est bon; confirmations (and the user's own moves) are
+  kept on this device as the app setting `filing_reviewed` (`FilingReview.kt`, the newest 500
+  ids, through `FydeSdk.getSetting`/`setSetting`, the SDK's public settings). The picker opens on the document's folder's level, its folder tagged Actuel;
   `FydeSdk.moveDocument` only publishes, the document shows its new folder once synced.
   Deleting (V8's sheet, D2b's "…" menu and right-click, ⌘⌫ / Suppr, then V10 / D2c as a
   `DocumentDeletion` in `VaultUiState.Loaded`) calls `FydeSdk.deleteDocument`, which only

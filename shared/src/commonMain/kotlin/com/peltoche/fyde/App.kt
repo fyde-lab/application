@@ -1111,6 +1111,7 @@ private fun VaultContainer(
     var deletion by remember { mutableStateOf<DocumentDeletion?>(null) }
     var folderSheet by remember { mutableStateOf<FolderSheetState?>(null) }
     var documentMove by remember { mutableStateOf<DocumentMove?>(null) }
+    var filingReviewed by remember { mutableStateOf<Set<String>?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
@@ -1235,6 +1236,13 @@ private fun VaultContainer(
             .onFailure { reportLoadFailure(it, Res.string.search_failed) }
     }
 
+    // The filing card's confirmations, read once connected (a failed read
+    // leaves them unknown: the card then asks nothing).
+    LaunchedEffect(connected) {
+        if (!connected) return@LaunchedEffect
+        FydeSdk.getSetting(FILING_REVIEWED_SETTING).onSuccess { filingReviewed = decodeFilingReviewed(it) }
+    }
+
     // Polls fyde-sdk's own reachability check independently of the changelog
     // stream above, so the Import button and the offline note reflect
     // whether calls into the SDK are currently expected to succeed.
@@ -1262,6 +1270,7 @@ private fun VaultContainer(
                 deletion = deletion,
                 folderSheet = folderSheet,
                 documentMove = documentMove,
+                filingReviewed = filingReviewed,
             )
         },
         focus = focus,
@@ -1322,6 +1331,11 @@ private fun VaultContainer(
             FolderCallbacks(
                 onSheetChange = { folderSheet = it },
                 onDocumentMoveChange = { documentMove = it },
+                onFilingReviewed = { document ->
+                    val next = withFilingReviewed(filingReviewed.orEmpty(), document.id)
+                    filingReviewed = next
+                    scope.launch { FydeSdk.setSetting(FILING_REVIEWED_SETTING, encodeFilingReviewed(next)) }
+                },
                 // The open document shows its new folder once sync consumes the move.
                 onMoveDocument = { document, folderId ->
                     documentMove = DocumentMove(document, busy = true)
@@ -1329,6 +1343,12 @@ private fun VaultContainer(
                         FydeSdk.moveDocument(document.id, folderId)
                             .onSuccess {
                                 documentMove = null
+                                // Filing it by hand settles where it goes.
+                                filingReviewed?.let { reviewed ->
+                                    val next = withFilingReviewed(reviewed, document.id)
+                                    filingReviewed = next
+                                    FydeSdk.setSetting(FILING_REVIEWED_SETTING, encodeFilingReviewed(next))
+                                }
                                 snackbarHostState.showSnackbar(getString(Res.string.document_moved))
                             }
                             .onFailure { documentMove = DocumentMove(document, error = it.userMessage()) }

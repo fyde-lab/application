@@ -637,6 +637,7 @@
     <string name="filing_unfiled">In Unfiled</string>
     <string name="filing_change">Change</string>
     <string name="filing_file">File</string>
+    <string name="filing_ok">Looks right</string>
     <string name="folder_layout_language">en</string>
     <string name="vault_step_folders_title">Your folders</string>
     <string name="vault_step_folders_subtitle">How your documents are filed</string>

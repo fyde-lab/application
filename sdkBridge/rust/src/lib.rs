@@ -1775,6 +1775,20 @@ impl FydeClient {
         self.localized(self.inner.users().get_language()).await
     }
 
+    /// Returns the app's own setting `key` on this device, or `None` if
+    /// never set. The SDK keeps it under `app.` (never reaching its own
+    /// settings), locally only, and wipes it on logout. Mirrors
+    /// [`fyde_sdk::SettingsService::get`] on [`fyde_sdk::Client::settings`].
+    pub async fn get_setting(&self, key: String) -> Result<Option<String>, FfiError> {
+        self.localized(self.inner.settings().get(&key)).await
+    }
+
+    /// Stores the app's own setting `key` on this device. Mirrors
+    /// [`fyde_sdk::SettingsService::set`] on [`fyde_sdk::Client::settings`].
+    pub async fn set_setting(&self, key: String, value: String) -> Result<(), FfiError> {
+        self.localized(self.inner.settings().set(&key, &value)).await
+    }
+
     /// Fetches the script matching `id`. Mirrors
     /// [`fyde_sdk::ScriptsService::fetch_script`].
     pub async fn fetch_script(&self, id: String) -> Result<FfiScript, FfiError> {

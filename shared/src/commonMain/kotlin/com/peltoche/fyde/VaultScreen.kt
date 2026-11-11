@@ -217,6 +217,8 @@ sealed interface VaultUiState {
         val deletion: DocumentDeletion? = null,
         val folderSheet: FolderSheetState? = null,
         val documentMove: DocumentMove? = null,
+        /** The documents whose filing was confirmed here; `null` until read, when nothing asks. */
+        val filingReviewed: Set<String>? = null,
     ) : VaultUiState
 }
 

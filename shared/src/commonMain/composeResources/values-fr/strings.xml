@@ -631,6 +631,7 @@
     <string name="filing_unfiled">Dans À classer</string>
     <string name="filing_change">Modifier</string>
     <string name="filing_file">Ranger</string>
+    <string name="filing_ok">C’est bon</string>
     <string name="folder_layout_language">fr</string>
     <string name="vault_step_folders_title">Vos dossiers</string>
     <string name="vault_step_folders_subtitle">Comment ranger vos documents</string>

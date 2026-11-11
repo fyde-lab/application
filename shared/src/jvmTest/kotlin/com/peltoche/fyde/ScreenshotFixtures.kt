@@ -207,6 +207,7 @@ internal object ScreenshotFixtures {
         shot("vault-folder-move") { vault(vaultLoaded.copy(folderSheet = FolderSheetState(FolderSheet.Move("energy"))), VaultFocus(page = housingPage)) },
         shot("vault-folder-delete") { vault(vaultLoaded.copy(folderSheet = FolderSheetState(FolderSheet.Delete("housing"))), VaultFocus(page = housingPage)) },
         shot("vault-document-move") { vault(vaultLoaded.copy(documentMove = DocumentMove(invoice)), VaultFocus(page = housingPage, document = invoice)) },
+        shot("vault-document-filing") { vault(vaultLoaded.copy(filingReviewed = emptySet()), VaultFocus(page = housingPage, document = invoice)) },
         shot("vault-search") { vault(vaultLoaded, VaultFocus(page = VaultPage.Search(searchQuery, VaultPage.Home))) },
         shot("vault-document") { vault(vaultLoaded, VaultFocus(page = housingPage, document = invoice)) },
         shot("vault-document-delete") {

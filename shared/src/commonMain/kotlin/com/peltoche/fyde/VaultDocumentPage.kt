@@ -236,7 +236,12 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
             icon = { tint -> DocumentFolderGlyph(document, tint) },
         )
         Spacer(Modifier.height(AppSpacing.space4))
-        FilingCard(document, onMove = { vault.askMove(document) })
+        FilingCard(
+            document = document,
+            onMove = { vault.askMove(document) },
+            onReviewed = { vault.folderCallbacks.onFilingReviewed(document) }
+                .takeIf { vault.state.filingReviewed?.contains(document.id) == false },
+        )
         if (onOpenFile != null) {
             Spacer(Modifier.height(AppSpacing.space5))
             AppGroup { FileRow(document, size, onOpenFile) }
