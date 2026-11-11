@@ -29,6 +29,10 @@ import com.peltoche.fyde.resources.uploads_succeeded
 import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.vault_load_failed
+import com.peltoche.fyde.resources.folder_created
+import com.peltoche.fyde.resources.folder_deleted
+import com.peltoche.fyde.resources.folder_moved
+import com.peltoche.fyde.resources.folder_saved
 import com.peltoche.fyde.resources.vault_deleted
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.AppWindowSizeClassProvider
@@ -990,7 +994,8 @@ private suspend fun loadVaultHome(folders: VaultFolders): VaultHome {
         emptyList()
     }
     val latest = FydeSdk.searchDocuments("", FydeSearchFilters(), FydeSearchOrder.NEWEST, 0, LATEST_ARRIVALS).getOrThrow()
-    return VaultHome(unfiled + folderSummaries(folders.topLevel, facets.folderCounts()), latest)
+    val counts = facets.folderCounts()
+    return VaultHome(unfiled + folderSummaries(folders.topLevel, counts), latest, counts)
 }
 
 /**
@@ -1062,6 +1067,7 @@ private fun VaultContainer(
     var notice by remember { mutableStateOf<String?>(null) }
     var loadError by remember { mutableStateOf<String?>(null) }
     var deletion by remember { mutableStateOf<DocumentDeletion?>(null) }
+    var folderSheet by remember { mutableStateOf<FolderSheetState?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
@@ -1211,6 +1217,7 @@ private fun VaultContainer(
                 notice = notice,
                 loadError = loadError,
                 deletion = deletion,
+                folderSheet = folderSheet,
             )
         },
         focus = focus,
@@ -1252,6 +1259,47 @@ private fun VaultContainer(
             }
         },
         navigation = navigation,
+        folderCallbacks = remember(scope, snackbarHostState) {
+            // Each change only publishes its event: the folders and pages
+            // reload once sync consumes it, like any other change.
+            fun publish(confirmation: StringResource, onDone: () -> Unit = {}, change: suspend () -> Result<*>) {
+                val open = folderSheet ?: return
+                folderSheet = open.copy(busy = true, error = null)
+                scope.launch {
+                    change()
+                        .onSuccess {
+                            folderSheet = null
+                            onDone()
+                            snackbarHostState.showSnackbar(getString(confirmation))
+                        }
+                        .onFailure { folderSheet = open.copy(busy = false, error = it.userMessage()) }
+                }
+            }
+            FolderCallbacks(
+                onSheetChange = { folderSheet = it },
+                onCreate = { parentId, form ->
+                    publish(Res.string.folder_created) { FydeSdk.createFolder(parentId, form.name, form.description, form.appearance) }
+                },
+                onUpdate = { id, form ->
+                    publish(Res.string.folder_saved) { FydeSdk.updateFolder(id, form.name, form.description, form.appearance) }
+                },
+                onMove = { id, parentId -> publish(Res.string.folder_moved) { FydeSdk.moveFolder(id, parentId) } },
+                onDelete = { id, contents ->
+                    // Its page, or a subfolder's, gives way to its parent's (home from the top level).
+                    val parentId = folders?.get(id)?.parentId
+                    val gone = folders?.withDescendants(id).orEmpty()
+                    publish(
+                        Res.string.folder_deleted,
+                        onDone = {
+                            val open = (focus.page as? VaultPage.Folder)?.folderId
+                            if (open != null && open in gone) {
+                                focus = VaultFocus(page = if (parentId != null) VaultPage.Folder(parentId) else VaultPage.Home)
+                            }
+                        },
+                    ) { FydeSdk.deleteFolder(id, contents) }
+                },
+            )
+        },
     )
 }
 

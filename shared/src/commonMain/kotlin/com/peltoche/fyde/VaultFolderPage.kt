@@ -35,10 +35,13 @@ import com.peltoche.fyde.components.content.FolderBand
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.icons.FolderGlyph
+import com.peltoche.fyde.icons.MoreGlyph
 import com.peltoche.fyde.icons.SortGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.clear_filters
 import com.peltoche.fyde.resources.documents_count
+import com.peltoche.fyde.resources.folder_actions
+import com.peltoche.fyde.resources.folder_new_short
 import com.peltoche.fyde.resources.no_documents_match_filters
 import com.peltoche.fyde.resources.no_matches_title
 import com.peltoche.fyde.resources.subfolders_count
@@ -84,7 +87,7 @@ internal fun FolderPage(vault: Vault, page: VaultPage.Folder) {
         VaultNotes(vault)
         val subfolders = contents?.subfolders.orEmpty()
         if (subfolders.isNotEmpty()) {
-            AppSectionTitle(stringResource(Res.string.vault_subfolders))
+            SubfoldersTitle(vault, page)
             SubfolderRows(vault, subfolders)
         }
         FolderDocuments(vault, page, contents) { documents -> FolderRows(vault, documents, selected = null) }
@@ -118,6 +121,7 @@ internal fun FolderGridPage(vault: Vault, page: VaultPage.Folder) {
             SearchLauncher(vault, page.filter)
             Spacer(Modifier.width(AppSpacing.space3))
             ImportAction(vault)
+            FolderMoreButton(vault, page)
         }
         FolderBreadcrumb(vault, page)
         val description = folder?.description ?: stringResource(Res.string.vault_unfiled_description).takeIf { page.folderId == null }
@@ -132,7 +136,7 @@ internal fun FolderGridPage(vault: Vault, page: VaultPage.Folder) {
         VaultNotes(vault)
         val subfolders = contents?.subfolders.orEmpty()
         if (subfolders.isNotEmpty()) {
-            AppSectionTitle(stringResource(Res.string.vault_subfolders))
+            SubfoldersTitle(vault, page)
             VaultGrid(items = subfolders, columns = 4) { summary -> FolderSummaryCard(vault, summary) }
         }
         FolderDocuments(vault, page, contents) { documents ->
@@ -165,7 +169,7 @@ internal fun FolderListColumn(vault: Vault, page: VaultPage.Folder, selected: Fy
         VaultNotes(vault)
         val subfolders = contents?.subfolders.orEmpty()
         if (subfolders.isNotEmpty()) {
-            AppSectionTitle(stringResource(Res.string.vault_subfolders))
+            SubfoldersTitle(vault, page)
             SubfolderRows(vault, subfolders)
         }
         FolderDocuments(vault, page, contents) { documents -> FolderRows(vault, documents, selected = selected) }
@@ -214,13 +218,38 @@ private fun FolderBreadcrumb(vault: Vault, page: VaultPage.Folder) {
     }
 }
 
-/** A page bar's search within the folder, and its sort. */
+/** A page bar's search within the folder, its sort and "…" (V13). */
 @Composable
 private fun FolderActions(vault: Vault, page: VaultPage.Folder) {
     Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
         SearchLauncher(vault, page.filter, asField = false)
         SortButton(vault, page)
+        FolderMoreButton(vault, page, leadingSpace = false)
     }
+}
+
+/** "…" opening the folder's actions (V13, D7); À classer has none. */
+@Composable
+private fun FolderMoreButton(vault: Vault, page: VaultPage.Folder, leadingSpace: Boolean = true) {
+    val folderId = page.folderId ?: return
+    if (leadingSpace) Spacer(Modifier.width(AppSpacing.space3))
+    AppCircleButton(
+        onClick = { vault.openFolderSheet(FolderSheet.Actions(folderId)) },
+        contentDescription = stringResource(Res.string.folder_actions),
+    ) {
+        MoreGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
+    }
+}
+
+/** SOUS-DOSSIERS with "+ Nouveau" (V12 in this folder). */
+@Composable
+private fun SubfoldersTitle(vault: Vault, page: VaultPage.Folder) {
+    val folderId = page.folderId ?: return AppSectionTitle(stringResource(Res.string.vault_subfolders))
+    SectionTitleWithAction(
+        title = stringResource(Res.string.vault_subfolders),
+        action = stringResource(Res.string.folder_new_short),
+        onAction = { vault.openFolderSheet(FolderSheet.Create(folderId)) },
+    )
 }
 
 /** Flips the page between newest and oldest first; read out as the order it's on. */

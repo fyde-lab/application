@@ -92,8 +92,15 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   pass template, its Informations rows and its rows' issuer and amount come from its attributes
   (`FydeDocument.attributes`): the rules are pure functions in `DocumentAttributes.kt` (tested in
   `DocumentAttributesTest`), their wording in `DocumentAttributesText.kt`. What the SDK can't back
-  (sharing, recent searches, the Source facet) is left out; creating, renaming, moving and
-  deleting folders and moving documents come in later PRs.
+  (sharing, recent searches, the Source facet) is left out.
+  Folder sheets (`VaultFolderSheets.kt`, a `FolderSheetState` in `VaultUiState.Loaded`, called
+  back through `FolderCallbacks`): V12/D10 new folder (the home's "+ Nouveau dossier", a folder
+  page's "+ Nouveau" and its actions' Nouveau sous-dossier), V13/D7 actions from a folder page's
+  "…", editing the name, description and (top level only) colour and icon, V14/D8 moving through
+  `FolderPicker` (browsable by level, the moved folder and what's below it left out, the current
+  parent tagged Actuel), V15/D9 deleting (Les garder / Les supprimer aussi, a note when the
+  folder had a description). Each only publishes its event, busy until it's sent; the SDK's
+  refusal (a taken name...) stays in the sheet. Deleting the open folder opens its parent.
   Deleting (V8's sheet, D2b's "…" menu and right-click, ⌘⌫ / Suppr, then V10 / D2c as a
   `DocumentDeletion` in `VaultUiState.Loaded`) calls `FydeSdk.deleteDocument`, which only
   publishes the event: the document leaves the lists once sync consumes it. On success the

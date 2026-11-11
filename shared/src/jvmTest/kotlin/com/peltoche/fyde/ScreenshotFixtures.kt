@@ -93,6 +93,7 @@ internal object ScreenshotFixtures {
             VaultFolderSummary(folders["work"], 12, payslip),
         ),
         latest = listOf(unfiled, invoice, refund, payslip, water),
+        counts = mapOf("housing" to 18L, "energy" to 8L, "water" to 4L, "rent" to 6L),
     )
     private val housingPage = VaultPage.Folder("housing")
     private val housingContents = VaultFolderContents(
@@ -198,6 +199,11 @@ internal object ScreenshotFixtures {
         shot("vault-home") { vault(vaultLoaded, VaultFocus()) },
         shot("vault-folder") { vault(vaultLoaded, VaultFocus(page = housingPage)) },
         shot("vault-folder-loading") { vault(VaultUiState.Loaded(folders = folders, home = home), VaultFocus(page = housingPage)) },
+        shot("vault-folder-actions") { vault(vaultLoaded.copy(folderSheet = FolderSheetState(FolderSheet.Actions("housing"))), VaultFocus(page = housingPage)) },
+        shot("vault-folder-new") { vault(vaultLoaded.copy(folderSheet = FolderSheetState(FolderSheet.Create(null))), VaultFocus()) },
+        shot("vault-subfolder-edit") { vault(vaultLoaded.copy(folderSheet = FolderSheetState(FolderSheet.Edit("energy"))), VaultFocus(page = housingPage)) },
+        shot("vault-folder-move") { vault(vaultLoaded.copy(folderSheet = FolderSheetState(FolderSheet.Move("energy"))), VaultFocus(page = housingPage)) },
+        shot("vault-folder-delete") { vault(vaultLoaded.copy(folderSheet = FolderSheetState(FolderSheet.Delete("housing"))), VaultFocus(page = housingPage)) },
         shot("vault-search") { vault(vaultLoaded, VaultFocus(page = VaultPage.Search(searchQuery, VaultPage.Home))) },
         shot("vault-document") { vault(vaultLoaded, VaultFocus(page = housingPage, document = invoice)) },
         shot("vault-document-delete") {
