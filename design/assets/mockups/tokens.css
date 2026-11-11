@@ -155,3 +155,32 @@
 .quota.full .n{color:var(--warn)}
 .off{opacity:.45}
 .strength{display:flex;gap:4px;margin-top:8px}.strength i{flex:1;height:4px;border-radius:2px;background:var(--border)}.strength i.on{background:var(--ok)}
+
+/* Folders: a card with a divider tab, breadcrumbs, the folder picker and the colour picker */
+.cats.fold{row-gap:20px;padding-top:22px}
+.cat.fold{position:relative;border-top-left-radius:6px}
+.cat.fold::before{content:"";position:absolute;left:0;top:-8px;width:58px;height:14px;background:var(--cbg);border-radius:8px 12px 0 0}
+.cat.fold.empty{background:transparent;border:1.5px dashed var(--border)}
+.cat.fold.empty::before{display:none}
+.crumb{display:flex;align-items:center;gap:4px;font:500 14px var(--font);color:var(--muted);padding:0 20px}
+.crumb b{color:var(--text);font-weight:600}
+.secrow{display:flex;align-items:center;justify-content:space-between;padding:20px 12px 8px 20px}
+.secrow .sec{padding:0}
+.ftile{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none;background:var(--cbg);color:var(--ci)}
+.ftile.sm{width:32px;height:32px;border-radius:10px}
+.it.cur{opacity:.5}
+.it.sel{background:var(--pwash)}
+.tag{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:12px;background:var(--sunk);color:var(--muted);font:500 12px var(--font)}
+.tag.ok{background:var(--pwash);color:var(--ok)}
+.swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+.swatches span{height:34px;border-radius:10px;background:var(--cbg)}
+.swatches span.on{outline:2.5px solid var(--primary);outline-offset:2px}
+.icons{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+.icons span{height:38px;border-radius:10px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--border);color:var(--text)}
+.icons span.on{background:var(--cbg);border-color:var(--cbg);color:var(--ci);outline:2.5px solid var(--primary);outline-offset:2px}
+.choice{border-radius:var(--rl);background:var(--surface);border:1px solid var(--border);padding:16px;display:flex;gap:14px;align-items:flex-start}
+.choice.on{border:2px solid var(--primary);padding:15px}
+.minifolders{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.minifolders span{height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:8px;background:var(--cbg);color:var(--ci);font:600 12px var(--font)}
+.sadd{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--muted)}
+.schev{width:13px;flex:none;margin-left:-4px}

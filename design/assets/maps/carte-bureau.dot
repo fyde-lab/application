@@ -17,6 +17,7 @@ subgraph "cluster_donb" { label="Accueil et accès au bureau (DO)"; fontname="In
   "DO5" [label="DO5\nTrop d’appareils" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO6" [label="DO6\nKit de récupération" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO6b" [label="DO6b\nVérifier le kit" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "DO11" [label="DO11\nVos dossiers" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7" [label="DO7\nChoisir ses sources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7h" [label="DO7h\nLimite de l’offre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7b" [label="DO7b\nConnecter une source" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
@@ -33,7 +34,7 @@ subgraph "cluster_donb" { label="Accueil et accès au bureau (DO)"; fontname="In
 subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
   "T1" [label="T1\nTablette — Coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "T2" [label="T2\nTablette portrait" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
-  "D1" [label="D1\nCatégorie" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D1" [label="D1\nDossier" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D2" [label="D2\nDocument" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D2b" [label="D2b\nActions du document" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D2c" [label="D2c\nSupprimer le document" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
@@ -42,6 +43,10 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
   "D4b" [label="D4b\nSource en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D5" [label="D5\nMoi" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D6" [label="D6\nTout le coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D7" [label="D7\nActions du dossier" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D8" [label="D8\nDéplacer le dossier" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D9" [label="D9\nSupprimer le dossier" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D10" [label="D10\nNouveau dossier" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
 }
 "DO1" -> "DO2" [color="#1F4D3A" penwidth=1.6 label="J’ai déjà un coffre"];
 "DO1" -> "DO3" [color="#1F4D3A" penwidth=1.6 label="Créer mon coffre"];
@@ -58,10 +63,10 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO10b" -> "DO9" [color="#1F4D3A" penwidth=1.6 label="Rouvrir mon coffre"];
 "DO3" -> "DO3b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="erreurs"];
 "DO3" -> "DO4b" [color="#2C5582" style=dashed penwidth=1.4 label="pas de trousseau"];
-"DO3" -> "DO6" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
+"DO3" -> "DO11" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
+"D5" -> "DO6" [color="#1F4D3A" penwidth=1.6 label="Kit de récupération"];
 "DO6" -> "DO6b" [color="#1F4D3A" penwidth=1.6 label="Je l’ai noté"];
-"DO6b" -> "DO7" [color="#1F4D3A" penwidth=1.6 label="Vérifier"];
-"DO6" -> "DO7" [color="#1F4D3A" penwidth=1.6 label="Plus tard"];
+"DO11" -> "DO7" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
 "DO7" -> "DO7h" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="limite atteinte"];
 "DO7" -> "DO7b" [color="#1F4D3A" penwidth=1.6 label="Connecter n sources"];
 "DO7" -> "DO8" [color="#1F4D3A" penwidth=1.6 label="Passer"];
@@ -77,8 +82,14 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "SIDE" -> "D6" [color="#1F4D3A" penwidth=1.6 label="Tout le coffre"];
 "D6" -> "T1" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sur tablette"];
 "T1" -> "T2" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="portrait"];
-"D6" -> "D1" [color="#1F4D3A" penwidth=1.6 label="carte"];
-"SIDE" -> "D1" [color="#1F4D3A" penwidth=1.6 label="catégorie"];
+"D6" -> "D1" [color="#1F4D3A" penwidth=1.6 label="dossier"];
+"SIDE" -> "D1" [color="#1F4D3A" penwidth=1.6 label="dossier"];
+"SIDE" -> "D10" [color="#2C5582" style=dashed penwidth=1.4 label="+"];
+"D1" -> "D10" [color="#2C5582" style=dashed penwidth=1.4 label="Nouveau dossier"];
+"D1" -> "D7" [color="#2C5582" style=dashed penwidth=1.4 label="… ou clic droit"];
+"D7" -> "D8" [color="#2C5582" style=dashed penwidth=1.4 label="Déplacer…"];
+"D7" -> "D9" [color="#2C5582" style=dashed penwidth=1.4 label="Supprimer"];
+"D9" -> "D1" [color="#1F4D3A" penwidth=1.6 label="supprimé"];
 "SIDE" -> "D3" [color="#1F4D3A" penwidth=1.6 label="Arrivées"];
 "SIDE" -> "D4" [color="#1F4D3A" penwidth=1.6 label="Sources"];
 "D4" -> "D4b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Lancer"];
@@ -89,7 +100,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "D2b" -> "D2c" [color="#2C5582" style=dashed penwidth=1.4 label="Supprimer"];
 "D2" -> "D2c" [color="#2C5582" style=dashed penwidth=1.4 label="⌘⌫"];
 "D2c" -> "D2" [color="#1F4D3A" penwidth=1.6 label="document suivant"];
-"T1" -> "D1" [color="#1F4D3A" penwidth=1.6 label="carte"];
+"T1" -> "D1" [color="#1F4D3A" penwidth=1.6 label="dossier"];
 subgraph cluster_legend { label="Légende"; fontname="Inter SemiBold"; fontsize=14; style=rounded; color="#CFCAC0";
   node [shape=plaintext fontsize=12 margin=0];
   la [label=""]; lb [label="on touche, l’écran change"]; lc [label=""]; ld [label="même écran, autre état"];
