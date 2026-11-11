@@ -26,8 +26,6 @@ NODES = {
     "V11": ("Coffre sombre", "vault"), "X1": ("Hors ligne", "vault"), "X2": ("Texte à 200 %", "vault"),
     "K1": ("Scanner", "capture"), "K2": ("Vérifier le scan", "capture"), "K3": ("Depuis une autre app", "capture"),
     "K4": ("Ajout en cours", "capture"),
-    "R1": ("Arrivées", "arrivals"), "R1b": ("Arrivées sombre", "arrivals"), "R1c": ("Code expiré", "arrivals"), "R2": ("Tout est rangé", "arrivals"), "R3": ("Historique", "arrivals"),
-    "R4": ("Notification de code", "arrivals"),
     "S1": ("Sources", "sources"), "S2": ("Catalogue", "sources"), "S3": ("Connecter", "sources"),
     "S4": ("Récupération", "sources"), "S4b": ("Récupération arrêtée", "sources"), "S5": ("Détail", "sources"), "S5b": ("Détail, en cours", "sources"), "S6": ("En échec", "sources"), "S6b": ("Site changé", "sources"), "S8": ("Vérification demandée", "sources"),
     "S7": ("Retirer", "sources"),
@@ -36,7 +34,6 @@ NODES = {
     "M7": ("Apparence et langue", "moi"), "M8": ("Se déconnecter", "moi"), "M9": ("Offres", "moi"), "M10": ("Aide", "moi"), "M11": ("Changer le mot de passe", "moi"),
     "M12": ("Mes données", "moi"), "M12b": ("Supprimer mon compte", "moi"), "M8b": ("Se déconnecter, sombre", "moi"),
     "TABS": ("Barre d’onglets", "entry"), "OS": ("Autre app (partage)", "entry"),
-    "LOCK": ("Écran verrouillé", "entry"),
     # desktop / tablet
     "DO1": ("Bienvenue", "donb"), "DO2": ("Connexion", "donb"), "DO2b": ("Connexion en cours", "donb"),
     "DO2c": ("Échec de connexion", "donb"), "DO3": ("Créer le coffre", "donb"), "DO3b": ("Créer — erreurs", "donb"),
@@ -47,7 +44,7 @@ NODES = {
     "DO7f": ("Mot de passe refusé", "donb"),
     "DO7g": ("Sources connectées", "donb"), "DO8": ("Notifications", "donb"), "DO9": ("Ouverture", "donb"), "DO10": ("Récupérer mon coffre", "donb"), "DO10b": ("Nouveau mot de passe", "donb"),
     "SIDE": ("Barre latérale", "dentry"), "T1": ("Tablette — Coffre", "dapp"), "T2": ("Tablette portrait", "dapp"), "D1": ("Dossier", "dapp"),
-    "D2": ("Document", "dapp"), "D2b": ("Actions du document", "dapp"), "D2c": ("Supprimer le document", "dapp"), "D3": ("Arrivées", "dapp"), "D4": ("Sources", "dapp"), "D4b": ("Source en cours", "dapp"),
+    "D2": ("Document", "dapp"), "D2b": ("Actions du document", "dapp"), "D2c": ("Supprimer le document", "dapp"), "D4": ("Sources", "dapp"), "D4b": ("Source en cours", "dapp"),
     "D5": ("Moi", "dapp"), "D6": ("Tout le coffre", "dapp"),
     "D7": ("Actions du dossier", "dapp"), "D8": ("Déplacer le dossier", "dapp"), "D9": ("Supprimer le dossier", "dapp"), "D10": ("Nouveau dossier", "dapp"),
 }
@@ -55,17 +52,17 @@ NODES = {
 # Links that jump to a distant part of the app. On a map they're drawn as a short tag next to the
 # screen they leave ("→ O1"), so they don't cross the whole drawing; the text lists them too.
 JUMPS = {("V1", "O2"), ("M8", "O1"), ("M4", "O6"), ("M2", "O6"), ("O7b", "M6"), ("S1", "M6"), ("O5", "M9"),
-         ("R1", "V9"), ("K4", "V3"), ("O9", "V1"), ("S4", "O8")}
+         ("K4", "V3"), ("O9", "V1"), ("S4", "O8")}
 
 # (from, to, label, kind): nav = a tap moves there; state = the same screen in another state;
 # overlay = a sheet or dialog over the screen; todo = leads to a page not drawn yet.
 MOBILE = [
-    ("V6", "V6b", "sombre", "state"), ("V8", "V8b", "sombre", "state"), ("R1", "R1b", "sombre", "state"),
+    ("V6", "V6b", "sombre", "state"), ("V8", "V8b", "sombre", "state"),
     ("M2", "M2b", "sombre", "state"), ("M8", "M8b", "sombre", "state"),
-    ("V1", "X2", "texte à 200 %", "state"), ("R1", "R1c", "code expiré", "state"), ("S6", "S6b", "site changé", "state"), ("S4", "S8", "vérification", "overlay"),
+    ("V1", "X2", "texte à 200 %", "state"), ("S6", "S6b", "site changé", "state"), ("S4", "S8", "vérification", "overlay"),
     ("S4", "S4b", "Arrêter", "state"), ("S8", "S4b", "Arrêter", "state"), ("S4b", "S1", "Revenir aux sources", "nav"), ("S4b", "S4", "Relancer", "nav"),
     ("S5", "S5b", "Lancer", "state"), ("S5b", "S5", "Arrêter", "state"),
-    ("TABS", "V1", "Coffre", "nav"), ("TABS", "R1", "Arrivées", "nav"), ("TABS", "K1", "Scanner", "nav"),
+    ("TABS", "V1", "Coffre", "nav"), ("TABS", "K1", "Scanner", "nav"),
     ("TABS", "S1", "Sources", "nav"), ("TABS", "M1", "Moi", "nav"),
     ("O1", "O3", "Créer mon coffre", "nav"), ("O1", "O2", "J’ai déjà un coffre", "nav"),
     ("O2", "O3", "Créer un coffre", "nav"), ("O2", "O4", "pas de trousseau", "overlay"),
@@ -79,12 +76,10 @@ MOBILE = [
     ("V3", "V13", "…", "overlay"), ("V13", "V12", "Nouveau sous-dossier", "overlay"), ("V13", "V14", "Déplacer", "overlay"), ("V13", "V15", "Supprimer", "overlay"), ("V15", "V3", "supprimé", "nav"), ("V1", "V4", "recherche", "nav"), ("V4", "V5", "", "nav"),
     ("V3", "V6", "", "nav"), ("V5", "V6", "", "nav"), ("V6", "V7", "fichier", "nav"), ("V6", "V8", "…", "overlay"),
     ("V8", "V9", "Déplacer", "overlay"), ("V8", "V10", "Supprimer", "overlay"), ("V10", "V3", "supprimé", "nav"), ("V1", "V11", "sombre", "state"),
-    ("V1", "X1", "sans réseau", "state"), ("V1", "R1", "bannière", "nav"), ("V1", "M1", "avatar", "nav"),
+    ("V1", "X1", "sans réseau", "state"), ("V1", "M1", "avatar", "nav"),
     ("V1", "M2", "ligne « Scellé »", "nav"), ("V1", "O2", "session expirée", "nav"),
     ("K1", "K2", "Terminer", "nav"), ("K2", "K4", "Ajouter au coffre", "nav"), ("OS", "K3", "Partager", "overlay"),
-    ("K3", "K4", "Ajouter au coffre", "nav"), ("K4", "V3", "", "nav"), ("K2", "R1", "à classer", "nav"),
-    ("R1", "R2", "tout traité", "state"), ("R1", "R3", "Historique", "nav"), ("R1", "V9", "Modifier", "overlay"),
-    ("LOCK", "R4", "", "nav"), ("R4", "R1", "saisir le code", "nav"),
+    ("K3", "K4", "Ajouter au coffre", "nav"), ("K4", "V3", "", "nav"),
     ("S1", "S2", "+", "nav"), ("S2", "S3", "Ajouter", "nav"), ("S3", "S4", "Connecter", "nav"),
     ("S4", "S3", "source suivante", "nav"), ("S4", "S1", "en arrière-plan", "nav"), ("S1", "S5", "", "nav"),
     ("S1", "S6", "en échec", "nav"), ("S6", "S4", "Mettre à jour et relancer", "nav"), ("S5", "S7", "Retirer", "overlay"),
@@ -107,13 +102,13 @@ DESKTOP = [
     ("DO7c", "DO7b", "Source suivante", "nav"), ("DO7c", "DO7g", "dernière source", "nav"),
     ("DO7f", "DO7g", "Passer (dernière)", "nav"), ("DO7g", "DO8", "Continuer", "nav"), ("DO8", "SIDE", "", "nav"),
     ("DO9", "SIDE", "Parcourir le coffre", "nav"),
-    ("SIDE", "D6", "Tout le coffre", "nav"), ("D6", "T1", "sur tablette", "state"), ("T1", "T2", "portrait", "state"), ("D6", "D1", "dossier", "nav"), ("SIDE", "D1", "dossier", "nav"), ("SIDE", "D10", "+", "overlay"), ("D1", "D10", "Nouveau dossier", "overlay"), ("D1", "D7", "… ou clic droit", "overlay"), ("D7", "D8", "Déplacer…", "overlay"), ("D7", "D9", "Supprimer", "overlay"), ("D9", "D1", "supprimé", "nav"), ("SIDE", "D3", "Arrivées", "nav"),
+    ("SIDE", "D6", "Tout le coffre", "nav"), ("D6", "T1", "sur tablette", "state"), ("T1", "T2", "portrait", "state"), ("D6", "D1", "dossier", "nav"), ("SIDE", "D1", "dossier", "nav"), ("SIDE", "D10", "+", "overlay"), ("D1", "D10", "Nouveau dossier", "overlay"), ("D1", "D7", "… ou clic droit", "overlay"), ("D7", "D8", "Déplacer…", "overlay"), ("D7", "D9", "Supprimer", "overlay"), ("D9", "D1", "supprimé", "nav"),
     ("SIDE", "D4", "Sources", "nav"), ("D4", "D4b", "Lancer", "state"), ("D4b", "D4", "Arrêter", "state"), ("SIDE", "D5", "pierre (avatar)", "nav"), ("D1", "D2", "", "nav"), ("D2", "D2b", "… ou clic droit", "overlay"), ("D2b", "D2c", "Supprimer", "overlay"), ("D2", "D2c", "⌘⌫", "overlay"), ("D2c", "D2", "document suivant", "nav"), ("T1", "D1", "dossier", "nav"),
 ]
 
 GROUPS = {
     "entry": ("Entrées", "#FFFFFF"), "onb": ("Accueil et accès (O)", "#DCE8E0"), "vault": ("Coffre (V, X)", "#E8DCC6"),
-    "capture": ("Capture (K)", "#F0E1CF"), "arrivals": ("Arrivées (R)", "#D8E3EF"), "sources": ("Sources (S)", "#D4E6E3"),
+    "capture": ("Capture (K)", "#F0E1CF"), "sources": ("Sources (S)", "#D4E6E3"),
     "moi": ("Moi (M)", "#E3DCEC"), "todo": ("À dessiner", "#F2F0EA"),
     "dentry": ("Entrées", "#FFFFFF"), "donb": ("Accueil et accès au bureau (DO)", "#DCE8E0"),
     "dapp": ("Coffre au bureau et sur tablette (D, T)", "#E8DCC6"), "dtodo": ("À dessiner", "#F2F0EA"),

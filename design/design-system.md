@@ -30,8 +30,8 @@ the old palette and type, with the reference's layout, copy and proportions):
 | DO3, DO3b | Créer le coffre (Medium and Expanded; the stepper is left out until steps 2–4 exist, and a taken username is an error note, not a field error, until `FydeSdkException` carries the SDK's code) | `RegisterScreen.kt`, `AuthBrandPanel.kt`, `AppCheckbox`, `AppNote` |
 | O4, DO4b | Stockage indisponible (phone; desktop, at creation) | `InsecureStorageSheet.kt`, `AppBottomSheet`, `AlertTriangleGlyph` |
 | M1, M2, M3, M5, M6, M7, M8 | Moi as the Settings tab (still named Paramètres, like the other tabs' current names): drill-downs at Compact, master–detail at Medium and Expanded (menu as the 360 list column, Sécurité open by default). M2's Kit de récupération row opens O6/DO6 as a page (its date or "À créer" from `recoveryKeyStatus`; no O6b yet). Left out until the SDK backs them: the profile card, M2's device tiles and the password-check row (so no M4), Aide, last-sync times in M5, Voir les offres in M6. M7 isn't persisted yet | `SettingsScreen.kt`, `RecoveryKitPage.kt`, `SessionsSection.kt`, `PlanUsageSection.kt`, `AppDialog`, `SealHero`, `AppNote`, `AppRadio` |
-| T1, T2, sidebar | The shell beside every signed-in screen: the bottom bar at Compact, T2's 80dp icon rail at Medium (each category as its tile, a tooltip with its name and count), the 260dp sidebar at Expanded (D1–D6, T1): brand, Tout le coffre, CATÉGORIES with counts, Sources, the seal, then a Paramètres row. The content beside it gets the size class of the width left to it, never below Medium, so T1 lays out as Expanded (4-column cards) and T2 as Medium (3 columns). Left out until the SDK backs them: Arrivées, Scanner (Importer stays: no camera), the avatar row (a Paramètres row instead), T1's arrivals banner | `TopLevelScaffold.kt`, `AppSidebar.kt` |
-| V1, V3–V7, D1, D2, D6 | Coffre as the Vault tab: the home's category cards and latest arrivals (V1 at Compact, D6 at Expanded), a category's chips and month groups (V3, D1's card grid), the search (V4's type shortcuts, V5's Catégorie / Type / Année chips and highlighted results; opened from a circle, or a 300 field in D1's and D6's headers, within the category from a category page), a document's pass, Informations, facts and Enregistrer (V6, a page below Expanded; D2 at Expanded, beside its category's list with the content previewed in the rest of the window), V7's full-screen viewer below Expanded, deleting from V8's sheet or D2b's menu (the "…" beside Enregistrer, a right-click on D2's list rows, ⌘⌫ / Suppr on the open document) into V10 / D2c (confirming publishes the deletion, then closes the document with a "Document supprimé" snackbar; the source note is left out). The pass and Informations come from the document's attributes (see [Document pass](#document-pass)), as do rows' issuer and amount. Left out until the SDK backs them: keywords and thumbnails, the arrivals banner, the avatar, Partager, Reclasser, V8's other actions (it holds Enregistrer and Supprimer only), V9, swipe actions, the band's sources count, an "À classer" card, "à jour", page counts, V4's recent searches, V5's Source facet, ⌘K | `VaultScreen.kt`, `VaultCategoryPage.kt`, `VaultSearchPage.kt`, `VaultDocumentPage.kt`, `DocumentPreview.kt`, `CategoryCard`, `CategoryBand`, `DocumentRow`, `DocumentCard`, `DocumentPass`, `DocumentAttributes`, `AppChip`, `AppSearchField`, `AppDropdownMenu` |
+| T1, T2, sidebar | The shell beside every signed-in screen: the bottom bar at Compact, T2's 80dp icon rail at Medium (each category as its tile, a tooltip with its name and count), the 260dp sidebar at Expanded (D1–D6, T1): brand, Tout le coffre, CATÉGORIES with counts, Sources, the seal, then a Paramètres row. The content beside it gets the size class of the width left to it, never below Medium, so T1 lays out as Expanded (4-column cards) and T2 as Medium (3 columns). Left out until the SDK backs them: Scanner (Importer stays: no camera), the avatar row (a Paramètres row instead) | `TopLevelScaffold.kt`, `AppSidebar.kt` |
+| V1, V3–V7, D1, D2, D6 | Coffre as the Vault tab: the home's category cards and latest arrivals (V1 at Compact, D6 at Expanded), a category's chips and month groups (V3, D1's card grid), the search (V4's type shortcuts, V5's Catégorie / Type / Année chips and highlighted results; opened from a circle, or a 300 field in D1's and D6's headers, within the category from a category page), a document's pass, Informations, facts and Enregistrer (V6, a page below Expanded; D2 at Expanded, beside its category's list with the content previewed in the rest of the window), V7's full-screen viewer below Expanded, deleting from V8's sheet or D2b's menu (the "…" beside Enregistrer, a right-click on D2's list rows, ⌘⌫ / Suppr on the open document) into V10 / D2c (confirming publishes the deletion, then closes the document with a "Document supprimé" snackbar; the source note is left out). The pass and Informations come from the document's attributes (see [Document pass](#document-pass)), as do rows' issuer and amount. Left out until the SDK backs them: keywords and thumbnails, the avatar, Partager, Reclasser, V8's other actions (it holds Enregistrer and Supprimer only), V9, swipe actions, the band's sources count, an "À classer" card, "à jour", page counts, V4's recent searches, V5's Source facet, ⌘K | `VaultScreen.kt`, `VaultCategoryPage.kt`, `VaultSearchPage.kt`, `VaultDocumentPage.kt`, `DocumentPreview.kt`, `CategoryCard`, `CategoryBand`, `DocumentRow`, `DocumentCard`, `DocumentPass`, `DocumentAttributes`, `AppChip`, `AppSearchField`, `AppDropdownMenu` |
 | S1–S7, D4 | Sources as the Sources tab: S1–S6 as pages at Compact and Medium, D4 at Expanded (a table sortable by source and état beside a 380 detail panel, `AppDimensions.sourceDetailPanelWidth`), S7 as an `AppDialog`. Statuses are this app session's runs only. Arrêter on S4 (S4b once stopped), on S5 and D4's panel in Lancer's place, and on the code dialog (no S8 yet); the stopped disc is `surfaceElevated` until the tokens migrate. Left out until the SDK backs them: S1's next run and per-row counts, S2's categories and "Le proposer", S3's Récupérer automatiquement, S5's stats, schedule, automatic switch, latest documents, pause and "Signaler un problème", S6's Saisir, D4's Dernier passage, Documents and Automatique columns | `SourcesTabScreen.kt`, `ConnectSourceScreen.kt`, `SourceFetchingScreen.kt`, `SourceStatus`, `RunStepper`, `StopGlyph`, `AppCircleButton`, `AppDialog` |
 
 ## Reference screens
@@ -47,7 +47,7 @@ below and a node in the screen map.
 How the screens lead to one another is mapped in [`screen-map.md`](screen-map.md).
 
 Screen IDs are used throughout this document and in file names:
-**O** onboarding and access · **V** vault and documents · **K** capture · **R** arrivals ·
+**O** onboarding and access · **V** vault and documents · **K** capture ·
 **S** sources · **M** account (Moi) · **X** system states · **D** desktop · **DO** desktop
 onboarding and access · **T** tablet. A letter suffix (`DO2b`) is another state of the same screen.
 
@@ -95,7 +95,7 @@ French and English.
 | `borderStrong` | `#8C877B` | `#6E7C75` | Inputs, outlined buttons, unchecked controls |
 | `text` | `#1C1B17` | `#EAF0EC` | Content |
 | `textMuted` | `#66625A` | `#9AA8A1` | Secondary text, captions, placeholders |
-| `primary` | `#1F4D3A` | `#8FD1AE` | Filled buttons, selection, scan button, arrivals banner, focus ring |
+| `primary` | `#1F4D3A` | `#8FD1AE` | Filled buttons, selection, scan button, focus ring |
 | `onPrimary` | `#FFFFFF` | `#0B2418` | Content on `primary` |
 | `primaryWash` | `#DCE8E0` | `#1D3329` | Positive notes, selected sidebar row, avatar, check discs |
 | `warning` | `#8F5B00` | `#E9B65A` | A source waiting for a code, limits reached, recovery kit missing |
@@ -165,7 +165,7 @@ theme or option tile gets a `primary` ring and a check disc. `borderStrong` on `
 Light and dark are one theme, picked in Moi › Apparence et langue (Système · Clair · Sombre,
 persisted). Screens read `AppColors` only and never branch on the theme. Every screen works in both
 themes from the roles alone; the dark references cover each kind of surface: V11 (the vault),
-V6b (a pass), V8b (a sheet over the scrim), R1b (the code card and segments), M2b (the seal hero)
+V6b (a pass), V8b (a sheet over the scrim), M2b (the seal hero)
 and M8b (a dialog with a destructive action). A screen without a drawn dark twin follows these.
 
 ---
@@ -180,7 +180,7 @@ Two bundled, OFL-licensed families, identical on every platform:
 
 | Role (`AppTypography`) | Size / line | Weight | Use |
 |---|---|---|---|
-| `display` | 32 / 38 | SemiBold, −0.02em | Screen titles on Compact (Coffre, Arrivées, Sources, Moi) |
+| `display` | 32 / 38 | SemiBold, −0.02em | Screen titles on Compact (Coffre, Sources, Moi) |
 | `title` | 24 / 30 | SemiBold, −0.01em | Detail and sheet titles, category band |
 | `heading` | 18 / 24 | SemiBold | Dialog titles, card titles |
 | `label` | 16 / 21 | SemiBold | Row titles, button text |
@@ -238,10 +238,8 @@ rest, `primary` when selected, the category ink on a category fill. The icon set
 
 ### Compact (< 600dp — phones)
 
-A tab bar of **Coffre · Arrivées · [Scanner] · Sources · Moi**. The centre item is a raised 56pt
-`primary` scan button (on Android, the same action is also a FAB on Coffre and Arrivées). The
-Arrivées badge counts what needs the user: codes asked, failed sources and documents waiting for
-confirmation; hidden at 0. Drill-downs push inside their tab, with a 44pt circular back button,
+A tab bar of **Coffre · [Scanner] · Sources · Moi**. The scanner item is a raised 56pt
+`primary` scan button (on Android, the same action is also a FAB on Coffre). Drill-downs push inside their tab, with a 44pt circular back button,
 so going back restores scroll and filters. Screen titles use `display`; drill-downs put their
 title in the bar.
 
@@ -250,7 +248,7 @@ title in the bar.
 ### Medium (600–839dp) and Expanded (≥ 840dp)
 
 The tab bar becomes a sidebar: 260dp at Expanded, icons-only at Medium. From top: brand,
-Arrivées (with count), Tout le coffre, À classer (when it holds documents), DOSSIERS with a "+"
+Tout le coffre, À classer (when it holds documents), DOSSIERS with a "+"
 (D10) and the folder tree: top-level folders by name, each with dot, count and a disclosure
 chevron; the open folder's branch is expanded, subfolders indented with the folder glyph in their
 ink. A folder's count includes everything under it. Then at the bottom
@@ -263,8 +261,7 @@ becomes "Importer" (file picker, drag and drop) where there's no camera.
 Keyboard on desktop: ⇧⌘N new folder (a subfolder of the open one), F2 renames the selected
 folder or document, ⇧⌘M moves it (D8), ⌘⌫ deletes it (D9 / D2c); documents and folders also
 move by drag and drop onto a folder card or a sidebar row. ⌘K / Ctrl+K search, ↑↓ move the selection, Enter opens, Space
-previews, Esc closes the detail; in Arrivées, Enter confirms the classification and moves to the
-next, E edits. Right-click opens the same actions as V8 (D2b); ⌘⌫ / Suppr on a selected document
+previews, Esc closes the detail. Right-click opens the same actions as V8 (D2b); ⌘⌫ / Suppr on a selected document
 opens D2c, as V8's delete does.
 
 ### Onboarding and access on Medium and Expanded
@@ -317,13 +314,13 @@ Without a session there's no sidebar. The window splits in two (DO1–DO10):
 ### Source status
 
 A source (an installed scraper; parsers never appear in the UI) always shows exactly one status,
-identically in Sources, Arrivées, history and on desktop:
+identically in Sources and on desktop:
 
 | Status | Colour, icon | Wording |
 |---|---|---|
 | Running | `primary`, spinner | "Récupération… 5 / 12" |
 | Waiting for the user | `warning`, clock | "Attend votre code" + Saisir |
-| Failed | `error`, alert | The reason in user words, each with its next step: mot de passe refusé (S6: update and retry) · site changé (S6b: report it, credentials aren't at fault) · code expiré (R1c: Relancer) |
+| Failed | `error`, alert | The reason in user words, each with its next step: mot de passe refusé (S6: update and retry) · site changé (S6b: report it, credentials aren't at fault) · code expiré (Relancer) |
 | Up to date | `success`, check | "Ce matin · 38 documents" |
 | Stopped | `textMuted`, stop square | "Arrêtée · 5 documents gardés" + Lancer. The user stopped the last run: nothing failed, so it's neither red nor "En pause" (the next daily run still happens) |
 | Paused | `textMuted`, pause | "En pause" |
@@ -342,7 +339,7 @@ would expire unseen.
   open, iOS when it grants time). The wording is "Une fois par jour", never "vers 22 h".
 - **Codes come while the user is there.** A run that will likely ask a code (the last one did)
   waits for the app to be open rather than running in the background.
-- **Lancer** (S5, D4, R2) runs the source now, on the device where it's tapped: one sign-in,
+- **Lancer** (S5, D4) runs the source now, on the device where it's tapped: one sign-in,
   asked for by the user.
 - **Arrêter** stops a run in progress, on the device running it. It's offered wherever that run
   is shown with room for an action: S4 (text button "Arrêter la récupération" under the
@@ -370,7 +367,7 @@ announce "chiffre 4 sur 6". When a source asks a free-text question, the boxes b
 field. Its context always shows the source, the masked destination, the deadline ("expire à 9:46": entering
 the code is timed, so the time left is always on screen) and a step trail
 Connexion → Code → Téléchargement (from `FfiProgressStep`). A code request while the app is in the
-background raises a time-sensitive notification that opens straight into the field (R4).
+background raises a time-sensitive notification that opens straight into the field.
 
 The card says how the code was sent, because the user has to go and fetch it:
 
@@ -495,8 +492,7 @@ the documents: the server never sees them (M3).
   runner-up. A folder without a description is never picked by itself; with no winner the
   document goes to À classer. A blank vault ("Coffre vide") starts with nothing described, so
   everything arrives in À classer until the user describes the folders they create. The user
-  files by hand from R1's Modifier or V9; the arrival is always listed in Arrivées with where it
-  went and that it was matched "d'après la description de <folder>". Editing a description
+  files by hand from V9. Editing a description
   only changes where later documents go; nothing already filed moves.
 - **Create** (V12, D10): name (required, unique among its siblings, case-insensitive, 1–60
   characters), location (where it was asked from: the root from V1, the open folder from V3 or
@@ -595,7 +591,7 @@ The tables hold each screen's content and states; how screens lead to one anothe
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| V1 | Coffre | Title, search, avatar; seal line; arrivals banner; DOSSIERS with "+ Nouveau dossier" (V12); 2-column folder cards (a divider tab on top, the folder's fill, icon, count, name, latest document): À classer first while it holds documents, then the top-level folders by name; an empty folder is a dashed card | Banner only when something needs the user, counting what the Arrivées badge counts ("4 documents arrivés", "1 code demandé · …"); pull to refresh = sync |
+| V1 | Coffre | Title, search, avatar; seal line; DOSSIERS with "+ Nouveau dossier" (V12); 2-column folder cards (a divider tab on top, the folder's fill, icon, count, name, latest document): À classer first while it holds documents, then the top-level folders by name; an empty folder is a dashed card | Pull to refresh = sync |
 | V2 | Coffre en remplissage | Running sources with progress; filled cards for folders with documents; dashed cards for empty ones, naming the source expected to fill them ("Bientôt, via impots.gouv") | Until each connected source ran once |
 | V3 | Dossier | Back to the parent; search within the folder; "…" (V13); the path as a breadcrumb (each part tappable); the folder band (tile, name, "n sous-dossiers · n documents", the description under them); SOUS-DOSSIERS with "+ Nouveau", one row each (folder tile, name, count, chevron); DOCUMENTS · n with sort, the folder's own documents | A subfolder opens as another V3, pushed. Only subfolders or only documents → the other section is left out; an empty folder says "Dossier vide" with Nouveau dossier and Importer. Rows swipe to Partager / Déplacer, also in V8 |
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
@@ -606,29 +602,23 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Déplacer (with the current path), Informations techniques, Supprimer de tous mes appareils | Delete opens V10 |
 | V8b | Actions (sombre) | V8 in the dark theme | Dark reference for sheets and the scrim |
 | V10 | Supprimer le document | Dialog over V6: the document's title, erased from the vault and every device, for good; for a document a source fetched, an info note that the source won't fetch it again; Supprimer (`error`) · Annuler | Supprimer stays busy until the deletion is recorded, then back to the list it came from (V3, V5 or V1) with a snackbar "Document supprimé", no undo: other devices drop it at once. On failure the dialog stays open with the SDK's wording in an error note. Never offered as a swipe action |
-| V9 | Déplacer le document | Sheet: where the document is now; the folder picker opened on its folder's level (breadcrumb with back, "Dans <folder> même", subfolders, the current one tagged Actuel), the type left as it is; Déplacer dans <folder> · Nouveau dossier ici | Also from R1's Modifier and D3's Changer. See [Folders](#folders) |
+| V9 | Déplacer le document | Sheet: where the document is now; the folder picker opened on its folder's level (breadcrumb with back, "Dans <folder> même", subfolders, the current one tagged Actuel), the type left as it is; Déplacer dans <folder> · Nouveau dossier ici | See [Folders](#folders) |
 | V12 | Nouveau dossier | Sheet over V1 (or V3): Nom with the tile it will have; Description (multi-line, "Fyde s'en sert pour ranger ici les documents qui arrivent. Sans description, rien n'y est rangé tout seul."); Emplacement with Changer (the folder picker); for a top-level folder COULEUR (palette swatches) and ICÔNE; a line that a subfolder takes its folder's colour; Créer le dossier | A subfolder's sheet has no colour or icon. A taken name is a field error |
 | V13 | Actions du dossier | Sheet over V3: the folder's tile, name, where it is and what it holds; Nouveau sous-dossier, Renommer, Description (its first line; opens a sheet with the field and the help line), Couleur et icône (top-level only), Déplacer (with the current parent); Supprimer le dossier in `error` | — |
 | V14 | Déplacer le dossier | Sheet: "Déplacer « Internet »", what moves with it and that it takes the chosen folder's colour; the folder picker at the root (À la racine du coffre, every folder, the current parent tagged Actuel, the selected one ticked; a chevron opens a folder's subfolders); Déplacer dans <folder> · Nouveau dossier ici | The moved folder and its descendants aren't listed |
 | V15 | Supprimer le dossier | Dialog over V3: the folder's name and content; Les garder (into the parent, pre-selected) or Les supprimer aussi (from every device); an info note on where the linked source's next documents go; Supprimer le dossier (`error`) · Annuler | An empty folder: a one-line confirmation. Deleting documents too behaves as V10 |
 | V11 | Coffre sombre | Dark reference | — |
 
-### Capture and arrivals (K1–K4, R1–R4)
+### Capture (K1–K4)
 
-![Capture and arrivals](assets/sheets/capture-arrivees.png)
+![Capture](assets/sheets/capture.png)
 
 | ID | Screen | Content | States |
 |---|---|---|---|
 | K1 | Scanner | Platform document scanner in Fyde chrome; edge overlay; page count; Terminer | Camera denied → explanation + settings |
-| K2 | Vérifier le scan | Crop, rotate, delete, add page; name; suggested folder with Modifier (the picker); Ajouter au coffre | No suggestion → "À classer" and listed in Arrivées |
+| K2 | Vérifier le scan | Crop, rotate, delete, add page; name; suggested folder with Modifier (the picker); Ajouter au coffre | No suggestion → "À classer" |
 | K3 | Depuis une autre app | Share extension sheet: file, name, suggestion, "Chiffré sur cet iPhone avant d'être envoyé" | Signed out → "Ouvrez Fyde pour ajouter" |
 | K4 | Ajout en cours | Row appears at once with "Chiffrement…"; progress snackbar; duplicate → "Déjà dans le coffre · Voir" | `DuplicateDocument` is never an error |
-| R1 | Arrivées | À traiter / Historique; code card first; documents with the folder Fyde put them in ("Rangé dans Travail › Bulletins de paie", then "d'après la description de Bulletins de paie" in `caption`) and Modifier / C'est bon; one Fyde couldn't match reads "Dans À classer" with Ranger | Swipe right = C'est bon |
-| R1b | Arrivées (sombre) | R1 in the dark theme | Dark reference for the code card and segments |
-| R1c | Code expiré | R1 with the code card replaced: "Le code d'impots.gouv a expiré", the deadline it missed, Plus tard · Relancer | Relancer runs the source again on this device; the card leaves the queue once a new code is asked or the run ends |
-| R2 | Tout est rangé | Check disc, "repasseront dans la journée, chacune sur son appareil", Lancer maintenant | Badge hidden |
-| R3 | Historique | Run outcomes and user confirmations by day | — |
-| R4 | Notification de code | Lock-screen notification with the deadline; new-document notifications hide titles while locked | Expired → "Code expiré" + Relancer |
 
 ### Sources (S1–S7)
 
@@ -672,9 +662,9 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | M12 | Mes données | Exporter mes documents (a ZIP decrypted on the device, in the vault's folders, with its size and a warning that it isn't encrypted); Supprimer mon compte | Export runs on the device, document by document |
 | M12b | Supprimer mon compte | Dialog: what is erased (documents, sources, keys, on the server and every device), the kit stops working; type the username to confirm; Supprimer définitivement · Exporter d'abord · Annuler | Needs account deletion in the SDK |
 | X1 | Hors ligne | Seal "hors ligne", info note, pending additions on cards | Never an error screen |
-| X2 | Texte à 200 % | V1 with the OS text size at 200%: one-column folder cards, banner stacked, icons-only tab bar with the badge | See [Typography](#typography) |
+| X2 | Texte à 200 % | V1 with the OS text size at 200%: one-column folder cards, icons-only tab bar | See [Typography](#typography) |
 
-### Desktop and tablet (D1–D4, T1)
+### Desktop and tablet (D1–D10, T1, T2)
 
 | ID | Screen | Layout |
 |---|---|---|
@@ -686,11 +676,10 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | D2 | Document | Sidebar · 400dp list of the document's folder (breadcrumb, name) · pass, Informations and facts (Dossier: its path), Enregistrer · Déplacer · "…" · live preview |
 | D2b | Actions du document | D2 with "…" open: a menu with what the row's buttons don't hold (Partager, Renommer, Informations techniques), then a divider and Supprimer de tous mes appareils in `error`, each with its shortcut; right-click on a row opens the same menu |
 | D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the category if it was the last |
-| D3 | Arrivées | Sidebar · queue with inline code card · preview · panel with the folder Fyde chose and Changer (E, the D8 picker), the description it matched quoted under it ("D'après la description de Bulletins de paie : « … »"), the type, and C'est bon (Enter) |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
 | D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
 | D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |
-| D6 | Tout le coffre | Sidebar · header with search and Importer · arrivals banner · DOSSIERS with Nouveau dossier · 4-column folder cards as V1 · latest arrivals (with their folder path) |
+| D6 | Tout le coffre | Sidebar · header with search and Importer · DOSSIERS with Nouveau dossier · 4-column folder cards as V1 · latest arrivals (with their folder path) |
 | T1 | Tablette | As D6 on a tablet: Scanner instead of Importer |
 | T2 | Tablette portrait | Medium: icons-only 80dp sidebar (each top-level folder as its tile, selected = tint + leading bar), 3-column cards, latest arrivals |
 
@@ -756,7 +745,7 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `DocumentRow`, `DocumentCard` | Landed (V3, V5, D1, D2) | Row: the category's tile (fill and ink; no thumbnails yet), title (`bodyEmphasis`, matched words on `highlight`), subtitle (`issuer` · date, the date alone without an issuer), the pass's headline amount at the end in `data` (nothing when the template has no amount); `selected` fills it with the category (D2). Pending is left out until the SDK carries it. Card: D1's grid cell, a preview well holding the tile, then title and date |
 | `DocumentPass` | Landed (V6, D2) | Issuer and type in ink, headline in `passAmount` (`DocumentPassHeadline.Value`) or `title` for a name, the line under it, a dashed perforation in ink at 40%, up to three `DocumentPassCell`s. The caller picks the template from the document's type and attributes (see [Document pass](#document-pass)) |
 | `DocumentAttributes` | Landed (V6, D2) | The [Informations](#informations) section: a `section` heading and a `surface` group of label / value rows, values formatted by attribute type, amounts in `data` |
-| `ArrivalsBanner`, `ClassificationSuggestion` | New | — |
+| `ClassificationSuggestion` | New | K2, K3 |
 | `FolderPicker` | New | V9, V14, D8: levels with breadcrumb (phone) or a tree (desktop), the root entry, the current folder tagged, "Nouveau dossier ici"; the confirm names the target |
 | `FolderRow`, `FolderTree` | New | V3's subfolder rows; the sidebar's tree (disclosure, indented subfolders) |
 | `ColorIconPicker` | New | V12, D10: 8 swatches per row and the icon grid, selected = 2.5 `primary` outline |
@@ -788,11 +777,10 @@ left out (principle 5), not faked.
 
 | Capability | Screens |
 |---|---|
-| Per-source run record: last run, outcome, failure kind, new count | S1, S5, S6, R3, D4 |
-| Runs on a chosen device: once a day on open, in the background where the OS allows | S1, S3, S5, R2, D4, DO7b |
+| Per-source run record: last run, outcome, failure kind, new count | S1, S5, S6, D4 |
+| Runs on a chosen device: once a day on open, in the background where the OS allows | S1, S3, S5, D4, DO7b |
 | Provenance on document metadata (source script, device, fetched at) | V5 Source facet, V6, S5 |
 | Folders: create, rename, describe, recolour, move, delete (as encrypted changelog events), a document's folder, the proposed layout with its descriptions, classifying an upload against folder descriptions (today's zero-shot classifier with the folders as labels), folder facets and counts, searching within a folder | V1–V3, V5, V9, V12–V15, D1, D6–D10, O11, DO11, sidebar |
-| Unconfirmed-classification flag | R1, D3, Arrivées badge |
 | Remembering a deleted document so its source doesn't fetch it again (scrapers skip only what is still saved) | V10, D2c note |
 | Account recovery (`recoverAccount`, in fyde-sdk, not yet in the bindings) | O10, DO10 |
 | Replay progress and per-device last seen | O9, M5, M2 |
@@ -809,10 +797,9 @@ left out (principle 5), not faked.
 1. **New shell, no SDK change:** tokens, fonts, `AppTabBar` / `AppSidebar`, V1, V3–V7, V9, V11,
    S1–S4 with live run state only, M1, M5–M8, O1–O5, O7, O8, X1, code sheet, K1–K4; Arrêter
    (S4b, S5b, D4b and the stop actions on S4, S8, DO7d).
-2. **Automation visible:** run records and scheduling → S5, S6, R2–R4, V2, statuses everywhere.
+2. **Automation visible:** run records and scheduling → S5, S6, V2, statuses everywhere.
 3. **Trust:** recovery kit, password check, last seen → O6, O9, M2–M4.
-4. **Triage:** provenance, unconfirmed flag → R1 and D3 triage, Source facet,
-   thumbnails.
+4. **Triage:** provenance → Source facet, thumbnails.
 
 ---
 

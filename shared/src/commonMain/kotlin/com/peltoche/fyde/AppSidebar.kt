@@ -84,8 +84,7 @@ sealed interface SidebarSelection {
 /**
  * The desktop sidebar (design-system.md § Layout, D1–D6 and T1): the brand,
  * "Tout le coffre", the categories holding documents, then Sources, the seal
- * line and Settings at its foot. 260dp wide. Arrivées is left out until
- * there's an inbox to open.
+ * line and Settings at its foot. 260dp wide.
  */
 @Composable
 internal fun AppSidebar(
