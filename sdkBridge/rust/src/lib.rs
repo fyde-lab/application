@@ -1532,6 +1532,15 @@ impl FydeClient {
             .await
     }
 
+    /// When the signed-in account's current recovery key was generated, as a
+    /// Unix timestamp in seconds, or `None` if it has none. Asks the server
+    /// each time (never cached). Mirrors
+    /// [`fyde_sdk::UsersService::recovery_key_status`].
+    pub async fn recovery_key_status(&self) -> Result<Option<i64>, FfiError> {
+        self.localized(self.inner.users().recovery_key_status())
+            .await
+    }
+
     /// Changes the signed-in account's password from `old_password` to
     /// `new_password`, keeping every document readable and every other
     /// device signed in. Refuses a new password `analyze_password` doesn't
