@@ -623,6 +623,8 @@
     <string name="folder_location">Location: %1$s</string>
     <string name="folder_vault_root">Vault</string>
     <string name="folder_color">Colour</string>
+    <string name="folder_color_more">More colours</string>
+    <string name="folder_color_fewer">Fewer colours</string>
     <string name="folder_icon">Icon</string>
     <string name="folder_color_n">Colour %1$d of %2$d</string>
     <string name="folder_icon_n">Icon %1$d of %2$d</string>

@@ -66,6 +66,8 @@ import com.peltoche.fyde.resources.documents_move_title
 import com.peltoche.fyde.resources.documents_move_type_note
 import com.peltoche.fyde.resources.documents_move_where
 import com.peltoche.fyde.resources.folder_color
+import com.peltoche.fyde.resources.folder_color_fewer
+import com.peltoche.fyde.resources.folder_color_more
 import com.peltoche.fyde.resources.folder_color_n
 import com.peltoche.fyde.resources.folder_create
 import com.peltoche.fyde.resources.folder_delete
@@ -381,14 +383,22 @@ private fun FolderFormSheet(
     }
 }
 
-/** COULEUR's swatches then ICÔNE's cells, each a single choice. */
+/** How many colours the picker shows before "Plus de couleurs" (design-system.md § Folder colours). */
+private const val FIRST_COLORS = 8
+
+/**
+ * COULEUR's swatches — the first eight, then the rest behind "Plus de
+ * couleurs" (open from the start when the picked one is among them) —
+ * then ICÔNE's cells, each a single choice.
+ */
 @Composable
 private fun AppearancePicker(appearance: FydeFolderAppearance, onChange: (FydeFolderAppearance) -> Unit) {
     val colors = FydeFolderColor.entries
     val icons = FydeFolderIcon.entries
+    var allColors by remember { mutableStateOf(colors.indexOf(appearance.color) >= FIRST_COLORS) }
     Text(text = stringResource(Res.string.folder_color).uppercase(), style = AppTypography.overline, color = AppColors.textMuted)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3), verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
-        colors.forEachIndexed { index, color ->
+        (if (allColors) colors else colors.take(FIRST_COLORS)).forEachIndexed { index, color ->
             val swatch = FydeFolderAppearance(color, appearance.icon)
             PickerCell(
                 selected = color == appearance.color,
@@ -398,6 +408,10 @@ private fun AppearancePicker(appearance: FydeFolderAppearance, onChange: (FydeFo
             ) {}
         }
     }
+    AppTextButton(
+        text = stringResource(if (allColors) Res.string.folder_color_fewer else Res.string.folder_color_more),
+        onClick = { allColors = !allColors },
+    )
     Text(text = stringResource(Res.string.folder_icon).uppercase(), style = AppTypography.overline, color = AppColors.textMuted)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3), verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
         val colors = appearance.colors()
