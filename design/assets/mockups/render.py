@@ -61,7 +61,7 @@ def sidebar(active):
            '<div class="row" style="gap:10px;padding:0 10px 14px;font:600 18px var(--font)"><span style="width:30px;height:30px;'
            'border-radius:9px;background:var(--primary);color:var(--onp);display:grid;place-items:center"><svg class="ic sm">'
            '<use href="#i-lock"/></svg></span>Fyde</div>',
-           item("tout", '<svg class="ic"><use href="#i-grid"/></svg>Tout le coffre', 214),
+           item("tout", '<svg class="ic"><use href="#i-grid"/></svg>Tout le coffre', 217),
            item("aclasser", '<span class="sdot" style="background:var(--c-none);color:var(--c-none-i)"><svg class="ic sm"><use href="#i-doc"/></svg></span>À classer', 3),
            '<div class="row" style="padding:12px 4px 4px 10px;justify-content:space-between"><p style="font:600 12px var(--font);color:var(--muted);letter-spacing:.06em">DOSSIERS</p>'
            '<span class="sadd" aria-label="Nouveau dossier"><svg class="ic sm"><use href="#i-plus"/></svg></span></div>']

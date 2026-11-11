@@ -65,6 +65,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO3" -> "DO11" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
 "D5" -> "DO6" [color="#1F4D3A" penwidth=1.6 label="Kit de récupération"];
 "DO6" -> "DO6b" [color="#1F4D3A" penwidth=1.6 label="Je l’ai noté"];
+"DO6b" -> "D5" [color="#1F4D3A" penwidth=1.6 label="Terminé"];
 "DO11" -> "DO7" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
 "DO7" -> "DO7h" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="limite atteinte"];
 "DO7" -> "DO7b" [color="#1F4D3A" penwidth=1.6 label="Connecter n sources"];

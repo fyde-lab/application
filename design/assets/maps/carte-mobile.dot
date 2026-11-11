@@ -112,6 +112,7 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "O5" -> "O5>M9" [color="#1F4D3A" penwidth=1.6 label="Voir les offres" arrowhead=none];
 "O3" -> "O11" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
 "O6" -> "O6b" [color="#1F4D3A" penwidth=1.6 label="Je l’ai noté"];
+"O6b" -> "M2" [color="#1F4D3A" penwidth=1.6 label="Terminé"];
 "O11" -> "O7" [color="#1F4D3A" penwidth=1.6 label="Continuer"];
 "O7" -> "O7b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="limite atteinte"];
 "O7b>M6" [label="→ M6 · Offre et usage" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
