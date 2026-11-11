@@ -629,6 +629,7 @@
     <string name="folder_create">Create folder</string>
     <string name="folder_save">Save</string>
     <string name="document_move">Move</string>
+    <string name="document_move_shortcut">Ctrl+Shift+M</string>
     <string name="document_move_title">Move the document</string>
     <string name="document_move_where">“%1$s” is in %2$s.</string>
     <string name="document_move_type_note">Its type (%1$s) doesn’t change.</string>

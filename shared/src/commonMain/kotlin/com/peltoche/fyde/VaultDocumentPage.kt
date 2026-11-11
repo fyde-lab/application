@@ -58,6 +58,7 @@ import com.peltoche.fyde.icons.TrashGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.document_move
+import com.peltoche.fyde.resources.document_move_shortcut
 import com.peltoche.fyde.resources.vault_delete
 import com.peltoche.fyde.resources.vault_delete_confirm
 import com.peltoche.fyde.resources.vault_delete_shortcut
@@ -319,6 +320,11 @@ internal fun DocumentActionsMenu(expanded: Boolean, onDismissRequest: () -> Unit
                     onMove()
                 },
                 leadingIcon = { tint -> FolderGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+                shortcut = when {
+                    !platform.isDesktop -> null
+                    platform.usesCommandKey -> "⇧⌘M"
+                    else -> stringResource(Res.string.document_move_shortcut)
+                },
             )
         }
         AppDropdownMenuItem(

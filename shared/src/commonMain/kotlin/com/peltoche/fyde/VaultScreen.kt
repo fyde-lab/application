@@ -38,7 +38,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
@@ -379,23 +381,23 @@ private fun NarrowVault(vault: Vault, modifier: Modifier) {
 private fun WideVault(vault: Vault, modifier: Modifier) {
     val document = vault.focus.document
     val page = vault.focus.page
-    when {
-        document != null -> DocumentShortcuts(vault, document, modifier) { shortcutsModifier ->
-            Row(modifier = shortcutsModifier) {
+    VaultShortcuts(vault, modifier) { shortcutsModifier ->
+        when {
+            document != null -> Row(modifier = shortcutsModifier) {
                 if (page !is VaultPage.Home) {
                     DocumentBesideList(vault, page, document)
                 } else {
                     key(document.id) { DocumentBeside(vault, document, onBack = vault::closeDocument) }
                 }
             }
+            page is VaultPage.Folder -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.List) {
+                FolderGridPage(vault, page)
+            }
+            page is VaultPage.Search -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.Detail) {
+                SearchPage(vault, page)
+            }
+            else -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.List) { HomePage(vault) }
         }
-        page is VaultPage.Folder -> AppContentContainer(modifier = modifier, width = AppContentWidth.List) {
-            FolderGridPage(vault, page)
-        }
-        page is VaultPage.Search -> AppContentContainer(modifier = modifier, width = AppContentWidth.Detail) {
-            SearchPage(vault, page)
-        }
-        else -> AppContentContainer(modifier = modifier, width = AppContentWidth.List) { HomePage(vault) }
     }
 }
 
@@ -419,29 +421,48 @@ private fun RowScope.DocumentBesideList(vault: Vault, page: VaultPage, document:
 }
 
 /**
- * Expanded with [document] open: ⌘⌫ (macOS) or Delete opens D2c. The area
- * takes the focus as the document opens and again once D2c closes, so the
- * keys reach it without a click; a focused text field keeps them.
+ * Expanded's keyboard (design-system.md § Layout), on the open document,
+ * else the open folder: ⇧⌘N a new folder (a subfolder of the open one),
+ * F2 renames the open folder, ⇧⌘M moves the document or folder (V9, D8),
+ * ⌘⌫ or Delete deletes it (D2c, D9). Ctrl stands for ⌘ off macOS. The
+ * area takes the focus as the page or document opens and again once a
+ * sheet closes, so the keys reach it without a click; a focused text
+ * field keeps them.
  */
 @Composable
-private fun DocumentShortcuts(
-    vault: Vault,
-    document: FydeDocument,
-    modifier: Modifier,
-    content: @Composable (Modifier) -> Unit,
-) {
+private fun VaultShortcuts(vault: Vault, modifier: Modifier, content: @Composable (Modifier) -> Unit) {
     val focus = remember { FocusRequester() }
-    val idle = vault.state.deletion == null
-    LaunchedEffect(document.id, idle) { if (idle) focus.requestFocus() }
+    val state = vault.state
+    val idle = state.deletion == null && state.folderSheet == null && state.documentMove == null
+    val document = vault.focus.document
+    val folderId = (vault.focus.page as? VaultPage.Folder)?.folderId
+    val usesCommandKey = getPlatform().usesCommandKey
+    // The search page focuses its own field as it opens.
+    val searching = vault.focus.page is VaultPage.Search && document == null
+    LaunchedEffect(document?.id, vault.focus.page, idle) { if (idle && !searching) focus.requestFocus() }
     content(
         modifier
             .focusRequester(focus)
             .focusable()
             .onKeyEvent { event ->
-                val delete = event.type == KeyEventType.KeyDown &&
-                    (event.key == Key.Delete || (event.key == Key.Backspace && event.isMetaPressed))
-                if (delete) vault.askDelete(document)
-                delete
+                if (event.type != KeyEventType.KeyDown || !idle) return@onKeyEvent false
+                val command = if (usesCommandKey) event.isMetaPressed else event.isCtrlPressed
+                when {
+                    command && event.isShiftPressed && event.key == Key.N -> vault.openFolderSheet(FolderSheet.Create(folderId))
+                    event.key == Key.F2 && document == null && folderId != null -> vault.openFolderSheet(FolderSheet.Edit(folderId))
+                    command && event.isShiftPressed && event.key == Key.M -> when {
+                        document != null -> vault.askMove(document)
+                        folderId != null -> vault.openFolderSheet(FolderSheet.Move(folderId))
+                        else -> return@onKeyEvent false
+                    }
+                    event.key == Key.Delete || (event.key == Key.Backspace && command) -> when {
+                        document != null -> vault.askDelete(document)
+                        folderId != null -> vault.openFolderSheet(FolderSheet.Delete(folderId))
+                        else -> return@onKeyEvent false
+                    }
+                    else -> return@onKeyEvent false
+                }
+                true
             },
     )
 }
