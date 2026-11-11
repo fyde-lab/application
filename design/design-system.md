@@ -19,7 +19,7 @@ them is tracked in [Delivery](#delivery). New UI work follows this document, not
 V12–V15, D7–D10, O11 and DO11 are new. The app's built V1, V3, D1, D6 and sidebar browse folders
 (with V12–V15 / D7–D10 as sheets and dialogs, V9 and the filing card, and O11 / DO11 in
 onboarding; not yet the sidebar's "+"; drag and drop only between the vault's own folder
-cards and sidebar rows; the colour picker shows every colour at once; a folder page listing every document below it); the table below says what was built, not what is
+cards and sidebar rows; a folder page listing every document below it); the table below says what was built, not what is
 drawn.
 
 Screens built so far to a reference screen, on the current tokens until they're migrated (so in

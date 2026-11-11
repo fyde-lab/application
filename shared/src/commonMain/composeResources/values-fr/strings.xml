@@ -617,6 +617,8 @@
     <string name="folder_location">Emplacement : %1$s</string>
     <string name="folder_vault_root">Coffre</string>
     <string name="folder_color">Couleur</string>
+    <string name="folder_color_more">Plus de couleurs</string>
+    <string name="folder_color_fewer">Moins de couleurs</string>
     <string name="folder_icon">Icône</string>
     <string name="folder_color_n">Couleur %1$d sur %2$d</string>
     <string name="folder_icon_n">Icône %1$d sur %2$d</string>
