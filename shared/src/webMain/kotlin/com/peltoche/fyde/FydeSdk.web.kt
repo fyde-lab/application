@@ -69,6 +69,30 @@ actual object FydeSdk {
 
     actual suspend fun uploadDocument(path: String): Result<String> = unsupported()
 
+    actual suspend fun moveDocument(id: String, folderId: String?): Result<Unit> = unsupported()
+
+    actual suspend fun listFolders(): Result<List<FydeFolder>> = unsupported()
+
+    actual suspend fun createFolder(
+        parentId: String?,
+        name: String,
+        description: String,
+        appearance: FydeFolderAppearance?,
+    ): Result<FydeFolder> = unsupported()
+
+    actual suspend fun updateFolder(
+        id: String,
+        name: String?,
+        description: String?,
+        appearance: FydeFolderAppearance?,
+    ): Result<Unit> = unsupported()
+
+    actual suspend fun moveFolder(id: String, parentId: String?): Result<Unit> = unsupported()
+
+    actual suspend fun deleteFolder(id: String, contents: FydeFolderContents): Result<Unit> = unsupported()
+
+    actual suspend fun createProposedFolders(language: String): Result<List<FydeFolder>> = unsupported()
+
     actual suspend fun deleteDocument(id: String): Result<Unit> = unsupported()
 
     actual suspend fun setLanguage(language: String): Result<Unit> = unsupported()

@@ -14,8 +14,8 @@ data class FydeDocument(
     val createdAt: Long,
     val size: Long,
     val documentType: FydeDocumentType?,
-    val category: FydeCategory?,
-    val subcategory: FydeSubcategory?,
+    /** The folder holding the document, `null` for one at the root (À classer). */
+    val folderId: String?,
     /** Typed values by attribute name (`issuer`, `total_amount`...), mirroring the SDK's `Metadata::attributes`. */
     val attributes: Map<String, FydeAttribute> = emptyMap(),
 )
@@ -35,97 +35,49 @@ sealed interface FydeAttribute {
     data class Select(val selected: String, val options: List<String>) : FydeAttribute
 }
 
-/**
- * The part of life a document is about (housing, money, taxes...),
- * mirroring the SDK's `FfiCategory`. `null` on [FydeDocument] means not yet
- * classified.
- */
-enum class FydeCategory {
-    HOUSING,
-    TELECOM,
-    MONEY,
-    TAXES,
-    HEALTH,
-    WORK,
-    FAMILY,
-    IDENTITY,
-    LEGAL,
-    TRANSPORT,
-    PETS,
-    SHOPPING,
-    LEISURE,
-    EDUCATION,
-    SUBSCRIPTIONS,
-    DONATIONS,
+/** A top-level folder's colour, mirroring the SDK's `FfiFolderColor` (each a fill and an ink of the design's folder palette). */
+enum class FydeFolderColor { SAND, GREEN, TEAL, BRICK, ROSE, BLUE, INDIGO, AMBER, OCHRE, CYAN, SLATE, LEAF, RUST, PLUM, VIOLET, MOSS }
+
+/** A top-level folder's icon, mirroring the SDK's `FfiFolderIcon`. */
+enum class FydeFolderIcon {
+    FOLDER, HOME, WALLET, BRIEFCASE, LANDMARK, HEART, PHONE, TRAIN, BAG, USERS,
+    ID_CARD, SCALE, GRADUATION_CAP, PAW, TICKET, REPEAT, GIFT, CAR, KEY, CALENDAR,
 }
 
+/** The colour and icon a top-level folder shows, mirroring the SDK's `FfiFolderAppearance`. */
+data class FydeFolderAppearance(val color: FydeFolderColor, val icon: FydeFolderIcon)
+
 /**
- * A finer-grained classification within one [FydeCategory], mirroring the
- * SDK's `FfiSubcategory`.
+ * A folder of the vault, mirroring the SDK's `FfiFolder`: it holds documents,
+ * subfolders, or both. [appearance] is set on top-level folders only; a
+ * subfolder shows its top-level folder's. [description] says what belongs in
+ * it: what new documents are filed by (blank: nothing is filed there by
+ * itself).
  */
-enum class FydeSubcategory {
-    ENERGY,
-    WATER,
-    HOME_INSURANCE,
-    HOME_SERVICES,
-    RENT,
-    PROPERTY,
-    WORKS,
-    MOBILE,
-    INTERNET,
-    BANKING,
-    SAVINGS,
-    INVESTMENTS,
-    LOANS,
-    GAMING,
-    INCOME_TAX,
-    TAX_CERTIFICATES,
-    PROPERTY_TAX,
-    HOUSING_TAX,
-    HEALTH_INSURANCE,
-    COMPLEMENTARY_HEALTH,
-    CARE,
-    DEATH_DISABILITY_COVER,
-    PAYSLIPS,
-    EMPLOYMENT,
-    HOUSEHOLD_EMPLOYER,
-    FREELANCE,
-    UNEMPLOYMENT,
-    RETIREMENT,
-    BENEFITS,
-    CHILDCARE,
-    ID_DOCUMENTS,
-    CIVIL_STATUS,
-    INHERITANCE_GIFTS,
-    COMPANY,
-    JUSTICE,
-    TRAIN,
-    FLIGHT,
-    ROAD,
-    RIDE,
-    TRAVEL,
-    VEHICLE,
-    VEHICLE_INSURANCE,
-    VETERINARY,
-    PET_CARE,
-    PET_INSURANCE,
-    PET_SUPPLIES,
-    ONLINE,
-    GROCERIES,
-    FOOD_DELIVERY,
-    ELECTRONICS,
-    HOME_EQUIPMENT,
-    CLOTHING,
-    SECONDHAND,
-    SPORTS,
-    EVENTS,
-    ASSOCIATIONS,
-    SCHOOL,
-    HIGHER_EDUCATION,
-    TRAINING,
-    MEDIA,
-    CLOUD_SOFTWARE,
-    PRESS,
+data class FydeFolder(
+    val id: String,
+    val parentId: String?,
+    val name: String,
+    val description: String,
+    val appearance: FydeFolderAppearance?,
+)
+
+/** What deleting a folder does with what it holds, mirroring the SDK's `FfiFolderContents`. */
+enum class FydeFolderContents {
+    /** Its subfolders and documents move up to its parent. */
+    KEEP,
+
+    /** They're deleted with it, from every device. */
+    DELETE,
+}
+
+/** Where a search is restricted to, mirroring the SDK's `FfiFolderFilter`. */
+sealed interface FydeFolderFilter {
+    /** The documents at the root: À classer. */
+    data object Unfiled : FydeFolderFilter
+
+    /** The documents of [folderId] and every folder below it. */
+    data class Within(val folderId: String) : FydeFolderFilter
 }
 
 /**
@@ -182,8 +134,8 @@ enum class FydeDocumentType {
  * matches every document.
  */
 data class FydeSearchFilters(
-    val categories: List<FydeCategory> = emptyList(),
-    val subcategories: List<FydeSubcategory> = emptyList(),
+    /** A folder (subfolders included) or À classer; `null` for the whole vault. */
+    val folder: FydeFolderFilter? = null,
     val types: List<FydeDocumentType> = emptyList(),
     /** Compared exactly against [FydeDocument.contentType]. */
     val contentTypes: List<String> = emptyList(),
@@ -200,14 +152,14 @@ data class FydeFacetCount<T>(val value: T, val count: Long)
  * The filter values still worth offering for a search, mirroring the SDK's
  * `FfiSearchFacets`: per field, every value at least one matching document
  * carries, most common first. Each field's values ignore that field's own
- * filter but honor every other one — so picking a category narrows the
- * subcategories and types on offer to that category's, while the other
- * categories compatible with the rest of the search stay available. Computed by
- * `fyde-sdk`, never here.
+ * filter but honor every other one — so picking a type narrows the folders
+ * on offer to those holding it. Computed by `fyde-sdk`, never here.
  */
 data class FydeSearchFacets(
-    val categories: List<FydeFacetCount<FydeCategory>> = emptyList(),
-    val subcategories: List<FydeFacetCount<FydeSubcategory>> = emptyList(),
+    /** Each folder holding a matching document, itself or below, by id, with that count (its subfolders' included). */
+    val folders: List<FydeFacetCount<String>> = emptyList(),
+    /** How many matching documents are in À classer. */
+    val unfiled: Long = 0,
     val types: List<FydeFacetCount<FydeDocumentType>> = emptyList(),
     val contentTypes: List<FydeFacetCount<String>> = emptyList(),
     /** The oldest matching [FydeDocument.createdAt], ignoring the date filters; `null` when nothing matches. */
@@ -235,6 +187,12 @@ enum class FydeEventType {
 
     /** A script was installed for the account, see [FydeSdk.installScript]. */
     INSTALL_SCRIPT,
+
+    /** A folder was created or changed. */
+    SAVE_FOLDER,
+
+    /** A folder was deleted. */
+    DELETE_FOLDER,
 }
 
 /**
@@ -772,6 +730,44 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun uploadDocument(path: String): Result<String>
+
+    /**
+     * Moves the document [id] into [folderId] (`null` for the root, À
+     * classer). Mirrors [`crate::DocumentsService::move_document`].
+     */
+    suspend fun moveDocument(id: String, folderId: String?): Result<Unit>
+
+    /** Every folder synced to this device, by name. Mirrors [`crate::FoldersService::list`]. */
+    suspend fun listFolders(): Result<List<FydeFolder>>
+
+    /**
+     * Publishes a new folder under [parentId] (`null` for the top level, which
+     * needs an [appearance]) and returns it; it shows up in [listFolders] once
+     * synced. Mirrors [`crate::FoldersService::create`].
+     */
+    suspend fun createFolder(
+        parentId: String?,
+        name: String,
+        description: String,
+        appearance: FydeFolderAppearance?,
+    ): Result<FydeFolder>
+
+    /** Renames, re-describes or recolours the folder [id]; each `null` keeps its value. Mirrors [`crate::FoldersService::update`]. */
+    suspend fun updateFolder(
+        id: String,
+        name: String? = null,
+        description: String? = null,
+        appearance: FydeFolderAppearance? = null,
+    ): Result<Unit>
+
+    /** Moves the folder [id] under [parentId] (`null` for the top level). Mirrors [`crate::FoldersService::move_folder`]. */
+    suspend fun moveFolder(id: String, parentId: String?): Result<Unit>
+
+    /** Deletes the folder [id], keeping or deleting what it holds. Mirrors [`crate::FoldersService::delete`]. */
+    suspend fun deleteFolder(id: String, contents: FydeFolderContents): Result<Unit>
+
+    /** Publishes the proposed folder layout, named in [language]. Mirrors [`crate::FoldersService::create_proposed_layout`]. */
+    suspend fun createProposedFolders(language: String): Result<List<FydeFolder>>
 
     /**
      * Publishes the deletion of the document [id] as a changelog event; it
