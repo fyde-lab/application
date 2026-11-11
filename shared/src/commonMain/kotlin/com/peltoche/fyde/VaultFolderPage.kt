@@ -40,6 +40,7 @@ import com.peltoche.fyde.icons.SortGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.clear_filters
 import com.peltoche.fyde.resources.documents_count
+import com.peltoche.fyde.resources.drag_hint
 import com.peltoche.fyde.resources.folder_actions
 import com.peltoche.fyde.resources.folder_new_short
 import com.peltoche.fyde.resources.no_documents_match_filters
@@ -142,6 +143,7 @@ internal fun FolderGridPage(vault: Vault, page: VaultPage.Folder) {
         FolderDocuments(vault, page, contents) { documents ->
             VaultGrid(items = documents, columns = 4) { document ->
                 DocumentCard(
+                    modifier = Modifier.vaultDragSource(DragItem.Document(document)),
                     title = document.name,
                     caption = localizedShortDate(document.createdAt),
                     color = document.colors(),
@@ -337,6 +339,10 @@ private fun FolderDocuments(
         contents.count == 0L -> Unit
         else -> {
             AppSectionTitle(stringResource(Res.string.vault_folder_documents))
+            // D1's hint: only where dragging works.
+            if (LocalVaultDrag.current != null) {
+                Text(text = stringResource(Res.string.drag_hint), style = AppTypography.caption, color = AppColors.textMuted)
+            }
             YearChips(vault, page, contents)
             if (contents.documents.isEmpty()) {
                 val filtered = page.year != null
