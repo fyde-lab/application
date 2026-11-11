@@ -174,10 +174,10 @@ Literals in screen files that have no token, or duplicate one:
 | `StepDoneFill #8FD1AE`, `StepDoneInk #0B2418` | `AuthBrandPanel.kt:297` | `AppColors` brand-panel step colors (both themes) |
 | `micro.copy(SemiBold, letterSpacing 0.72.sp)` | `AppSidebar.kt:127` | `AppTypography.overline` |
 | `RoundedCornerShape(16.dp)` source card, `340.dp` grid | `SourcesScreen.kt:457` | `AppShapes.sourceCard`, `AppDimensions.sourceGridHeight` |
-| `RoundedCornerShape(12.dp)` word cell, cell sizes | `RecoveryKitScreen.kt:367–427` | leave: one screen, the recovery grid's own geometry |
+| `RoundedCornerShape(12.dp)` word cell, cell sizes | `RecoveryKitPage.kt:327–360` | leave: one screen, the recovery grid's own geometry |
 | `AppearanceTileHeight 92` | `SettingsScreen.kt:884` | leave: one caller |
 | Skeleton sizes `80/120/160.dp`, `14/16/18/22.dp` | `PlanUsageSection`, `SessionsSection` | covered by 3 (parameters at call sites) |
-| `CircularProgressIndicator(strokeWidth = 2.dp)` | `RecoveryKitScreen:309`, `SourcesScreen:588` | `AppLoading` already exists, but with a different size: leave, note below |
+| `CircularProgressIndicator(strokeWidth = 2.dp)` | `RecoveryKitPage:177`, `SourcesScreen:588` | `AppLoading` already exists, but with a different size: leave, note below |
 
 ## What stays in the screens, and why
 
