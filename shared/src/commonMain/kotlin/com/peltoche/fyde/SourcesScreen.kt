@@ -128,7 +128,7 @@ sealed interface SourcesUiState {
 }
 
 /**
- * Choisir ses sources, the vault-creation step after the recovery kit: the
+ * Choisir ses sources, the vault-creation step after the account: the
  * public scrapers to tick, within the plan's limit, before each is
  * connected in turn. Pure presentation: `App.kt` lists the scrapers, holds
  * [selected] (in ticking order, the order they'll be connected in) and
@@ -148,9 +148,8 @@ sealed interface SourcesUiState {
  * sources dim and stop taking a tick, ticked ones stay editable so
  * unticking frees a slot at once, and a note says how to swap.
  *
- * Not drawn from the mockups: their back button (the recovery key would be
- * generated anew on the way back, voiding the one just saved, as in
- * [RecoveryKitScreen]) and their category chips (`fyde-sdk`'s scripts carry
+ * Not drawn from the mockups: their back button (the account behind it is
+ * already created) and their category chips (`fyde-sdk`'s scripts carry
  * no category yet).
  */
 @Composable

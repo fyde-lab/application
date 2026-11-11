@@ -67,31 +67,9 @@
     <string name="register_acknowledge">I understand, I’ll keep it somewhere safe.</string>
     <string name="register_submit">Continue</string>
     <string name="register_submitting">Creating the vault…</string>
-    <string name="vault_steps_summary">Three steps, about three minutes.</string>
+    <string name="vault_steps_summary">Two steps, about two minutes.</string>
     <string name="vault_step_progress">Step %1$d of %2$d</string>
     <string name="vault_step_account_subtitle">Username and password</string>
-    <string name="vault_step_recovery_title">Recovery kit</string>
-    <string name="vault_step_recovery_subtitle">24 words, your only way back</string>
-
-    <!-- Recovery kit (O6, DO6) -->
-    <string name="recovery_kit_title">Your recovery kit</string>
-    <string name="recovery_kit_explanation">If you forget your password, these %1$d words are the only way to reopen your vault. Keep them offline, on paper.</string>
-    <string name="recovery_kit_word">Word %1$d: %2$s</string>
-    <string name="recovery_kit_save_pdf">Save the PDF</string>
-    <string name="recovery_kit_print">Print</string>
-    <string name="recovery_kit_never_copied">The words are never copied to the clipboard or sent.</string>
-    <string name="recovery_kit_screenshots_blocked">Screenshots are disabled on this screen.</string>
-    <string name="recovery_kit_confirm">I’ve put it somewhere safe</string>
-    <string name="recovery_kit_later">Later (not recommended)</string>
-    <string name="recovery_kit_generating">Creating your recovery kit…</string>
-    <string name="recovery_kit_failed">Couldn’t create your recovery kit: %1$s</string>
-    <string name="recovery_kit_saved">Recovery kit saved</string>
-    <string name="recovery_kit_save_failed">Couldn’t save the recovery kit</string>
-    <string name="recovery_kit_print_failed">Couldn’t print the recovery kit</string>
-    <string name="recovery_kit_pdf_file_name">fyde-recovery-kit.pdf</string>
-    <string name="recovery_kit_pdf_title">Fyde recovery kit</string>
-    <string name="recovery_kit_pdf_account">Account: %1$s</string>
-    <string name="recovery_kit_pdf_warning">Anyone holding these words and your username can set a new password and open your vault. Keep this sheet offline, somewhere safe, and only ever type the words into Fyde.</string>
 
     <!-- Choose your sources (O7, O7b, DO7, DO7h) -->
     <string name="vault_step_sources_title">Your sources</string>

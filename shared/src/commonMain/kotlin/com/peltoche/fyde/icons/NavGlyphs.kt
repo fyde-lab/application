@@ -535,7 +535,7 @@ fun InfoGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
     }
 }
 
-/** Two stacked pages — printing the recovery kit (O6, DO6). Traced from `i-pages` in `icons.svg`. */
+/** Two stacked pages. Traced from `i-pages` in `icons.svg`. */
 @Composable
 fun PagesGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {
     Canvas(modifier = modifier) {
