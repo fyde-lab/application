@@ -217,6 +217,10 @@ actual object FydeSdk {
         client.generateRecoveryKey().split(' ')
     }
 
+    actual suspend fun recoveryKeyStatus(): Result<Long?> = withClient("recoveryKeyStatus") { client ->
+        client.recoveryKeyStatus()
+    }
+
     actual suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> =
         withClient("changePassword") { client -> client.changePassword(currentPassword, newPassword) }
 

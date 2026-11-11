@@ -707,6 +707,14 @@ expect object FydeSdk {
     suspend fun generateRecoveryKey(): Result<List<String>>
 
     /**
+     * When the signed-in account's current recovery key was generated, in
+     * Unix seconds, or `null` if it has none, for offering to create or
+     * replace it. Asks the server each time. Mirrors
+     * [`crate::UsersService::recovery_key_status`].
+     */
+    suspend fun recoveryKeyStatus(): Result<Long?>
+
+    /**
      * Changes the signed-in account's password. Documents stay readable, the
      * recovery key stays valid and every device stays signed in. Fails if
      * [currentPassword] is wrong, if [newPassword] is too weak, or if this
