@@ -1,6 +1,6 @@
 # Screen map
 
-How the 96 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
+How the 106 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
 graphs: the phone app, and desktop and tablet. Screen IDs and content are specified in
 [`design-system.md`](design-system.md); this page is only about the links between them.
 
@@ -42,7 +42,7 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 - **O9 Ouverture** follows a first sign-in on this device, then "Parcourir le coffre" → V1.
 - **O10 Récupérer mon coffre** opens from O2's "Mot de passe oublié ?": the 24 words, then a new
   password in **O10b**, which signs in and continues to O9.
-- Vault creation is a three-step line: **O3** (account) → **O7** (choose sources) → **O8**
+- Vault creation is a four-step line: **O3** (account) → **O11** (proposed folders or an empty vault) → **O7** (choose sources) → **O8**
   (notifications) → **V2** (the vault filling up). The recovery kit (**O6**) is not a step: it's
   made later, from M2.
 - From **O7**, "Connecter n sources" takes each ticked source through **S3** (credentials) and
@@ -51,12 +51,15 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 
 ### Coffre (V1–V11, X1, X2)
 
-- **V1 Coffre** is the home of the app. Category card → **V3**; search → **V4** → **V5**;
+- **V1 Coffre** is the home of the app. Folder card → **V3**, whose subfolder rows open
+  further V3s; "Nouveau dossier" (V1, or "Nouveau" in V3) opens the **V12** sheet. V3's "…" opens
+  the **V13** folder actions: Nouveau sous-dossier (V12), Déplacer (**V14**, the folder picker),
+  Supprimer (**V15**, then back to the parent). Search search → **V4** → **V5**;
   arrivals banner → R1; avatar → M1; the "Scellé" line → M2.
 - **V2** is V1 while the first sources run; it becomes V1 once each has run. **V11** is V1 in
   dark mode, **X1** is V1 offline, **X2** is V1 with the text at 200%.
 - **V3** and **V5** open **V6 Document**. From V6: the file → **V7 Lecteur**; "…" → the **V8**
-  actions sheet, whose "Reclasser" opens the **V9** sheet and "Supprimer de tous mes appareils" the
+  actions sheet, whose "Déplacer" opens the **V9** folder picker and "Supprimer de tous mes appareils" the
   **V10** dialog; confirming it returns to the list the document was opened from. How the pass changes by document type
   is a pattern, not a screen ([`modeles-cartes.png`](assets/sheets/modeles-cartes.png)).
 
@@ -71,7 +74,7 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 
 - **R1 Arrivées** (tab bar or V1's banner) holds what needs the user. "Historique" → **R3**;
   when nothing is left, R1 shows **R2**; a code that ran out shows **R1c**. "Modifier" on a
-  suggestion opens V9.
+  suggestion opens V9 (the folder picker).
 - **R4** is the lock-screen notification for a verification code; tapping it opens the code in
   R1.
 
@@ -110,7 +113,7 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 - **DO2** → **DO2b** while the key is derived → **DO2c** on failure, **DO5** at the device
   limit, or **DO9** on a first sign-in here. **DO4b** is the missing-keyring dialog
   over DO2 as over DO3.
-- **DO3** shows its errors as **DO3b**; **DO4b** again if there is no keyring; then **DO7**.
+- **DO3** shows its errors as **DO3b**; **DO4b** again if there is no keyring; then **DO11** (folders) → **DO7**.
 - **DO6** → **DO6b** (the recovery kit) open from M2 Sécurité, beside the Moi menu, not on the
   vault-creation path: their mockups still show the step-2 brand panel.
 - **DO7** (or **DO7h** at the limit) → **DO7b** for each ticked source → **DO7c** while it runs.
@@ -124,21 +127,25 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 
 ### Coffre au bureau et sur tablette (D1–D6, T1)
 
-The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet, **T2** in portrait), a category (**D1**),
+The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet, **T2** in portrait), a folder (**D1**; its "+"
+opens **D10 Nouveau dossier**),
 **D3 Arrivées** and **D4 Sources**; while the selected source runs, D4's panel offers Arrêter in
 Lancer's place (**D4b**). D1 → **D2 Document**, whose "…" (or a right-click) opens the **D2b** menu;
-its "Supprimer de tous mes appareils" (or ⌘⌫) opens the **D2c** dialog, then the next document. The avatar row at the foot of the
+its "Supprimer de tous mes appareils" (or ⌘⌫) opens the **D2c** dialog, then the next document. A
+folder's "…" or right-click opens the **D7** menu: Déplacer… → **D8**, Supprimer → **D9**, then back to its
+parent; D1's "Nouveau dossier" opens D10. The avatar row at the foot of the
 sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 
 ## Phone and desktop counterparts
 
 | Phone | Desktop / tablet |
 |---|---|
-| O1–O10 | DO1–DO10 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
+| O1–O11 | DO1–DO11 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
 | O7b | DO7h |
 | S3, S4 inside vault creation | DO7b, DO7c |
 | V1 | D6, T1 and T2 (tablet) |
 | V3 | D1 |
+| V12, V13, V14, V15 | D10, D7, D8, D9 |
 | V6 + V7 | D2 |
 | V8, V10 | D2b, D2c |
 | R1 | D3 |

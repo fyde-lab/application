@@ -38,22 +38,134 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
   <div class="prog" style="margin-top:12px"><i style="width:42%"></i></div>
   <div class="row" style="gap:12px;margin-top:14px"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="t2">En attente · démarre après EDF</p></div></div>
  </div>
- <div class="cats">
-  <div class="cat" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-home"/></svg></span><span class="cnt">5</span></div><div><p class="n">Logement</p><p class="l trunc">Facture EDF · à l’instant</p></div></div>
-  <div class="cat ghost"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-landmark"/></svg></span></div><div><p class="n">Impôts</p><p class="l">Bientôt, via impots.gouv</p></div></div>
-  <div class="cat ghost"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-brief"/></svg></span></div><div><p class="n">Travail</p><p class="l">Ajouter une source</p></div></div>
-  <div class="cat ghost"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-heart"/></svg></span></div><div><p class="n">Santé</p><p class="l">Ajouter une source</p></div></div>
+ <div class="cats fold">
+  <div class="cat fold" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-home"/></svg></span><span class="cnt">5</span></div><div><p class="n">Logement</p><p class="l trunc">Facture EDF · à l’instant</p></div></div>
+  <div class="cat fold empty"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-landmark"/></svg></span></div><div><p class="n">Impôts</p><p class="l">Bientôt, via impots.gouv</p></div></div>
+  <div class="cat fold empty"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-brief"/></svg></span></div><div><p class="n">Travail</p><p class="l">Vide · ajouter une source</p></div></div>
+  <div class="cat fold empty"><div class="row" style="justify-content:space-between"><span class="ico" style="color:var(--muted)"><svg class="ic"><use href="#i-heart"/></svg></span></div><div><p class="n">Santé</p><p class="l">Vide · ajouter une source</p></div></div>
  </div>
  <p class="t2" style="text-align:center;margin:16px 30px 0">Un document papier ? Touchez <b style="color:var(--primary)">l’appareil photo</b> pour le scanner.</p>
  <!--TABS:coffre:-->
  <!--HB-->
 </div></div>
 
-<!-- V3 -->
-<div class="board"><p class="caption-board">V3 · Catégorie</p>
-<div class="phone fyde" data-shot="V3-categorie">
+<!-- V1 -->
+<div class="board"><p class="caption-board">V1 · Coffre</p>
+<div class="phone fyde" data-shot="V1-coffre">
  <!--SB-->
- <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><div class="row" style="gap:8px"><button class="circ" aria-label="Rechercher dans Logement"><svg class="ic"><use href="#i-search"/></svg></button><button class="circ" aria-label="Trier"><svg class="ic"><use href="#i-sort"/></svg></button></div></div>
+ <div class="hdr"><p class="h1">Coffre</p><div class="row" style="gap:8px"><button class="circ" aria-label="Rechercher"><svg class="ic"><use href="#i-search"/></svg></button><span class="avatar">PP</span></div></div>
+ <span class="seal"><svg class="ic sm"><use href="#i-shield"/></svg>Scellé · à jour sur 3 appareils</span>
+ <div class="inbox"><div class="stack"><span style="left:0;top:0;transform:rotate(-8deg)"></span><span style="left:11px;top:0;transform:rotate(2deg)"></span><span style="left:22px;top:0;transform:rotate(9deg)"></span></div><div class="grow"><p style="font:600 17px/22px var(--font)">4 documents arrivés</p><p style="font:400 14px/19px var(--font);opacity:.82">1 code demandé · rangés pour vous, à confirmer</p></div><span class="cta">Voir</span></div>
+ <div class="secrow" style="padding-bottom:0"><p class="sec">Dossiers</p><button class="pbtn t sm"><svg class="ic sm"><use href="#i-plus"/></svg>Nouveau dossier</button></div>
+ <div class="cats fold" style="padding-top:18px"><!--FOLDERCARDS:6--></div>
+ <!--TABS:coffre-->
+ <!--HB-->
+</div></div>
+
+<!-- V3 -->
+<div class="board"><p class="caption-board">V3 · Dossier</p>
+<div class="phone fyde" data-shot="V3-dossier">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour au Coffre"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><div class="row" style="gap:8px"><button class="circ" aria-label="Rechercher dans Logement"><svg class="ic"><use href="#i-search"/></svg></button><button class="circ" aria-label="Actions du dossier Logement"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+ <p class="crumb">Coffre<svg class="ic xs"><use href="#i-chev-r"/></svg><b>Logement</b></p>
+ <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i);margin-top:8px"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-home"/></svg></span><div><p class="h2">Logement</p><p class="t2" style="color:var(--text);opacity:.75">4 sous-dossiers · 38 documents</p><p class="t3" style="color:var(--text);opacity:.7;margin-top:4px">Factures, contrats et attestations du logement : loyer, énergie, eau, internet, assurance habitation.</p></div></div>
+ <div class="secrow"><p class="sec">Sous-dossiers</p><button class="pbtn t sm"><svg class="ic sm"><use href="#i-plus"/></svg>Nouveau</button></div>
+ <div class="group">
+  <div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Assurance habitation</span><span class="t2">5</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Eau</span><span class="t2">6</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Énergie</span><span class="t2">14</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Internet</span><span class="t2">11</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <div class="secrow"><p class="sec">Documents · 2</p><button class="circ" style="width:36px;height:36px;border:0;background:none" aria-label="Trier"><svg class="ic"><use href="#i-sort"/></svg></button></div>
+ <div class="group">
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i><i style="width:70%"></i></div><div class="grow"><p class="t1 trunc">Contrat de bail</p><p class="t2">Agence Martin · Contrat</p></div><div><p class="t3" style="text-align:right">2 sept. 2024</p></div></div>
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i><i style="width:70%"></i></div><div class="grow"><p class="t1 trunc">État des lieux d’entrée</p><p class="t2">ajouté par vous</p></div><div><p class="t3" style="text-align:right">2 sept. 2024</p></div></div>
+ </div>
+ <!--TABS:coffre-->
+ <!--HB-->
+</div></div>
+
+<!-- V12–V15 -->
+<div class="board"><p class="caption-board">V12 · Nouveau dossier</p>
+<div class="phone fyde" data-shot="V12-nouveau-dossier">
+ <!--SB-->
+ <div class="hdr"><p class="h1">Coffre</p><div class="row" style="gap:8px"><button class="circ"><svg class="ic"><use href="#i-search"/></svg></button><span class="avatar">PP</span></div></div>
+ <div class="cats fold" style="padding-top:22px"><!--FOLDERCARDS:4--></div>
+ <div class="scrim" style="background:rgba(15,20,18,.3)"></div>
+ <div class="sheet" style="top:60px;padding-bottom:0">
+  <div class="grab"></div>
+  <div class="row" style="justify-content:space-between;padding:0 12px 10px 20px"><p class="h3">Nouveau dossier</p><button class="pbtn t sm">Annuler</button></div>
+  <div class="field"><label>Nom</label><div class="in"><span class="ftile sm" style="width:28px;height:28px;border-radius:8px;--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic sm"><use href="#i-train"/></svg></span>Voiture</div></div>
+  <div class="field"><label>Description</label><div class="in on" style="height:auto;min-height:76px;align-items:flex-start;padding-top:10px;padding-bottom:10px;line-height:22px;display:block">Carte grise, assurance auto, entretien et contrôles techniques, amendes<span style="display:inline-block;width:1.5px;height:20px;background:var(--primary);vertical-align:middle"></span></div><p class="help">Fyde s’en sert pour ranger ici les documents qui arrivent. Sans description, rien n’y est rangé tout seul.</p></div>
+  <div class="group" style="margin:0 20px"><div class="it" style="min-height:52px"><svg class="ic" style="color:var(--muted)"><use href="#i-folder"/></svg><div class="grow"><p class="t3">Emplacement</p><p class="body">Coffre</p></div><button class="pbtn t sm">Changer</button></div></div>
+  <p class="sec" style="padding-top:2px">Couleur</p>
+  <div class="swatches" style="padding:0 20px"><span class="" style="--cbg:var(--c-home)"></span><span class="" style="--cbg:var(--c-money)"></span><span class="" style="--cbg:var(--c-work)"></span><span class="" style="--cbg:var(--c-tax)"></span><span class="" style="--cbg:var(--c-health)"></span><span class="" style="--cbg:var(--c-tel)"></span><span class="on" style="--cbg:var(--c-trans)"></span><span class="" style="--cbg:var(--c-shop)"></span><span style="--cbg:var(--c-fam)"></span><span style="--cbg:var(--c-subs)"></span><span style="--cbg:var(--c-don)"></span><span style="--cbg:var(--c-none)"></span></div>
+  <p class="sec" style="padding-top:16px">Icône</p>
+  <div class="icons" style="padding:0 20px"><span class="on" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic"><use href="#i-train"/></svg></span><span class="" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic"><use href="#i-home"/></svg></span><span class="" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic"><use href="#i-key"/></svg></span><span class="" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic"><use href="#i-wallet"/></svg></span><span class="" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic"><use href="#i-brief"/></svg></span><span class="" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic"><use href="#i-heart"/></svg></span><span class="" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic"><use href="#i-bag"/></svg></span><span class="" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic"><use href="#i-users"/></svg></span></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 20px 38px;background:var(--surface)"><button class="pbtn f w">Créer le dossier</button></div>
+ </div>
+ <!--HB-->
+</div></div>
+<div class="board"><p class="caption-board">V13 · Actions du dossier</p>
+<div class="phone fyde" data-shot="V13-actions-dossier">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><div class="row" style="gap:8px"><button class="circ"><svg class="ic"><use href="#i-search"/></svg></button><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+ <p class="crumb">Coffre<svg class="ic xs"><use href="#i-chev-r"/></svg><b>Logement</b></p>
+ <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i);margin-top:8px"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-home"/></svg></span><div><p class="h2">Logement</p><p class="t2" style="color:var(--text);opacity:.75">4 sous-dossiers · 38 documents</p><p class="t3" style="color:var(--text);opacity:.7;margin-top:4px">Factures, contrats et attestations du logement : loyer, énergie, eau, internet, assurance habitation.</p></div></div>
+ <div class="secrow"><p class="sec">Sous-dossiers</p></div>
+ <div class="group"><div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Assurance habitation</span><span class="t2">5</span></div><div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Eau</span><span class="t2">6</span></div><div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Énergie</span><span class="t2">14</span></div><div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Internet</span><span class="t2">11</span></div></div>
+ <div class="scrim"></div>
+ <div class="sheet">
+  <div class="grab"></div>
+  <div class="row" style="gap:12px;padding:0 20px 12px"><span class="ftile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t1">Logement</p><p class="t2">Dans Coffre · 4 sous-dossiers · 38 documents</p></div></div>
+  <div class="group">
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-plus"/></svg><span class="grow body">Nouveau sous-dossier</span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-pencil"/></svg><span class="grow body">Renommer</span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-tag"/></svg><div class="grow"><p class="body">Description</p><p class="t2 trunc">Factures, contrats et attestations du logement : loyer, énergie, eau, internet, assurance habitation.</p></div></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-sparkle"/></svg><span class="grow body">Couleur et icône</span><span class="ftile sm" style="width:24px;height:24px;border-radius:7px;--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic xs"><use href="#i-home"/></svg></span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-arrow-r"/></svg><span class="grow body">Déplacer</span><span class="t2">Coffre</span></div>
+  </div>
+  <div class="group" style="margin-top:10px"><div class="it" style="min-height:54px;color:var(--err)"><svg class="ic"><use href="#i-trash"/></svg><span class="grow body">Supprimer le dossier</span></div></div>
+ </div>
+ <!--HB-->
+</div></div>
+<div class="board"><p class="caption-board">V14 · Déplacer le dossier</p>
+<div class="phone fyde" data-shot="V14-deplacer-dossier">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><div class="row" style="gap:8px"><button class="circ"><svg class="ic"><use href="#i-search"/></svg></button><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+ <p class="crumb">Coffre<svg class="ic xs"><use href="#i-chev-r"/></svg><b>Logement</b></p>
+ <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i);margin-top:8px"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-home"/></svg></span><div><p class="h2">Logement</p><p class="t2" style="color:var(--text);opacity:.75">4 sous-dossiers · 38 documents</p><p class="t3" style="color:var(--text);opacity:.7;margin-top:4px">Factures, contrats et attestations du logement : loyer, énergie, eau, internet, assurance habitation.</p></div></div>
+ <div class="secrow"><p class="sec">Sous-dossiers</p></div>
+ <div class="group"><div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Assurance habitation</span><span class="t2">5</span></div><div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Eau</span><span class="t2">6</span></div><div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Énergie</span><span class="t2">14</span></div><div class="it" style="min-height:56px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Internet</span><span class="t2">11</span></div></div> <div class="scrim" style="background:rgba(15,20,18,.3)"></div>
+ <div class="sheet" style="top:56px;padding-bottom:0">
+  <div class="grab"></div>
+  <div class="row" style="justify-content:space-between;padding:0 12px 2px 20px"><p class="h3">Déplacer « Internet »</p><button class="pbtn t sm">Annuler</button></div>
+  <p class="t2" style="padding:0 20px">Avec ses 11 documents. Il prendra la couleur du dossier choisi.</p>
+  <div class="row" style="gap:8px;padding:14px 16px 8px"><span class="pc on" style="height:32px;font-size:13px">Coffre</span></div>
+  <div class="group"><div class="it" style="min-height:54px"><span class="ftile sm" style="--cbg:var(--sunk);--ci:var(--text)"><svg class="ic sm"><use href="#i-grid"/></svg></span><span class="grow body">À la racine du coffre</span></div><div class="it " style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-shop);--ci:var(--c-shop-i)"><svg class="ic sm"><use href="#i-bag"/></svg></span><span class="grow body">Achats</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div><div class="it " style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-money);--ci:var(--c-money-i)"><svg class="ic sm"><use href="#i-wallet"/></svg></span><span class="grow body">Argent</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div><div class="it " style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><svg class="ic sm"><use href="#i-landmark"/></svg></span><span class="grow body">Impôts</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div><div class="it cur" style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-home"/></svg></span><span class="grow body">Logement</span><span class="tag">Actuel</span></div><div class="it " style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-health);--ci:var(--c-health-i)"><svg class="ic sm"><use href="#i-heart"/></svg></span><span class="grow body">Santé</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div><div class="it sel" style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><svg class="ic sm"><use href="#i-phone"/></svg></span><span class="grow body">Télécom</span><span class="radio on" style="margin-right:2px"></span><svg class="ic ch"><use href="#i-chev-r"/></svg></div><div class="it " style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic sm"><use href="#i-train"/></svg></span><span class="grow body">Transport</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div><div class="it " style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-work);--ci:var(--c-work-i)"><svg class="ic sm"><use href="#i-brief"/></svg></span><span class="grow body">Travail</span><svg class="ic ch"><use href="#i-chev-r"/></svg></div></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 20px 38px;background:var(--surface);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:2px"><button class="pbtn f w">Déplacer dans Télécom</button><button class="pbtn t w"><svg class="ic sm"><use href="#i-plus"/></svg>Nouveau dossier ici</button></div>
+ </div>
+ <!--HB-->
+</div></div>
+<div class="board"><p class="caption-board">V15 · Supprimer le dossier</p>
+<div class="phone fyde" data-shot="V15-supprimer-dossier">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><div class="row" style="gap:8px"><button class="circ"><svg class="ic"><use href="#i-search"/></svg></button><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div></div>
+ <p class="crumb">Coffre<svg class="ic xs"><use href="#i-chev-r"/></svg>Logement<svg class="ic xs"><use href="#i-chev-r"/></svg><b>Énergie</b></p>
+ <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i);margin-top:8px"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-folder"/></svg></span><div><p class="h2">Énergie</p><p class="t2" style="color:var(--text);opacity:.75">14 documents</p></div></div>
+ <div class="scrim"></div>
+ <div class="dialog">
+  <p class="h3">Supprimer le dossier « Énergie » ?</p>
+  <p class="body" style="color:var(--muted);margin-top:8px">Il contient 14 documents. Que faire d’eux ?</p>
+  <div class="group" style="margin:14px 0 0">
+   <div class="it" style="min-height:64px;align-items:flex-start;padding-top:12px;padding-bottom:12px"><span class="radio on" style="margin-top:1px"></span><div class="grow"><p class="t1">Les garder</p><p class="t2">Ils vont dans Logement.</p></div></div>
+   <div class="it" style="min-height:64px;align-items:flex-start;padding-top:12px;padding-bottom:12px"><span class="radio" style="margin-top:1px"></span><div class="grow"><p class="t1">Les supprimer aussi</p><p class="t2">Effacés de vos 3 appareils, pour de bon.</p></div></div>
+  </div>
+  <div class="note info" style="margin:12px 0 0"><svg class="ic"><use href="#i-bolt"/></svg><span>Sa description ne servira plus : les prochaines factures EDF iront dans Logement, dont la description leur correspond le mieux.</span></div>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-top:16px"><button class="pbtn d w">Supprimer le dossier</button><button class="pbtn t w">Annuler</button></div>
+ </div>
+ <!--HB-->
+</div></div>
  <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-home"/></svg></span><div><p class="h2">Logement</p><p class="t2" style="color:var(--text);opacity:.75">38 documents · 3 sources</p></div></div>
  <div class="chips"><span class="pc on">Tout · 38</span><span class="pc">Énergie · 14</span><span class="pc">Internet · 11</span><span class="pc">Assurance · 7</span></div>
  <div class="chips" style="padding-top:8px"><span class="pc" style="height:32px;font-size:13px;background:var(--pwash);border-color:var(--pwash);color:var(--primary)">2026</span><span class="pc" style="height:32px;font-size:13px">2025</span><span class="pc" style="height:32px;font-size:13px">2024</span><span class="pc" style="height:32px;font-size:13px">Avant</span></div>
@@ -96,14 +208,14 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
 <div class="phone fyde" data-shot="V5-resultats">
  <!--SB-->
  <div class="row" style="gap:8px;padding:8px 16px 0 0"><div class="search grow" style="margin:0 0 0 16px;color:var(--text)"><svg class="ic" style="color:var(--muted)"><use href="#i-search"/></svg><span class="grow">attestation</span><svg class="ic sm" style="color:var(--muted)"><use href="#i-x"/></svg></div><button class="pbtn t sm">Annuler</button></div>
- <div class="chips"><span class="pc on">Toutes catégories<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Type<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Année<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Source<svg class="ic xs"><use href="#i-chev-d"/></svg></span></div>
+ <div class="chips"><span class="pc on">Tous les dossiers<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Type<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Année<svg class="ic xs"><use href="#i-chev-d"/></svg></span><span class="pc">Source<svg class="ic xs"><use href="#i-chev-d"/></svg></span></div>
  <p class="t2" style="padding:14px 20px 8px">6 résultats pour « attestation »</p>
  <div class="group">
-  <div class="doc"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> d’assurance habitation</p><p class="t2">Logement · MAIF · 1 oct. 2026</p></div></div>
+  <div class="doc"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> d’assurance habitation</p><p class="t2">Logement › Assurance habitation · 1 oct. 2026</p></div></div>
   <div class="doc"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)"><svg class="ic"><use href="#i-heart"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> de droits</p><p class="t2">Santé · Ameli · 14 sept. 2026</p></div></div>
   <div class="doc"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i)"><svg class="ic"><use href="#i-brief"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> employeur</p><p class="t2">Travail · ajouté par vous · 3 mars 2026</p></div></div>
   <div class="doc"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><svg class="ic"><use href="#i-landmark"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> fiscale — dons 2025</p><p class="t2">Impôts · impots.gouv · 12 févr. 2026</p></div></div>
-  <div class="doc"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> d’assurance habitation</p><p class="t2">Logement · MAIF · 2 oct. 2025</p></div></div>
+  <div class="doc"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t1 trunc"><mark>Attestation</mark> d’assurance habitation</p><p class="t2">Logement › Assurance habitation · 2 oct. 2025</p></div></div>
  </div>
  <p class="t3" style="padding:12px 20px">Recherche faite sur cet appareil, dans le texte des documents.</p>
  <!--TABS:coffre-->
@@ -132,7 +244,7 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
 <div class="board"><p class="caption-board">V8 · Actions du document</p>
 <div class="phone fyde" data-shot="V8-actions">
  <!--SB-->
- <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Logement · Énergie</span><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div>
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Logement › Énergie</span><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div>
  <div class="pass" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-zap"/></svg>EDF</span><span style="font:500 13px var(--font)">Facture</span></div><p class="big">84,20 €</p><p class="due">À régler avant le 27 octobre</p></div>
  <div class="scrim"></div>
  <div class="sheet">
@@ -142,7 +254,7 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
    <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-share"/></svg><span class="grow body">Partager</span></div>
    <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-download"/></svg><span class="grow body">Enregistrer dans Fichiers</span></div>
    <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-pencil"/></svg><span class="grow body">Renommer</span></div>
-   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-folder"/></svg><span class="grow body">Reclasser</span><span class="t2">Logement › Énergie</span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-folder"/></svg><span class="grow body">Déplacer</span><span class="t2">Logement › Énergie</span></div>
    <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-info"/></svg><span class="grow body">Informations techniques</span></div>
   </div>
   <div class="group" style="margin-top:10px"><div class="it" style="min-height:54px;color:var(--err)"><svg class="ic"><use href="#i-trash"/></svg><span class="grow body">Supprimer de tous mes appareils</span></div></div>
@@ -154,7 +266,7 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
 <div class="board"><p class="caption-board">V8b · Actions (sombre) du document</p>
 <div class="phone fyde dark" data-shot="V8b-actions-sombre">
  <!--SB-->
- <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Logement · Énergie</span><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div>
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Logement › Énergie</span><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div>
  <div class="pass" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-zap"/></svg>EDF</span><span style="font:500 13px var(--font)">Facture</span></div><p class="big">84,20 €</p><p class="due">À régler avant le 27 octobre</p></div>
  <div class="scrim"></div>
  <div class="sheet">
@@ -164,7 +276,7 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
    <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-share"/></svg><span class="grow body">Partager</span></div>
    <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-download"/></svg><span class="grow body">Enregistrer dans Fichiers</span></div>
    <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-pencil"/></svg><span class="grow body">Renommer</span></div>
-   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-folder"/></svg><span class="grow body">Reclasser</span><span class="t2">Logement › Énergie</span></div>
+   <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-folder"/></svg><span class="grow body">Déplacer</span><span class="t2">Logement › Énergie</span></div>
    <div class="it" style="min-height:54px"><svg class="ic"><use href="#i-info"/></svg><span class="grow body">Informations techniques</span></div>
   </div>
   <div class="group" style="margin-top:10px"><div class="it" style="min-height:54px;color:var(--err)"><svg class="ic"><use href="#i-trash"/></svg><span class="grow body">Supprimer de tous mes appareils</span></div></div>
@@ -176,7 +288,7 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
 <div class="board"><p class="caption-board">V10 · Supprimer le document</p>
 <div class="phone fyde" data-shot="V10-supprimer-document">
  <!--SB-->
- <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Logement · Énergie</span><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div>
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Logement › Énergie</span><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div>
  <div class="pass" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-zap"/></svg>EDF</span><span style="font:500 13px var(--font)">Facture</span></div><p class="big">84,20 €</p><p class="due">À régler avant le 27 octobre</p></div>
  <div class="scrim"></div>
  <div class="dialog">
@@ -189,34 +301,21 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
 </div></div>
 
 <!-- V9 -->
-<div class="board"><p class="caption-board">V9 · Reclasser</p>
-<div class="phone fyde" data-shot="V9-reclasser">
+<div class="board"><p class="caption-board">V9 · Déplacer le document</p>
+<div class="phone fyde" data-shot="V9-deplacer-document">
  <!--SB-->
- <div class="scrim" style="background:rgba(15,20,18,.3)"></div>
- <div class="sheet" style="top:60px;padding-bottom:0">
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span class="ttl">Logement › Énergie</span><button class="circ"><svg class="ic"><use href="#i-more"/></svg></button></div>
+ <div class="pass" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><div class="top"><span class="row" style="gap:8px"><svg class="ic"><use href="#i-globe"/></svg>Free</span><span style="font:500 13px var(--font)">Facture</span></div><p class="big">39,99 €</p><p class="due">Prélevée le 15 octobre</p></div> <div class="scrim" style="background:rgba(15,20,18,.3)"></div>
+ <div class="sheet" style="top:56px;padding-bottom:0">
   <div class="grab"></div>
-  <div class="row" style="justify-content:space-between;padding:0 12px 6px 20px"><p class="h3">Reclasser</p><button class="pbtn t sm">Annuler</button></div>
-  <p class="sec" style="padding-top:8px">Catégorie</p>
-  <div class="cgrid">
-   <span class="on" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg>Logement</span>
-   <span style="--cbg:var(--c-money);--ci:var(--c-money-i)"><svg class="ic"><use href="#i-wallet"/></svg>Argent</span>
-   <span style="--cbg:var(--c-work);--ci:var(--c-work-i)"><svg class="ic"><use href="#i-brief"/></svg>Travail</span>
-   <span style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><svg class="ic"><use href="#i-landmark"/></svg>Impôts</span>
-   <span style="--cbg:var(--c-health);--ci:var(--c-health-i)"><svg class="ic"><use href="#i-heart"/></svg>Santé</span>
-   <span style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><svg class="ic"><use href="#i-phone"/></svg>Télécom</span>
-  </div>
-  <p class="t3" style="padding:8px 20px 0">+ 5 autres catégories</p>
-  <p class="sec">Sous-catégorie</p>
-  <div class="group">
-   <div class="it" style="min-height:50px"><span class="grow body">Énergie</span><span class="radio on"></span></div>
-   <div class="it" style="min-height:50px"><span class="grow body">Eau</span><span class="radio"></span></div>
-   <div class="it" style="min-height:50px"><span class="grow body">Internet</span><span class="radio"></span></div>
-   <div class="it" style="min-height:50px"><span class="grow body">Assurance habitation</span><span class="radio"></span></div>
-  </div>
-  <p class="sec">Type de document</p>
-  <div class="chips" style="padding-top:0"><span class="pc on">Facture</span><span class="pc">Contrat</span><span class="pc">Échéancier</span><span class="pc">Autre</span></div>
-  <div style="padding:18px 20px 40px"><button class="pbtn f w">Enregistrer</button></div>
+  <div class="row" style="justify-content:space-between;padding:0 12px 2px 20px"><p class="h3">Déplacer le document</p><button class="pbtn t sm">Annuler</button></div>
+  <p class="t2" style="padding:0 20px">« Facture Freebox — octobre » est dans Logement › Énergie.</p>
+  <div class="row" style="gap:8px;padding:14px 16px 8px"><button class="circ" style="width:36px;height:36px" aria-label="Revenir au Coffre"><svg class="ic sm"><use href="#i-chev-l"/></svg></button><span class="t2">Coffre</span><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-r"/></svg><span class="pc on" style="height:32px;font-size:13px">Logement</span></div>
+  <div class="group"><div class="it" style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-home"/></svg></span><span class="grow body">Dans Logement même</span></div><div class="it " style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Assurance habitation</span></div><div class="it " style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Eau</span></div><div class="it cur" style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Énergie</span><span class="tag">Actuel</span></div><div class="it sel" style="min-height:54px"><span class="ftile sm" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic sm"><use href="#i-folder"/></svg></span><span class="grow body">Internet</span><span class="radio on"></span></div></div>
+  <p class="t3" style="padding:10px 20px 0">Le type du document (Facture) ne change pas.</p>
+  <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 20px 38px;background:var(--surface);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:2px"><button class="pbtn f w">Déplacer dans Internet</button><button class="pbtn t w"><svg class="ic sm"><use href="#i-plus"/></svg>Nouveau dossier ici</button></div>
  </div>
+ <!--HB-->
 </div></div>
 
 <!-- Pass templates -->
@@ -236,14 +335,8 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
  <div class="hdr"><p class="h1">Coffre</p><div class="row" style="gap:8px"><button class="circ"><svg class="ic"><use href="#i-search"/></svg></button><span class="avatar">PP</span></div></div>
  <span class="seal"><svg class="ic sm"><use href="#i-shield"/></svg>Scellé · à jour sur 3 appareils</span>
  <div class="inbox"><div class="stack"><span style="left:0;top:0;transform:rotate(-8deg)"></span><span style="left:11px;top:0;transform:rotate(2deg)"></span><span style="left:22px;top:0;transform:rotate(9deg)"></span></div><div class="grow"><p style="font:600 17px/22px var(--font)">4 documents arrivés</p><p style="font:400 14px/19px var(--font);opacity:.82">1 code demandé · rangés pour vous, à confirmer</p></div><span class="cta">Voir</span></div>
- <div class="cats">
-  <div class="cat" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-home"/></svg></span><span class="cnt">38</span></div><div><p class="n">Logement</p><p class="l trunc">Facture EDF · 12 oct.</p></div></div>
-  <div class="cat" style="--cbg:var(--c-money);--ci:var(--c-money-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-wallet"/></svg></span><span class="cnt">51</span></div><div><p class="n">Argent</p><p class="l trunc">Relevé de compte · 1 oct.</p></div></div>
-  <div class="cat" style="--cbg:var(--c-work);--ci:var(--c-work-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-brief"/></svg></span><span class="cnt">41</span></div><div><p class="n">Travail</p><p class="l trunc">Bulletin de paie · 10 oct.</p></div></div>
-  <div class="cat" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-landmark"/></svg></span><span class="cnt">12</span></div><div><p class="n">Impôts</p><p class="l trunc">Avis d’impôt 2026</p></div></div>
-  <div class="cat" style="--cbg:var(--c-health);--ci:var(--c-health-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-heart"/></svg></span><span class="cnt">33</span></div><div><p class="n">Santé</p><p class="l trunc">Remboursement · 22 sept.</p></div></div>
-  <div class="cat" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><div class="row" style="justify-content:space-between"><span class="ico"><svg class="ic"><use href="#i-phone"/></svg></span><span class="cnt">24</span></div><div><p class="n">Télécom</p><p class="l trunc">Facture Free · 9 oct.</p></div></div>
- </div>
+ <div class="secrow" style="padding-bottom:0"><p class="sec">Dossiers</p><button class="pbtn t sm"><svg class="ic sm"><use href="#i-plus"/></svg>Nouveau dossier</button></div>
+ <div class="cats fold" style="padding-top:18px"><!--FOLDERCARDS:6--></div>
  <!--TABS:coffre-->
  <!--HB-->
 </div></div>
@@ -273,7 +366,7 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
  </div>
  <div class="row" style="justify-content:center;gap:10px;margin-top:12px"><button class="circ" aria-label="Recadrer"><svg class="ic"><use href="#i-crop"/></svg></button><button class="circ" aria-label="Pivoter"><svg class="ic"><use href="#i-rotate"/></svg></button><button class="circ" aria-label="Supprimer la page"><svg class="ic"><use href="#i-trash"/></svg></button><button class="circ" aria-label="Ajouter une page"><svg class="ic"><use href="#i-plus"/></svg></button></div>
  <div class="field" style="margin-top:18px"><label>Nom</label><div class="in">Contrat de bail — scan</div></div>
- <div class="card" style="margin:0 20px;padding:12px 14px"><div class="row" style="gap:12px"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t3">Classement suggéré</p><p class="t1">Logement · Contrat</p></div><button class="pbtn t sm">Modifier</button></div></div>
+ <div class="card" style="margin:0 20px;padding:12px 14px"><div class="row" style="gap:12px"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><div class="grow"><p class="t3">Dossier suggéré</p><p class="t1">Logement</p></div><button class="pbtn t sm">Modifier</button></div></div>
  <div class="foot"><button class="pbtn f w"><svg class="ic"><use href="#i-lock"/></svg>Ajouter au coffre</button></div>
  <!--HB-->
 </div></div>
@@ -291,7 +384,7 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
   <div class="row" style="justify-content:space-between;padding:6px 12px 10px 20px"><button class="pbtn t sm" style="padding:0">Annuler</button><p class="t1">Fyde</p><span style="width:62px"></span></div>
   <div class="card" style="margin:0 16px;padding:12px"><div class="row" style="gap:12px"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Facture_Orange_09-2026.pdf</p><p class="t2">PDF · 245 Ko</p></div></div></div>
   <div class="field" style="margin-top:16px"><label>Nom</label><div class="in">Facture Orange — septembre</div></div>
-  <div class="card" style="margin:0 20px;padding:12px 14px"><div class="row" style="gap:12px"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><svg class="ic"><use href="#i-phone"/></svg></span><div class="grow"><p class="t3">Classement suggéré</p><p class="t1">Télécom › Mobile</p></div><button class="pbtn t sm">Modifier</button></div></div>
+  <div class="card" style="margin:0 20px;padding:12px 14px"><div class="row" style="gap:12px"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)"><svg class="ic"><use href="#i-phone"/></svg></span><div class="grow"><p class="t3">Dossier suggéré</p><p class="t1">Télécom › Mobile</p></div><button class="pbtn t sm">Modifier</button></div></div>
   <div class="note ok" style="margin:16px 20px 0"><svg class="ic"><use href="#i-lock"/></svg><span>Chiffré sur cet iPhone avant d’être envoyé.</span></div>
   <div style="padding:22px 20px 0"><button class="pbtn f w">Ajouter au coffre</button></div>
  </div>
@@ -303,7 +396,7 @@ mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 2px}
 <div class="phone fyde" data-shot="K4-ajout-en-cours">
  <!--SB-->
  <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
- <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-home"/></svg></span><div><p class="h2">Logement</p><p class="t2" style="color:var(--text);opacity:.75">39 documents</p></div></div>
+ <div class="band" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><span class="tile lg" style="color:var(--c-home-i)"><svg class="ic lg"><use href="#i-home"/></svg></span><div><p class="h2">Logement</p><p class="t2" style="color:var(--text);opacity:.75">4 sous-dossiers · 39 documents</p></div></div>
  <div class="mhead"><span>Octobre</span><span>4</span></div>
  <div class="group">
   <div class="doc" style="opacity:.6"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Contrat de bail — scan</p><p class="t2 row" style="gap:6px"><svg class="ic xs"><use href="#i-sync"/></svg>Chiffrement…</p></div></div>
