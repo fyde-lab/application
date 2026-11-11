@@ -354,7 +354,7 @@ private fun ContentSection() {
                 AppIconTile(size = AppDimensions.iconTileSmall, tint = AppColors.primary) { SyncGlyph(tint = AppColors.primary, modifier = Modifier.size(AppIconSize.md)) }
             }
         }
-        CatalogueRow("FolderCard — every folder colour, then À classer and the placeholder") {
+        CatalogueRow("FolderCard — every folder colour, then À classer, an empty folder and the placeholder") {
             Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
                 (CatalogueAppearances + listOf<FydeFolderAppearance?>(null)).chunked(4).forEach { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
@@ -373,7 +373,20 @@ private fun ContentSection() {
                         }
                     }
                 }
-                FolderCardPlaceholder(modifier = Modifier.width(180.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                    FolderCard(
+                        name = "Animaux",
+                        count = "0",
+                        caption = null,
+                        color = Housing.colors(),
+                        contentDescription = "Animaux, vide",
+                        onClick = {},
+                        modifier = Modifier.width(180.dp),
+                        empty = true,
+                        icon = { tint -> FolderIconGlyph(FydeFolderIcon.PAW, tint) },
+                    )
+                    FolderCardPlaceholder(modifier = Modifier.width(180.dp))
+                }
             }
         }
         CatalogueRow("FolderBand — a folder page's head") {
