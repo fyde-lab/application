@@ -294,7 +294,6 @@
         <item quantity="one">Encrypted · %1$d device</item>
         <item quantity="other">Encrypted · %1$d devices</item>
     </plurals>
-    <string name="vault_fact_filed">Filed under</string>
     <!-- %1$s typeCode, %2$s size -->
     <string name="vault_file_caption">%1$s · %2$s</string>
     <string name="vault_save">Save</string>
@@ -629,4 +628,13 @@
     <string name="folder_subfolder_color_note">A subfolder takes its folder’s colour.</string>
     <string name="folder_create">Create folder</string>
     <string name="folder_save">Save</string>
+    <string name="document_move">Move</string>
+    <string name="document_move_title">Move the document</string>
+    <string name="document_move_where">“%1$s” is in %2$s.</string>
+    <string name="document_move_type_note">Its type (%1$s) doesn’t change.</string>
+    <string name="document_moved">Document moved</string>
+    <string name="filing_filed">Filed in</string>
+    <string name="filing_unfiled">In Unfiled</string>
+    <string name="filing_change">Change</string>
+    <string name="filing_file">File</string>
 </resources>

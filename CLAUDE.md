@@ -101,6 +101,11 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   parent tagged Actuel), V15/D9 deleting (Les garder / Les supprimer aussi, a note when the
   folder had a description). Each only publishes its event, busy until it's sent; the SDK's
   refusal (a taken name...) stays in the sheet. Deleting the open folder opens its parent.
+  Moving a document (V9, `MoveDocumentSheet`, a `DocumentMove` in `VaultUiState.Loaded`): from
+  V8's Déplacer, D2's Déplacer button and "…"/right-click menu, and the filing card under the
+  pass ("Rangé dans <path>" · Modifier, or "Dans À classer" · Ranger; no C'est bon, nothing
+  records it). The picker opens on the document's folder's level, its folder tagged Actuel;
+  `FydeSdk.moveDocument` only publishes, the document shows its new folder once synced.
   Deleting (V8's sheet, D2b's "…" menu and right-click, ⌘⌫ / Suppr, then V10 / D2c as a
   `DocumentDeletion` in `VaultUiState.Loaded`) calls `FydeSdk.deleteDocument`, which only
   publishes the event: the document leaves the lists once sync consumes it. On success the

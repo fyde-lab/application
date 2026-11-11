@@ -54,6 +54,13 @@ import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.back
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.documents_count
+import com.peltoche.fyde.resources.filing_unfiled
+import com.peltoche.fyde.resources.filing_filed
+import com.peltoche.fyde.resources.filing_file
+import com.peltoche.fyde.resources.filing_change
+import com.peltoche.fyde.resources.document_move_where
+import com.peltoche.fyde.resources.document_move_type_note
+import com.peltoche.fyde.resources.document_move_title
 import com.peltoche.fyde.resources.folder_color
 import com.peltoche.fyde.resources.folder_color_n
 import com.peltoche.fyde.resources.folder_create
@@ -125,9 +132,20 @@ data class FolderSheetState(val sheet: FolderSheet, val busy: Boolean = false, v
 /** What the create and edit forms hand `App.kt`: [appearance] only for a top-level folder. */
 data class FolderForm(val name: String, val description: String, val appearance: FydeFolderAppearance?)
 
-/** The folder changes the vault's sheets ask `App.kt` for; each reports back through [VaultUiState.Loaded.folderSheet]. */
+/**
+ * A document V9 moves, [busy] while the move publishes, [error] why it
+ * failed, in the SDK's wording.
+ */
+data class DocumentMove(val document: FydeDocument, val busy: Boolean = false, val error: String? = null)
+
+/**
+ * The folder changes the vault's sheets ask `App.kt` for; each reports back
+ * through [VaultUiState.Loaded.folderSheet] (or [VaultUiState.Loaded.documentMove]).
+ */
 class FolderCallbacks(
     val onSheetChange: (FolderSheetState?) -> Unit = {},
+    val onDocumentMoveChange: (DocumentMove?) -> Unit = {},
+    val onMoveDocument: (document: FydeDocument, folderId: String?) -> Unit = { _, _ -> },
     val onCreate: (parentId: String?, form: FolderForm) -> Unit = { _, _ -> },
     val onUpdate: (id: String, form: FolderForm) -> Unit = { _, _ -> },
     val onMove: (id: String, parentId: String?) -> Unit = { _, _ -> },
@@ -620,6 +638,77 @@ private fun ContentsChoice(label: String, detail: String, selected: Boolean, onC
         Column(modifier = Modifier.weight(1f)) {
             Text(label, style = AppTypography.body, color = AppColors.text)
             Text(detail, style = AppTypography.caption, color = AppColors.textMuted)
+        }
+    }
+}
+
+/**
+ * V9: where the document is, the folder picker on its folder's level (its
+ * folder tagged Actuel), that its type doesn't change, then Déplacer.
+ */
+@Composable
+internal fun MoveDocumentSheet(vault: Vault) {
+    val move = vault.state.documentMove ?: return
+    val document = move.document
+    val folders = LocalVaultFolders.current
+    val callbacks = vault.folderCallbacks
+    var selected by remember(document.id) { mutableStateOf<FolderChoice?>(null) }
+    val close = { callbacks.onDocumentMoveChange(null) }
+    AppBottomSheet(onDismissRequest = { if (!move.busy) close() }) {
+        Column(modifier = Modifier.padding(horizontal = AppSpacing.space5), verticalArrangement = Arrangement.spacedBy(AppSpacing.space4)) {
+            SheetHeader(stringResource(Res.string.document_move_title), close)
+            Text(
+                text = stringResource(Res.string.document_move_where, document.name, document.folderLabel()),
+                style = AppTypography.caption,
+                color = AppColors.textMuted,
+            )
+            FolderPicker(
+                excluded = emptySet(),
+                current = FolderChoice(document.folderId),
+                selected = selected,
+                onSelect = { selected = it },
+                startLevel = folders[document.folderId]?.parentId,
+            )
+            document.documentType?.let {
+                Text(text = stringResource(Res.string.document_move_type_note, it.label()), style = AppTypography.caption, color = AppColors.textMuted)
+            }
+            move.error?.let { AppErrorNote(it) }
+            AppButton(
+                text = moveIntoLabel(selected),
+                onClick = { selected?.let { callbacks.onMoveDocument(document, it.folderId) } },
+                enabled = selected != null,
+                loading = move.busy,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+/**
+ * Under a document's pass: the folder Fyde put it in ("Rangé dans Travail ›
+ * Bulletins de paie") with Modifier, or "Dans À classer" with Ranger — both
+ * opening V9.
+ */
+@Composable
+internal fun FilingCard(document: FydeDocument, onMove: () -> Unit) {
+    val folders = LocalVaultFolders.current
+    val filed = folders[document.folderId] != null
+    AppGroup {
+        AppGroupRow {
+            FolderFillTile(size = AppDimensions.iconTile, color = document.colors(), shape = AppShapes.iconTile, iconSize = AppIconSize.md) { tint ->
+                DocumentFolderGlyph(document, tint)
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(if (filed) Res.string.filing_filed else Res.string.filing_unfiled),
+                    style = AppTypography.caption,
+                    color = AppColors.textMuted,
+                )
+                if (filed) {
+                    Text(text = document.folderLabel(), style = AppTypography.bodyEmphasis, color = AppColors.text)
+                }
+            }
+            AppTextButton(text = stringResource(if (filed) Res.string.filing_change else Res.string.filing_file), onClick = onMove)
         }
     }
 }

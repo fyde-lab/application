@@ -209,6 +209,7 @@ private fun SearchResults(vault: Vault, page: VaultPage.Search, contents: VaultS
                         highlightTerms = contents.query.terms,
                         showsFolder = true,
                         onDelete = { vault.askDelete(document) }.takeIf { selected != null },
+                        onMove = { vault.askMove(document) }.takeIf { selected != null },
                     )
                 }
             }
