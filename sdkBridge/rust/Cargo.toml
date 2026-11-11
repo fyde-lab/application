@@ -13,7 +13,7 @@ crate-type = ["cdylib", "staticlib"]
 # The independently-versioned `sdk` repo, tracked at its remote `master`
 # (pinned to a commit in Cargo.lock; `cargo update -p fyde-sdk` to bump it).
 # See its CLAUDE.md.
-fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "ccr-aaa6376f-i8i65z-4-classify-by-folder" }
+fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master" }
 serde_json = "1.0.151"
 thiserror = "2.0.20"
 tracing = "0.1.44"
@@ -24,7 +24,7 @@ uuid = "1.26.1"
 
 [dev-dependencies]
 # `testing`: the SDK's `Fake*` builders, to test conversions against.
-fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "ccr-aaa6376f-i8i65z-4-classify-by-folder", features = ["testing"] }
+fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master", features = ["testing"] }
 
 # Same as the sdk's Cargo.toml: Argon2id runs on every login/registration
 # and takes ~3s per call unoptimized. Profiles are only read from the crate
