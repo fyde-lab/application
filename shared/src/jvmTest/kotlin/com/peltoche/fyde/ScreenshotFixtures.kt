@@ -217,6 +217,8 @@ internal object ScreenshotFixtures {
             )
         },
         shot("vault-failed") { vault(VaultUiState.ConnectFailed("Le serveur est injoignable.", onRetry = {}), VaultFocus()) },
+        shot("folder-layout") { FolderLayoutScreen(FolderLayoutChoice.Proposed, {}, busy = false, error = null, onContinue = {}) },
+        shot("folder-layout-blank") { FolderLayoutScreen(FolderLayoutChoice.Blank, {}, busy = false, error = null, onContinue = {}) },
         shot("sources-tab") { sourcesTab(sourcesTab, null) },
         shot("sources-tab-loading") { sourcesTab(SourcesTabUiState.Loaded(scripts = null), null) },
         shot("sources-tab-detail") { sourcesTab(sourcesTab, SourceFocus.Detail(edf.id)) },
