@@ -67,7 +67,7 @@
     <string name="register_acknowledge">I understand, I’ll keep it somewhere safe.</string>
     <string name="register_submit">Continue</string>
     <string name="register_submitting">Creating the vault…</string>
-    <string name="vault_steps_summary">Two steps, about two minutes.</string>
+    <string name="vault_steps_summary">Three steps, about two minutes.</string>
     <string name="vault_step_progress">Step %1$d of %2$d</string>
     <string name="vault_step_account_subtitle">Username and password</string>
 
@@ -637,4 +637,21 @@
     <string name="filing_unfiled">In Unfiled</string>
     <string name="filing_change">Change</string>
     <string name="filing_file">File</string>
+    <string name="folder_layout_language">en</string>
+    <string name="vault_step_folders_title">Your folders</string>
+    <string name="vault_step_folders_subtitle">How your documents are filed</string>
+    <string name="folder_layout_title">How should your documents be filed?</string>
+    <string name="folder_layout_subtitle">You can change everything later: folders, their names and descriptions.</string>
+    <string name="folder_layout_proposed">Suggested folders</string>
+    <string name="folder_layout_recommended">Recommended</string>
+    <string name="folder_layout_proposed_text">16 folders and their subfolders, each with a description. Fyde files your documents by those descriptions.</string>
+    <string name="folder_layout_more">+ %1$d more</string>
+    <string name="folder_layout_blank">Empty vault</string>
+    <string name="folder_layout_blank_text">You create and describe your own folders. Until then, everything arrives in Unfiled.</string>
+    <string name="folder_layout_your_folders">Your folders</string>
+    <string name="folder_layout_continue">Continue</string>
+    <string name="folder_layout_housing">Housing</string>
+    <string name="folder_layout_money">Money</string>
+    <string name="folder_layout_work">Work</string>
+    <string name="folder_layout_taxes">Taxes</string>
 </resources>

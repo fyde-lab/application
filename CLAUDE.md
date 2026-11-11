@@ -153,10 +153,15 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   `errorMessage` (error note, `authError`).
 - `RegisterScreen` (the original form at Compact, DO3 at Medium/Expanded in
   `VaultCreationSplitLayout`; DO3b's mismatch error shows on blur or submit): back to
-  `WelcomeScreen`; on success, `SourcesScreen` (the design's recovery kit step, O6/DO6, is left out of
+  `WelcomeScreen`; on success, `FolderLayoutScreen` (the design's recovery kit step, O6/DO6, is left out of
   onboarding: no recovery key is generated there). DO3 requires ticking the key-warning acknowledgement; its strength meter
   (`passwordStrength`, by length) only advises — the server sets no password rule.
-- `VaultCreationStep` (Account, Sources) drives `VaultCreationBrandPanel`'s stepper and the phone's
+- `FolderLayoutScreen` (O11 at Compact, DO11 at Medium/Expanded in `VaultCreationSplitLayout`):
+  Dossiers proposés (pre-selected; its strip draws the layout's first folders by hand, names in
+  `folder_layout_*` strings) or Coffre vide. Continuer runs `FydeSdk.createProposedFolders` in the
+  app's language (`folder_layout_language`, "fr"/"en" from the resources) or creates nothing, then
+  `SourcesScreen`; a failure stays on the step with the SDK's message. No back button, no skip.
+- `VaultCreationStep` (Account, Folders, Sources) drives `VaultCreationBrandPanel`'s stepper and the phone's
   `VaultStepDots`: list only steps that have screens (notifications doesn't yet).
 - `SourcesScreen` (O7/O7b at Compact, DO7/DO7h at Medium/Expanded in `VaultCreationSplitLayout`):
   the public scrapers (`listPublicScripts`, `SCRAPER` only) to tick, searched with

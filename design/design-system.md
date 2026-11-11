@@ -17,7 +17,8 @@ them is tracked in [Delivery](#delivery). New UI work follows this document, not
 **Folders replace categories.** The vault is now browsed by user-owned folders (see
 [Folders](#folders)): V1, V3, V9, D1, D6, T1, T2 and the sidebar are drawn with folders, and
 V12–V15, D7–D10, O11 and DO11 are new. The app's built V1, V3, D1, D6 and sidebar browse folders
-(with V12–V15 / D7–D10 as sheets and dialogs; not yet the sidebar's "+", drag and drop or the
+(with V12–V15 / D7–D10 as sheets and dialogs, V9 and the filing card, and O11 / DO11 in
+onboarding; not yet the sidebar's "+", drag and drop or the
 keyboard shortcuts; the colour picker shows every colour at once; empty folders as plain cards,
 and a folder page listing every document below it); the table below says what was built, not what is
 drawn.
