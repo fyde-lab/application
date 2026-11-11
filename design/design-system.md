@@ -623,7 +623,7 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | K2 | Vérifier le scan | Crop, rotate, delete, add page; name; suggested folder with Modifier (the picker); Ajouter au coffre | No suggestion → "À classer" and listed in Arrivées |
 | K3 | Depuis une autre app | Share extension sheet: file, name, suggestion, "Chiffré sur cet iPhone avant d'être envoyé" | Signed out → "Ouvrez Fyde pour ajouter" |
 | K4 | Ajout en cours | Row appears at once with "Chiffrement…"; progress snackbar; duplicate → "Déjà dans le coffre · Voir" | `DuplicateDocument` is never an error |
-| R1 | Arrivées | À traiter / Historique; code card first; documents with their suggestion and Modifier / C'est bon | Swipe right = C'est bon |
+| R1 | Arrivées | À traiter / Historique; code card first; documents with the folder Fyde put them in ("Rangé dans Travail › Bulletins de paie", then "d'après la description de Bulletins de paie" in `caption`) and Modifier / C'est bon; one Fyde couldn't match reads "Dans À classer" with Ranger | Swipe right = C'est bon |
 | R1b | Arrivées (sombre) | R1 in the dark theme | Dark reference for the code card and segments |
 | R1c | Code expiré | R1 with the code card replaced: "Le code d'impots.gouv a expiré", the deadline it missed, Plus tard · Relancer | Relancer runs the source again on this device; the card leaves the queue once a new code is asked or the run ends |
 | R2 | Tout est rangé | Check disc, "repasseront dans la journée, chacune sur son appareil", Lancer maintenant | Badge hidden |
@@ -686,7 +686,7 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | D2 | Document | Sidebar · 400dp list of the document's folder (breadcrumb, name) · pass, Informations and facts (Dossier: its path), Enregistrer · Déplacer · "…" · live preview |
 | D2b | Actions du document | D2 with "…" open: a menu with what the row's buttons don't hold (Partager, Renommer, Informations techniques), then a divider and Supprimer de tous mes appareils in `error`, each with its shortcut; right-click on a row opens the same menu |
 | D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the category if it was the last |
-| D3 | Arrivées | Sidebar · queue with inline code card · preview · panel with the folder Fyde chose and Changer (E, the D8 picker), the type, and C'est bon (Enter) |
+| D3 | Arrivées | Sidebar · queue with inline code card · preview · panel with the folder Fyde chose and Changer (E, the D8 picker), the description it matched quoted under it ("D'après la description de Bulletins de paie : « … »"), the type, and C'est bon (Enter) |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
 | D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
 | D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |
