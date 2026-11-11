@@ -94,6 +94,10 @@ import com.peltoche.fyde.resources.log_out_confirm_text
 import com.peltoche.fyde.resources.log_out_confirm_title_computer
 import com.peltoche.fyde.resources.log_out_confirm_title_device
 import com.peltoche.fyde.resources.passwords_mismatch
+import com.peltoche.fyde.resources.recovery_kit_row_created
+import com.peltoche.fyde.resources.recovery_kit_row_missing
+import com.peltoche.fyde.resources.recovery_kit_row_subtitle
+import com.peltoche.fyde.resources.recovery_kit_section
 import com.peltoche.fyde.resources.security_sealed_text
 import com.peltoche.fyde.resources.security_sealed_title
 import com.peltoche.fyde.resources.security_server_view
@@ -152,11 +156,12 @@ private enum class AppLanguage(val code: String, val displayName: String) {
 
 /**
  * The pages Settings opens onto: M1's rows ([Security], [Devices], [Plan],
- * [Appearance]), and [ServerView] (M3) and [ChangePassword] (M11), reached
- * from inside [Security].
+ * [Appearance]), and [RecoveryKit] (O6's content), [ServerView] (M3) and
+ * [ChangePassword] (M11), reached from inside [Security].
  */
 enum class SettingsSection(val title: StringResource) {
     Security(Res.string.settings_security),
+    RecoveryKit(Res.string.recovery_kit_section),
     ServerView(Res.string.security_server_view),
     ChangePassword(Res.string.change_password_title),
     Devices(Res.string.sessions_section_title),
@@ -167,7 +172,7 @@ enum class SettingsSection(val title: StringResource) {
     /** The M1 row this page belongs to, and where its back button leads. */
     val parent: SettingsSection?
         get() = when (this) {
-            ServerView, ChangePassword -> Security
+            RecoveryKit, ServerView, ChangePassword -> Security
             else -> null
         }
 }
@@ -176,7 +181,8 @@ enum class SettingsSection(val title: StringResource) {
  * The Settings destination, design-system.md's Moi (M1–M8).
  *
  * At Compact it's M1: the seal card, then one row per page — Sécurité (M2,
- * leading to Changer le mot de passe, M11, and Ce que voit le serveur, M3),
+ * leading to the recovery kit, O6's content, Changer le mot de passe, M11,
+ * and Ce que voit le serveur, M3),
  * Appareils (M5), Offre et usage
  * (M6), Apparence et langue (M7) — and logging out (M8). Each page pushes
  * inside the tab, under a bar with the 44 back circle. At Medium and Expanded
@@ -186,8 +192,12 @@ enum class SettingsSection(val title: StringResource) {
  * a language change causes.
  *
  * Left out until the SDK can back them: the profile card (no username
- * getter), M2's device tiles and last-sync times, the recovery-kit and
- * password-check rows, Aide, and Voir les offres.
+ * getter), M2's device tiles and last-sync times, the password-check row,
+ * O6b's check of the kit, Aide, and Voir les offres.
+ *
+ * M2's recovery kit row reads [recoveryKeyStatus]; its page
+ * ([RecoveryKitPage]) shows [recoveryKit], asks for a new key through
+ * [onGenerateRecoveryKey] and drops the words through [onRecoveryKitDone].
  *
  * M11 rates the new password with [analyzePassword] as it's typed and
  * submits through [onChangePassword], busy while [isChangingPassword];
@@ -226,6 +236,10 @@ fun SettingsScreen(
     onChangePassword: (currentPassword: String, newPassword: String) -> Unit = { _, _ -> },
     isChangingPassword: Boolean = false,
     changePasswordError: String? = null,
+    recoveryKeyStatus: RecoveryKeyStatus = RecoveryKeyStatus.Loading,
+    recoveryKit: RecoveryKitUiState = RecoveryKitUiState.Idle,
+    onGenerateRecoveryKey: () -> Unit = {},
+    onRecoveryKitDone: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var confirmingLogout by remember { mutableStateOf(false) }
@@ -244,6 +258,10 @@ fun SettingsScreen(
         onChangePassword = onChangePassword,
         isChangingPassword = isChangingPassword,
         changePasswordError = changePasswordError,
+        recoveryKeyStatus = recoveryKeyStatus,
+        recoveryKit = recoveryKit,
+        onGenerateRecoveryKey = onGenerateRecoveryKey,
+        onRecoveryKitDone = onRecoveryKitDone,
         isLoggingOut = isLoggingOut,
         logoutError = logoutError,
         onLogOut = { confirmingLogout = true },
@@ -307,6 +325,10 @@ private class SettingsUi(
     val onChangePassword: (String, String) -> Unit,
     val isChangingPassword: Boolean,
     val changePasswordError: String?,
+    val recoveryKeyStatus: RecoveryKeyStatus,
+    val recoveryKit: RecoveryKitUiState,
+    val onGenerateRecoveryKey: () -> Unit,
+    val onRecoveryKitDone: () -> Unit,
     val isLoggingOut: Boolean,
     val logoutError: String?,
     val onLogOut: () -> Unit,
@@ -415,8 +437,16 @@ private fun WideSettings(ui: SettingsUi, section: SettingsSection, windowSizeCla
 private fun ColumnScope.SettingsPage(ui: SettingsUi, section: SettingsSection) {
     when (section) {
         SettingsSection.Security -> SecurityPage(
+            recoveryKeyStatus = ui.recoveryKeyStatus,
+            onOpenRecoveryKit = { ui.onOpen(SettingsSection.RecoveryKit) },
             onOpenChangePassword = { ui.onOpen(SettingsSection.ChangePassword) },
             onOpenServerView = { ui.onOpen(SettingsSection.ServerView) },
+        )
+        SettingsSection.RecoveryKit -> RecoveryKitPage(
+            status = ui.recoveryKeyStatus,
+            state = ui.recoveryKit,
+            onGenerate = ui.onGenerateRecoveryKey,
+            onDone = ui.onRecoveryKitDone,
         )
         SettingsSection.ServerView -> ServerViewPage()
         SettingsSection.ChangePassword -> ChangePasswordPage(ui, pinnedButton = false)
@@ -580,9 +610,18 @@ private fun SettingsLinkRow(
     }
 }
 
-/** M2 as far as the SDK backs it: the seal, what it means, and the ways to M11 and to what the server sees. */
+/**
+ * M2 as far as the SDK backs it: the seal, what it means, and the ways to
+ * the recovery kit (its date, or "À créer" in `warning` without one), M11
+ * and what the server sees.
+ */
 @Composable
-private fun SecurityPage(onOpenChangePassword: () -> Unit, onOpenServerView: () -> Unit) {
+private fun SecurityPage(
+    recoveryKeyStatus: RecoveryKeyStatus,
+    onOpenRecoveryKit: () -> Unit,
+    onOpenChangePassword: () -> Unit,
+    onOpenServerView: () -> Unit,
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         SealHero()
         Spacer(Modifier.height(AppSpacing.space4))
@@ -602,6 +641,19 @@ private fun SecurityPage(onOpenChangePassword: () -> Unit, onOpenServerView: () 
     }
     Spacer(Modifier.height(AppSpacing.space7))
     AppGroup {
+        val missingKit = recoveryKeyStatus == RecoveryKeyStatus.Missing
+        SettingsLinkRow(
+            label = stringResource(Res.string.recovery_kit_section),
+            supporting = when (recoveryKeyStatus) {
+                RecoveryKeyStatus.Missing -> stringResource(Res.string.recovery_kit_row_missing)
+                is RecoveryKeyStatus.Created ->
+                    stringResource(Res.string.recovery_kit_row_created, localizedDate(recoveryKeyStatus.epochSeconds))
+                RecoveryKeyStatus.Loading, RecoveryKeyStatus.Unknown -> stringResource(Res.string.recovery_kit_row_subtitle)
+            },
+            icon = { KeyGlyph(modifier = it, tint = if (missingKit) AppColors.warning else AppColors.primary) },
+            onClick = onOpenRecoveryKit,
+        )
+        AppDivider()
         SettingsLinkRow(
             label = stringResource(Res.string.change_password_title),
             supporting = stringResource(Res.string.change_password_row_subtitle),

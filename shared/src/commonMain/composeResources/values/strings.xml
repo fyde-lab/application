@@ -631,4 +631,30 @@
     <string name="month_long_10">October</string>
     <string name="month_long_11">November</string>
     <string name="month_long_12">December</string>
+
+    <!-- Recovery kit (M2's row, O6's content as a settings page) -->
+    <string name="recovery_kit_section">Recovery kit</string>
+    <string name="recovery_kit_row_subtitle">Your only way back if you forget the password</string>
+    <string name="recovery_kit_row_missing">To create — your only way back if you forget the password</string>
+    <string name="recovery_kit_row_created">Created on %1$s</string>
+    <string name="recovery_kit_missing_note">Your account has no recovery kit yet: if you forget your password, your documents are lost.</string>
+    <string name="recovery_kit_replaces_note">Creating a kit voids any earlier one: only the new words will reopen your vault.</string>
+    <string name="recovery_kit_generate">Create a recovery kit</string>
+    <string name="recovery_kit_generate_confirm_title">Create a new recovery kit?</string>
+    <string name="recovery_kit_generate_confirm">Create</string>
+    <string name="recovery_kit_explanation">If you forget your password, these %1$d words are the only way to reopen your vault. Keep them offline, on paper.</string>
+    <string name="recovery_kit_word">Word %1$d: %2$s</string>
+    <string name="recovery_kit_save_pdf">Save the PDF</string>
+    <string name="recovery_kit_print">Print</string>
+    <string name="recovery_kit_never_copied">The words are never copied to the clipboard or sent.</string>
+    <string name="recovery_kit_screenshots_blocked">Screenshots are disabled on this screen.</string>
+    <string name="recovery_kit_confirm">I’ve put it somewhere safe</string>
+    <string name="recovery_kit_generating">Creating your recovery kit…</string>
+    <string name="recovery_kit_failed">Couldn’t create your recovery kit: %1$s</string>
+    <string name="recovery_kit_saved">Recovery kit saved</string>
+    <string name="recovery_kit_save_failed">Couldn’t save the recovery kit</string>
+    <string name="recovery_kit_print_failed">Couldn’t print the recovery kit</string>
+    <string name="recovery_kit_pdf_file_name">fyde-recovery-kit.pdf</string>
+    <string name="recovery_kit_pdf_title">Fyde recovery kit</string>
+    <string name="recovery_kit_pdf_warning">Anyone holding these words and your username can set a new password and open your vault. Keep this sheet offline, somewhere safe, and only ever type the words into Fyde.</string>
 </resources>

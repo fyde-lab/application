@@ -105,7 +105,13 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - Settings (`SettingsScreen.kt`, the design's Moi M1–M3 and M5–M8): a menu (seal card,
   Sécurité, Appareils, Offre et usage, Apparence et langue, logout) whose pages push inside the
   tab at Compact and open beside it at Medium/Expanded; which page is open is screen state.
-  Pages: Sécurité and Ce que voit le serveur (static), Changer le mot de passe (M11, reached from
+  Pages: Sécurité and Ce que voit le serveur (static), Kit de récupération (`RecoveryKitPage.kt`,
+  O6's content reached from Sécurité, whose row shows `FydeSdk.recoveryKeyStatus` as "À créer" or its
+  date, re-fetched each time Settings opens. A new key is generated only on request, confirmed first
+  when one exists since it replaces it; the 24 words are kept only while the page is open. Save the
+  PDF (`recoveryKitPdf`, a hand-written one-page PDF, through `rememberDocumentSaver`) everywhere;
+  Print (`rememberPdfPrinter`) on desktop (PDFBox) and Android (`PrintManager`) only; Android keeps
+  the words out of screenshots with `ScreenshotGuard`), Changer le mot de passe (M11, reached from
   Sécurité: `FydeSdk.changePassword`, its meter from `FydeSdk.analyzePassword` as the new one is
   typed, refusing what the SDK rates weak; back to Sécurité with a snackbar on success; the SDK
   takes the username it stored at login, so a session opened before it did must log in again),
