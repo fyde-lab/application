@@ -41,11 +41,11 @@ import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.theme.appFocusRing
 
 /**
- * A document in a list (V3, V5, D2, D6's latest arrivals): its category's
+ * A document in a list (V3, V5, D2, D6's latest arrivals): its folder's
  * tile, [title] over [subtitle] ("EDF · 12 oct."), and its [amount]
  * ("84,20 €", in `data`) at the end when it has one. [highlightTerms] are marked in the title wherever they
  * occur, ignoring case — the words a search matched. [selected] is the
- * document open beside the list (D2), drawn in the category's fill.
+ * document open beside the list (D2), drawn in the folder's fill.
  */
 @Composable
 fun DocumentRow(
@@ -72,7 +72,7 @@ fun DocumentRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
     ) {
-        CategoryFillTile(size = AppDimensions.iconTile, color = color, icon = icon)
+        FolderFillTile(size = AppDimensions.iconTile, color = color, icon = icon)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = highlighted(title, highlightTerms, AppColors.highlight),
@@ -92,8 +92,8 @@ fun DocumentRow(
 }
 
 /**
- * A document in a category's grid at Expanded (D1): a preview well holding
- * its category's tile, then [title] and [caption] (its date).
+ * A document in a folder's grid at Expanded (D1): a preview well holding
+ * its folder's tile, then [title] and [caption] (its date).
  */
 @Composable
 fun DocumentCard(
@@ -118,7 +118,7 @@ fun DocumentCard(
             modifier = Modifier.fillMaxWidth().height(AppDimensions.documentCardWell).background(AppColors.background),
             contentAlignment = Alignment.Center,
         ) {
-            CategoryFillTile(size = AppDimensions.iconTileLarge, color = color, icon = icon)
+            FolderFillTile(size = AppDimensions.iconTileLarge, color = color, icon = icon)
         }
         Column(modifier = Modifier.padding(AppSpacing.space4)) {
             Text(text = title, style = AppTypography.bodyEmphasis, color = AppColors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -129,9 +129,9 @@ fun DocumentCard(
     }
 }
 
-/** A tile in the category's own fill, its icon in the category's ink — for a category's mark off its fill. */
+/** A tile in the folder's own fill, its icon in the folder's ink — for a folder's mark off its fill. */
 @Composable
-fun CategoryFillTile(
+fun FolderFillTile(
     size: Dp,
     color: AppCategoryColor,
     modifier: Modifier = Modifier,

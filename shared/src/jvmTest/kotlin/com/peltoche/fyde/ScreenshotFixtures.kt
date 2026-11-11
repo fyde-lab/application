@@ -23,15 +23,32 @@ internal object ScreenshotFixtures {
     private val free = script("free", "Free", "Factures internet et mobile", listOf("free.fr"))
     private val scripts = listOf(ameli, edf, free, impots)
 
+    private val housingFolder = folder("housing", "Logement", FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.HOME), description = "")
+    private val folders = VaultFolders(
+        listOf(
+            housingFolder,
+            folder("energy", "Énergie", parentId = "housing", description = "Factures d'électricité et de gaz, relevés de compteur"),
+            folder("water", "Eau", parentId = "housing", description = "Factures d'eau"),
+            folder("rent", "Loyer", parentId = "housing", description = "Quittances de loyer et bail"),
+            folder("health", "Santé", FydeFolderAppearance(FydeFolderColor.ROSE, FydeFolderIcon.HEART)),
+            folder("health_insurance", "Assurance maladie", parentId = "health", description = "Décomptes de remboursement"),
+            folder("work", "Travail", FydeFolderAppearance(FydeFolderColor.TEAL, FydeFolderIcon.BRIEFCASE)),
+            folder("payslips", "Bulletins de paie", parentId = "work", description = "Bulletins de salaire mensuels"),
+            folder("taxes", "Impôts", FydeFolderAppearance(FydeFolderColor.BRICK, FydeFolderIcon.LANDMARK)),
+            folder("income_tax", "Impôt sur le revenu", parentId = "taxes", description = "Avis d'imposition, déclarations"),
+        ),
+    )
+
     private val invoice = document(
-        "d1", "Facture EDF mars 2026", FydeCategory.HOUSING, FydeSubcategory.ENERGY, FydeDocumentType.INVOICE, T0,
+        "d1", "Facture EDF mars 2026", "energy", FydeDocumentType.INVOICE, T0,
         mapOf("issuer" to FydeAttribute.Text("EDF"), "total_amount" to FydeAttribute.Amount(8_423, "EUR")),
     )
-    private val water = document("d2", "Facture eau février", FydeCategory.HOUSING, FydeSubcategory.WATER, FydeDocumentType.INVOICE, T0 - 20 * DAY)
-    private val payslip = document("d3", "Bulletin de paie février 2026", FydeCategory.WORK, FydeSubcategory.PAYSLIPS, FydeDocumentType.PAYSLIP, T0 - 12 * DAY)
-    private val refund = document("d4", "Décompte de remboursement", FydeCategory.HEALTH, FydeSubcategory.HEALTH_INSURANCE, FydeDocumentType.REIMBURSEMENT_STATEMENT, T0 - 3 * DAY)
-    private val tax = document("d5", "Avis d'impôt 2025", FydeCategory.TAXES, FydeSubcategory.INCOME_TAX, FydeDocumentType.TAX_NOTICE, T0 - 200 * DAY)
-    private val rent = document("d6", "Quittance de loyer janvier", FydeCategory.HOUSING, FydeSubcategory.RENT, FydeDocumentType.RECEIPT, T0 - 60 * DAY)
+    private val water = document("d2", "Facture eau février", "water", FydeDocumentType.INVOICE, T0 - 20 * DAY)
+    private val payslip = document("d3", "Bulletin de paie février 2026", "payslips", FydeDocumentType.PAYSLIP, T0 - 12 * DAY)
+    private val refund = document("d4", "Décompte de remboursement", "health_insurance", FydeDocumentType.REIMBURSEMENT_STATEMENT, T0 - 3 * DAY)
+    private val tax = document("d5", "Avis d'impôt 2025", "income_tax", FydeDocumentType.TAX_NOTICE, T0 - 200 * DAY)
+    private val rent = document("d6", "Quittance de loyer janvier", "rent", FydeDocumentType.RECEIPT, T0 - 60 * DAY)
+    private val unfiled = document("d7", "Scan 2026-03-02", null, null, T0 - DAY)
     private val housing = listOf(invoice, water, rent)
 
     private val sessions = listOf(
@@ -49,55 +66,56 @@ internal object ScreenshotFixtures {
     )
     private val summary = SidebarSummary(
         total = 42,
-        categories = listOf(
-            SidebarCategory(FydeCategory.HOUSING, 18),
-            SidebarCategory(FydeCategory.HEALTH, 9),
-            SidebarCategory(FydeCategory.WORK, 12),
-            SidebarCategory(FydeCategory.TAXES, 3),
+        folders = folders,
+        folderCounts = mapOf(
+            "housing" to 18, "energy" to 8, "water" to 4, "rent" to 6,
+            "health" to 9, "health_insurance" to 9,
+            "work" to 12, "payslips" to 12,
+            "taxes" to 3, "income_tax" to 3,
         ),
+        unfiled = 1,
         sourceCount = 2,
         deviceCount = 2,
     )
     private val navigation = TopLevelNavigation(
         summary = summary,
         onOpenVault = {},
-        onOpenCategory = {},
+        onOpenFolder = {},
         onOpenScripts = {},
         onOpenSettings = {},
     )
     private val home = VaultHome(
-        categories = listOf(
-            VaultCategorySummary(FydeCategory.HOUSING, 18, invoice),
-            VaultCategorySummary(FydeCategory.HEALTH, 9, refund),
-            VaultCategorySummary(FydeCategory.WORK, 12, payslip),
-            VaultCategorySummary(FydeCategory.TAXES, 3, tax),
+        folders = listOf(
+            VaultFolderSummary(null, 1, unfiled),
+            VaultFolderSummary(folders["taxes"], 3, tax),
+            VaultFolderSummary(housingFolder, 18, invoice),
+            VaultFolderSummary(folders["health"], 9, refund),
+            VaultFolderSummary(folders["work"], 12, payslip),
         ),
-        latest = listOf(invoice, refund, payslip, water),
+        latest = listOf(unfiled, invoice, refund, payslip, water),
     )
-    private val housingPage = VaultPage.Category(FydeCategory.HOUSING)
-    private val housingContents = VaultCategoryContents(
+    private val housingPage = VaultPage.Folder("housing")
+    private val housingContents = VaultFolderContents(
         page = housingPage,
-        allCount = 3,
-        options = VaultFilterOptions(
-            subcategories = listOf(
-                FydeFacetCount(FydeSubcategory.ENERGY, 1),
-                FydeFacetCount(FydeSubcategory.WATER, 1),
-                FydeFacetCount(FydeSubcategory.RENT, 1),
-            ),
-            years = listOf(YearFilter.In(2026)),
+        subfolders = listOf(
+            VaultFolderSummary(folders["water"], 4),
+            VaultFolderSummary(folders["energy"], 8),
+            VaultFolderSummary(folders["rent"], 6),
         ),
+        count = 18,
+        options = VaultFilterOptions(years = listOf(YearFilter.In(2026), YearFilter.In(2025))),
         documents = housing,
     )
     private val searchQuery = VaultQuery(text = "facture")
     private val searchContents = VaultSearchContents(
         query = searchQuery,
         options = VaultFilterOptions(
-            categories = listOf(FydeFacetCount(FydeCategory.HOUSING, 3)),
+            folders = listOf(FydeFacetCount(FydeFolderFilter.Within("housing"), 3)),
             types = listOf(FydeFacetCount(FydeDocumentType.INVOICE, 3)),
         ),
         documents = housing,
     )
-    private val vaultLoaded = VaultUiState.Loaded(home = home, category = housingContents, search = searchContents, deviceCount = 2)
+    private val vaultLoaded = VaultUiState.Loaded(folders = folders, home = home, folder = housingContents, search = searchContents, deviceCount = 2)
     private val creationSources = listOf(
         VaultSource("EDF", VaultSourceState.Connected),
         VaultSource("Ameli", VaultSourceState.Current),
@@ -178,8 +196,8 @@ internal object ScreenshotFixtures {
         shot("already-running") { AlreadyRunningScreen(message = "Fyde est déjà ouvert sur cet appareil.", onRetry = {}) },
         shot("vault-loading") { vault(VaultUiState.Loaded(deviceCount = 2), VaultFocus()) },
         shot("vault-home") { vault(vaultLoaded, VaultFocus()) },
-        shot("vault-category") { vault(vaultLoaded, VaultFocus(page = housingPage)) },
-        shot("vault-category-loading") { vault(VaultUiState.Loaded(home = home), VaultFocus(page = housingPage)) },
+        shot("vault-folder") { vault(vaultLoaded, VaultFocus(page = housingPage)) },
+        shot("vault-folder-loading") { vault(VaultUiState.Loaded(folders = folders, home = home), VaultFocus(page = housingPage)) },
         shot("vault-search") { vault(vaultLoaded, VaultFocus(page = VaultPage.Search(searchQuery, VaultPage.Home))) },
         shot("vault-document") { vault(vaultLoaded, VaultFocus(page = housingPage, document = invoice)) },
         shot("vault-document-delete") {
@@ -305,9 +323,8 @@ internal object ScreenshotFixtures {
     private fun document(
         id: String,
         name: String,
-        category: FydeCategory,
-        subcategory: FydeSubcategory,
-        type: FydeDocumentType,
+        folderId: String?,
+        type: FydeDocumentType?,
         createdAt: Long,
         attributes: Map<String, FydeAttribute> = emptyMap(),
     ) = FydeDocument(
@@ -317,8 +334,15 @@ internal object ScreenshotFixtures {
         createdAt = createdAt,
         size = 182_000,
         documentType = type,
-        category = category,
-        subcategory = subcategory,
+        folderId = folderId,
         attributes = attributes,
     )
+
+    private fun folder(
+        id: String,
+        name: String,
+        appearance: FydeFolderAppearance? = null,
+        parentId: String? = null,
+        description: String = "",
+    ) = FydeFolder(id = id, parentId = parentId, name = name, description = description, appearance = appearance)
 }

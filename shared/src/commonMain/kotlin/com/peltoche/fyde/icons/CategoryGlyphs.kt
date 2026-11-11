@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.theme.AppColors
 
 /**
- * The category icons and the vault's own controls, traced from `i-xxx` in
- * `design/assets/mockups/icons.svg` (gift, id card, scale, paw, ticket and
- * graduation cap have no symbol there and are drawn in the same hand). Unlike `NavGlyphs.kt`'s hand-placed shapes, these replay the
+ * The folder icons and the vault's own controls, traced from `i-xxx` in
+ * `design/assets/mockups/icons.svg` (gift, id card, scale, paw, ticket,
+ * graduation cap and car have no symbol there and are drawn in the same hand). Unlike `NavGlyphs.kt`'s hand-placed shapes, these replay the
  * SVG's own 24-unit paths, scaled to the glyph's size.
  */
 
@@ -86,7 +86,20 @@ fun TicketGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted
 fun GraduationCapGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
     PathGlyph(GraduationCapPaths, modifier, tint, strokeWidth)
 
-/** The Coffre destination: its category grid. */
+@Composable
+fun CarGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(CarPaths, modifier, tint, strokeWidth)
+
+@Composable
+fun CalendarGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(CalendarPaths, modifier, tint, strokeWidth)
+
+/** A folder: a subfolder's mark, and a top-level folder's plainest icon. */
+@Composable
+fun FolderGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(FolderPaths, modifier, tint, strokeWidth)
+
+/** The Coffre destination: its folder grid. */
 @Composable
 fun GridGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
     PathGlyph(GridPaths, modifier, tint, strokeWidth)
@@ -191,6 +204,17 @@ private val TicketPaths = listOf(
 private val GraduationCapPaths = listOf(
     svg("M2.5 9.5 12 5l9.5 4.5L12 14z"),
     svg("M6.5 11.6V16c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3v-4.4M21.5 9.5V15"),
+)
+
+private val CarPaths = listOf(
+    svg("M3.5 17v-4.5l2.2-5.5h12.6l2.2 5.5V17M3.5 12.5h17"),
+    svg("M5.7 17.5a1.8 1.8 0 1 0 3.6 0a1.8 1.8 0 1 0-3.6 0M14.7 17.5a1.8 1.8 0 1 0 3.6 0a1.8 1.8 0 1 0-3.6 0"),
+)
+
+private val CalendarPaths = listOf(rect(4f, 5f, 16f, 15f, 2f), svg("M4 10h16M8.5 3v4M15.5 3v4"))
+
+private val FolderPaths = listOf(
+    svg("M3.5 7a1.5 1.5 0 0 1 1.5-1.5h4.5l2 2.5H19a1.5 1.5 0 0 1 1.5 1.5V18a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 18z"),
 )
 
 private val GridPaths = listOf(

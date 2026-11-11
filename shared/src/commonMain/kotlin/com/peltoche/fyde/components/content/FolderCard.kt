@@ -40,12 +40,12 @@ import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.theme.appFocusRing
 
 /**
- * A category on the vault's home (V1, D6): its [icon] and [count] on top, its
- * [name] and [caption] (the newest document in it) below, on the category's
- * fill. Read out as one control, [contentDescription] standing for all four.
+ * A folder on the vault's home (V1, D6) or a folder's grid (D1): its [icon]
+ * and [count] on top, its [name] and [caption] (the newest document in it)
+ * below, on its top-level folder's fill. Read out as one control, [contentDescription] standing for all four.
  */
 @Composable
-fun CategoryCard(
+fun FolderCard(
     name: String,
     count: String,
     caption: String?,
@@ -58,7 +58,7 @@ fun CategoryCard(
     val interactionSource = remember { MutableInteractionSource() }
     Column(
         modifier = modifier
-            .height(AppDimensions.categoryCardHeight)
+            .height(AppDimensions.folderCardHeight)
             .clip(AppShapes.card)
             .background(color.fill)
             .clickable(interactionSource = interactionSource, indication = ripple(), onClick = onClick)
@@ -71,7 +71,7 @@ fun CategoryCard(
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            CategoryIconTile(size = AppDimensions.categoryCardIcon) { icon(color.ink) }
+            FolderIconTile(size = AppDimensions.folderCardIcon) { icon(color.ink) }
             Spacer(Modifier.weight(1f))
             Text(text = count, style = AppTypography.bodyEmphasis, color = color.ink, maxLines = 1)
         }
@@ -84,21 +84,23 @@ fun CategoryCard(
     }
 }
 
-/** A [CategoryCard]'s place while the vault's summary loads. */
+/** A [FolderCard]'s place while the vault's summary loads. */
 @Composable
-fun CategoryCardPlaceholder(modifier: Modifier = Modifier) {
-    AppSkeleton(modifier = modifier.fillMaxWidth().height(AppDimensions.categoryCardHeight), shape = AppShapes.card)
+fun FolderCardPlaceholder(modifier: Modifier = Modifier) {
+    AppSkeleton(modifier = modifier.fillMaxWidth().height(AppDimensions.folderCardHeight), shape = AppShapes.card)
 }
 
 /**
- * The head of a category page (V3): the category's icon, [name] and
- * [subtitle] ("38 documents") on its fill — the page's heading.
+ * The head of a folder page (V3): the folder's icon, [name] and [subtitle]
+ * ("2 sous-dossiers · 38 documents") on its fill — the page's heading —
+ * then its [description], what Fyde files in it.
  */
 @Composable
-fun CategoryBand(
+fun FolderBand(
     name: String,
     subtitle: String?,
     color: AppCategoryColor,
+    description: String? = null,
     modifier: Modifier = Modifier,
     icon: @Composable (tint: Color) -> Unit,
 ) {
@@ -110,7 +112,7 @@ fun CategoryBand(
             .padding(AppSpacing.space5),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CategoryIconTile(size = AppDimensions.iconTileLarge) { icon(color.ink) }
+        FolderIconTile(size = AppDimensions.iconTileLarge) { icon(color.ink) }
         Spacer(Modifier.width(AppSpacing.space4))
         Column {
             Text(
@@ -124,17 +126,25 @@ fun CategoryBand(
             if (subtitle != null) {
                 Text(text = subtitle, style = AppTypography.caption, color = AppColors.categoryCaption, maxLines = 1)
             }
+            if (!description.isNullOrBlank()) {
+                Text(
+                    text = description,
+                    style = AppTypography.body,
+                    color = AppColors.text,
+                    modifier = Modifier.padding(top = AppSpacing.space2),
+                )
+            }
         }
     }
 }
 
 /**
- * The pale square a category's icon sits in, on that category's fill — the
- * card's and the band's. [content] draws the icon in the category's ink,
+ * The pale square a folder's icon sits in, on that folder's fill — the
+ * card's and the band's. [content] draws the icon in the folder's ink,
  * stretched to [AppIconSize.md].
  */
 @Composable
-fun CategoryIconTile(size: Dp, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun FolderIconTile(size: Dp, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(
         modifier = modifier.size(size).clip(AppShapes.iconTile).background(AppColors.categoryTile),
         contentAlignment = Alignment.Center,

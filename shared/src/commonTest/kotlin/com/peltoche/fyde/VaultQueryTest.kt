@@ -25,16 +25,14 @@ class VaultQueryTest {
     fun toSearchFiltersMapsEveryPickedFilter() {
         val query = VaultQuery(
             text = "facture",
-            category = FydeCategory.MONEY,
-            subcategory = FydeSubcategory.BANKING,
+            folder = FydeFolderFilter.Within("money"),
             type = FydeDocumentType.STATEMENT,
             year = YearFilter.In(2025),
         )
 
         assertEquals(
             FydeSearchFilters(
-                categories = listOf(FydeCategory.MONEY),
-                subcategories = listOf(FydeSubcategory.BANKING),
+                folder = FydeFolderFilter.Within("money"),
                 types = listOf(FydeDocumentType.STATEMENT),
                 createdFrom = on(2025, 1, 1),
                 createdUntil = on(2026, 1, 1) - 1,
@@ -66,26 +64,38 @@ class VaultQueryTest {
     @Test
     fun filterOptionsKeepThePickedValueEvenWhenTheFacetsNoLongerHaveIt() {
         val facets = FydeSearchFacets(
-            categories = listOf(FydeFacetCount(FydeCategory.HOUSING, 2)),
-            subcategories = listOf(FydeFacetCount(FydeSubcategory.BANKING, 1)),
+            folders = listOf(FydeFacetCount("housing", 2)),
             types = listOf(FydeFacetCount(FydeDocumentType.INVOICE, 4)),
         )
-        val query = VaultQuery(category = FydeCategory.MONEY, subcategory = FydeSubcategory.BANKING, type = FydeDocumentType.PAYSLIP)
+        val query = VaultQuery(folder = FydeFolderFilter.Within("money"), type = FydeDocumentType.PAYSLIP)
 
         val options = vaultFilterOptions(facets, query)
 
-        assertEquals(listOf(FydeFacetCount(FydeCategory.HOUSING, 2), FydeFacetCount(FydeCategory.MONEY, 0)), options.categories)
-        assertEquals(listOf(FydeFacetCount(FydeSubcategory.BANKING, 1)), options.subcategories)
+        assertEquals(
+            listOf<FydeFacetCount<FydeFolderFilter>>(
+                FydeFacetCount(FydeFolderFilter.Within("housing"), 2),
+                FydeFacetCount(FydeFolderFilter.Within("money"), 0),
+            ),
+            options.folders,
+        )
         assertEquals(listOf(FydeFacetCount(FydeDocumentType.INVOICE, 4), FydeFacetCount(FydeDocumentType.PAYSLIP, 0)), options.types)
     }
 
     @Test
-    fun withCategoryDropsTheSubcategoryOnlyWhenTheCategoryChanges() {
-        val query = VaultQuery(category = FydeCategory.TAXES, subcategory = FydeSubcategory.INCOME_TAX)
+    fun folderOptionsPutUnfiledFirstOnlyWhenItHoldsMatches() {
+        val folders = listOf(FydeFacetCount("work", 3))
 
-        assertEquals(query, query.withCategory(FydeCategory.TAXES))
-        assertEquals(VaultQuery(category = FydeCategory.MONEY), query.withCategory(FydeCategory.MONEY))
-        assertEquals(VaultQuery(), query.withCategory(null))
+        assertEquals(
+            listOf<FydeFacetCount<FydeFolderFilter>>(
+                FydeFacetCount(FydeFolderFilter.Unfiled, 2),
+                FydeFacetCount(FydeFolderFilter.Within("work"), 3),
+            ),
+            vaultFilterOptions(FydeSearchFacets(folders = folders, unfiled = 2), VaultQuery()).folders,
+        )
+        assertEquals(
+            listOf<FydeFacetCount<FydeFolderFilter>>(FydeFacetCount(FydeFolderFilter.Within("work"), 3)),
+            vaultFilterOptions(FydeSearchFacets(folders = folders), VaultQuery()).folders,
+        )
     }
 
     @Test
@@ -96,7 +106,7 @@ class VaultQueryTest {
 
     @Test
     fun resultsShowOnceTextTypeOrYearIsPicked() {
-        assertEquals(false, VaultQuery(text = "  ", category = FydeCategory.HOUSING).showsResults)
+        assertEquals(false, VaultQuery(text = "  ", folder = FydeFolderFilter.Unfiled).showsResults)
         assertEquals(true, VaultQuery(text = "edf").showsResults)
         assertEquals(true, VaultQuery(type = FydeDocumentType.INVOICE).showsResults)
         assertEquals(true, VaultQuery(year = YearFilter.In(2025)).showsResults)

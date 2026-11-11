@@ -39,8 +39,8 @@ import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.clear_filters
 import com.peltoche.fyde.resources.clear_search
 import com.peltoche.fyde.resources.documents_count
-import com.peltoche.fyde.resources.filter_category
-import com.peltoche.fyde.resources.filter_category_all
+import com.peltoche.fyde.resources.filter_folder
+import com.peltoche.fyde.resources.filter_folder_all
 import com.peltoche.fyde.resources.filter_type
 import com.peltoche.fyde.resources.filter_type_all
 import com.peltoche.fyde.resources.filter_year
@@ -98,7 +98,7 @@ private fun SearchBar(vault: Vault, page: VaultPage.Search, focusOnOpen: Boolean
         AppSearchField(
             value = query.text,
             onValueChange = { vault.search(page.copy(query = query.copy(text = it))) },
-            placeholder = query.category?.let { stringResource(Res.string.vault_search_in, it.label()) }
+            placeholder = query.folder?.let { stringResource(Res.string.vault_search_in, it.label()) }
                 ?: stringResource(Res.string.vault_search),
             modifier = Modifier.weight(1f).focusRequester(focusRequester),
             clearContentDescription = stringResource(Res.string.clear_search),
@@ -128,7 +128,7 @@ private fun TypeShortcuts(vault: Vault, page: VaultPage.Search, contents: VaultS
 }
 
 /**
- * V5: the Catégorie, Type and Année chips, how many were found, the rows
+ * V5: the Dossier, Type and Année chips, how many were found, the rows
  * with the typed words marked, and where the search ran.
  */
 @Composable
@@ -142,12 +142,12 @@ private fun SearchResults(vault: Vault, page: VaultPage.Search, contents: VaultS
         verticalArrangement = Arrangement.spacedBy(AppSpacing.space3),
     ) {
         FacetMenuChip(
-            title = stringResource(Res.string.filter_category),
-            allLabel = stringResource(Res.string.filter_category_all),
-            selected = query.category,
-            options = options.categories.map { it.value to it.count },
+            title = stringResource(Res.string.filter_folder),
+            allLabel = stringResource(Res.string.filter_folder_all),
+            selected = query.folder,
+            options = options.folders.map { it.value to it.count },
             optionLabel = { it.label() },
-            onSelect = { refine(query.withCategory(it)) },
+            onSelect = { refine(query.copy(folder = it)) },
         )
         FacetMenuChip(
             title = stringResource(Res.string.filter_type),
@@ -207,6 +207,7 @@ private fun SearchResults(vault: Vault, page: VaultPage.Search, contents: VaultS
                         onClick = { vault.openDocument(document) },
                         selected = document.id == selected?.id,
                         highlightTerms = contents.query.terms,
+                        showsFolder = true,
                         onDelete = { vault.askDelete(document) }.takeIf { selected != null },
                     )
                 }

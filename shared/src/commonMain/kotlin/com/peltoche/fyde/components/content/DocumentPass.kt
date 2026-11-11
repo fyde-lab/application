@@ -48,7 +48,7 @@ enum class DocumentPassHeadline {
 /**
  * The head of a document's detail (V6, D2) — design-system.md § Document
  * pass: [issuer] and [type] on top, a [headline] and the [line] under it, a
- * perforation, then up to three [cells], all on the category's fill. The
+ * perforation, then up to three [cells], all on the folder's fill. The
  * caller picks the template by document type and passes only the cells whose
  * attribute is set. A [description] replaces what screen readers read with
  * one sentence ("Facture EDF, 84,20 €, à régler avant le 27 octobre…").

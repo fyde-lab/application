@@ -100,7 +100,7 @@ object AppDimensions {
     /** T2's icon rail beside the content at Medium. */
     val sidebarRailWidth: Dp = 80.dp
 
-    /** One row of the sidebar (a destination, a category, the seal). */
+    /** One row of the sidebar (a destination, a folder, the seal). */
     val sidebarRowHeight: Dp = 40.dp
 
     /** One cell of the icon rail, its touch target and selection fill. */
@@ -109,16 +109,16 @@ object AppDimensions {
     /** The primary bar marking the selected row or rail cell. */
     val selectionBarWidth: Dp = 3.dp
 
-    /** `CategoryCard`'s fixed height (V1, D6): every card in the grid lines up whatever its caption. */
-    val categoryCardHeight: Dp = 132.dp
+    /** `FolderCard`'s fixed height (V1, D6): every card in the grid lines up whatever its caption. */
+    val folderCardHeight: Dp = 132.dp
 
-    /** The square behind a category's icon on a `CategoryCard`. */
-    val categoryCardIcon: Dp = 38.dp
+    /** The square behind a folder's icon on a `FolderCard`. */
+    val folderCardIcon: Dp = 38.dp
 
     /** `DocumentCard`'s preview well (D1). */
     val documentCardWell: Dp = 160.dp
 
-    /** D2's list column, the category's documents beside the open one. */
+    /** D2's list column, the folder's documents beside the open one. */
     val documentListColumn: Dp = 400.dp
 
     /** D2's pass column, between the list and the preview. */

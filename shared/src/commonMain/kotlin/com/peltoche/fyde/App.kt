@@ -290,7 +290,7 @@ private fun AppContent(
     // for the sidebar's counts.
     var accountChanged by remember { mutableStateOf(0) }
     var sidebarSummary by remember { mutableStateOf(SidebarSummary()) }
-    // The vault page the next visit opens on: home, or the category picked
+    // The vault page the next visit opens on: home, or the folder picked
     // in the sidebar from another destination.
     var vaultEntry by remember { mutableStateOf(VaultFocus()) }
 
@@ -527,10 +527,13 @@ private fun AppContent(
     LaunchedEffect(signedIn, showsSidebar, documentChanges) {
         if (!signedIn || !showsSidebar) return@LaunchedEffect
         val facets = FydeSdk.searchDocumentFacets("", FydeSearchFilters()).getOrNull() ?: return@LaunchedEffect
+        val folders = FydeSdk.listFolders().getOrNull() ?: return@LaunchedEffect
         sidebarSummary = sidebarSummary.copy(
             // Every document has a content type, so that facet's counts add up to the vault's total.
             total = facets.contentTypes.sumOf { it.count },
-            categories = sidebarCategoriesOf(facets),
+            folders = VaultFolders(folders),
+            folderCounts = facets.folderCounts(),
+            unfiled = facets.unfiled,
         )
     }
     LaunchedEffect(screen, showsSidebar, accountChanged) {
@@ -553,8 +556,8 @@ private fun AppContent(
                 vaultEntry = VaultFocus()
                 screen = Screen.Vault
             },
-            onOpenCategory = { category ->
-                vaultEntry = VaultFocus(page = VaultPage.Category(category))
+            onOpenFolder = { folderId ->
+                vaultEntry = VaultFocus(page = VaultPage.Folder(folderId))
                 screen = Screen.Vault
             },
             onOpenScripts = { screen = Screen.Scripts },
@@ -960,49 +963,53 @@ private suspend fun searchAllDocuments(text: String, filters: FydeSearchFilters,
     } while (page.size.toLong() == DOCUMENT_PAGE_SIZE)
 }
 
+/** Each folder's document count, its subfolders' included, by id. */
+private fun FydeSearchFacets.folderCounts(): Map<String, Long> = folders.associate { it.value to it.count }
+
+/** The newest document in [filter], `null` when it holds none. */
+private suspend fun newestIn(filter: FydeFolderFilter): FydeDocument? =
+    FydeSdk.searchDocuments("", FydeSearchFilters(folder = filter), FydeSearchOrder.NEWEST, 0, 1).getOrThrow().firstOrNull()
+
+/** [folders]' cards: each one's count (subfolders included) and newest document; an empty one has none to look up. */
+private suspend fun folderSummaries(folders: List<FydeFolder>, counts: Map<String, Long>): List<VaultFolderSummary> =
+    folders.map { folder ->
+        val count = counts[folder.id] ?: 0
+        VaultFolderSummary(folder, count, if (count > 0) newestIn(FydeFolderFilter.Within(folder.id)) else null)
+    }
+
 /**
- * The vault's home: each category's count (from the facets, so categories
- * without documents are left out) and newest document, in
- * [CategoryDisplayOrder], then the latest arrivals of any category.
+ * The vault's home: À classer while it holds documents, then every
+ * top-level folder by name with its count (from the facets) and newest
+ * document, then the latest arrivals wherever they are.
  */
-private suspend fun loadVaultHome(): VaultHome {
-    val counts = FydeSdk.searchDocumentFacets("", FydeSearchFilters()).getOrThrow()
-        .categories.associate { it.value to it.count }
-    val categories = CategoryDisplayOrder.mapNotNull { category ->
-        val count = counts[category]?.takeIf { it > 0 } ?: return@mapNotNull null
-        val newest = FydeSdk.searchDocuments("", FydeSearchFilters(categories = listOf(category)), FydeSearchOrder.NEWEST, 0, 1)
-            .getOrThrow().firstOrNull()
-        VaultCategorySummary(category, count, newest)
+private suspend fun loadVaultHome(folders: VaultFolders): VaultHome {
+    val facets = FydeSdk.searchDocumentFacets("", FydeSearchFilters()).getOrThrow()
+    val unfiled = if (facets.unfiled > 0) {
+        listOf(VaultFolderSummary(null, facets.unfiled, newestIn(FydeFolderFilter.Unfiled)))
+    } else {
+        emptyList()
     }
     val latest = FydeSdk.searchDocuments("", FydeSearchFilters(), FydeSearchOrder.NEWEST, 0, LATEST_ARRIVALS).getOrThrow()
-    return VaultHome(categories, latest)
-}
-
-/** The categories holding documents, in [CategoryDisplayOrder], with their counts. */
-private fun sidebarCategoriesOf(facets: FydeSearchFacets): List<SidebarCategory> {
-    val counts = facets.categories.associate { it.value to it.count }
-    return CategoryDisplayOrder.mapNotNull { category -> counts[category]?.takeIf { it > 0 }?.let { SidebarCategory(category, it) } }
+    return VaultHome(unfiled + folderSummaries(folders.topLevel, facets.folderCounts()), latest)
 }
 
 /**
- * A category page's documents and chips. "Tout" counts the category within
- * the picked year, whatever the subcategory: the category facet ignores the
- * category filter, so asking without the subcategory gives it. The year
- * chips need the subcategory applied (the date span ignores only the date
- * filters), hence a second facets call when one is picked.
+ * A folder page's subfolders and documents. The vault-wide facets give
+ * every folder's count (the folder facet ignores the folder filter); the
+ * page's own facets, with the folder and year applied, give the year chips
+ * (the date span ignores only the date filters).
  */
-private suspend fun loadVaultCategory(page: VaultPage.Category): VaultCategoryContents {
+private suspend fun loadVaultFolder(page: VaultPage.Folder, folders: VaultFolders): VaultFolderContents {
     val query = page.query
-    val withoutSubcategory = FydeSdk.searchDocumentFacets("", query.copy(subcategory = null).toSearchFilters()).getOrThrow()
-    val facets = if (page.subcategory == null) {
-        withoutSubcategory
-    } else {
-        FydeSdk.searchDocumentFacets("", query.toSearchFilters()).getOrThrow()
-    }
+    val all = FydeSdk.searchDocumentFacets("", FydeSearchFilters()).getOrThrow()
+    val counts = all.folderCounts()
+    val facets = FydeSdk.searchDocumentFacets("", query.toSearchFilters()).getOrThrow()
     val order = if (page.newestFirst) FydeSearchOrder.NEWEST else FydeSearchOrder.OLDEST
-    return VaultCategoryContents(
+    val subfolders = page.folderId?.let { folders.children(it) }.orEmpty()
+    return VaultFolderContents(
         page = page,
-        allCount = withoutSubcategory.categories.firstOrNull { it.value == page.category }?.count ?: 0,
+        subfolders = subfolders.map { VaultFolderSummary(it, counts[it.id] ?: 0) },
+        count = if (page.folderId == null) all.unfiled else counts[page.folderId] ?: 0,
         options = vaultFilterOptions(facets, query),
         documents = searchAllDocuments("", query.toSearchFilters(), order),
     )
@@ -1027,8 +1034,8 @@ private suspend fun loadVaultSearch(query: VaultQuery): VaultSearchContents {
 
 /**
  * Owns the `fyde-sdk` connection and the changelog subscription, and maps
- * their results into [VaultUiState]: the home's summary, the open
- * category's contents and the open search, all reloaded on every changelog event. Holds which
+ * their results into [VaultUiState]: the folders, the home's summary, the
+ * open folder's contents and the open search, all reloaded on every changelog event. Holds which
  * page is open ([VaultFocus]); [VaultScreen] only draws it.
  */
 @Composable
@@ -1045,8 +1052,9 @@ private fun VaultContainer(
     var reloadKey by remember { mutableStateOf(0) }
     val changeKey = documentChanges to reloadKey
     var focus by remember { mutableStateOf(initialFocus) }
+    var folders by remember { mutableStateOf<VaultFolders?>(null) }
     var home by remember { mutableStateOf<VaultHome?>(null) }
-    var category by remember { mutableStateOf<VaultCategoryContents?>(null) }
+    var folder by remember { mutableStateOf<VaultFolderContents?>(null) }
     var search by remember { mutableStateOf<VaultSearchContents?>(null) }
     var serverReachable by remember { mutableStateOf(true) }
     var deviceCount by remember { mutableStateOf<Int?>(null) }
@@ -1119,9 +1127,23 @@ private fun VaultContainer(
         connected = true
     }
 
+    // Folders first: the home's cards and the open folder's page are drawn from them.
     LaunchedEffect(connected, changeKey) {
         if (!connected) return@LaunchedEffect
-        runCatching { loadVaultHome() }
+        runCatching { VaultFolders(FydeSdk.listFolders().getOrThrow()) }
+            .onSuccess { loaded ->
+                folders = loaded
+                // A folder deleted meanwhile, here or on another device, closes its page.
+                val open = (focus.page as? VaultPage.Folder)?.folderId
+                if (open != null && loaded[open] == null) focus = VaultFocus()
+            }
+            .onFailure { reportLoadFailure(it) }
+    }
+
+    LaunchedEffect(connected, changeKey, folders) {
+        val loadedFolders = folders
+        if (!connected || loadedFolders == null) return@LaunchedEffect
+        runCatching { loadVaultHome(loadedFolders) }
             .onSuccess {
                 home = it
                 loadError = null
@@ -1132,15 +1154,16 @@ private fun VaultContainer(
     }
 
     // A newer page (a chip picked, the sort flipped) cancels one still
-    // loading. The last contents stay up meanwhile within the same category,
+    // loading. The last contents stay up meanwhile within the same folder,
     // so its chips don't vanish while picking one.
-    val categoryPage = focus.page as? VaultPage.Category
-    LaunchedEffect(connected, changeKey, categoryPage) {
-        if (!connected || categoryPage == null) return@LaunchedEffect
-        if (category?.page?.category != categoryPage.category) category = null
-        runCatching { loadVaultCategory(categoryPage) }
+    val folderPage = focus.page as? VaultPage.Folder
+    LaunchedEffect(connected, changeKey, folderPage, folders) {
+        val loadedFolders = folders
+        if (!connected || folderPage == null || loadedFolders == null) return@LaunchedEffect
+        if (folder?.page?.folderId != folderPage.folderId) folder = null
+        runCatching { loadVaultFolder(folderPage, loadedFolders) }
             .onSuccess {
-                category = it
+                folder = it
                 loadError = null
                 refreshOpenDocument(it.documents)
             }
@@ -1178,8 +1201,9 @@ private fun VaultContainer(
             connectError != null -> VaultUiState.ConnectFailed(message = connectError.orEmpty(), onRetry = { retryKey++ })
             !connected -> VaultUiState.Connecting
             else -> VaultUiState.Loaded(
+                folders = folders ?: VaultFolders(),
                 home = home,
-                category = category,
+                folder = folder,
                 search = search,
                 serverReachable = serverReachable,
                 deviceCount = deviceCount,

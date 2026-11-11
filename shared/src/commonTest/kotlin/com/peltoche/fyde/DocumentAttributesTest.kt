@@ -13,8 +13,7 @@ class DocumentAttributesTest {
         createdAt = 0,
         size = 0,
         documentType = type,
-        category = FydeCategory.HOUSING,
-        subcategory = null,
+        folderId = null,
         attributes = attributes.toMap(),
     )
 

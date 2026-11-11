@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.content.AppDivider
-import com.peltoche.fyde.components.content.CategoryFillTile
+import com.peltoche.fyde.components.content.FolderFillTile
 import com.peltoche.fyde.icons.GearGlyph
 import com.peltoche.fyde.icons.GridGlyph
 import com.peltoche.fyde.icons.PlugGlyph
@@ -61,8 +61,9 @@ import com.peltoche.fyde.resources.app_title
 import com.peltoche.fyde.resources.nav_scripts
 import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.resources.sidebar_all_vault
-import com.peltoche.fyde.resources.sidebar_categories
+import com.peltoche.fyde.resources.sidebar_folders
 import com.peltoche.fyde.resources.sidebar_item_count
+import com.peltoche.fyde.resources.vault_unclassified
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
@@ -73,18 +74,19 @@ import com.peltoche.fyde.theme.AppTypography
 import com.peltoche.fyde.theme.appFocusRing
 import org.jetbrains.compose.resources.stringResource
 
-/** What the sidebar highlights: a destination, or one of the vault's categories. */
+/** What the sidebar highlights: a destination, or one of the vault's folders (`null`: À classer). */
 sealed interface SidebarSelection {
     data object Vault : SidebarSelection
-    data class Category(val category: FydeCategory) : SidebarSelection
+    data class Folder(val folderId: String?) : SidebarSelection
     data object Sources : SidebarSelection
     data object Settings : SidebarSelection
 }
 
 /**
  * The desktop sidebar (design-system.md § Layout, D1–D6 and T1): the brand,
- * "Tout le coffre", the categories holding documents, then Sources, the seal
- * line and Settings at its foot. 260dp wide.
+ * "Tout le coffre", À classer while it holds documents, the folder tree
+ * (top-level folders by name, the open folder's branch expanded), then
+ * Sources, the seal line and Settings at its foot. 260dp wide.
  */
 @Composable
 internal fun AppSidebar(
@@ -125,24 +127,28 @@ internal fun AppSidebar(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.space1),
             ) {
-                if (summary.categories.isNotEmpty()) {
+                if (summary.unfiled > 0) {
+                    SidebarRow(
+                        label = stringResource(Res.string.vault_unclassified),
+                        count = summary.unfiled,
+                        selected = selection == SidebarSelection.Folder(null),
+                        onClick = { navigation.onOpenFolder(null) },
+                    ) {
+                        UnfiledTile(size = 24.dp, iconSize = AppIconSize.sm, shape = RoundedCornerShape(7.dp))
+                    }
+                }
+                if (summary.folders.topLevel.isNotEmpty()) {
                     Text(
-                        text = stringResource(Res.string.sidebar_categories).uppercase(),
+                        text = stringResource(Res.string.sidebar_folders).uppercase(),
                         style = AppTypography.overline,
                         color = AppColors.textMuted,
                         modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = AppSpacing.space5, bottom = 6.dp),
                     )
                 }
-                summary.categories.forEach { (category, count) ->
-                    SidebarRow(
-                        label = category.label(),
-                        count = count,
-                        selected = selection == SidebarSelection.Category(category),
-                        onClick = { navigation.onOpenCategory(category) },
-                    ) {
-                        CategoryTile(category, size = 24.dp, iconSize = AppIconSize.sm, shape = RoundedCornerShape(7.dp))
-                    }
-                }
+                val openBranch = (selection as? SidebarSelection.Folder)?.folderId
+                    ?.let { open -> summary.folders.path(open).map { it.id }.toSet() }
+                    .orEmpty()
+                SidebarFolderRows(navigation, selection, summary.folders.topLevel, openBranch, depth = 0)
             }
             SidebarRow(
                 label = stringResource(Res.string.nav_scripts),
@@ -200,14 +206,26 @@ internal fun AppSidebarRail(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(AppSpacing.space1),
             ) {
-                summary.categories.forEach { (category, count) ->
+                if (summary.unfiled > 0) {
                     RailCell(
-                        label = category.label(),
-                        count = count,
-                        selected = selection == SidebarSelection.Category(category),
-                        onClick = { navigation.onOpenCategory(category) },
+                        label = stringResource(Res.string.vault_unclassified),
+                        count = summary.unfiled,
+                        selected = selection == SidebarSelection.Folder(null),
+                        onClick = { navigation.onOpenFolder(null) },
                     ) {
-                        CategoryTile(category, size = AppIconSize.xl, iconSize = AppIconSize.md, shape = AppShapes.sidebarRailCell)
+                        UnfiledTile(size = AppIconSize.xl, iconSize = AppIconSize.md, shape = AppShapes.sidebarRailCell)
+                    }
+                }
+                summary.folders.topLevel.forEach { folder ->
+                    // A subfolder's page keeps its top-level folder marked.
+                    val open = (selection as? SidebarSelection.Folder)?.folderId
+                    RailCell(
+                        label = folder.name,
+                        count = summary.folderCounts[folder.id] ?: 0,
+                        selected = open != null && summary.folders.topLevelOf(open)?.id == folder.id,
+                        onClick = { navigation.onOpenFolder(folder.id) },
+                    ) {
+                        FolderTile(summary.folders, folder, size = AppIconSize.xl, iconSize = AppIconSize.md, shape = AppShapes.sidebarRailCell)
                     }
                 }
             }
@@ -235,11 +253,13 @@ private fun SidebarRow(
     count: Long?,
     selected: Boolean,
     onClick: () -> Unit,
+    indent: Dp = 0.dp,
     leading: @Composable (tint: Color) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
+            .padding(start = indent)
             .fillMaxWidth()
             .height(AppDimensions.sidebarRowHeight)
             .appFocusRing(interactionSource, shape = AppRadius.lg)
@@ -331,10 +351,51 @@ private fun RailCell(
     }
 }
 
+/**
+ * [folders]' rows at [depth], each with its count (its subfolders'
+ * included); a folder on the [openBranch] (the open folder and the folders
+ * above it) shows its subfolders under it, indented.
+ */
 @Composable
-private fun CategoryTile(category: FydeCategory, size: Dp, iconSize: Dp, shape: Shape) {
-    CategoryFillTile(size = size, color = category.colors(), shape = shape, iconSize = iconSize) { tint ->
-        CategoryGlyph(category, tint = tint)
+private fun SidebarFolderRows(
+    navigation: TopLevelNavigation,
+    selection: SidebarSelection,
+    folders: List<FydeFolder>,
+    openBranch: Set<String>,
+    depth: Int,
+) {
+    val summary = navigation.summary
+    folders.forEach { folder ->
+        SidebarRow(
+            label = folder.name,
+            count = summary.folderCounts[folder.id] ?: 0,
+            selected = selection == SidebarSelection.Folder(folder.id),
+            onClick = { navigation.onOpenFolder(folder.id) },
+            indent = SidebarIndent * depth,
+        ) {
+            FolderTile(summary.folders, folder, size = 24.dp, iconSize = AppIconSize.sm, shape = RoundedCornerShape(7.dp))
+        }
+        if (folder.id in openBranch) {
+            SidebarFolderRows(navigation, selection, summary.folders.children(folder.id), openBranch, depth + 1)
+        }
+    }
+}
+
+private val SidebarIndent = 16.dp
+
+/** [folder]'s mark on its top-level folder's fill. */
+@Composable
+private fun FolderTile(folders: VaultFolders, folder: FydeFolder, size: Dp, iconSize: Dp, shape: Shape) {
+    FolderFillTile(size = size, color = folders.appearanceOf(folder.id).colors(), shape = shape, iconSize = iconSize) { tint ->
+        FolderMark(folder, tint = tint)
+    }
+}
+
+/** À classer's document on its own fill. */
+@Composable
+private fun UnfiledTile(size: Dp, iconSize: Dp, shape: Shape) {
+    FolderFillTile(size = size, color = null.colors(), shape = shape, iconSize = iconSize) { tint ->
+        FolderIconGlyph(null, tint = tint)
     }
 }
 
