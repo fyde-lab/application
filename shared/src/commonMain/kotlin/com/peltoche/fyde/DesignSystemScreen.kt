@@ -50,9 +50,9 @@ import com.peltoche.fyde.components.content.AppImageTile
 import com.peltoche.fyde.components.content.AppListItem
 import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.content.SealHero
-import com.peltoche.fyde.components.content.CategoryBand
-import com.peltoche.fyde.components.content.CategoryCard
-import com.peltoche.fyde.components.content.CategoryCardPlaceholder
+import com.peltoche.fyde.components.content.FolderBand
+import com.peltoche.fyde.components.content.FolderCard
+import com.peltoche.fyde.components.content.FolderCardPlaceholder
 import com.peltoche.fyde.components.content.DocumentCard
 import com.peltoche.fyde.components.content.DocumentAttributeRow
 import com.peltoche.fyde.components.content.DocumentAttributes
@@ -354,33 +354,35 @@ private fun ContentSection() {
                 AppIconTile(size = AppDimensions.iconTileSmall, tint = AppColors.primary) { SyncGlyph(tint = AppColors.primary, modifier = Modifier.size(AppIconSize.md)) }
             }
         }
-        CatalogueRow("CategoryCard — every category, in display order, then the placeholder") {
+        CatalogueRow("FolderCard — every folder colour, then À classer and the placeholder") {
             Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
-                (CategoryDisplayOrder + listOf<FydeCategory?>(null)).chunked(4).forEach { row ->
+                (CatalogueAppearances + listOf<FydeFolderAppearance?>(null)).chunked(4).forEach { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
-                        row.forEach { category ->
-                            CategoryCard(
-                                name = category?.label() ?: "À classer",
+                        row.forEach { appearance ->
+                            val name = appearance?.color?.name?.lowercase() ?: "À classer"
+                            FolderCard(
+                                name = name,
                                 count = "38",
                                 caption = "Facture · 12 oct.",
-                                color = category.colors(),
-                                contentDescription = category?.label() ?: "À classer",
+                                color = appearance.colors(),
+                                contentDescription = name,
                                 onClick = {},
                                 modifier = Modifier.width(180.dp),
-                                icon = { tint -> CategoryGlyph(category, tint) },
+                                icon = { tint -> FolderIconGlyph(appearance?.icon, tint) },
                             )
                         }
                     }
                 }
-                CategoryCardPlaceholder(modifier = Modifier.width(180.dp))
+                FolderCardPlaceholder(modifier = Modifier.width(180.dp))
             }
         }
-        CatalogueRow("CategoryBand — a category page's head") {
-            CategoryBand(
-                name = FydeCategory.HOUSING.label(),
-                subtitle = "38 documents",
-                color = FydeCategory.HOUSING.colors(),
-                icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+        CatalogueRow("FolderBand — a folder page's head") {
+            FolderBand(
+                name = "Logement",
+                subtitle = "2 sous-dossiers · 38 documents",
+                color = Housing.colors(),
+                description = "Bail, quittances de loyer, factures d'énergie et assurance habitation",
+                icon = { tint -> FolderIconGlyph(Housing.icon, tint) },
             )
         }
         CatalogueRow("DocumentRow — plain / highlighted / selected") {
@@ -389,38 +391,38 @@ private fun ContentSection() {
                     title = "Facture d'électricité",
                     subtitle = "EDF · 12 oct.",
                     amount = "84,20 €",
-                    color = FydeCategory.HOUSING.colors(),
+                    color = Housing.colors(),
                     onClick = {},
-                    icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+                    icon = { tint -> FolderIconGlyph(Housing.icon, tint) },
                 )
                 DocumentRow(
                     title = "Attestation d'assurance habitation",
                     subtitle = "MAIF · 1 oct.",
                     amount = null,
-                    color = FydeCategory.HOUSING.colors(),
+                    color = Housing.colors(),
                     onClick = {},
                     highlightTerms = listOf("attestation"),
-                    icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+                    icon = { tint -> FolderIconGlyph(Housing.icon, tint) },
                 )
                 DocumentRow(
                     title = "Bulletin de paie — septembre",
                     subtitle = "Pajemploi · 10 oct.",
                     amount = "1 912,44 €",
-                    color = FydeCategory.WORK.colors(),
+                    color = Work.colors(),
                     onClick = {},
                     selected = true,
-                    icon = { tint -> CategoryGlyph(FydeCategory.WORK, tint) },
+                    icon = { tint -> FolderIconGlyph(Work.icon, tint) },
                 )
             }
         }
-        CatalogueRow("DocumentCard — a category's grid at Expanded") {
+        CatalogueRow("DocumentCard — a folder's grid at Expanded") {
             DocumentCard(
                 title = "Facture EDF — octobre",
                 caption = "12 oct.",
-                color = FydeCategory.HOUSING.colors(),
+                color = Housing.colors(),
                 onClick = {},
                 modifier = Modifier.width(240.dp),
-                icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+                icon = { tint -> FolderIconGlyph(Housing.icon, tint) },
             )
         }
         CatalogueRow("DocumentPass — value headline / name headline") {
@@ -431,20 +433,20 @@ private fun ContentSection() {
                     headline = "84,20 €",
                     line = "À régler avant le 27 octobre",
                     cells = listOf(DocumentPassCell("Période", "sept.–oct."), DocumentPassCell("Référence", "3001 4471")),
-                    color = FydeCategory.HOUSING.colors(),
+                    color = Housing.colors(),
                     modifier = Modifier.width(340.dp),
-                    icon = { tint -> CategoryGlyph(FydeCategory.HOUSING, tint) },
+                    icon = { tint -> FolderIconGlyph(Housing.icon, tint) },
                 )
                 DocumentPass(
-                    issuer = FydeCategory.MONEY.label(),
+                    issuer = "Argent",
                     type = "Relevé",
                     headline = "Relevé de compte — octobre",
                     line = null,
                     cells = listOf(DocumentPassCell("Référence", "R-12"), DocumentPassCell("Échéance", "15 nov."), DocumentPassCell("Format", "PDF")),
-                    color = FydeCategory.MONEY.colors(),
+                    color = Money.colors(),
                     modifier = Modifier.width(340.dp),
                     headlineKind = DocumentPassHeadline.Name,
-                    icon = { tint -> CategoryGlyph(FydeCategory.MONEY, tint) },
+                    icon = { tint -> FolderIconGlyph(Money.icon, tint) },
                 )
             }
         }
@@ -830,3 +832,13 @@ private fun OverlaySection() {
         }
     }
 }
+
+private val Housing = FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.HOME)
+private val Money = FydeFolderAppearance(FydeFolderColor.GREEN, FydeFolderIcon.WALLET)
+private val Work = FydeFolderAppearance(FydeFolderColor.TEAL, FydeFolderIcon.BRIEFCASE)
+
+/** Each colour once with the icon the proposed layout gives it, then the icons left over and the plain folder. */
+private val CatalogueAppearances: List<FydeFolderAppearance> =
+    FydeFolderColor.entries.zip(FydeFolderIcon.entries.drop(1)) { color, icon -> FydeFolderAppearance(color, icon) } +
+        listOf(FydeFolderIcon.CAR, FydeFolderIcon.KEY, FydeFolderIcon.CALENDAR, FydeFolderIcon.FOLDER)
+            .map { FydeFolderAppearance(FydeFolderColor.SLATE, it) }

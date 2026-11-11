@@ -69,7 +69,6 @@ import com.peltoche.fyde.resources.vault_fact_filed
 import com.peltoche.fyde.resources.vault_info_heading
 import com.peltoche.fyde.resources.vault_fact_in_vault
 import com.peltoche.fyde.resources.vault_file_caption
-import com.peltoche.fyde.resources.vault_filed_path
 import com.peltoche.fyde.resources.vault_save
 import com.peltoche.fyde.resources.vault_viewer_close
 import com.peltoche.fyde.resources.vault_viewer_decrypted
@@ -92,7 +91,7 @@ internal fun DocumentPage(vault: Vault, document: FydeDocument) {
     var actionsOpen by remember { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         AppPageBar(
-            title = document.pathTitle(),
+            title = document.folderLabel(),
             onBack = vault::closeDocument,
             trailing = {
                 AppCircleButton(
@@ -143,7 +142,7 @@ internal fun RowScope.DocumentBeside(vault: Vault, document: FydeDocument, onBac
                 .padding(horizontal = AppSpacing.space5),
         ) {
             if (onBack != null) {
-                AppPageBar(title = document.pathTitle(), onBack = onBack)
+                AppPageBar(title = document.folderLabel(), onBack = onBack)
                 VaultNotes(vault)
             }
             Spacer(Modifier.height(AppSpacing.space5))
@@ -216,7 +215,7 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
     val size = localizedSize(document.size)
     val layout = remember(document) { passLayout(document) }
     val information = remember(document) { informationRows(document) }
-    val pass = passText(document, layout, fallbackIssuer = document.categoryLabel())
+    val pass = passText(document, layout, fallbackIssuer = LocalVaultFolders.current.topLevelOf(document.folderId)?.name ?: folderPathLabel(null))
     val type = document.documentType?.label()
     Column {
         DocumentPass(
@@ -225,13 +224,13 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
             headline = pass.headline,
             line = pass.line,
             cells = pass.cells,
-            color = document.category.colors(),
+            color = document.colors(),
             headlineKind = pass.headlineKind,
             description = listOfNotNull(listOfNotNull(type, pass.issuer).joinToString(" "), pass.headline, pass.line)
                 .plus(pass.cells.map { "${it.label} ${it.value}" })
                 .filter { it.isNotBlank() }
                 .joinToString(", "),
-            icon = { tint -> CategoryGlyph(document.category, tint) },
+            icon = { tint -> DocumentFolderGlyph(document, tint) },
         )
         if (onOpenFile != null) {
             Spacer(Modifier.height(AppSpacing.space5))
@@ -259,7 +258,7 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
                 },
             )
             AppDivider()
-            FactRow(stringResource(Res.string.vault_fact_filed), document.filedPath())
+            FactRow(stringResource(Res.string.vault_fact_filed), document.folderLabel())
         }
         Spacer(Modifier.height(AppSpacing.space5))
         Row(
@@ -450,21 +449,5 @@ private fun FactRow(label: String, value: String) {
     AppGroupRow(minHeight = AppDimensions.rowHeightCompact) {
         Text(text = label, style = AppTypography.body, color = AppColors.textMuted, modifier = Modifier.weight(1f))
         Text(text = value, style = AppTypography.body, color = AppColors.text, textAlign = TextAlign.End)
-    }
-}
-
-/** "Logement · Énergie": where the document is filed, for its page's bar. */
-@Composable
-private fun FydeDocument.pathTitle(): String =
-    listOfNotNull(categoryLabel(), subcategory?.label()).joinToString(" · ")
-
-/** "Logement › Énergie", the category alone, or "À classer". */
-@Composable
-private fun FydeDocument.filedPath(): String {
-    val subcategory = subcategory
-    return if (category != null && subcategory != null) {
-        stringResource(Res.string.vault_filed_path, categoryLabel(), subcategory.label())
-    } else {
-        categoryLabel()
     }
 }

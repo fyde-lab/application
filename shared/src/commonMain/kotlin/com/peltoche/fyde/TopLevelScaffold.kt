@@ -44,17 +44,18 @@ import org.jetbrains.compose.resources.stringResource
  */
 val LocalAppSnackbarHostState = staticCompositionLocalOf { SnackbarHostState() }
 
-/** A category the sidebar lists, with how many documents it holds. */
-data class SidebarCategory(val category: FydeCategory, val count: Long)
-
 /**
- * The sidebar's figures, loaded by `App.kt`: the vault's [total], the
- * categories holding documents (in [CategoryDisplayOrder]), the enabled
- * sources and the devices the vault is sealed to. `null` while unknown.
+ * The sidebar's figures, loaded by `App.kt`: the vault's [total], its
+ * [folders] with how many documents each holds, its subfolders' included
+ * ([folderCounts], from the SDK's facets; a folder without any isn't in it),
+ * how many are in À classer, the enabled sources and the devices the vault
+ * is sealed to. `null` while unknown.
  */
 data class SidebarSummary(
     val total: Long? = null,
-    val categories: List<SidebarCategory> = emptyList(),
+    val folders: VaultFolders = VaultFolders(),
+    val folderCounts: Map<String, Long> = emptyMap(),
+    val unfiled: Long = 0,
     val sourceCount: Int? = null,
     val deviceCount: Int? = null,
 )
@@ -67,7 +68,8 @@ data class SidebarSummary(
 data class TopLevelNavigation(
     val summary: SidebarSummary = SidebarSummary(),
     val onOpenVault: () -> Unit,
-    val onOpenCategory: (FydeCategory) -> Unit,
+    /** Opens a folder's page, or À classer's for `null`. */
+    val onOpenFolder: (String?) -> Unit,
     val onOpenScripts: () -> Unit,
     val onOpenSettings: () -> Unit,
 )
@@ -135,7 +137,7 @@ fun TopLevelScaffold(
 
 @Composable
 private fun bottomBarItems(navigation: TopLevelNavigation, selection: SidebarSelection): List<AppNavigationItem> {
-    val inVault = selection == SidebarSelection.Vault || selection is SidebarSelection.Category
+    val inVault = selection == SidebarSelection.Vault || selection is SidebarSelection.Folder
     return listOf(
         bottomBarItem(stringResource(Res.string.nav_vault), inVault, navigation.onOpenVault) { tint ->
             GridGlyph(tint = tint, modifier = Modifier.size(AppIconSize.md))

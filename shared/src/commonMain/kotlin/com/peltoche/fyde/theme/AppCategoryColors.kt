@@ -2,14 +2,15 @@ package com.peltoche.fyde.theme
 
 import androidx.compose.ui.graphics.Color
 
-/** One category's pair from design-system.md § Category colors: the card's [fill], and the [ink] its icon and count are drawn in. */
+/** One folder colour's pair from design-system.md § Folder colours: the card's [fill], and the [ink] its icon and count are drawn in. */
 data class AppCategoryColor(val fill: Color, val ink: Color)
 
 /**
- * design-system.md § Category colors — one [AppCategoryColor] per category,
- * plus [unclassified] for a document no category was given. Read through
- * [AppColors.category]; screens map a category to its entry
- * (`FydeCategory.colors()`), never pick a hex themselves.
+ * design-system.md § Folder colours — one [AppCategoryColor] per colour a
+ * top-level folder can take, named after the proposed folder that wears it,
+ * plus [unclassified] for À classer. Read through [AppColors.category];
+ * screens map a folder's appearance to its entry
+ * (`FydeFolderAppearance.colors()`), never pick a hex themselves.
  */
 data class AppCategoryColors(
     val housing: AppCategoryColor,

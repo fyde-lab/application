@@ -66,26 +66,34 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 
 - Shell: `TopLevelScaffold.kt` hosts the Vault (Coffre), Sources, Settings — a bottom bar at
   Compact, T2's 80dp icon rail at Medium and the 260dp sidebar at Expanded (D6/T1), both in
-  `AppSidebar.kt`: Whole vault, the categories with their counts, Sources, the seal line,
-  Settings. `App.kt` holds its figures: document counts from the facets, reloaded on each
-  changelog event; source and device counts (`getUsage`, `listSessions`) as each destination
+  `AppSidebar.kt`: Whole vault, À classer (while it holds documents), the folder tree (top-level
+  folders by name, the open folder's branch expanded; the rail shows top-level folders only),
+  Sources, the seal line, Settings. `App.kt` holds its figures: the folders (`listFolders`) and
+  document counts from the facets, reloaded on each changelog event; source and device counts (`getUsage`, `listSessions`) as each destination
   opens and after this device changes them. The content beside it gets the size class of the
   window's width minus the sidebar, never below Medium. One layout tree at every size, so
   crossing a breakpoint keeps the content's state. Size classes are computed from
   `LocalWindowInfo`, never measured with `BoxWithConstraints`: a class change during layout
   disposes open popups mid-pass and crashes the desktop renderer.
-- Vault (Coffre): `VaultScreen.kt` (home V1/D6 and the shared pieces), `VaultCategoryPage.kt`
-  (V3, D1, D2's list column), `VaultSearchPage.kt` (V4, V5), `VaultDocumentPage.kt` (V6, V7, D2's
-  pass and preview), backed by `App.kt`'s `VaultContainer`, which holds the open page as a
-  `VaultFocus` and reloads the home (category facets, each category's newest, latest arrivals),
-  the open category (facets without and with the subcategory, every page of results) and the open
-  search (`VaultQuery`, debounced while typing, RELEVANCE order) on each changelog event. Below
+- Vault (Coffre): browsed by the user's folders. `VaultFolders.kt` indexes `listFolders` (by id,
+  each level by name ignoring case and accents, a folder's path; a subfolder shows its top-level
+  folder's appearance, mapped onto the `AppColors.category` palette) and is provided to rows,
+  cards and passes as `LocalVaultFolders`. `VaultScreen.kt` (home V1/D6 and the shared pieces),
+  `VaultFolderPage.kt` (V3, D1, D2's list column), `VaultSearchPage.kt` (V4, V5),
+  `VaultDocumentPage.kt` (V6, V7, D2's pass and preview), backed by `App.kt`'s `VaultContainer`,
+  which holds the open page as a `VaultFocus` and reloads the folders, then the home (À classer
+  while it holds documents, every top-level folder with its count and newest, latest arrivals),
+  the open folder (its subfolders' counts from the vault-wide facets, year chips, every page of
+  results) and the open search (`VaultQuery`, debounced while typing, RELEVANCE order) on each
+  changelog event; a folder deleted meanwhile closes its page. A folder page lists every document
+  below it (the SDK's `FolderFilter::Within` includes subfolders), not only its own. Below
   Expanded one page at a time; at Expanded D1's card grid, and an open document beside its
-  category's list or the search's results (D2). A category page's search starts within it. Device counts come from `listSessions`. A document's
+  folder's list or the search's results (D2). A folder page's search starts within it. Device counts come from `listSessions`. A document's
   pass template, its Informations rows and its rows' issuer and amount come from its attributes
   (`FydeDocument.attributes`): the rules are pure functions in `DocumentAttributes.kt` (tested in
   `DocumentAttributesTest`), their wording in `DocumentAttributesText.kt`. What the SDK can't back
-  (an "À classer" card, sharing, reclassifying, recent searches, the Source facet) is left out.
+  (sharing, recent searches, the Source facet) is left out; creating, renaming, moving and
+  deleting folders and moving documents come in later PRs.
   Deleting (V8's sheet, D2b's "…" menu and right-click, ⌘⌫ / Suppr, then V10 / D2c as a
   `DocumentDeletion` in `VaultUiState.Loaded`) calls `FydeSdk.deleteDocument`, which only
   publishes the event: the document leaves the lists once sync consumes it. On success the

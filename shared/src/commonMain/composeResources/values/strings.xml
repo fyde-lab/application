@@ -248,8 +248,6 @@
     <!-- Document filters -->
     <string name="filter_type">Type</string>
     <string name="filter_type_all">All types</string>
-    <string name="filter_category">Category</string>
-    <string name="filter_category_all">All categories</string>
     <string name="search_failed">Search failed: %1$s</string>
 
     <!-- Document detail -->
@@ -277,11 +275,10 @@
         <item quantity="other">Sealed · %1$d devices</item>
     </plurals>
     <string name="vault_latest">Latest arrivals</string>
-    <!-- %1$s category, %2$s document count -->
-    <string name="vault_category_card_description">%1$s, %2$s</string>
-    <!-- %1$s category, %2$s document count, %3$s newest document -->
-    <string name="vault_category_card_description_latest">%1$s, %2$s, latest: %3$s</string>
-    <string name="vault_category_overline">Category</string>
+    <!-- %1$s folder, %2$s document count -->
+    <string name="vault_folder_card_description">%1$s, %2$s</string>
+    <!-- %1$s folder, %2$s document count, %3$s newest document -->
+    <string name="vault_folder_card_description_latest">%1$s, %2$s, latest: %3$s</string>
     <string name="vault_all_count">All · %1$d</string>
     <!-- %1$s facet value, %2$d its document count -->
     <string name="vault_facet_count">%1$s · %2$d</string>
@@ -298,8 +295,6 @@
         <item quantity="other">Encrypted · %1$d devices</item>
     </plurals>
     <string name="vault_fact_filed">Filed under</string>
-    <!-- %1$s category, %2$s subcategory -->
-    <string name="vault_filed_path">%1$s › %2$s</string>
     <!-- %1$s typeCode, %2$s size -->
     <string name="vault_file_caption">%1$s · %2$s</string>
     <string name="vault_save">Save</string>
@@ -327,7 +322,6 @@
     <string name="app_title">Fyde</string>
     <string name="nav_vault">Vault</string>
     <string name="sidebar_all_vault">Whole vault</string>
-    <string name="sidebar_categories">Categories</string>
     <!-- %1$s sidebar item, %2$s its count -->
     <string name="sidebar_item_count">%1$s, %2$s</string>
 
@@ -369,84 +363,6 @@
     <string name="month_heading_year">%1$s %2$d</string>
 
     <!-- Document classification labels -->
-    <string name="category_housing">Housing</string>
-    <string name="category_telecom">Telecom</string>
-    <string name="category_money">Money</string>
-    <string name="category_taxes">Taxes</string>
-    <string name="category_health">Health</string>
-    <string name="category_work">Work</string>
-    <string name="category_family">Family</string>
-    <string name="category_identity">Identity</string>
-    <string name="category_legal">Legal</string>
-    <string name="category_transport">Transport</string>
-    <string name="category_pets">Pets</string>
-    <string name="category_shopping">Shopping</string>
-    <string name="category_leisure">Leisure</string>
-    <string name="category_education">Education</string>
-    <string name="category_subscriptions">Subscriptions</string>
-    <string name="category_donations">Donations</string>
-    <string name="subcategory_energy">Energy</string>
-    <string name="subcategory_water">Water</string>
-    <string name="subcategory_home_insurance">Home insurance</string>
-    <string name="subcategory_home_services">Home services</string>
-    <string name="subcategory_rent">Rent</string>
-    <string name="subcategory_property">Property</string>
-    <string name="subcategory_works">Home improvement</string>
-    <string name="subcategory_mobile">Mobile</string>
-    <string name="subcategory_internet">Internet</string>
-    <string name="subcategory_banking">Banking</string>
-    <string name="subcategory_savings">Savings</string>
-    <string name="subcategory_investments">Investments</string>
-    <string name="subcategory_loans">Loans</string>
-    <string name="subcategory_gaming">Gaming</string>
-    <string name="subcategory_income_tax">Income tax</string>
-    <string name="subcategory_tax_certificates">Tax certificates</string>
-    <string name="subcategory_property_tax">Property tax</string>
-    <string name="subcategory_housing_tax">Housing tax</string>
-    <string name="subcategory_health_insurance">Health insurance</string>
-    <string name="subcategory_complementary_health">Complementary health</string>
-    <string name="subcategory_care">Care</string>
-    <string name="subcategory_death_disability_cover">Death &amp; disability cover</string>
-    <string name="subcategory_payslips">Payslips</string>
-    <string name="subcategory_employment">Employment</string>
-    <string name="subcategory_household_employer">Household employer</string>
-    <string name="subcategory_freelance">Freelance</string>
-    <string name="subcategory_unemployment">Unemployment</string>
-    <string name="subcategory_retirement">Retirement</string>
-    <string name="subcategory_benefits">Benefits</string>
-    <string name="subcategory_childcare">Childcare</string>
-    <string name="subcategory_id_documents">ID documents</string>
-    <string name="subcategory_civil_status">Civil status</string>
-    <string name="subcategory_inheritance_gifts">Inheritance &amp; gifts</string>
-    <string name="subcategory_company">Company</string>
-    <string name="subcategory_justice">Justice</string>
-    <string name="subcategory_train">Train</string>
-    <string name="subcategory_flight">Flights</string>
-    <string name="subcategory_road">Road</string>
-    <string name="subcategory_ride">Rides</string>
-    <string name="subcategory_travel">Travel</string>
-    <string name="subcategory_vehicle">Vehicle</string>
-    <string name="subcategory_vehicle_insurance">Vehicle insurance</string>
-    <string name="subcategory_veterinary">Veterinary</string>
-    <string name="subcategory_pet_care">Pet sitting &amp; boarding</string>
-    <string name="subcategory_pet_insurance">Pet insurance</string>
-    <string name="subcategory_pet_supplies">Pet food &amp; supplies</string>
-    <string name="subcategory_online">Online shopping</string>
-    <string name="subcategory_groceries">Groceries</string>
-    <string name="subcategory_food_delivery">Food delivery</string>
-    <string name="subcategory_electronics">Electronics</string>
-    <string name="subcategory_home_equipment">Home equipment</string>
-    <string name="subcategory_clothing">Clothing</string>
-    <string name="subcategory_secondhand">Second-hand</string>
-    <string name="subcategory_sports">Sports</string>
-    <string name="subcategory_events">Events &amp; shows</string>
-    <string name="subcategory_associations">Associations</string>
-    <string name="subcategory_school">School</string>
-    <string name="subcategory_higher_education">Higher education</string>
-    <string name="subcategory_training">Training</string>
-    <string name="subcategory_media">Media</string>
-    <string name="subcategory_cloud_software">Cloud &amp; software</string>
-    <string name="subcategory_press">Press</string>
     <string name="document_type_invoice">Invoice</string>
     <string name="document_type_receipt">Receipt</string>
     <string name="document_type_statement">Statement</string>
@@ -657,4 +573,18 @@
     <string name="recovery_kit_pdf_file_name">fyde-recovery-kit.pdf</string>
     <string name="recovery_kit_pdf_title">Fyde recovery kit</string>
     <string name="recovery_kit_pdf_warning">Anyone holding these words and your username can set a new password and open your vault. Keep this sheet offline, somewhere safe, and only ever type the words into Fyde.</string>
+    <string name="filter_folder">Folder</string>
+    <string name="filter_folder_all">All folders</string>
+    <string name="vault_folder_overline">Folder</string>
+    <string name="sidebar_folders">Folders</string>
+    <string name="vault_folders">Folders</string>
+    <string name="vault_subfolders">Subfolders</string>
+    <string name="vault_folder_documents">Documents</string>
+    <string name="vault_folder_empty_title">Empty folder</string>
+    <string name="vault_folder_empty_description">Nothing has been filed here yet.</string>
+    <string name="vault_unfiled_description">Documents Fyde couldn’t file in a folder.</string>
+    <plurals name="subfolders_count">
+        <item quantity="one">%1$d subfolder</item>
+        <item quantity="other">%1$d subfolders</item>
+    </plurals>
 </resources>

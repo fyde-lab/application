@@ -36,8 +36,7 @@ class DocumentFormattingTest {
             createdAt = 0,
             size = 0,
             documentType = null,
-            category = null,
-            subcategory = null,
+            folderId = null,
         )
         assertEquals("invoice.pdf", document("invoice", "application/pdf").downloadFileName)
         assertEquals("invoice.PDF", document("invoice.PDF", "application/pdf").downloadFileName)
