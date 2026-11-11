@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><title>Fyde — Arrivées, sources, Moi</title>
+<html lang="fr"><head><meta charset="utf-8"><title>Fyde — Sources, Moi</title>
 <link rel="stylesheet" href="base.css"><link rel="stylesheet" href="tokens.css">
 <style>
 .src{display:flex;align-items:center;gap:12px;padding:0 16px;min-height:68px}
@@ -20,55 +20,6 @@
 .prev.on::after{content:"";position:absolute;right:8px;bottom:8px;width:22px;height:22px;border-radius:11px;background:var(--primary) url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M6 12.5l4 4 8-9%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.4%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/16px no-repeat;box-shadow:0 0 0 2px var(--surface)}
 </style></head><body>
 <!--ICONS-->
-
-<!-- R2 -->
-<div class="board"><p class="caption-board">R2 · Arrivées — tout est rangé</p>
-<div class="phone fyde" data-shot="R2-tout-range">
- <!--SB-->
- <div class="hdr"><p class="h1">Arrivées</p><button class="circ" aria-label="Lancer toutes les sources"><svg class="ic"><use href="#i-sync"/></svg></button></div>
- <div class="seg"><span class="on">À traiter</span><span>Historique</span></div>
- <div class="big"><svg class="ic" style="width:44px;height:44px"><use href="#i-check"/></svg></div>
- <p class="h2" style="text-align:center;margin-top:20px">Tout est rangé</p>
- <p class="body" style="text-align:center;color:var(--muted);margin:8px 40px 0">Vos 5 sources actives repasseront dans la journée, chacune sur son appareil. Les nouveaux documents arriveront ici.</p>
- <div style="display:flex;justify-content:center;margin-top:22px"><button class="pbtn o sm"><svg class="ic sm"><use href="#i-sync"/></svg>Lancer maintenant</button></div>
- <!--TABS:arrivees:-->
- <!--HB-->
-</div></div>
-
-<!-- R3 -->
-<div class="board"><p class="caption-board">R3 · Arrivées — historique</p>
-<div class="phone fyde" data-shot="R3-historique">
- <!--SB-->
- <div class="hdr"><p class="h1">Arrivées</p><button class="circ" aria-label="Lancer toutes les sources"><svg class="ic"><use href="#i-sync"/></svg></button></div>
- <div class="seg"><span>À traiter · 5</span><span class="on">Historique</span></div>
- <div class="mhead"><span>Aujourd’hui</span></div>
- <div class="group">
-  <div class="src"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div class="grow"><p class="t1">EDF</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>1 nouveau document</p></div><span class="t3 mono">06:02</span></div>
-  <div class="src"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="sl warn"><svg class="ic xs"><use href="#i-clock"/></svg>Attend votre code</p></div><span class="t3 mono">09:40</span></div>
- </div>
- <div class="mhead"><span>Hier</span></div>
- <div class="group">
-  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="sl err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</p></div><span class="t3 mono">22:01</span></div>
-  <div class="src"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i)">PJ</span><div class="grow"><p class="t1">Pajemploi</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>1 nouveau document</p></div><span class="t3 mono">18:40</span></div>
-  <div class="src"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">FR</span><div class="grow"><p class="t1">Free</p><p class="sl mut">Rien de nouveau</p></div><span class="t3 mono">22:00</span></div>
-  <div class="src"><span class="tile"><svg class="ic"><use href="#i-check-c"/></svg></span><div class="grow"><p class="t1">Vous avez confirmé 3 classements</p><p class="sl mut">Travail, Télécom, Santé</p></div><span class="t3 mono">08:15</span></div>
- </div>
- <!--TABS:arrivees-->
- <!--HB-->
-</div></div>
-
-<!-- R4 -->
-<div class="board"><p class="caption-board">R4 · Notification de code (écran verrouillé)</p>
-<div class="phone fyde lock" data-shot="R4-notification-code" style="--text:#fff">
- <!--SB-->
- <p style="text-align:center;font:500 17px -apple-system,var(--font);margin-top:20px;opacity:.9">Mercredi 21 octobre</p>
- <p style="text-align:center;font:600 86px/96px -apple-system,var(--font);letter-spacing:-2px">9:41</p>
- <div style="position:absolute;left:0;right:0;bottom:120px">
-  <div class="glass"><span class="tile" style="--cbg:#1F4D3A;--ci:#fff;width:38px;height:38px"><svg class="ic"><use href="#i-lock"/></svg></span><div class="grow"><div class="row" style="justify-content:space-between"><p style="font:600 14px var(--font)">FYDE</p><span style="font:400 13px var(--font);color:#555">maintenant</span></div><p style="font:600 15px/20px var(--font);margin-top:2px">impots.gouv demande un code</p><p style="font:400 14px/19px var(--font);color:#3a3a36">Saisissez le code reçu par SMS avant 9:46 pour continuer la récupération.</p></div></div>
-  <div class="glass" style="opacity:.92"><span class="tile" style="--cbg:#1F4D3A;--ci:#fff;width:38px;height:38px"><svg class="ic"><use href="#i-lock"/></svg></span><div class="grow"><div class="row" style="justify-content:space-between"><p style="font:600 14px var(--font)">FYDE</p><span style="font:400 13px var(--font);color:#555">06:03</span></div><p style="font:600 15px/20px var(--font);margin-top:2px">1 nouveau document</p><p style="font:400 14px/19px var(--font);color:#3a3a36">Rangé dans Logement. Contenu masqué tant que l’iPhone est verrouillé.</p></div></div>
- </div>
- <!--HB-->
-</div></div>
 
 <!-- S1 -->
 <div class="board"><p class="caption-board">S1 · Sources</p>

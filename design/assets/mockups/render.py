@@ -17,7 +17,7 @@ ICONS = (HERE / "icons.svg").read_text()
 SB = ('<div class="status"><span>9:41</span><span class="dots"><i style="width:17px;height:11px"></i>'
       '<i style="width:15px;height:11px;border-radius:3px"></i><i style="width:25px;height:12px;border-radius:4px"></i></span></div>')
 HB = '<div class="homebar"></div>'
-TABS = [("coffre", "i-grid", "Coffre", None), ("arrivees", "i-inbox", "Arrivées", "5"), ("scan", None, None, None),
+TABS = [("coffre", "i-grid", "Coffre", None), ("scan", None, None, None),
         ("sources", "i-plug", "Sources", None), ("moi", "i-user", "Moi", None)]
 
 
@@ -48,12 +48,12 @@ SUBFOLDERS = {"logement": [("assurance", "Assurance habitation", 5), ("eau", "Ea
 
 
 def sidebar(active):
-    """The desktop/tablet sidebar; active = arrivees | tout | aclasser | sources | moi | <folder> | <folder>/<subfolder>."""
+    """The desktop/tablet sidebar; active = tout | aclasser | sources | moi | <folder> | <folder>/<subfolder>."""
     top = active.split("/")[0]
 
     def item(key, inner, count="", extra="", style=""):
         on = " on" if key == active else ""
-        if on and key in ("arrivees", "tout", "sources", "moi", "aclasser"):
+        if on and key in ("tout", "sources", "moi", "aclasser"):
             style += ";background:var(--pwash)"
         c = f'<span class="c"{extra}>{count}</span>' if count != "" else ""
         return f'<div class="sitem{on}" style="{style}">{inner}{c}</div>'
@@ -61,7 +61,6 @@ def sidebar(active):
            '<div class="row" style="gap:10px;padding:0 10px 14px;font:600 18px var(--font)"><span style="width:30px;height:30px;'
            'border-radius:9px;background:var(--primary);color:var(--onp);display:grid;place-items:center"><svg class="ic sm">'
            '<use href="#i-lock"/></svg></span>Fyde</div>',
-           item("arrivees", '<svg class="ic"><use href="#i-inbox"/></svg>Arrivées', 5, ' style="color:var(--warn);font-weight:600"'),
            item("tout", '<svg class="ic"><use href="#i-grid"/></svg>Tout le coffre', 214),
            item("aclasser", '<span class="sdot" style="background:var(--c-none);color:var(--c-none-i)"><svg class="ic sm"><use href="#i-doc"/></svg></span>À classer', 3),
            '<div class="row" style="padding:12px 4px 4px 10px;justify-content:space-between"><p style="font:600 12px var(--font);color:var(--muted);letter-spacing:.06em">DOSSIERS</p>'

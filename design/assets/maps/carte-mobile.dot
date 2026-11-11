@@ -46,14 +46,6 @@ subgraph "cluster_capture" { label="Capture (K)"; fontname="Inter SemiBold"; fon
   "K3" [label="K3\nDepuis une autre app" shape=box style="rounded,filled" color="#8C877B" fillcolor="#F0E1CF"];
   "K4" [label="K4\nAjout en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#F0E1CF"];
 }
-subgraph "cluster_arrivals" { label="Arrivées (R)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
-  "R1" [label="R1\nArrivées" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
-  "R1b" [label="R1b\nArrivées sombre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
-  "R1c" [label="R1c\nCode expiré" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
-  "R2" [label="R2\nTout est rangé" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
-  "R3" [label="R3\nHistorique" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
-  "R4" [label="R4\nNotification de code" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D8E3EF"];
-}
 subgraph "cluster_sources" { label="Sources (S)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
   "S1" [label="S1\nSources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S2" [label="S2\nCatalogue" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
@@ -86,14 +78,11 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 }
 "TABS" [label="Barre d’onglets" shape=box style="rounded,bold" color="#1C1B17" fillcolor="#FFFFFF"];
 "OS" [label="Autre app (partage)" shape=box style="rounded,bold" color="#1C1B17" fillcolor="#FFFFFF"];
-"LOCK" [label="Écran verrouillé" shape=box style="rounded,bold" color="#1C1B17" fillcolor="#FFFFFF"];
 "V6" -> "V6b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "V8" -> "V8b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
-"R1" -> "R1b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "M2" -> "M2b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "M8" -> "M8b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "V1" -> "X2" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="texte à 200 %"];
-"R1" -> "R1c" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="code expiré"];
 "S6" -> "S6b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="site changé"];
 "S4" -> "S8" [color="#2C5582" style=dashed penwidth=1.4 label="vérification"];
 "S4" -> "S4b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Arrêter"];
@@ -103,7 +92,6 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "S5" -> "S5b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Lancer"];
 "S5b" -> "S5" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Arrêter"];
 "TABS" -> "V1" [color="#1F4D3A" penwidth=1.6 label="Coffre"];
-"TABS" -> "R1" [color="#1F4D3A" penwidth=1.6 label="Arrivées"];
 "TABS" -> "K1" [color="#1F4D3A" penwidth=1.6 label="Scanner"];
 "TABS" -> "S1" [color="#1F4D3A" penwidth=1.6 label="Sources"];
 "TABS" -> "M1" [color="#1F4D3A" penwidth=1.6 label="Moi"];
@@ -154,7 +142,6 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "V10" -> "V3" [color="#1F4D3A" penwidth=1.6 label="supprimé"];
 "V1" -> "V11" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sombre"];
 "V1" -> "X1" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="sans réseau"];
-"V1" -> "R1" [color="#1F4D3A" penwidth=1.6 label="bannière"];
 "V1" -> "M1" [color="#1F4D3A" penwidth=1.6 label="avatar"];
 "V1" -> "M2" [color="#1F4D3A" penwidth=1.6 label="ligne « Scellé »"];
 "V1>O2" [label="→ O2 · Connexion" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
@@ -165,13 +152,6 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "K3" -> "K4" [color="#1F4D3A" penwidth=1.6 label="Ajouter au coffre"];
 "K4>V3" [label="→ V3 · Dossier" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "K4" -> "K4>V3" [color="#1F4D3A" penwidth=1.6 arrowhead=none];
-"K2" -> "R1" [color="#1F4D3A" penwidth=1.6 label="à classer"];
-"R1" -> "R2" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="tout traité"];
-"R1" -> "R3" [color="#1F4D3A" penwidth=1.6 label="Historique"];
-"R1>V9" [label="→ V9 · Déplacer le document" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
-"R1" -> "R1>V9" [color="#2C5582" style=dashed penwidth=1.4 label="Modifier" arrowhead=none];
-"LOCK" -> "R4" [color="#1F4D3A" penwidth=1.6];
-"R4" -> "R1" [color="#1F4D3A" penwidth=1.6 label="saisir le code"];
 "S1" -> "S2" [color="#1F4D3A" penwidth=1.6 label="+"];
 "S2" -> "S3" [color="#1F4D3A" penwidth=1.6 label="Ajouter"];
 "S3" -> "S4" [color="#1F4D3A" penwidth=1.6 label="Connecter"];

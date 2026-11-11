@@ -1,6 +1,6 @@
 # Screen map
 
-How the 106 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
+How the 99 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
 graphs: the phone app, and desktop and tablet. Screen IDs and content are specified in
 [`design-system.md`](design-system.md); this page is only about the links between them.
 
@@ -25,10 +25,10 @@ script fails unless every PNG in `assets/screens/` has a node in the map and a r
 
 ### Shell
 
-The tab bar is always there once the vault is open: **Coffre** (V1), **Arrivées** (R1),
-**Scanner** (K1, the raised centre button), **Sources** (S1) and **Moi** (M1). Every screen below
-belongs to one tab and pushes inside it, so going back restores where you were. Two screens open
-from outside the app: R4 from the lock screen, K3 from another app's share sheet.
+The tab bar is always there once the vault is open: **Coffre** (V1), **Scanner** (K1, the raised
+button), **Sources** (S1) and **Moi** (M1). Every screen below belongs to one tab and pushes inside
+it, so going back restores where you were. One screen opens from outside the app: K3, from another
+app's share sheet.
 
 ### Accueil et accès (O1–O10)
 
@@ -55,7 +55,7 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
   further V3s; "Nouveau dossier" (V1, or "Nouveau" in V3) opens the **V12** sheet. V3's "…" opens
   the **V13** folder actions: Nouveau sous-dossier (V12), Déplacer (**V14**, the folder picker),
   Supprimer (**V15**, then back to the parent). Search search → **V4** → **V5**;
-  arrivals banner → R1; avatar → M1; the "Scellé" line → M2.
+  avatar → M1; the "Scellé" line → M2.
 - **V2** is V1 while the first sources run; it becomes V1 once each has run. **V11** is V1 in
   dark mode, **X1** is V1 offline, **X2** is V1 with the text at 200%.
 - **V3** and **V5** open **V6 Document**. From V6: the file → **V7 Lecteur**; "…" → the **V8**
@@ -66,17 +66,9 @@ from outside the app: R4 from the lock screen, K3 from another app's share sheet
 ### Capture (K1–K4)
 
 - **K1 Scanner** (tab bar) → **K2 Vérifier le scan** → "Ajouter au coffre" → **K4 Ajout en
-  cours**. A scan with no suggested classification is also listed in R1.
+  cours**.
 - **K3** is the share sheet opened from another app; "Ajouter au coffre" → K4.
 - K4 adds the document to its category (V3).
-
-### Arrivées (R1–R4)
-
-- **R1 Arrivées** (tab bar or V1's banner) holds what needs the user. "Historique" → **R3**;
-  when nothing is left, R1 shows **R2**; a code that ran out shows **R1c**. "Modifier" on a
-  suggestion opens V9 (the folder picker).
-- **R4** is the lock-screen notification for a verification code; tapping it opens the code in
-  R1.
 
 ### Sources (S1–S7)
 
@@ -128,8 +120,8 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 ### Coffre au bureau et sur tablette (D1–D6, T1)
 
 The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet, **T2** in portrait), a folder (**D1**; its "+"
-opens **D10 Nouveau dossier**),
-**D3 Arrivées** and **D4 Sources**; while the selected source runs, D4's panel offers Arrêter in
+opens **D10 Nouveau dossier**)
+and **D4 Sources**; while the selected source runs, D4's panel offers Arrêter in
 Lancer's place (**D4b**). D1 → **D2 Document**, whose "…" (or a right-click) opens the **D2b** menu;
 its "Supprimer de tous mes appareils" (or ⌘⌫) opens the **D2c** dialog, then the next document. A
 folder's "…" or right-click opens the **D7** menu: Déplacer… → **D8**, Supprimer → **D9**, then back to its
@@ -148,7 +140,6 @@ sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 | V12, V13, V14, V15 | D10, D7, D8, D9 |
 | V6 + V7 | D2 |
 | V8, V10 | D2b, D2c |
-| R1 | D3 |
 | S1 + S5 | D4 |
 | S5b | D4b |
 | M1–M12 | D5 (menu and page side by side) |
