@@ -624,4 +624,30 @@
     <string name="month_long_10">octobre</string>
     <string name="month_long_11">novembre</string>
     <string name="month_long_12">décembre</string>
+
+    <!-- Kit de récupération (ligne de M2, contenu d’O6 en page de réglages) -->
+    <string name="recovery_kit_section">Kit de récupération</string>
+    <string name="recovery_kit_row_subtitle">Votre seule issue si vous oubliez le mot de passe</string>
+    <string name="recovery_kit_row_missing">À créer — votre seule issue si vous oubliez le mot de passe</string>
+    <string name="recovery_kit_row_created">Créé le %1$s</string>
+    <string name="recovery_kit_missing_note">Votre compte n’a pas encore de kit de récupération : si vous oubliez votre mot de passe, vos documents sont perdus.</string>
+    <string name="recovery_kit_replaces_note">Créer un kit annule le précédent : seuls les nouveaux mots rouvriront votre coffre.</string>
+    <string name="recovery_kit_generate">Créer un kit de récupération</string>
+    <string name="recovery_kit_generate_confirm_title">Créer un nouveau kit de récupération ?</string>
+    <string name="recovery_kit_generate_confirm">Créer</string>
+    <string name="recovery_kit_explanation">Si vous oubliez votre mot de passe, ces %1$d mots sont la seule façon de rouvrir votre coffre. Gardez-les hors ligne, sur papier.</string>
+    <string name="recovery_kit_word">Mot %1$d : %2$s</string>
+    <string name="recovery_kit_save_pdf">Enregistrer le PDF</string>
+    <string name="recovery_kit_print">Imprimer</string>
+    <string name="recovery_kit_never_copied">Les mots ne sont jamais copiés dans le presse-papiers ni envoyés.</string>
+    <string name="recovery_kit_screenshots_blocked">Captures d’écran désactivées sur cet écran.</string>
+    <string name="recovery_kit_confirm">Je l’ai mis en lieu sûr</string>
+    <string name="recovery_kit_generating">Création de votre kit de récupération…</string>
+    <string name="recovery_kit_failed">Impossible de créer votre kit de récupération : %1$s</string>
+    <string name="recovery_kit_saved">Kit de récupération enregistré</string>
+    <string name="recovery_kit_save_failed">Impossible d’enregistrer le kit de récupération</string>
+    <string name="recovery_kit_print_failed">Impossible d’imprimer le kit de récupération</string>
+    <string name="recovery_kit_pdf_file_name">fyde-kit-de-recuperation.pdf</string>
+    <string name="recovery_kit_pdf_title">Kit de récupération Fyde</string>
+    <string name="recovery_kit_pdf_warning">Quiconque détient ces mots et votre identifiant peut définir un nouveau mot de passe et ouvrir votre coffre. Gardez cette feuille hors ligne, en lieu sûr, et ne saisissez ces mots que dans Fyde.</string>
 </resources>

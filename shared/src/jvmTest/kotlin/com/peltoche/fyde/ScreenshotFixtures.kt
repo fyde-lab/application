@@ -203,6 +203,11 @@ internal object ScreenshotFixtures {
             settings(SettingsSection.Devices, planUsage = PlanUsageUiState.Loading, sessions = SessionsUiState.Loading)
         },
         shot("settings-plan-loading") { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Loading) },
+        shot("settings-security-no-kit") { settings(SettingsSection.Security, recoveryKeyStatus = RecoveryKeyStatus.Missing) },
+        shot("settings-recoverykit-missing") { settings(SettingsSection.RecoveryKit, recoveryKeyStatus = RecoveryKeyStatus.Missing) },
+        shot("settings-recoverykit-ready") {
+            settings(SettingsSection.RecoveryKit, recoveryKit = RecoveryKitUiState.Ready(List(24) { "mot${it + 1}" }))
+        },
         shot("settings-plan-failed") { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Failed("Impossible de charger l'offre.", onRetry = {})) },
     ) + SettingsSection.entries.map { section -> shot("settings-${section.name.lowercase()}") { settings(section) } } +
         listOf(
@@ -264,6 +269,8 @@ internal object ScreenshotFixtures {
         section: SettingsSection?,
         planUsage: PlanUsageUiState = PlanUsageUiState.Loaded(usage),
         sessions: SessionsUiState = SessionsUiState.Loaded(this.sessions),
+        recoveryKeyStatus: RecoveryKeyStatus = RecoveryKeyStatus.Created(T0),
+        recoveryKit: RecoveryKitUiState = RecoveryKitUiState.Idle,
     ) {
         SettingsScreen(
             openSection = section,
@@ -273,6 +280,8 @@ internal object ScreenshotFixtures {
             navigation = navigation,
             planUsage = planUsage,
             sessions = sessions,
+            recoveryKeyStatus = recoveryKeyStatus,
+            recoveryKit = recoveryKit,
         )
     }
 

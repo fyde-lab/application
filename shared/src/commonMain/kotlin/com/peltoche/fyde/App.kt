@@ -252,6 +252,10 @@ private fun AppContent(
     var disconnectSessionError by remember { mutableStateOf<String?>(null) }
     var isChangingPassword by remember { mutableStateOf(false) }
     var changePasswordError by remember { mutableStateOf<String?>(null) }
+    // M2's recovery kit row, re-asked each time Settings opens and after a
+    // new key; the page's words only while it's open.
+    var recoveryKeyStatus by remember { mutableStateOf<RecoveryKeyStatus>(RecoveryKeyStatus.Loading) }
+    var recoveryKit by remember { mutableStateOf<RecoveryKitUiState>(RecoveryKitUiState.Idle) }
     // SourcesScreen's listing, and what's ticked there (in ticking order, the
     // order they'll be connected in) and searched for.
     var sources by remember { mutableStateOf<SourcesUiState>(SourcesUiState.Loading) }
@@ -440,6 +444,11 @@ private fun AppContent(
         }
     }
 
+    suspend fun fetchRecoveryKeyStatus(): RecoveryKeyStatus = FydeSdk.recoveryKeyStatus().fold(
+        onSuccess = { createdAt -> createdAt?.let { RecoveryKeyStatus.Created(it) } ?: RecoveryKeyStatus.Missing },
+        onFailure = { RecoveryKeyStatus.Unknown },
+    )
+
     suspend fun fetchPlanUsage(): PlanUsageUiState = FydeSdk.getUsage().fold(
         onSuccess = { PlanUsageUiState.Loaded(it) },
         onFailure = {
@@ -482,6 +491,16 @@ private fun AppContent(
 
     LaunchedEffect(settingsSection) {
         if (settingsSection != SettingsSection.ChangePassword) changePasswordError = null
+        // The words are shown once: leaving the page (or Settings) drops them.
+        if (settingsSection != SettingsSection.RecoveryKit && recoveryKit !is RecoveryKitUiState.Generating) {
+            recoveryKit = RecoveryKitUiState.Idle
+        }
+    }
+
+    LaunchedEffect(screen) {
+        if (screen != Screen.Settings) return@LaunchedEffect
+        recoveryKeyStatus = RecoveryKeyStatus.Loading
+        recoveryKeyStatus = fetchRecoveryKeyStatus()
     }
 
     // Same for the devices list, which other devices change by connecting or
@@ -840,6 +859,24 @@ private fun AppContent(
                 },
                 isChangingPassword = isChangingPassword,
                 changePasswordError = changePasswordError,
+                recoveryKeyStatus = recoveryKeyStatus,
+                recoveryKit = recoveryKit,
+                onGenerateRecoveryKey = {
+                    recoveryKit = RecoveryKitUiState.Generating
+                    scope.launch {
+                        val generated = FydeSdk.generateRecoveryKey()
+                        recoveryKit = generated.fold(
+                            // Only shown if the page is still open: the words are never kept for later.
+                            onSuccess = { if (settingsSection == SettingsSection.RecoveryKit) RecoveryKitUiState.Ready(it) else RecoveryKitUiState.Idle },
+                            onFailure = { RecoveryKitUiState.Failed(it.userMessage()) },
+                        )
+                        if (generated.isSuccess) recoveryKeyStatus = fetchRecoveryKeyStatus()
+                    }
+                },
+                onRecoveryKitDone = {
+                    recoveryKit = RecoveryKitUiState.Idle
+                    settingsSection = SettingsSection.Security
+                },
             )
             Screen.Scripts -> SourcesTabContainer(
                 scraperRuns = scraperRuns,
