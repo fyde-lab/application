@@ -69,6 +69,17 @@ class VaultFolders(val all: List<FydeFolder> = emptyList()) {
         return path.toList()
     }
 
+    /** The folder [id] and every folder below it: what moves (or goes) with it. */
+    fun withDescendants(id: String): Set<String> {
+        val ids = mutableSetOf<String>()
+        val pending = ArrayDeque(listOf(id))
+        while (pending.isNotEmpty()) {
+            val next = pending.removeFirst()
+            if (ids.add(next)) pending.addAll(children(next).map { it.id })
+        }
+        return ids
+    }
+
     /** The top-level folder [id] is in (itself if it's one), whose colour and icon it shows. */
     fun topLevelOf(id: String?): FydeFolder? = path(id).firstOrNull()
 

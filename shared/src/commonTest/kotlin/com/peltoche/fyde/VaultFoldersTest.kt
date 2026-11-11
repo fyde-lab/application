@@ -55,6 +55,12 @@ class VaultFoldersTest {
     }
 
     @Test
+    fun withDescendantsIsTheFolderAndEverythingBelowIt() {
+        assertEquals(setOf("housing", "energy", "bills"), folders.withDescendants("housing"))
+        assertEquals(setOf("work"), folders.withDescendants("work"))
+    }
+
+    @Test
     fun foldersAreEqualForTheSameList() {
         assertEquals(VaultFolders(listOf(housing)), VaultFolders(listOf(housing)))
     }

@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.Dp
 import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppRetryButton
+import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.action.onSecondaryClick
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.AppGroup
@@ -78,6 +79,7 @@ import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.connect_failed_title
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.documents_count
+import com.peltoche.fyde.resources.folder_new
 import com.peltoche.fyde.resources.no_documents_description
 import com.peltoche.fyde.resources.no_documents_title
 import com.peltoche.fyde.resources.offline_banner
@@ -155,8 +157,14 @@ data class VaultFolderSummary(val folder: FydeFolder?, val count: Long, val newe
 /**
  * The home's content: À classer while it holds documents, then every
  * top-level folder by name (empty ones included), and the latest arrivals.
+ * [counts] is every folder's document count, its subfolders' included
+ * (a folder without documents isn't in it), for the folder sheets.
  */
-data class VaultHome(val folders: List<VaultFolderSummary>, val latest: List<FydeDocument>)
+data class VaultHome(
+    val folders: List<VaultFolderSummary>,
+    val latest: List<FydeDocument>,
+    val counts: Map<String, Long> = emptyMap(),
+)
 
 /**
  * What a folder page shows for [page]: its [subfolders] by name, how many
@@ -193,7 +201,8 @@ sealed interface VaultUiState {
      * while the open one loads. [folders] is every folder synced here.
      * [deviceCount] is `null` if the sessions couldn't be listed. [notice]
      * is the last action's failure, [loadError] why the page couldn't load.
-     * [deletion] is the document V10 / D2c asks about, while it's open.
+     * [deletion] is the document V10 / D2c asks about, while it's open;
+     * [folderSheet] the folder sheet or dialog open (V12–V15, D7–D10).
      */
     data class Loaded(
         val folders: VaultFolders = VaultFolders(),
@@ -206,6 +215,7 @@ sealed interface VaultUiState {
         val notice: String? = null,
         val loadError: String? = null,
         val deletion: DocumentDeletion? = null,
+        val folderSheet: FolderSheetState? = null,
     ) : VaultUiState
 }
 
@@ -229,6 +239,7 @@ fun VaultScreen(
     onDelete: (FydeDocument) -> Unit,
     navigation: TopLevelNavigation,
     modifier: Modifier = Modifier,
+    folderCallbacks: FolderCallbacks = FolderCallbacks(),
 ) {
     val folders = (state as? VaultUiState.Loaded)?.folders ?: VaultFolders()
     CompositionLocalProvider(LocalVaultFolders provides folders) {
@@ -254,13 +265,14 @@ fun VaultScreen(
                 onAction = state.onRetry,
             )
             is VaultUiState.Loaded -> {
-                val vault = Vault(state, focus, onFocusChange, onUpload, onSave, loadContent, onRetryLoad, onDeletionChange)
+                val vault = Vault(state, focus, onFocusChange, onUpload, onSave, loadContent, onRetryLoad, onDeletionChange, folderCallbacks)
                 val wide = windowSizeClass == AppWindowSizeClass.Expanded
                 if (wide) {
                     WideVault(vault, pageModifier)
                 } else {
                     NarrowVault(vault, pageModifier)
                 }
+                FolderSheets(vault)
                 state.deletion?.let { deletion ->
                     DeleteDocumentDialog(
                         deletion = deletion,
@@ -293,6 +305,7 @@ internal class Vault(
     val loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     val onRetryLoad: () -> Unit,
     val onDeletionChange: (DocumentDeletion?) -> Unit,
+    val folderCallbacks: FolderCallbacks = FolderCallbacks(),
 ) {
     val canUpload: Boolean get() = state.serverReachable && !state.isUploading
 
@@ -308,6 +321,9 @@ internal class Vault(
     fun openDocument(document: FydeDocument) = onFocusChange(focus.copy(document = document, viewerOpen = false))
 
     fun closeDocument() = onFocusChange(focus.copy(document = null, viewerOpen = false))
+
+    /** Opens a folder sheet (V12–V15, D7–D10). */
+    fun openFolderSheet(sheet: FolderSheet) = folderCallbacks.onSheetChange(FolderSheetState(sheet))
 
     /** Opens V10 / D2c about [document]. */
     fun askDelete(document: FydeDocument) = onDeletionChange(DocumentDeletion(document))
@@ -467,7 +483,11 @@ private fun HomePage(vault: Vault) {
                 onAction = vault.onUpload.takeIf { vault.canUpload },
             )
             else -> {
-                AppSectionTitle(stringResource(Res.string.vault_folders))
+                SectionTitleWithAction(
+                    title = stringResource(Res.string.vault_folders),
+                    action = stringResource(Res.string.folder_new),
+                    onAction = { vault.openFolderSheet(FolderSheet.Create(null)) },
+                )
                 VaultGrid(items = home.folders, columns = columns) { summary -> FolderSummaryCard(vault, summary) }
                 if (home.latest.isNotEmpty()) {
                     AppSectionTitle(stringResource(Res.string.vault_latest))
@@ -591,6 +611,27 @@ internal fun FolderSummaryCard(vault: Vault, summary: VaultFolderSummary) {
         onClick = { vault.openPage(VaultPage.Folder(folder?.id)) },
         icon = { tint -> if (folder != null) FolderMark(folder, tint) else FolderIconGlyph(null, tint) },
     )
+}
+
+/** A section's title with a "+" action at its end ("Dossiers · + Nouveau dossier"). */
+@Composable
+internal fun SectionTitleWithAction(title: String, action: String, onAction: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = AppSpacing.space6, bottom = AppSpacing.space2),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            style = AppTypography.section,
+            color = AppColors.text,
+            modifier = Modifier.weight(1f).semantics { heading() },
+        )
+        AppTextButton(
+            text = action,
+            onClick = onAction,
+            leadingIcon = { PlusGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) },
+        )
+    }
 }
 
 /**
