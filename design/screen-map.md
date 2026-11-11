@@ -54,7 +54,7 @@ app's share sheet.
 - **V1 Coffre** is the home of the app. Folder card → **V3**, whose subfolder rows open
   further V3s; "Nouveau dossier" (V1, or "Nouveau" in V3) opens the **V12** sheet. V3's "…" opens
   the **V13** folder actions: Nouveau sous-dossier (V12), Déplacer (**V14**, the folder picker),
-  Supprimer (**V15**, then back to the parent). Search search → **V4** → **V5**;
+  Supprimer (**V15**, then back to the parent). Search → **V4** → **V5**;
   avatar → M1; the "Scellé" line → M2.
 - **V2** is V1 while the first sources run; it becomes V1 once each has run. **V11** is V1 in
   dark mode, **X1** is V1 offline, **X2** is V1 with the text at 200%.

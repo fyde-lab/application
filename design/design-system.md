@@ -125,7 +125,8 @@ with the folder glyph, and takes the new one's when it moves. A document's pass 
 top-level folder's colour; a document in À classer (at the root) uses À classer's.
 
 The palette below is the one offered (the picker shows its first eight, then the rest); the names
-are the folders the proposed layout creates with that colour and icon. Any icon of `icons.svg`'s
+are the folders the proposed layout creates with that colour and icon. À classer's colour is not
+in the picker: a folder never looks like À classer. Any icon of `icons.svg`'s
 folder set can go with any colour.
 
 | Proposed folder | Icon | Fill / ink — light | Fill / ink — dark |
@@ -477,9 +478,9 @@ the documents: the server never sees them (M3).
   than ten.
 - **Counts** include every document below the folder; a folder card or row shows that count, the
   folder page's band also "n sous-dossiers · n documents".
-- **Description.** Every folder has a description: what belongs in it, in the user's words
+- **Description.** A folder can have a description: what belongs in it, in the user's words
   ("Carte grise, assurance auto, entretien et contrôles techniques, amendes"), up to 300
-  characters, optional. It is what Fyde files by (below), so the create form (V12, D10) asks for
+  characters; it's optional, but a folder without one is never filed into by itself. It is what Fyde files by (below), so the create form (V12, D10) asks for
   it under the name with that reason in its help line; it's shown under the folder's title (V3's
   band, D1's header, with Modifier on desktop) and edited from the folder's actions (V13, D7).
   Like the name, it's encrypted and never reaches the server.
@@ -502,6 +503,11 @@ the documents: the server never sees them (M3).
   top). A subfolder picks neither.
 - **Rename** inline: the name field in place of the title (phone: a sheet with the field);
   same rules as create.
+- **Name clashes.** A name the user chooses or a move they make that would put two folders of the
+  same name (ignoring case) side by side is refused with a field error ("Un dossier « Eau »
+  existe déjà ici"). Where no one picks the name — Les garder moving a deleted folder's
+  subfolders up, or two devices' changes meeting — the newcomer gets " (2)" (then " (3)"…),
+  the same on every device.
 - **Move** (V14, D8, drag and drop): the folder picker, browsable by level, with "À la racine du
   coffre", every folder except the moved one and its descendants (left out, never disabled), the
   current parent tagged "Actuel" and not pickable, and "Nouveau dossier ici". Moving a document
@@ -599,7 +605,7 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
 | V5 | Résultats | Facet chips Dossier / Type / Année / Source (Dossier lists folders with matches, as paths); rows say where each document is ("Logement › Assurance habitation"); matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
 | V6 | Document | Pass, file row with thumbnail, Informations (every attribute), facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) and [Informations](#informations) |
-| V6b | Document (sombre) | V6 in the dark theme: the pass on its dark category fill, Informations on `surface` | Dark reference for passes |
+| V6b | Document (sombre) | V6 in the dark theme: the pass on its folder's dark fill, Informations on `surface` | Dark reference for passes |
 | V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…" |
 | V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Déplacer (with the current path), Informations techniques, Supprimer de tous mes appareils | Delete opens V10 |
 | V8b | Actions (sombre) | V8 in the dark theme | Dark reference for sheets and the scrim |
@@ -608,7 +614,7 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | V12 | Nouveau dossier | Sheet over V1 (or V3): Nom with the tile it will have; Description (multi-line, "Fyde s'en sert pour ranger ici les documents qui arrivent. Sans description, rien n'y est rangé tout seul."); Emplacement with Changer (the folder picker); for a top-level folder COULEUR (palette swatches) and ICÔNE; a line that a subfolder takes its folder's colour; Créer le dossier | A subfolder's sheet has no colour or icon. A taken name is a field error |
 | V13 | Actions du dossier | Sheet over V3: the folder's tile, name, where it is and what it holds; Nouveau sous-dossier, Renommer, Description (its first line; opens a sheet with the field and the help line), Couleur et icône (top-level only), Déplacer (with the current parent); Supprimer le dossier in `error` | — |
 | V14 | Déplacer le dossier | Sheet: "Déplacer « Internet »", what moves with it and that it takes the chosen folder's colour; the folder picker at the root (À la racine du coffre, every folder, the current parent tagged Actuel, the selected one ticked; a chevron opens a folder's subfolders); Déplacer dans <folder> · Nouveau dossier ici | The moved folder and its descendants aren't listed |
-| V15 | Supprimer le dossier | Dialog over V3: the folder's name and content; Les garder (into the parent, pre-selected) or Les supprimer aussi (from every device); an info note on where the linked source's next documents go; Supprimer le dossier (`error`) · Annuler | An empty folder: a one-line confirmation. Deleting documents too behaves as V10 |
+| V15 | Supprimer le dossier | Dialog over V3: the folder's name and content; Les garder (into the parent, pre-selected) or Les supprimer aussi (from every device); an info note, when the folder had a description, on where documents matching it will now go (the next best described folder, else À classer); Supprimer le dossier (`error`) · Annuler | An empty folder: a one-line confirmation. Deleting documents too behaves as V10 |
 | V11 | Coffre sombre | Dark reference | — |
 
 ### Capture (K1–K4)
@@ -677,7 +683,7 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | D10 | Nouveau dossier | 560dp dialog: preview tile with name and location; Nom (focused), Description with its help line, Emplacement · Changer, Couleur and Icône for a top-level folder; Annuler · Créer le dossier (Enter) |
 | D2 | Document | Sidebar · 400dp list of the document's folder (breadcrumb, name) · pass, Informations and facts (Dossier: its path), Enregistrer · Déplacer · "…" · live preview |
 | D2b | Actions du document | D2 with "…" open: a menu with what the row's buttons don't hold (Partager, Renommer, Informations techniques), then a divider and Supprimer de tous mes appareils in `error`, each with its shortcut; right-click on a row opens the same menu |
-| D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the category if it was the last |
+| D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the folder if it was the last |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
 | D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
 | D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |
@@ -705,7 +711,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO11 | Vos dossiers | Step 2 of 4: as O11 in the 560dp form; the proposed card shows its first eight folders | — |
 | DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
-| DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 2 with their state | Connect installs the script and starts its first run |
+| DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 3 with their state | Connect installs the script and starts its first run |
 | DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel. No Arrêter here: the first run is short, and it can be stopped from DO7d or, later, D4 |
 | DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Arrêter la récupération / Valider. An e-mail code uses the same card: "Code reçu par e-mail", the masked address, a spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
 | DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
