@@ -142,13 +142,7 @@ private sealed interface Screen {
     ) : Screen
 
     /**
-     * The account was just created: [RecoveryKitScreen] shows its new
-     * recovery key, for [username]'s vault, before the vault opens.
-     */
-    class RecoveryKit(val username: String) : Screen
-
-    /**
-     * Vault creation's sources step, after the recovery kit:
+     * Vault creation's sources step, right after the account is created:
      * [SourcesScreen] picks the public scrapers to connect, within the plan.
      */
     data object Sources : Screen
@@ -258,10 +252,6 @@ private fun AppContent(
     var disconnectSessionError by remember { mutableStateOf<String?>(null) }
     var isChangingPassword by remember { mutableStateOf(false) }
     var changePasswordError by remember { mutableStateOf<String?>(null) }
-    // The recovery key's words while Screen.RecoveryKit is open, dropped as
-    // soon as it closes.
-    var recoveryKit by remember { mutableStateOf<RecoveryKitUiState>(RecoveryKitUiState.Generating) }
-    var recoveryKitAttempt by remember { mutableStateOf(0) }
     // SourcesScreen's listing, and what's ticked there (in ticking order, the
     // order they'll be connected in) and searched for.
     var sources by remember { mutableStateOf<SourcesUiState>(SourcesUiState.Loading) }
@@ -393,7 +383,7 @@ private fun AppContent(
         isAuthenticating = true
         scope.launch {
             authenticate(username, password) { user, pass -> FydeSdk.register(user, pass, allowInsecureStorage) }
-                .onSuccess { screen = Screen.RecoveryKit(username) }
+                .onSuccess { screen = Screen.Sources }
                 .onFailure {
                     if (lostSecureStorage(allowInsecureStorage)) {
                         storageConsent = PendingStorageConsent(isRegistration = true) { allow ->
@@ -553,21 +543,6 @@ private fun AppContent(
         )
     }
 
-    // Generated once as the recovery kit opens (and on retry): each call
-    // replaces the account's previous key, so it isn't asked for again
-    // while the screen stays open.
-    LaunchedEffect(screen, recoveryKitAttempt) {
-        if (screen !is Screen.RecoveryKit) {
-            recoveryKit = RecoveryKitUiState.Generating
-            return@LaunchedEffect
-        }
-        recoveryKit = RecoveryKitUiState.Generating
-        recoveryKit = FydeSdk.generateRecoveryKey().fold(
-            onSuccess = { RecoveryKitUiState.Ready(it) },
-            onFailure = { RecoveryKitUiState.Failed(message = it.userMessage(), onRetry = { recoveryKitAttempt++ }) },
-        )
-    }
-
     // Listed as the sources step opens (and on retry): the public scrapers
     // (parsers never show in the UI), then the plan's limit. During
     // onboarding nothing is ticked yet, so a fresh visit starts empty.
@@ -716,14 +691,6 @@ private fun AppContent(
                     authError = null
                     screen = Screen.Welcome
                 },
-            )
-            is Screen.RecoveryKit -> RecoveryKitScreen(
-                state = recoveryKit,
-                username = (screen as Screen.RecoveryKit).username,
-                // "Later" opens the vault too, keeping the key: the user may
-                // have saved the PDF before choosing it.
-                onDone = { screen = Screen.Sources },
-                onLater = { screen = Screen.Sources },
             )
             Screen.Sources -> SourcesScreen(
                 state = sources,

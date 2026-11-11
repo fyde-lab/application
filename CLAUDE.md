@@ -127,24 +127,18 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   `errorMessage` (error note, `authError`).
 - `RegisterScreen` (the original form at Compact, DO3 at Medium/Expanded in
   `VaultCreationSplitLayout`; DO3b's mismatch error shows on blur or submit): back to
-  `WelcomeScreen`; on success, `RecoveryKitScreen`. DO3 requires ticking the key-warning acknowledgement; its strength meter
+  `WelcomeScreen`; on success, `SourcesScreen` (the design's recovery kit step, O6/DO6, is left out of
+  onboarding: no recovery key is generated there). DO3 requires ticking the key-warning acknowledgement; its strength meter
   (`passwordStrength`, by length) only advises — the server sets no password rule.
-- `RecoveryKitScreen` (O6 at Compact, DO6 at Medium/Expanded): the vault-creation step after
-  the account. `App.kt` calls `FydeSdk.generateRecoveryKey` as it opens (each call replaces the
-  account's key, so only once per visit, plus Retry) and keeps the 24 words only while it's open.
-  Save the PDF (`recoveryKitPdf`, a hand-written one-page PDF, through `rememberDocumentSaver`)
-  everywhere; Print (`rememberPdfPrinter`) on desktop (PDFBox) and Android (`PrintManager`) only;
-  Android keeps the screen out of screenshots (`ScreenshotGuard`, `FLAG_SECURE`). Both "I've put
-  it somewhere safe" and "Later" lead on to `SourcesScreen`, keeping the key. `VaultCreationStep` drives
-  `VaultCreationBrandPanel`'s stepper and the phone's `VaultStepDots`: list only steps that have
-  screens (notifications doesn't yet).
+- `VaultCreationStep` (Account, Sources) drives `VaultCreationBrandPanel`'s stepper and the phone's
+  `VaultStepDots`: list only steps that have screens (notifications doesn't yet).
 - `SourcesScreen` (O7/O7b at Compact, DO7/DO7h at Medium/Expanded in `VaultCreationSplitLayout`):
   the public scrapers (`listPublicScripts`, `SCRAPER` only) to tick, searched with
   `filterScripts`. `App.kt` holds the selection (in ticking order) and the plan counter
   (`AppPlanQuota`, from `getUsage` via `sourceQuotaOf`; hidden without a limit or if `getUsage`
   fails): at the limit unticked sources dim and can't be ticked. On desktop the cards scroll inside a
-  fixed-height grid so the connect button stays under them. No back button (it would
-  regenerate the recovery key) and no category chips (scripts have no category yet). Passer →
+  fixed-height grid so the connect button stays under them. No back button (the account
+  behind it is already created) and no category chips (scripts have no category yet). Passer →
   Vault; Connecter → `ConnectSourceScreen`, keeping the ticks for its back button.
 - `ConnectSourceScreen` (S3 inside onboarding at Compact, DO7b at Medium/Expanded in
   `VaultCreationSplitLayout`, whose brand panel lists the ticked sources as `VaultSource`s):

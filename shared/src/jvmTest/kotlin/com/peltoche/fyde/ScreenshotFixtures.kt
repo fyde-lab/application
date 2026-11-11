@@ -98,7 +98,6 @@ internal object ScreenshotFixtures {
         documents = housing,
     )
     private val vaultLoaded = VaultUiState.Loaded(home = home, category = housingContents, search = searchContents, deviceCount = 2)
-    private val recoveryWords = List(24) { "mot${it + 1}" }
     private val creationSources = listOf(
         VaultSource("EDF", VaultSourceState.Connected),
         VaultSource("Ameli", VaultSourceState.Current),
@@ -129,8 +128,6 @@ internal object ScreenshotFixtures {
         },
         shot("register") { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}) },
         shot("register-error") { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}, errorMessage = "Ce nom d'utilisateur est déjà pris.") },
-        shot("recovery-generating") { RecoveryKitScreen(state = RecoveryKitUiState.Generating, username = "pierre", onDone = {}, onLater = {}) },
-        shot("recovery-ready") { RecoveryKitScreen(state = RecoveryKitUiState.Ready(recoveryWords), username = "pierre", onDone = {}, onLater = {}) },
         shot("onboarding-sources") {
             SourcesScreen(
                 state = SourcesUiState.Loaded(scripts, SourceQuota("free", 0, 3)),

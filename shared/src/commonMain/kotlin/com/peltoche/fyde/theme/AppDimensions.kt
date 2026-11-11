@@ -142,7 +142,7 @@ object AppDimensions {
     /** The centred form column of the onboarding and access screens at Medium and Expanded (DO1–DO9). */
     val authFormColumn: Dp = 440.dp
 
-    /** [authFormColumn] widened for the recovery words and the sources (DO6, DO7). */
+    /** [authFormColumn] widened for the sources (DO7). */
     val authFormColumnWide: Dp = 600.dp
 
     /**
