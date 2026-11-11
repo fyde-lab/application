@@ -70,6 +70,8 @@ data class TopLevelNavigation(
     val onOpenVault: () -> Unit,
     /** Opens a folder's page, or À classer's for `null`. */
     val onOpenFolder: (String?) -> Unit,
+    /** The sidebar's DOSSIERS "+": a new top-level folder (D10). */
+    val onNewFolder: () -> Unit = {},
     val onOpenScripts: () -> Unit,
     val onOpenSettings: () -> Unit,
 )

@@ -251,6 +251,7 @@ fun VaultScreen(
             // Re-selecting the tab from one of its pages returns home.
             onOpenVault = { onFocusChange(VaultFocus()) },
             onOpenFolder = { onFocusChange(VaultFocus(page = VaultPage.Folder(it))) },
+            onNewFolder = { folderCallbacks.onSheetChange(FolderSheetState(FolderSheet.Create(null))) },
         ),
         selection = focus.page.sidebarSelection(),
         modifier = modifier,

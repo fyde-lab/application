@@ -310,6 +310,8 @@ private fun AppContent(
     // The vault page the next visit opens on: home, or the folder picked
     // in the sidebar from another destination.
     var vaultEntry by remember { mutableStateOf(VaultFocus()) }
+    // Whether the vault opens with D10, the sidebar's "+" having been used from another destination.
+    var vaultEntryNewFolder by remember { mutableStateOf(false) }
 
     // Startup check: if a session token is already persisted from a previous
     // run, skip straight to the document list instead of making the user log
@@ -539,7 +541,10 @@ private fun AppContent(
     // any later way into the vault opens on its home.
     LaunchedEffect(signedIn, screen) {
         if (!signedIn) sidebarSummary = SidebarSummary()
-        if (!signedIn || screen == Screen.Vault) vaultEntry = VaultFocus()
+        if (!signedIn || screen == Screen.Vault) {
+            vaultEntry = VaultFocus()
+            vaultEntryNewFolder = false
+        }
     }
     // The sidebar's figures, not at Compact, which has no sidebar. Document
     // counts follow the changelog; sources and devices, which documents don't
@@ -579,6 +584,11 @@ private fun AppContent(
             },
             onOpenFolder = { folderId ->
                 vaultEntry = VaultFocus(page = VaultPage.Folder(folderId))
+                screen = Screen.Vault
+            },
+            onNewFolder = {
+                vaultEntry = VaultFocus()
+                vaultEntryNewFolder = true
                 screen = Screen.Vault
             },
             onOpenScripts = { screen = Screen.Scripts },
@@ -827,6 +837,7 @@ private fun AppContent(
             }
             Screen.Vault -> VaultContainer(
                 initialFocus = vaultEntry,
+                openNewFolder = vaultEntryNewFolder,
                 documentChanges = documentChanges,
                 onDocumentChange = { scope.launch { documentChanges++ } },
                 navigation = navigation,
@@ -1088,6 +1099,7 @@ private suspend fun loadVaultSearch(query: VaultQuery): VaultSearchContents {
 @Composable
 private fun VaultContainer(
     initialFocus: VaultFocus,
+    openNewFolder: Boolean,
     documentChanges: Int,
     onDocumentChange: () -> Unit,
     navigation: TopLevelNavigation,
@@ -1109,7 +1121,7 @@ private fun VaultContainer(
     var notice by remember { mutableStateOf<String?>(null) }
     var loadError by remember { mutableStateOf<String?>(null) }
     var deletion by remember { mutableStateOf<DocumentDeletion?>(null) }
-    var folderSheet by remember { mutableStateOf<FolderSheetState?>(null) }
+    var folderSheet by remember { mutableStateOf(FolderSheetState(FolderSheet.Create(null)).takeIf { openNewFolder }) }
     var documentMove by remember { mutableStateOf<DocumentMove?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
