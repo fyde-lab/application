@@ -35,6 +35,7 @@ internal object ScreenshotFixtures {
             folder("work", "Travail", FydeFolderAppearance(FydeFolderColor.TEAL, FydeFolderIcon.BRIEFCASE)),
             folder("payslips", "Bulletins de paie", parentId = "work", description = "Bulletins de salaire mensuels"),
             folder("taxes", "Impôts", FydeFolderAppearance(FydeFolderColor.BRICK, FydeFolderIcon.LANDMARK)),
+            folder("pets", "Animaux", FydeFolderAppearance(FydeFolderColor.RUST, FydeFolderIcon.PAW)),
             folder("income_tax", "Impôt sur le revenu", parentId = "taxes", description = "Avis d'imposition, déclarations"),
         ),
     )
@@ -87,6 +88,7 @@ internal object ScreenshotFixtures {
     private val home = VaultHome(
         folders = listOf(
             VaultFolderSummary(null, 1, unfiled),
+            VaultFolderSummary(folders["pets"], 0),
             VaultFolderSummary(folders["taxes"], 3, tax),
             VaultFolderSummary(housingFolder, 18, invoice),
             VaultFolderSummary(folders["health"], 9, refund),

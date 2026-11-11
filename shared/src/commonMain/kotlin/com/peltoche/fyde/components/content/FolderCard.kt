@@ -20,7 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -29,6 +35,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.theme.AppCategoryColor
 import com.peltoche.fyde.theme.AppColors
@@ -53,14 +60,33 @@ fun FolderCard(
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    empty: Boolean = false,
     icon: @Composable (tint: Color) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val dashColor = AppColors.borderStrong
     Column(
         modifier = modifier
             .height(AppDimensions.folderCardHeight)
             .clip(AppShapes.card)
-            .background(color.fill)
+            .then(
+                // An empty folder is a dashed outline on the page, not a filled card.
+                if (empty) {
+                    Modifier.drawBehind {
+                        val stroke = AppDimensions.borderHairline.toPx() * 1.5f
+                        val radius = FolderCardCorner.toPx()
+                        drawRoundRect(
+                            color = dashColor,
+                            topLeft = Offset(stroke / 2, stroke / 2),
+                            size = Size(size.width - stroke, size.height - stroke),
+                            cornerRadius = CornerRadius(radius, radius),
+                            style = Stroke(width = stroke, pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))),
+                        )
+                    }
+                } else {
+                    Modifier.background(color.fill)
+                },
+            )
             .clickable(interactionSource = interactionSource, indication = ripple(), onClick = onClick)
             .appFocusRing(interactionSource, shape = AppShapes.card)
             .clearAndSetSemantics {
@@ -83,6 +109,9 @@ fun FolderCard(
         }
     }
 }
+
+/** [AppShapes.card]'s radius, for an empty card's dashed outline. */
+private val FolderCardCorner = 6.dp
 
 /** A [FolderCard]'s place while the vault's summary loads. */
 @Composable

@@ -614,6 +614,7 @@ internal fun FolderSummaryCard(vault: Vault, summary: VaultFolderSummary) {
             stringResource(Res.string.vault_folder_card_description, name, count)
         },
         onClick = { vault.openPage(VaultPage.Folder(folder?.id)) },
+        empty = summary.count == 0L,
         icon = { tint -> if (folder != null) FolderMark(folder, tint) else FolderIconGlyph(null, tint) },
     )
 }
