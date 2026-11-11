@@ -14,12 +14,14 @@ use std::sync::{Arc, PoisonError, RwLock};
 use uuid::Uuid;
 
 use fyde_sdk::{
-    Attribute, AttributeDefinition, AttributeType, Category, ChangelogEvent, Client, ClientConfig,
-    Document, DocumentType, Error, ErrorCode, ErrorContext as _, EventType, FacetCount,
+    Attribute, AttributeDefinition, AttributeType, ChangelogEvent, Client, ClientConfig,
+    CreateFolderRequest, Document, DocumentType, Error, ErrorCode, ErrorContext as _, EventType,
+    FacetCount, Folder, FolderAppearance, FolderColor, FolderContents, FolderFilter, FolderIcon,
     InstallScriptRequest, InstalledScript, LogLevel, LoginOutcome, Metadata, OpenSession,
     PasswordAnalysis, PasswordStrength, ProgressEvent, ProgressStep, Script, ScriptMetadata,
     ScriptParameter, ScriptParameterType, ScriptType, SearchFacets, SearchFilters, SearchOrder,
-    SearchQuery, SetAttributeRequest, Storage, Subcategory, UploadRequest, Usage, system_language,
+    SearchQuery, SetAttributeRequest, Storage, UpdateFolderRequest, UploadRequest, Usage,
+    system_language,
 };
 
 // Keeps the generated Kotlin package `uniffi.fyde_sdk` (the namespace
@@ -79,277 +81,186 @@ fn parse_uuid(id: &str) -> fyde_sdk::Result<Uuid> {
     Uuid::parse_str(id).with_context(|| format!("invalid id {id:?}"))
 }
 
-/// The part of life a document is about, mirroring [`Category`] across the
-/// FFI boundary.
+/// A top-level folder's colour, mirroring [`FolderColor`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
-pub enum FfiCategory {
-    Housing,
-    Telecom,
-    Money,
-    Taxes,
-    Health,
-    Work,
-    Family,
-    Identity,
-    Legal,
-    Transport,
-    Pets,
-    Shopping,
-    Leisure,
-    Education,
-    Subscriptions,
-    Donations,
+pub enum FfiFolderColor {
+    Sand,
+    Green,
+    Teal,
+    Brick,
+    Rose,
+    Blue,
+    Indigo,
+    Amber,
+    Ochre,
+    Cyan,
+    Slate,
+    Leaf,
+    Rust,
+    Plum,
+    Violet,
+    Moss,
 }
 
-impl From<Category> for FfiCategory {
-    fn from(category: Category) -> Self {
-        match category {
-            Category::Housing => Self::Housing,
-            Category::Telecom => Self::Telecom,
-            Category::Money => Self::Money,
-            Category::Taxes => Self::Taxes,
-            Category::Health => Self::Health,
-            Category::Work => Self::Work,
-            Category::Family => Self::Family,
-            Category::Identity => Self::Identity,
-            Category::Legal => Self::Legal,
-            Category::Transport => Self::Transport,
-            Category::Pets => Self::Pets,
-            Category::Shopping => Self::Shopping,
-            Category::Leisure => Self::Leisure,
-            Category::Education => Self::Education,
-            Category::Subscriptions => Self::Subscriptions,
-            Category::Donations => Self::Donations,
-        }
-    }
-}
-
-impl From<FfiCategory> for Category {
-    fn from(category: FfiCategory) -> Self {
-        match category {
-            FfiCategory::Housing => Self::Housing,
-            FfiCategory::Telecom => Self::Telecom,
-            FfiCategory::Money => Self::Money,
-            FfiCategory::Taxes => Self::Taxes,
-            FfiCategory::Health => Self::Health,
-            FfiCategory::Work => Self::Work,
-            FfiCategory::Family => Self::Family,
-            FfiCategory::Identity => Self::Identity,
-            FfiCategory::Legal => Self::Legal,
-            FfiCategory::Transport => Self::Transport,
-            FfiCategory::Pets => Self::Pets,
-            FfiCategory::Shopping => Self::Shopping,
-            FfiCategory::Leisure => Self::Leisure,
-            FfiCategory::Education => Self::Education,
-            FfiCategory::Subscriptions => Self::Subscriptions,
-            FfiCategory::Donations => Self::Donations,
-        }
-    }
-}
-
-/// A finer-grained classification within a document's [`FfiCategory`],
-/// mirroring [`Subcategory`] across the FFI boundary.
+/// A top-level folder's icon, mirroring [`FolderIcon`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
-pub enum FfiSubcategory {
-    Energy,
-    Water,
-    HomeInsurance,
-    HomeServices,
-    Rent,
-    Property,
-    Works,
-    Mobile,
-    Internet,
-    Banking,
-    Savings,
-    Investments,
-    Loans,
-    Gaming,
-    IncomeTax,
-    TaxCertificates,
-    PropertyTax,
-    HousingTax,
-    HealthInsurance,
-    ComplementaryHealth,
-    Care,
-    DeathDisabilityCover,
-    Payslips,
-    Employment,
-    HouseholdEmployer,
-    Freelance,
-    Unemployment,
-    Retirement,
-    Benefits,
-    Childcare,
-    IdDocuments,
-    CivilStatus,
-    InheritanceGifts,
-    Company,
-    Justice,
+pub enum FfiFolderIcon {
+    Folder,
+    Home,
+    Wallet,
+    Briefcase,
+    Landmark,
+    Heart,
+    Phone,
     Train,
-    Flight,
-    Road,
-    Ride,
-    Travel,
-    Vehicle,
-    VehicleInsurance,
-    Veterinary,
-    PetCare,
-    PetInsurance,
-    PetSupplies,
-    Online,
-    Groceries,
-    FoodDelivery,
-    Electronics,
-    HomeEquipment,
-    Clothing,
-    Secondhand,
-    Sports,
-    Events,
-    Associations,
-    School,
-    HigherEducation,
-    Training,
-    Media,
-    CloudSoftware,
-    Press,
+    Bag,
+    Users,
+    IdCard,
+    Scale,
+    GraduationCap,
+    Paw,
+    Ticket,
+    Repeat,
+    Gift,
+    Car,
+    Key,
+    Calendar,
 }
 
-impl From<Subcategory> for FfiSubcategory {
-    fn from(subcategory: Subcategory) -> Self {
-        match subcategory {
-            Subcategory::Energy => Self::Energy,
-            Subcategory::Water => Self::Water,
-            Subcategory::HomeInsurance => Self::HomeInsurance,
-            Subcategory::HomeServices => Self::HomeServices,
-            Subcategory::Rent => Self::Rent,
-            Subcategory::Property => Self::Property,
-            Subcategory::Works => Self::Works,
-            Subcategory::Mobile => Self::Mobile,
-            Subcategory::Internet => Self::Internet,
-            Subcategory::Banking => Self::Banking,
-            Subcategory::Savings => Self::Savings,
-            Subcategory::Investments => Self::Investments,
-            Subcategory::Loans => Self::Loans,
-            Subcategory::Gaming => Self::Gaming,
-            Subcategory::IncomeTax => Self::IncomeTax,
-            Subcategory::TaxCertificates => Self::TaxCertificates,
-            Subcategory::PropertyTax => Self::PropertyTax,
-            Subcategory::HousingTax => Self::HousingTax,
-            Subcategory::HealthInsurance => Self::HealthInsurance,
-            Subcategory::ComplementaryHealth => Self::ComplementaryHealth,
-            Subcategory::Care => Self::Care,
-            Subcategory::DeathDisabilityCover => Self::DeathDisabilityCover,
-            Subcategory::Payslips => Self::Payslips,
-            Subcategory::Employment => Self::Employment,
-            Subcategory::HouseholdEmployer => Self::HouseholdEmployer,
-            Subcategory::Freelance => Self::Freelance,
-            Subcategory::Unemployment => Self::Unemployment,
-            Subcategory::Retirement => Self::Retirement,
-            Subcategory::Benefits => Self::Benefits,
-            Subcategory::Childcare => Self::Childcare,
-            Subcategory::IdDocuments => Self::IdDocuments,
-            Subcategory::CivilStatus => Self::CivilStatus,
-            Subcategory::InheritanceGifts => Self::InheritanceGifts,
-            Subcategory::Company => Self::Company,
-            Subcategory::Justice => Self::Justice,
-            Subcategory::Train => Self::Train,
-            Subcategory::Flight => Self::Flight,
-            Subcategory::Road => Self::Road,
-            Subcategory::Ride => Self::Ride,
-            Subcategory::Travel => Self::Travel,
-            Subcategory::Vehicle => Self::Vehicle,
-            Subcategory::VehicleInsurance => Self::VehicleInsurance,
-            Subcategory::Veterinary => Self::Veterinary,
-            Subcategory::PetCare => Self::PetCare,
-            Subcategory::PetInsurance => Self::PetInsurance,
-            Subcategory::PetSupplies => Self::PetSupplies,
-            Subcategory::Online => Self::Online,
-            Subcategory::Groceries => Self::Groceries,
-            Subcategory::FoodDelivery => Self::FoodDelivery,
-            Subcategory::Electronics => Self::Electronics,
-            Subcategory::HomeEquipment => Self::HomeEquipment,
-            Subcategory::Clothing => Self::Clothing,
-            Subcategory::Secondhand => Self::Secondhand,
-            Subcategory::Sports => Self::Sports,
-            Subcategory::Events => Self::Events,
-            Subcategory::Associations => Self::Associations,
-            Subcategory::School => Self::School,
-            Subcategory::HigherEducation => Self::HigherEducation,
-            Subcategory::Training => Self::Training,
-            Subcategory::Media => Self::Media,
-            Subcategory::CloudSoftware => Self::CloudSoftware,
-            Subcategory::Press => Self::Press,
+/// Maps each pair of same-named variants of an `Ffi*` enum and the SDK's,
+/// both ways.
+macro_rules! mirror_enum {
+    ($ffi:ident, $sdk:ident, [$($variant:ident),* $(,)?]) => {
+        impl From<$sdk> for $ffi {
+            fn from(value: $sdk) -> Self {
+                match value {
+                    $($sdk::$variant => Self::$variant,)*
+                }
+            }
+        }
+
+        impl From<$ffi> for $sdk {
+            fn from(value: $ffi) -> Self {
+                match value {
+                    $($ffi::$variant => Self::$variant,)*
+                }
+            }
+        }
+    };
+}
+
+mirror_enum!(
+    FfiFolderColor,
+    FolderColor,
+    [
+        Sand, Green, Teal, Brick, Rose, Blue, Indigo, Amber, Ochre, Cyan, Slate, Leaf, Rust, Plum,
+        Violet, Moss,
+    ]
+);
+mirror_enum!(
+    FfiFolderIcon,
+    FolderIcon,
+    [
+        Folder,
+        Home,
+        Wallet,
+        Briefcase,
+        Landmark,
+        Heart,
+        Phone,
+        Train,
+        Bag,
+        Users,
+        IdCard,
+        Scale,
+        GraduationCap,
+        Paw,
+        Ticket,
+        Repeat,
+        Gift,
+        Car,
+        Key,
+        Calendar,
+    ]
+);
+
+/// The colour and icon of a top-level folder, mirroring [`FolderAppearance`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Record)]
+pub struct FfiFolderAppearance {
+    pub color: FfiFolderColor,
+    pub icon: FfiFolderIcon,
+}
+
+impl From<FolderAppearance> for FfiFolderAppearance {
+    fn from(appearance: FolderAppearance) -> Self {
+        Self {
+            color: appearance.color.into(),
+            icon: appearance.icon.into(),
         }
     }
 }
 
-impl From<FfiSubcategory> for Subcategory {
-    fn from(subcategory: FfiSubcategory) -> Self {
-        match subcategory {
-            FfiSubcategory::Energy => Self::Energy,
-            FfiSubcategory::Water => Self::Water,
-            FfiSubcategory::HomeInsurance => Self::HomeInsurance,
-            FfiSubcategory::HomeServices => Self::HomeServices,
-            FfiSubcategory::Rent => Self::Rent,
-            FfiSubcategory::Property => Self::Property,
-            FfiSubcategory::Works => Self::Works,
-            FfiSubcategory::Mobile => Self::Mobile,
-            FfiSubcategory::Internet => Self::Internet,
-            FfiSubcategory::Banking => Self::Banking,
-            FfiSubcategory::Savings => Self::Savings,
-            FfiSubcategory::Investments => Self::Investments,
-            FfiSubcategory::Loans => Self::Loans,
-            FfiSubcategory::Gaming => Self::Gaming,
-            FfiSubcategory::IncomeTax => Self::IncomeTax,
-            FfiSubcategory::TaxCertificates => Self::TaxCertificates,
-            FfiSubcategory::PropertyTax => Self::PropertyTax,
-            FfiSubcategory::HousingTax => Self::HousingTax,
-            FfiSubcategory::HealthInsurance => Self::HealthInsurance,
-            FfiSubcategory::ComplementaryHealth => Self::ComplementaryHealth,
-            FfiSubcategory::Care => Self::Care,
-            FfiSubcategory::DeathDisabilityCover => Self::DeathDisabilityCover,
-            FfiSubcategory::Payslips => Self::Payslips,
-            FfiSubcategory::Employment => Self::Employment,
-            FfiSubcategory::HouseholdEmployer => Self::HouseholdEmployer,
-            FfiSubcategory::Freelance => Self::Freelance,
-            FfiSubcategory::Unemployment => Self::Unemployment,
-            FfiSubcategory::Retirement => Self::Retirement,
-            FfiSubcategory::Benefits => Self::Benefits,
-            FfiSubcategory::Childcare => Self::Childcare,
-            FfiSubcategory::IdDocuments => Self::IdDocuments,
-            FfiSubcategory::CivilStatus => Self::CivilStatus,
-            FfiSubcategory::InheritanceGifts => Self::InheritanceGifts,
-            FfiSubcategory::Company => Self::Company,
-            FfiSubcategory::Justice => Self::Justice,
-            FfiSubcategory::Train => Self::Train,
-            FfiSubcategory::Flight => Self::Flight,
-            FfiSubcategory::Road => Self::Road,
-            FfiSubcategory::Ride => Self::Ride,
-            FfiSubcategory::Travel => Self::Travel,
-            FfiSubcategory::Vehicle => Self::Vehicle,
-            FfiSubcategory::VehicleInsurance => Self::VehicleInsurance,
-            FfiSubcategory::Veterinary => Self::Veterinary,
-            FfiSubcategory::PetCare => Self::PetCare,
-            FfiSubcategory::PetInsurance => Self::PetInsurance,
-            FfiSubcategory::PetSupplies => Self::PetSupplies,
-            FfiSubcategory::Online => Self::Online,
-            FfiSubcategory::Groceries => Self::Groceries,
-            FfiSubcategory::FoodDelivery => Self::FoodDelivery,
-            FfiSubcategory::Electronics => Self::Electronics,
-            FfiSubcategory::HomeEquipment => Self::HomeEquipment,
-            FfiSubcategory::Clothing => Self::Clothing,
-            FfiSubcategory::Secondhand => Self::Secondhand,
-            FfiSubcategory::Sports => Self::Sports,
-            FfiSubcategory::Events => Self::Events,
-            FfiSubcategory::Associations => Self::Associations,
-            FfiSubcategory::School => Self::School,
-            FfiSubcategory::HigherEducation => Self::HigherEducation,
-            FfiSubcategory::Training => Self::Training,
-            FfiSubcategory::Media => Self::Media,
-            FfiSubcategory::CloudSoftware => Self::CloudSoftware,
-            FfiSubcategory::Press => Self::Press,
+impl From<FfiFolderAppearance> for FolderAppearance {
+    fn from(appearance: FfiFolderAppearance) -> Self {
+        Self {
+            color: appearance.color.into(),
+            icon: appearance.icon.into(),
         }
+    }
+}
+
+/// A folder of the vault, mirroring [`Folder`] across the FFI boundary.
+/// Ids cross as strings since UniFFI has no native UUID type.
+#[derive(Debug, Clone, PartialEq, uniffi::Record)]
+pub struct FfiFolder {
+    pub id: String,
+    /// `None` for a top-level folder.
+    pub parent_id: Option<String>,
+    pub name: String,
+    pub description: String,
+    /// Set on top-level folders only.
+    pub appearance: Option<FfiFolderAppearance>,
+}
+
+impl From<Folder> for FfiFolder {
+    fn from(folder: Folder) -> Self {
+        Self {
+            id: folder.id.to_string(),
+            parent_id: folder.parent_id.map(|id| id.to_string()),
+            name: folder.name,
+            description: folder.description,
+            appearance: folder.appearance.map(Into::into),
+        }
+    }
+}
+
+/// What deleting a folder does with what it holds, mirroring
+/// [`FolderContents`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
+pub enum FfiFolderContents {
+    Keep,
+    Delete,
+}
+
+mirror_enum!(FfiFolderContents, FolderContents, [Keep, Delete]);
+
+/// Where a search is restricted to, mirroring [`FolderFilter`].
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Enum)]
+pub enum FfiFolderFilter {
+    /// The documents at the root: À classer.
+    Unfiled,
+    /// The documents of this folder and every folder below it.
+    Within { folder_id: String },
+}
+
+impl TryFrom<FfiFolderFilter> for FolderFilter {
+    type Error = Error;
+
+    fn try_from(filter: FfiFolderFilter) -> Result<Self, Self::Error> {
+        Ok(match filter {
+            FfiFolderFilter::Unfiled => Self::Unfiled,
+            FfiFolderFilter::Within { folder_id } => Self::Within(parse_uuid(&folder_id)?),
+        })
     }
 }
 
@@ -503,8 +414,9 @@ pub struct FfiMetadata {
     pub checksum: String,
     pub transcript: String,
     pub r#type: Option<FfiDocumentType>,
-    pub category: Option<FfiCategory>,
-    pub subcategory: Option<FfiSubcategory>,
+    /// The folder holding the document, `None` for one at the root (À
+    /// classer).
+    pub folder_id: Option<String>,
     pub attributes: HashMap<String, FfiAttribute>,
 }
 
@@ -657,8 +569,7 @@ impl From<Metadata> for FfiMetadata {
             checksum: metadata.checksum().to_string(),
             transcript: metadata.transcript().to_string(),
             r#type: metadata.r#type().map(FfiDocumentType::from),
-            category: metadata.category().map(FfiCategory::from),
-            subcategory: metadata.subcategory().map(FfiSubcategory::from),
+            folder_id: metadata.folder_id().map(|id| id.to_string()),
             attributes: metadata
                 .attributes()
                 .iter()
@@ -682,8 +593,7 @@ impl TryFrom<FfiMetadata> for Metadata {
             checksum: metadata.checksum,
             transcript: metadata.transcript,
             r#type: metadata.r#type.map(DocumentType::from),
-            category: metadata.category.map(Category::from),
-            subcategory: metadata.subcategory.map(Subcategory::from),
+            folder_id: metadata.folder_id.as_deref().map(parse_uuid).transpose()?,
             attributes: metadata
                 .attributes
                 .into_iter()
@@ -717,28 +627,24 @@ impl From<Document> for FfiDocument {
 /// non-empty, and every bound that's set.
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct FfiSearchFilters {
-    pub categories: Vec<FfiCategory>,
-    pub subcategories: Vec<FfiSubcategory>,
+    pub folder: Option<FfiFolderFilter>,
     pub types: Vec<FfiDocumentType>,
     pub content_types: Vec<String>,
     pub created_from: Option<i64>,
     pub created_until: Option<i64>,
 }
 
-impl From<FfiSearchFilters> for SearchFilters {
-    fn from(filters: FfiSearchFilters) -> Self {
-        Self {
-            categories: filters.categories.into_iter().map(Category::from).collect(),
-            subcategories: filters
-                .subcategories
-                .into_iter()
-                .map(Subcategory::from)
-                .collect(),
+impl TryFrom<FfiSearchFilters> for SearchFilters {
+    type Error = Error;
+
+    fn try_from(filters: FfiSearchFilters) -> Result<Self, Self::Error> {
+        Ok(Self {
+            folder: filters.folder.map(FolderFilter::try_from).transpose()?,
             types: filters.types.into_iter().map(DocumentType::from).collect(),
             content_types: filters.content_types,
             created_from: filters.created_from,
             created_until: filters.created_until,
-        }
+        })
     }
 }
 
@@ -831,19 +737,11 @@ impl From<PasswordAnalysis> for FfiPasswordAnalysis {
     }
 }
 
-/// How many documents carry one category, mirroring
-/// `FacetCount<Category>` (UniFFI has no generic records).
+/// How many documents a folder holds, its subfolders' included, mirroring
+/// `FacetCount<Uuid>` (UniFFI has no generic records).
 #[derive(Debug, Clone, uniffi::Record)]
-pub struct FfiCategoryCount {
-    pub value: FfiCategory,
-    pub count: u64,
-}
-
-/// How many documents carry one subcategory, mirroring
-/// `FacetCount<Subcategory>`.
-#[derive(Debug, Clone, uniffi::Record)]
-pub struct FfiSubcategoryCount {
-    pub value: FfiSubcategory,
+pub struct FfiFolderCount {
+    pub folder_id: String,
     pub count: u64,
 }
 
@@ -866,8 +764,9 @@ pub struct FfiStringCount {
 /// [`SearchFacets`] across the FFI boundary.
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct FfiSearchFacets {
-    pub categories: Vec<FfiCategoryCount>,
-    pub subcategories: Vec<FfiSubcategoryCount>,
+    pub folders: Vec<FfiFolderCount>,
+    /// How many matching documents are in À classer.
+    pub unfiled: u64,
     pub types: Vec<FfiDocumentTypeCount>,
     pub content_types: Vec<FfiStringCount>,
     pub earliest_created_at: Option<i64>,
@@ -887,22 +786,15 @@ impl From<SearchFacets> for FfiSearchFacets {
         }
 
         Self {
-            categories: facets
-                .categories
+            folders: facets
+                .folders
                 .into_iter()
-                .map(|facet| FfiCategoryCount {
-                    value: facet.value.into(),
+                .map(|facet| FfiFolderCount {
+                    folder_id: facet.value.to_string(),
                     count: facet.count,
                 })
                 .collect(),
-            subcategories: facets
-                .subcategories
-                .into_iter()
-                .map(|facet| FfiSubcategoryCount {
-                    value: facet.value.into(),
-                    count: facet.count,
-                })
-                .collect(),
+            unfiled: facets.unfiled,
             types: facets
                 .types
                 .into_iter()
@@ -1095,6 +987,8 @@ pub enum FfiEventType {
     UpdateMetadata,
     Deleted,
     InstallScript,
+    SaveFolder,
+    DeleteFolder,
 }
 
 impl From<EventType> for FfiEventType {
@@ -1104,6 +998,8 @@ impl From<EventType> for FfiEventType {
             EventType::UpdateMetadata => FfiEventType::UpdateMetadata,
             EventType::Deleted => FfiEventType::Deleted,
             EventType::InstallScript => FfiEventType::InstallScript,
+            EventType::SaveFolder => FfiEventType::SaveFolder,
+            EventType::DeleteFolder => FfiEventType::DeleteFolder,
         }
     }
 }
@@ -1613,27 +1509,6 @@ impl FydeClient {
         .await
     }
 
-    /// Like [`Self::upload_document`], also setting `attributes` on the
-    /// document. Mirrors
-    /// [`fyde_sdk::DocumentsService::upload`] with
-    /// [`UploadRequest::attributes`].
-    pub async fn upload_document_with_attributes(
-        &self,
-        path: String,
-        attributes: HashMap<String, FfiAttribute>,
-    ) -> Result<String, FfiError> {
-        self.localized(async {
-            let mut request = UploadRequest::from_path(Path::new(&path));
-            request.attributes = attributes
-                .into_iter()
-                .map(|(name, attribute)| (name, attribute.into()))
-                .collect();
-            let id = self.inner.documents().upload(request).await?;
-            Ok(id.to_string())
-        })
-        .await
-    }
-
     /// Lists every attribute definition the signed-in user can use: the
     /// default ones, then its own. Mirrors [`fyde_sdk::AttributesService::list`].
     pub async fn list_attributes(&self) -> Result<Vec<FfiAttributeDefinition>, FfiError> {
@@ -1714,7 +1589,7 @@ impl FydeClient {
                 .documents()
                 .search(SearchQuery {
                     text,
-                    filters: filters.into(),
+                    filters: filters.try_into()?,
                     order: order.into(),
                     offset,
                     limit,
@@ -1737,7 +1612,7 @@ impl FydeClient {
             let facets = self
                 .inner
                 .documents()
-                .search_facets(&text, &filters.into())
+                .search_facets(&text, &filters.try_into()?)
                 .await?;
             Ok(facets.into())
         })
@@ -1752,6 +1627,123 @@ impl FydeClient {
         self.localized(async {
             let metadata = Metadata::try_from(metadata)?;
             self.inner.documents().update_metadata(metadata).await
+        })
+        .await
+    }
+
+    /// Moves the document `id` into the folder `folder_id` (`None` for the
+    /// root, À classer). Mirrors [`fyde_sdk::DocumentsService::move_document`].
+    pub async fn move_document(
+        &self,
+        id: String,
+        folder_id: Option<String>,
+    ) -> Result<(), FfiError> {
+        self.localized(async {
+            let id = parse_uuid(&id)?;
+            let folder_id = folder_id.as_deref().map(parse_uuid).transpose()?;
+            self.inner.documents().move_document(id, folder_id).await
+        })
+        .await
+    }
+
+    /// Every folder synced to this device, by name. Mirrors
+    /// [`fyde_sdk::FoldersService::list`].
+    pub async fn list_folders(&self) -> Result<Vec<FfiFolder>, FfiError> {
+        self.localized(async {
+            let folders = self.inner.folders().list().await?;
+            Ok(folders.into_iter().map(FfiFolder::from).collect())
+        })
+        .await
+    }
+
+    /// Publishes a new folder under `parent_id` (`None` for the top level,
+    /// which needs an `appearance`) and returns it. Mirrors
+    /// [`fyde_sdk::FoldersService::create`].
+    pub async fn create_folder(
+        &self,
+        parent_id: Option<String>,
+        name: String,
+        description: String,
+        appearance: Option<FfiFolderAppearance>,
+    ) -> Result<FfiFolder, FfiError> {
+        self.localized(async {
+            let folder = self
+                .inner
+                .folders()
+                .create(CreateFolderRequest {
+                    parent_id: parent_id.as_deref().map(parse_uuid).transpose()?,
+                    name,
+                    description,
+                    appearance: appearance.map(Into::into),
+                })
+                .await?;
+            Ok(folder.into())
+        })
+        .await
+    }
+
+    /// Renames, re-describes or recolours the folder `id`; each `None`
+    /// keeps its value. Mirrors [`fyde_sdk::FoldersService::update`].
+    pub async fn update_folder(
+        &self,
+        id: String,
+        name: Option<String>,
+        description: Option<String>,
+        appearance: Option<FfiFolderAppearance>,
+    ) -> Result<(), FfiError> {
+        self.localized(async {
+            self.inner
+                .folders()
+                .update(UpdateFolderRequest {
+                    id: parse_uuid(&id)?,
+                    name,
+                    description,
+                    appearance: appearance.map(Into::into),
+                })
+                .await
+        })
+        .await
+    }
+
+    /// Moves the folder `id` under `parent_id` (`None` for the top level).
+    /// Mirrors [`fyde_sdk::FoldersService::move_folder`].
+    pub async fn move_folder(&self, id: String, parent_id: Option<String>) -> Result<(), FfiError> {
+        self.localized(async {
+            let id = parse_uuid(&id)?;
+            let parent_id = parent_id.as_deref().map(parse_uuid).transpose()?;
+            self.inner.folders().move_folder(id, parent_id).await
+        })
+        .await
+    }
+
+    /// Deletes the folder `id`, keeping or deleting what it holds. Mirrors
+    /// [`fyde_sdk::FoldersService::delete`].
+    pub async fn delete_folder(
+        &self,
+        id: String,
+        contents: FfiFolderContents,
+    ) -> Result<(), FfiError> {
+        self.localized(async {
+            let id = parse_uuid(&id)?;
+            self.inner.folders().delete(id, contents.into()).await
+        })
+        .await
+    }
+
+    /// Publishes the proposed folder layout, named in `language`, and
+    /// returns the folders created. Mirrors
+    /// [`fyde_sdk::FoldersService::create_proposed_layout`].
+    pub async fn create_proposed_folders(
+        &self,
+        language: String,
+    ) -> Result<Vec<FfiFolder>, FfiError> {
+        self.localized(async {
+            let folders = self
+                .inner
+                .folders()
+                .create_proposed_layout(&language)
+                .await?;
+            Ok(folders.into_iter().map(FfiFolder::from).collect())
         })
         .await
     }
@@ -1939,7 +1931,7 @@ impl FydeClient {
 mod tests {
     use super::*;
     use fyde_sdk::testing::{
-        FakeChangelogEvent, FakeDocument, FakeMetadata, FakeOpenSession, FakeScript,
+        FakeChangelogEvent, FakeDocument, FakeFolder, FakeMetadata, FakeOpenSession, FakeScript,
     };
 
     #[test]
@@ -1959,7 +1951,10 @@ mod tests {
         assert_eq!(config.url, "https://fyde.example");
         assert_eq!(config.client_name, "android");
         assert_eq!(config.storage, Storage::Disk("/data/fyde".into()));
-        assert_eq!(config.models_dir, std::path::Path::new("/cache/fyde/models"));
+        assert_eq!(
+            config.models_dir,
+            std::path::Path::new("/cache/fyde/models")
+        );
         assert_eq!(config.log_level, LogLevel::Debug);
     }
 
@@ -1989,10 +1984,74 @@ mod tests {
         assert_eq!(ffi.checksum, metadata.checksum());
         assert_eq!(ffi.transcript, metadata.transcript());
         assert_eq!(ffi.r#type, metadata.r#type().map(FfiDocumentType::from));
-        assert_eq!(ffi.category, metadata.category().map(FfiCategory::from));
+        assert_eq!(ffi.folder_id, metadata.folder_id().map(|id| id.to_string()));
+    }
+
+    #[test]
+    fn metadata_conversion_roundtrips_a_folder() {
+        let metadata = FakeMetadata::new().with_folder(Uuid::now_v7()).build();
+
+        let roundtripped = Metadata::try_from(FfiMetadata::from(metadata.clone())).unwrap();
+
+        assert_eq!(roundtripped, metadata);
+    }
+
+    #[test]
+    fn folder_conversion_preserves_every_field() {
+        let parent = FakeFolder::new().build();
+        let folder = FakeFolder::new()
+            .with_parent(parent.id)
+            .with_name("Énergie")
+            .build();
+
+        let ffi = FfiFolder::from(folder.clone());
+
         assert_eq!(
-            ffi.subcategory,
-            metadata.subcategory().map(FfiSubcategory::from)
+            ffi,
+            FfiFolder {
+                id: folder.id.to_string(),
+                parent_id: Some(parent.id.to_string()),
+                name: "Énergie".to_string(),
+                description: folder.description.clone(),
+                appearance: None,
+            }
+        );
+        assert_eq!(
+            FfiFolder::from(parent.clone()).appearance,
+            parent.appearance.map(FfiFolderAppearance::from)
+        );
+    }
+
+    #[test]
+    fn folder_appearance_roundtrips_every_colour_and_icon() {
+        for color in [FfiFolderColor::Sand, FfiFolderColor::Moss] {
+            for icon in [FfiFolderIcon::Folder, FfiFolderIcon::Calendar] {
+                let ffi = FfiFolderAppearance { color, icon };
+                assert_eq!(FfiFolderAppearance::from(FolderAppearance::from(ffi)), ffi);
+            }
+        }
+    }
+
+    #[test]
+    fn folder_filter_parses_its_folder_id() {
+        let id = Uuid::now_v7();
+
+        assert_eq!(
+            FolderFilter::try_from(FfiFolderFilter::Within {
+                folder_id: id.to_string()
+            })
+            .unwrap(),
+            FolderFilter::Within(id)
+        );
+        assert_eq!(
+            FolderFilter::try_from(FfiFolderFilter::Unfiled).unwrap(),
+            FolderFilter::Unfiled
+        );
+        assert!(
+            FolderFilter::try_from(FfiFolderFilter::Within {
+                folder_id: "nope".to_string()
+            })
+            .is_err()
         );
     }
 

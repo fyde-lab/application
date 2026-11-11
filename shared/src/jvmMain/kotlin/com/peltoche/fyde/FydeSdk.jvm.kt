@@ -9,6 +9,12 @@ import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocumentType
 import uniffi.fyde_sdk.FfiEventType
+import uniffi.fyde_sdk.FfiFolder
+import uniffi.fyde_sdk.FfiFolderAppearance
+import uniffi.fyde_sdk.FfiFolderColor
+import uniffi.fyde_sdk.FfiFolderContents
+import uniffi.fyde_sdk.FfiFolderFilter
+import uniffi.fyde_sdk.FfiFolderIcon
 import uniffi.fyde_sdk.FfiException
 import uniffi.fyde_sdk.FfiLogLevel
 import uniffi.fyde_sdk.FfiLoginOutcome
@@ -27,8 +33,6 @@ import uniffi.fyde_sdk.FfiSearchFacets
 import uniffi.fyde_sdk.FfiSearchFilters
 import uniffi.fyde_sdk.FfiSearchOrder
 import uniffi.fyde_sdk.FfiAttribute
-import uniffi.fyde_sdk.FfiCategory
-import uniffi.fyde_sdk.FfiSubcategory
 import uniffi.fyde_sdk.FfiStorage
 import uniffi.fyde_sdk.FfiUsage
 import uniffi.fyde_sdk.FydeClient
@@ -254,6 +258,52 @@ actual object FydeSdk {
         client.uploadDocument(path)
     }
 
+    actual suspend fun moveDocument(id: String, folderId: String?): Result<Unit> = withClient("moveDocument") { client ->
+        client.moveDocument(id, folderId)
+    }
+
+    actual suspend fun listFolders(): Result<List<FydeFolder>> = withClient("listFolders") { client ->
+        client.listFolders().map(FfiFolder::toFydeFolder)
+    }
+
+    actual suspend fun createFolder(
+        parentId: String?,
+        name: String,
+        description: String,
+        appearance: FydeFolderAppearance?,
+    ): Result<FydeFolder> = withClient("createFolder") { client ->
+        client.createFolder(parentId, name, description, appearance?.toFfiFolderAppearance()).toFydeFolder()
+    }
+
+    actual suspend fun updateFolder(
+        id: String,
+        name: String?,
+        description: String?,
+        appearance: FydeFolderAppearance?,
+    ): Result<Unit> = withClient("updateFolder") { client ->
+        client.updateFolder(id, name, description, appearance?.toFfiFolderAppearance())
+    }
+
+    actual suspend fun moveFolder(id: String, parentId: String?): Result<Unit> = withClient("moveFolder") { client ->
+        client.moveFolder(id, parentId)
+    }
+
+    actual suspend fun deleteFolder(id: String, contents: FydeFolderContents): Result<Unit> =
+        withClient("deleteFolder") { client ->
+            client.deleteFolder(
+                id,
+                when (contents) {
+                    FydeFolderContents.KEEP -> FfiFolderContents.KEEP
+                    FydeFolderContents.DELETE -> FfiFolderContents.DELETE
+                },
+            )
+        }
+
+    actual suspend fun createProposedFolders(language: String): Result<List<FydeFolder>> =
+        withClient("createProposedFolders") { client ->
+            client.createProposedFolders(language).map(FfiFolder::toFydeFolder)
+        }
+
     actual suspend fun deleteDocument(id: String): Result<Unit> = withClient("deleteDocument") { client ->
         client.deleteDocument(id)
     }
@@ -326,174 +376,6 @@ private fun FfiProgressStep.toFydeScraperStep() = when (this) {
     FfiProgressStep.LISTING_DOCUMENTS -> FydeScraperStep.LISTING_DOCUMENTS
     FfiProgressStep.DOWNLOADING_DOCUMENTS -> FydeScraperStep.DOWNLOADING_DOCUMENTS
     FfiProgressStep.DONE -> FydeScraperStep.DONE
-}
-
-private fun FfiCategory.toFydeCategory() = when (this) {
-    FfiCategory.HOUSING -> FydeCategory.HOUSING
-    FfiCategory.TELECOM -> FydeCategory.TELECOM
-    FfiCategory.MONEY -> FydeCategory.MONEY
-    FfiCategory.TAXES -> FydeCategory.TAXES
-    FfiCategory.HEALTH -> FydeCategory.HEALTH
-    FfiCategory.WORK -> FydeCategory.WORK
-    FfiCategory.FAMILY -> FydeCategory.FAMILY
-    FfiCategory.IDENTITY -> FydeCategory.IDENTITY
-    FfiCategory.LEGAL -> FydeCategory.LEGAL
-    FfiCategory.TRANSPORT -> FydeCategory.TRANSPORT
-    FfiCategory.PETS -> FydeCategory.PETS
-    FfiCategory.SHOPPING -> FydeCategory.SHOPPING
-    FfiCategory.LEISURE -> FydeCategory.LEISURE
-    FfiCategory.EDUCATION -> FydeCategory.EDUCATION
-    FfiCategory.SUBSCRIPTIONS -> FydeCategory.SUBSCRIPTIONS
-    FfiCategory.DONATIONS -> FydeCategory.DONATIONS
-}
-
-private fun FfiSubcategory.toFydeSubcategory() = when (this) {
-    FfiSubcategory.ENERGY -> FydeSubcategory.ENERGY
-    FfiSubcategory.WATER -> FydeSubcategory.WATER
-    FfiSubcategory.HOME_INSURANCE -> FydeSubcategory.HOME_INSURANCE
-    FfiSubcategory.HOME_SERVICES -> FydeSubcategory.HOME_SERVICES
-    FfiSubcategory.RENT -> FydeSubcategory.RENT
-    FfiSubcategory.PROPERTY -> FydeSubcategory.PROPERTY
-    FfiSubcategory.WORKS -> FydeSubcategory.WORKS
-    FfiSubcategory.MOBILE -> FydeSubcategory.MOBILE
-    FfiSubcategory.INTERNET -> FydeSubcategory.INTERNET
-    FfiSubcategory.BANKING -> FydeSubcategory.BANKING
-    FfiSubcategory.SAVINGS -> FydeSubcategory.SAVINGS
-    FfiSubcategory.INVESTMENTS -> FydeSubcategory.INVESTMENTS
-    FfiSubcategory.LOANS -> FydeSubcategory.LOANS
-    FfiSubcategory.GAMING -> FydeSubcategory.GAMING
-    FfiSubcategory.INCOME_TAX -> FydeSubcategory.INCOME_TAX
-    FfiSubcategory.TAX_CERTIFICATES -> FydeSubcategory.TAX_CERTIFICATES
-    FfiSubcategory.PROPERTY_TAX -> FydeSubcategory.PROPERTY_TAX
-    FfiSubcategory.HOUSING_TAX -> FydeSubcategory.HOUSING_TAX
-    FfiSubcategory.HEALTH_INSURANCE -> FydeSubcategory.HEALTH_INSURANCE
-    FfiSubcategory.COMPLEMENTARY_HEALTH -> FydeSubcategory.COMPLEMENTARY_HEALTH
-    FfiSubcategory.CARE -> FydeSubcategory.CARE
-    FfiSubcategory.DEATH_DISABILITY_COVER -> FydeSubcategory.DEATH_DISABILITY_COVER
-    FfiSubcategory.PAYSLIPS -> FydeSubcategory.PAYSLIPS
-    FfiSubcategory.EMPLOYMENT -> FydeSubcategory.EMPLOYMENT
-    FfiSubcategory.HOUSEHOLD_EMPLOYER -> FydeSubcategory.HOUSEHOLD_EMPLOYER
-    FfiSubcategory.FREELANCE -> FydeSubcategory.FREELANCE
-    FfiSubcategory.UNEMPLOYMENT -> FydeSubcategory.UNEMPLOYMENT
-    FfiSubcategory.RETIREMENT -> FydeSubcategory.RETIREMENT
-    FfiSubcategory.BENEFITS -> FydeSubcategory.BENEFITS
-    FfiSubcategory.CHILDCARE -> FydeSubcategory.CHILDCARE
-    FfiSubcategory.ID_DOCUMENTS -> FydeSubcategory.ID_DOCUMENTS
-    FfiSubcategory.CIVIL_STATUS -> FydeSubcategory.CIVIL_STATUS
-    FfiSubcategory.INHERITANCE_GIFTS -> FydeSubcategory.INHERITANCE_GIFTS
-    FfiSubcategory.COMPANY -> FydeSubcategory.COMPANY
-    FfiSubcategory.JUSTICE -> FydeSubcategory.JUSTICE
-    FfiSubcategory.TRAIN -> FydeSubcategory.TRAIN
-    FfiSubcategory.FLIGHT -> FydeSubcategory.FLIGHT
-    FfiSubcategory.ROAD -> FydeSubcategory.ROAD
-    FfiSubcategory.RIDE -> FydeSubcategory.RIDE
-    FfiSubcategory.TRAVEL -> FydeSubcategory.TRAVEL
-    FfiSubcategory.VEHICLE -> FydeSubcategory.VEHICLE
-    FfiSubcategory.VEHICLE_INSURANCE -> FydeSubcategory.VEHICLE_INSURANCE
-    FfiSubcategory.VETERINARY -> FydeSubcategory.VETERINARY
-    FfiSubcategory.PET_CARE -> FydeSubcategory.PET_CARE
-    FfiSubcategory.PET_INSURANCE -> FydeSubcategory.PET_INSURANCE
-    FfiSubcategory.PET_SUPPLIES -> FydeSubcategory.PET_SUPPLIES
-    FfiSubcategory.ONLINE -> FydeSubcategory.ONLINE
-    FfiSubcategory.GROCERIES -> FydeSubcategory.GROCERIES
-    FfiSubcategory.FOOD_DELIVERY -> FydeSubcategory.FOOD_DELIVERY
-    FfiSubcategory.ELECTRONICS -> FydeSubcategory.ELECTRONICS
-    FfiSubcategory.HOME_EQUIPMENT -> FydeSubcategory.HOME_EQUIPMENT
-    FfiSubcategory.CLOTHING -> FydeSubcategory.CLOTHING
-    FfiSubcategory.SECONDHAND -> FydeSubcategory.SECONDHAND
-    FfiSubcategory.SPORTS -> FydeSubcategory.SPORTS
-    FfiSubcategory.EVENTS -> FydeSubcategory.EVENTS
-    FfiSubcategory.ASSOCIATIONS -> FydeSubcategory.ASSOCIATIONS
-    FfiSubcategory.SCHOOL -> FydeSubcategory.SCHOOL
-    FfiSubcategory.HIGHER_EDUCATION -> FydeSubcategory.HIGHER_EDUCATION
-    FfiSubcategory.TRAINING -> FydeSubcategory.TRAINING
-    FfiSubcategory.MEDIA -> FydeSubcategory.MEDIA
-    FfiSubcategory.CLOUD_SOFTWARE -> FydeSubcategory.CLOUD_SOFTWARE
-    FfiSubcategory.PRESS -> FydeSubcategory.PRESS
-}
-
-private fun FydeCategory.toFfiCategory() = when (this) {
-    FydeCategory.HOUSING -> FfiCategory.HOUSING
-    FydeCategory.TELECOM -> FfiCategory.TELECOM
-    FydeCategory.MONEY -> FfiCategory.MONEY
-    FydeCategory.TAXES -> FfiCategory.TAXES
-    FydeCategory.HEALTH -> FfiCategory.HEALTH
-    FydeCategory.WORK -> FfiCategory.WORK
-    FydeCategory.FAMILY -> FfiCategory.FAMILY
-    FydeCategory.IDENTITY -> FfiCategory.IDENTITY
-    FydeCategory.LEGAL -> FfiCategory.LEGAL
-    FydeCategory.TRANSPORT -> FfiCategory.TRANSPORT
-    FydeCategory.PETS -> FfiCategory.PETS
-    FydeCategory.SHOPPING -> FfiCategory.SHOPPING
-    FydeCategory.LEISURE -> FfiCategory.LEISURE
-    FydeCategory.EDUCATION -> FfiCategory.EDUCATION
-    FydeCategory.SUBSCRIPTIONS -> FfiCategory.SUBSCRIPTIONS
-    FydeCategory.DONATIONS -> FfiCategory.DONATIONS
-}
-
-private fun FydeSubcategory.toFfiSubcategory() = when (this) {
-    FydeSubcategory.ENERGY -> FfiSubcategory.ENERGY
-    FydeSubcategory.WATER -> FfiSubcategory.WATER
-    FydeSubcategory.HOME_INSURANCE -> FfiSubcategory.HOME_INSURANCE
-    FydeSubcategory.HOME_SERVICES -> FfiSubcategory.HOME_SERVICES
-    FydeSubcategory.RENT -> FfiSubcategory.RENT
-    FydeSubcategory.PROPERTY -> FfiSubcategory.PROPERTY
-    FydeSubcategory.WORKS -> FfiSubcategory.WORKS
-    FydeSubcategory.MOBILE -> FfiSubcategory.MOBILE
-    FydeSubcategory.INTERNET -> FfiSubcategory.INTERNET
-    FydeSubcategory.BANKING -> FfiSubcategory.BANKING
-    FydeSubcategory.SAVINGS -> FfiSubcategory.SAVINGS
-    FydeSubcategory.INVESTMENTS -> FfiSubcategory.INVESTMENTS
-    FydeSubcategory.LOANS -> FfiSubcategory.LOANS
-    FydeSubcategory.GAMING -> FfiSubcategory.GAMING
-    FydeSubcategory.INCOME_TAX -> FfiSubcategory.INCOME_TAX
-    FydeSubcategory.TAX_CERTIFICATES -> FfiSubcategory.TAX_CERTIFICATES
-    FydeSubcategory.PROPERTY_TAX -> FfiSubcategory.PROPERTY_TAX
-    FydeSubcategory.HOUSING_TAX -> FfiSubcategory.HOUSING_TAX
-    FydeSubcategory.HEALTH_INSURANCE -> FfiSubcategory.HEALTH_INSURANCE
-    FydeSubcategory.COMPLEMENTARY_HEALTH -> FfiSubcategory.COMPLEMENTARY_HEALTH
-    FydeSubcategory.CARE -> FfiSubcategory.CARE
-    FydeSubcategory.DEATH_DISABILITY_COVER -> FfiSubcategory.DEATH_DISABILITY_COVER
-    FydeSubcategory.PAYSLIPS -> FfiSubcategory.PAYSLIPS
-    FydeSubcategory.EMPLOYMENT -> FfiSubcategory.EMPLOYMENT
-    FydeSubcategory.HOUSEHOLD_EMPLOYER -> FfiSubcategory.HOUSEHOLD_EMPLOYER
-    FydeSubcategory.FREELANCE -> FfiSubcategory.FREELANCE
-    FydeSubcategory.UNEMPLOYMENT -> FfiSubcategory.UNEMPLOYMENT
-    FydeSubcategory.RETIREMENT -> FfiSubcategory.RETIREMENT
-    FydeSubcategory.BENEFITS -> FfiSubcategory.BENEFITS
-    FydeSubcategory.CHILDCARE -> FfiSubcategory.CHILDCARE
-    FydeSubcategory.ID_DOCUMENTS -> FfiSubcategory.ID_DOCUMENTS
-    FydeSubcategory.CIVIL_STATUS -> FfiSubcategory.CIVIL_STATUS
-    FydeSubcategory.INHERITANCE_GIFTS -> FfiSubcategory.INHERITANCE_GIFTS
-    FydeSubcategory.COMPANY -> FfiSubcategory.COMPANY
-    FydeSubcategory.JUSTICE -> FfiSubcategory.JUSTICE
-    FydeSubcategory.TRAIN -> FfiSubcategory.TRAIN
-    FydeSubcategory.FLIGHT -> FfiSubcategory.FLIGHT
-    FydeSubcategory.ROAD -> FfiSubcategory.ROAD
-    FydeSubcategory.RIDE -> FfiSubcategory.RIDE
-    FydeSubcategory.TRAVEL -> FfiSubcategory.TRAVEL
-    FydeSubcategory.VEHICLE -> FfiSubcategory.VEHICLE
-    FydeSubcategory.VEHICLE_INSURANCE -> FfiSubcategory.VEHICLE_INSURANCE
-    FydeSubcategory.VETERINARY -> FfiSubcategory.VETERINARY
-    FydeSubcategory.PET_CARE -> FfiSubcategory.PET_CARE
-    FydeSubcategory.PET_INSURANCE -> FfiSubcategory.PET_INSURANCE
-    FydeSubcategory.PET_SUPPLIES -> FfiSubcategory.PET_SUPPLIES
-    FydeSubcategory.ONLINE -> FfiSubcategory.ONLINE
-    FydeSubcategory.GROCERIES -> FfiSubcategory.GROCERIES
-    FydeSubcategory.FOOD_DELIVERY -> FfiSubcategory.FOOD_DELIVERY
-    FydeSubcategory.ELECTRONICS -> FfiSubcategory.ELECTRONICS
-    FydeSubcategory.HOME_EQUIPMENT -> FfiSubcategory.HOME_EQUIPMENT
-    FydeSubcategory.CLOTHING -> FfiSubcategory.CLOTHING
-    FydeSubcategory.SECONDHAND -> FfiSubcategory.SECONDHAND
-    FydeSubcategory.SPORTS -> FfiSubcategory.SPORTS
-    FydeSubcategory.EVENTS -> FfiSubcategory.EVENTS
-    FydeSubcategory.ASSOCIATIONS -> FfiSubcategory.ASSOCIATIONS
-    FydeSubcategory.SCHOOL -> FfiSubcategory.SCHOOL
-    FydeSubcategory.HIGHER_EDUCATION -> FfiSubcategory.HIGHER_EDUCATION
-    FydeSubcategory.TRAINING -> FfiSubcategory.TRAINING
-    FydeSubcategory.MEDIA -> FfiSubcategory.MEDIA
-    FydeSubcategory.CLOUD_SOFTWARE -> FfiSubcategory.CLOUD_SOFTWARE
-    FydeSubcategory.PRESS -> FfiSubcategory.PRESS
 }
 
 private fun FfiDocumentType.toFydeDocumentType() = when (this) {
@@ -581,8 +463,7 @@ private fun FydeDocumentType.toFfiDocumentType() = when (this) {
 }
 
 private fun FydeSearchFilters.toFfiSearchFilters() = FfiSearchFilters(
-    categories = categories.map { it.toFfiCategory() },
-    subcategories = subcategories.map { it.toFfiSubcategory() },
+    folder = folder?.toFfiFolderFilter(),
     types = types.map { it.toFfiDocumentType() },
     contentTypes = contentTypes,
     createdFrom = createdFrom,
@@ -590,8 +471,8 @@ private fun FydeSearchFilters.toFfiSearchFilters() = FfiSearchFilters(
 )
 
 private fun FfiSearchFacets.toFydeSearchFacets() = FydeSearchFacets(
-    categories = categories.map { FydeFacetCount(it.value.toFydeCategory(), it.count.toLong()) },
-    subcategories = subcategories.map { FydeFacetCount(it.value.toFydeSubcategory(), it.count.toLong()) },
+    folders = folders.map { FydeFacetCount(it.folderId, it.count.toLong()) },
+    unfiled = unfiled.toLong(),
     types = types.map { FydeFacetCount(it.value.toFydeDocumentType(), it.count.toLong()) },
     contentTypes = contentTypes.map { FydeFacetCount(it.value, it.count.toLong()) },
     earliestCreatedAt = earliestCreatedAt,
@@ -697,8 +578,7 @@ private fun FfiMetadata.toFydeDocument() = FydeDocument(
     createdAt = createdAt,
     size = size.toLong(),
     documentType = type?.toFydeDocumentType(),
-    category = category?.toFydeCategory(),
-    subcategory = subcategory?.toFydeSubcategory(),
+    folderId = folderId,
     attributes = attributes.mapValues { (_, attribute) -> attribute.toFydeAttribute() },
 )
 
@@ -719,7 +599,27 @@ private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
         FfiEventType.UPDATE_METADATA -> FydeEventType.UPDATE_METADATA
         FfiEventType.DELETED -> FydeEventType.DELETED
         FfiEventType.INSTALL_SCRIPT -> FydeEventType.INSTALL_SCRIPT
+        FfiEventType.SAVE_FOLDER -> FydeEventType.SAVE_FOLDER
+        FfiEventType.DELETE_FOLDER -> FydeEventType.DELETE_FOLDER
     },
     subjectId = subjectId,
     document = content?.let { metadata?.toFydeDocument() },
 )
+
+private fun FfiFolder.toFydeFolder() = FydeFolder(
+    id = id,
+    parentId = parentId,
+    name = name,
+    description = description,
+    appearance = appearance?.let {
+        FydeFolderAppearance(FydeFolderColor.valueOf(it.color.name), FydeFolderIcon.valueOf(it.icon.name))
+    },
+)
+
+private fun FydeFolderAppearance.toFfiFolderAppearance() =
+    FfiFolderAppearance(FfiFolderColor.valueOf(color.name), FfiFolderIcon.valueOf(icon.name))
+
+private fun FydeFolderFilter.toFfiFolderFilter() = when (this) {
+    FydeFolderFilter.Unfiled -> FfiFolderFilter.Unfiled
+    is FydeFolderFilter.Within -> FfiFolderFilter.Within(folderId)
+}
