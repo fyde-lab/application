@@ -696,4 +696,20 @@
         <item quantity="one">%1$d of %2$d couldn’t be deleted: %3$s</item>
         <item quantity="other">%1$d of %2$d couldn’t be deleted: %3$s</item>
     </plurals>
+    <!-- Similar documents (V6c, V16, D11) -->
+    <string name="vault_similar">Similar documents</string>
+    <string name="vault_similar_see_all">See all</string>
+    <string name="vault_similar_local">Compared on this device, by their text.</string>
+    <string name="vault_similar_this">This document</string>
+    <string name="vault_similar_none_title">No similar documents</string>
+    <string name="vault_similar_none">Fyde found no other document close enough to this one.</string>
+    <string name="similarity_percent">%1$d%</string>
+    <string name="similarity_description">similarity %1$d%</string>
+    <string name="select_all">Select all</string>
+    <string name="deselect_all">Deselect all</string>
+    <string name="select_document">Select “%1$s”</string>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
 </resources>

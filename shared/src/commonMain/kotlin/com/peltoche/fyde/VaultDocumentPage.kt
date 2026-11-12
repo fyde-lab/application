@@ -289,6 +289,8 @@ private fun DocumentDetails(vault: Vault, document: FydeDocument, onOpenFile: ((
                 DocumentActionsButton(onDelete = { vault.askDelete(document) }, onMove = { vault.askMove(document) })
             }
         }
+        // D2 keeps the document open beside the similar list (D11); below, the list takes the page.
+        SimilarSection(vault, document, keepOpen = onOpenFile == null)
     }
 }
 

@@ -1143,6 +1143,8 @@ private fun VaultContainer(
     var home by remember { mutableStateOf<VaultHome?>(null) }
     var folder by remember { mutableStateOf<VaultFolderContents?>(null) }
     var search by remember { mutableStateOf<VaultSearchContents?>(null) }
+    var documentSimilar by remember { mutableStateOf<VaultSimilarContents?>(null) }
+    var similar by remember { mutableStateOf<VaultSimilarContents?>(null) }
     var serverReachable by remember { mutableStateOf(true) }
     var deviceCount by remember { mutableStateOf<Int?>(null) }
     var isUploading by remember { mutableStateOf(false) }
@@ -1275,9 +1277,50 @@ private fun VaultContainer(
             .onFailure { reportLoadFailure(it, Res.string.search_failed) }
     }
 
-    // After a batch change: the open document closes if it was deleted.
+    // The open document's similar section (V6c, D2). It's an aside: when the
+    // SDK can't say (the document deleted meanwhile, say) it's hidden, not an error.
+    val openDocumentId = focus.document?.id
+    LaunchedEffect(connected, changeKey, openDocumentId) {
+        if (openDocumentId == null) documentSimilar = null
+        if (!connected || openDocumentId == null) return@LaunchedEffect
+        FydeSdk.similarDocuments(openDocumentId, SIMILAR_SECTION_LIMIT)
+            .onSuccess { documentSimilar = VaultSimilarContents(openDocumentId, it) }
+            .onFailure {
+                if (it is CancellationException) throw it
+                documentSimilar = null
+            }
+    }
+
+    // The similar page (V16, D11): reloaded on every change, so deleted
+    // documents leave it and moved ones show their new folder once synced.
+    val similarOf = (focus.page as? VaultPage.Similar)?.document?.id
+    LaunchedEffect(connected, changeKey, similarOf) {
+        if (similarOf == null || similar?.documentId != similarOf) similar = null
+        if (!connected || similarOf == null) return@LaunchedEffect
+        runCatching { FydeSdk.similarDocuments(similarOf, SIMILAR_PAGE_LIMIT).getOrThrow() }
+            .onSuccess { documents ->
+                similar = VaultSimilarContents(similarOf, documents)
+                loadError = null
+                refreshOpenDocument(documents.map { it.document })
+            }
+            .onFailure { reportLoadFailure(it) }
+    }
+
+    // After a batch change: the ticks of the documents it reached clear and,
+    // with the document the similar page started from deleted, that page
+    // gives way to the one it was opened from.
     fun afterBatch(done: Set<String>, deleted: Boolean) {
-        if (deleted && focus.document?.id in done) focus = focus.copy(document = null, viewerOpen = false)
+        var next = focus
+        if (deleted && next.document?.id in done) next = next.copy(document = null, viewerOpen = false)
+        val page = next.page
+        if (page is VaultPage.Similar) {
+            next = if (deleted && page.document.id in done) {
+                VaultFocus(page = page.origin)
+            } else {
+                next.copy(page = page.copy(ticked = page.ticked - done))
+            }
+        }
+        focus = next
     }
 
     // Polls fyde-sdk's own reachability check independently of the changelog
@@ -1299,6 +1342,8 @@ private fun VaultContainer(
                 home = home,
                 folder = folder,
                 search = search,
+                documentSimilar = documentSimilar,
+                similar = similar,
                 serverReachable = serverReachable,
                 deviceCount = deviceCount,
                 isUploading = isUploading,

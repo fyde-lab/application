@@ -132,6 +132,17 @@ sealed interface VaultPage {
 
     /** The search for [query], opened from [origin], where Annuler returns. */
     data class Search(val query: VaultQuery, val origin: VaultPage) : VaultPage
+
+    /**
+     * V16 / D11: the documents similar to [document], opened from its page
+     * over [origin], where back returns with [document] open again. [ticked]
+     * is the selection, by document id (design-system.md § Selection).
+     */
+    data class Similar(
+        val document: FydeDocument,
+        val origin: VaultPage,
+        val ticked: Set<String> = emptySet(),
+    ) : VaultPage
 }
 
 /**
@@ -153,6 +164,12 @@ data class VaultFocus(
 data class DocumentDeletion(val documents: List<FydeDocument>, val busy: Boolean = false, val error: String? = null) {
     constructor(document: FydeDocument, busy: Boolean = false, error: String? = null) : this(listOf(document), busy, error)
 }
+
+/**
+ * The documents similar to [documentId] the SDK found, most similar first:
+ * the open document's section (V6c, D2) or the similar page (V16, D11).
+ */
+data class VaultSimilarContents(val documentId: String, val documents: List<FydeSimilarDocument>)
 
 /**
  * A folder card or row: how many documents [folder] holds, its subfolders'
@@ -209,12 +226,16 @@ sealed interface VaultUiState {
      * is the last action's failure, [loadError] why the page couldn't load.
      * [deletion] is the document V10 / D2c asks about, while it's open;
      * [folderSheet] the folder sheet or dialog open (V12–V15, D7–D10).
+     * [documentSimilar] is the open document's similar section, [similar]
+     * the similar page's documents, each `null` until loaded.
      */
     data class Loaded(
         val folders: VaultFolders = VaultFolders(),
         val home: VaultHome? = null,
         val folder: VaultFolderContents? = null,
         val search: VaultSearchContents? = null,
+        val documentSimilar: VaultSimilarContents? = null,
+        val similar: VaultSimilarContents? = null,
         val serverReachable: Boolean = true,
         val deviceCount: Int? = null,
         val isUploading: Boolean = false,
@@ -317,6 +338,7 @@ private fun VaultPage.sidebarSelection(): SidebarSelection = when (this) {
     VaultPage.Home -> SidebarSelection.Vault
     is VaultPage.Folder -> SidebarSelection.Folder(folderId)
     is VaultPage.Search -> origin.sidebarSelection()
+    is VaultPage.Similar -> origin.sidebarSelection()
 }
 
 /** Everything the vault's pages read and call, passed down as one. */
@@ -361,6 +383,20 @@ internal class Vault(
     /** Opens V10 / D2c about one document, or V10b / D11b about several. */
     fun askDelete(documents: List<FydeDocument>) = onDeletionChange(DocumentDeletion(documents))
 
+    /**
+     * Opens V16 / D11 for [document] over the open page. [keepOpen] (D11)
+     * keeps it open beside the list; below Expanded the list takes the page.
+     */
+    fun openSimilar(document: FydeDocument, keepOpen: Boolean) = onFocusChange(
+        VaultFocus(page = VaultPage.Similar(document, origin = focus.page), document = document.takeIf { keepOpen }),
+    )
+
+    /** Back from V16 / D11: the page it was opened over, its document open again. */
+    fun closeSimilar(page: VaultPage.Similar) = onFocusChange(VaultFocus(page = page.origin, document = page.document))
+
+    /** Ticks or unticks on V16 / D11, keeping the open document beside it. */
+    fun tick(page: VaultPage.Similar, ticked: Set<String>) = onFocusChange(focus.copy(page = page.copy(ticked = ticked)))
+
     /** Back from a folder page: its parent folder's page, or home from the top level and À classer. */
     fun openParent(page: VaultPage.Folder) {
         val parentId = state.folders[page.folderId]?.parentId
@@ -393,6 +429,7 @@ private fun NarrowVault(vault: Vault, modifier: Modifier) {
             document != null -> key(document.id) { DocumentPage(vault, document) }
             page is VaultPage.Folder -> FolderPage(vault, page)
             page is VaultPage.Search -> SearchPage(vault, page)
+            page is VaultPage.Similar -> SimilarPage(vault, page)
             else -> HomePage(vault)
         }
     }
@@ -422,12 +459,15 @@ private fun WideVault(vault: Vault, modifier: Modifier) {
             page is VaultPage.Search -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.Detail) {
                 SearchPage(vault, page)
             }
+            page is VaultPage.Similar -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.Detail) {
+                SimilarPage(vault, page)
+            }
             else -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.List) { HomePage(vault) }
         }
     }
 }
 
-/** D2: the folder's list or the search's results, then [document] beside them. */
+/** D2: the folder's list, the search's results or the similar documents (D11), then [document] beside them. */
 @Composable
 private fun RowScope.DocumentBesideList(vault: Vault, page: VaultPage, document: FydeDocument) {
     Box(
@@ -439,6 +479,7 @@ private fun RowScope.DocumentBesideList(vault: Vault, page: VaultPage, document:
         when (page) {
             is VaultPage.Folder -> FolderListColumn(vault, page, selected = document)
             is VaultPage.Search -> SearchPage(vault, page, selected = document)
+            is VaultPage.Similar -> SimilarPage(vault, page, selected = document)
             VaultPage.Home -> Unit
         }
     }
@@ -671,7 +712,7 @@ internal fun FolderSummaryCard(vault: Vault, summary: VaultFolderSummary) {
 
 /** A section's title with a "+" action at its end ("Dossiers · + Nouveau dossier"). */
 @Composable
-internal fun SectionTitleWithAction(title: String, action: String, onAction: () -> Unit) {
+internal fun SectionTitleWithAction(title: String, action: String, onAction: () -> Unit, adds: Boolean = true) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = AppSpacing.space6, bottom = AppSpacing.space2),
         verticalAlignment = Alignment.CenterVertically,
@@ -685,7 +726,11 @@ internal fun SectionTitleWithAction(title: String, action: String, onAction: () 
         AppTextButton(
             text = action,
             onClick = onAction,
-            leadingIcon = { PlusGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) },
+            leadingIcon = if (adds) {
+                { PlusGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) }
+            } else {
+                null
+            },
         )
     }
 }
