@@ -55,14 +55,17 @@ subgraph "cluster_sources" { label="Sources (S)"; fontname="Inter SemiBold"; fon
   "S1" [label="S1\nSources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S2" [label="S2\nCatalogue" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S3" [label="S3\nConnecter" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S3b" [label="S3b\nAutre compte" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S4" [label="S4\nRécupération" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S4b" [label="S4b\nRécupération arrêtée" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S5" [label="S5\nDétail" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S5b" [label="S5b\nDétail, en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S5c" [label="S5c\nUn compte parmi plusieurs" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S6" [label="S6\nEn échec" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S6b" [label="S6b\nSite changé" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S8" [label="S8\nVérification demandée" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S7" [label="S7\nRetirer" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S7b" [label="S7b\nRetirer un compte" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
 }
 subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15; style="rounded"; color="#CFCAC0"; penwidth=1.2; margin=14;
   "M1" [label="M1\nMoi" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E3DCEC"];
@@ -176,6 +179,12 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "S1" -> "S6" [color="#1F4D3A" penwidth=1.6 label="en échec"];
 "S6" -> "S4" [color="#1F4D3A" penwidth=1.6 label="Mettre à jour et relancer"];
 "S5" -> "S7" [color="#2C5582" style=dashed penwidth=1.4 label="Retirer"];
+"S5" -> "S3b" [color="#1F4D3A" penwidth=1.6 label="Ajouter un autre compte"];
+"S2" -> "S3b" [color="#1F4D3A" penwidth=1.6 label="Autre compte"];
+"S3b" -> "S4" [color="#1F4D3A" penwidth=1.6 label="Connecter ce compte"];
+"S1" -> "S5c" [color="#1F4D3A" penwidth=1.6 label="un compte"];
+"S5c" -> "S3b" [color="#1F4D3A" penwidth=1.6 label="Ajouter un autre compte"];
+"S5c" -> "S7b" [color="#2C5582" style=dashed penwidth=1.4 label="Retirer ce compte"];
 "S1>M6" [label="→ M6 · Offre et usage" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "S1" -> "S1>M6" [color="#1F4D3A" penwidth=1.6 label="limite" arrowhead=none];
 "M1" -> "M2" [color="#1F4D3A" penwidth=1.6];

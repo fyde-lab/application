@@ -22,6 +22,10 @@ onboarding; not yet the sidebar's "+"; drag and drop only between the vault's ow
 cards and sidebar rows; a folder page listing every document below it); the table below says what was built, not what is
 drawn.
 
+**Several accounts per source.** A source can be connected once per account the user has on the
+provider's site (see [Accounts of a source](#accounts-of-a-source)): S1, S2, S5 and D4 are drawn
+with them, and S3b, S5c and S7b are new. The app doesn't build them yet.
+
 Screens built so far to a reference screen, on the current tokens until they're migrated (so in
 the old palette and type, with the reference's layout, copy and proportions):
 
@@ -318,7 +322,8 @@ Without a session there's no sidebar. The window splits in two (DO1–DO10):
 ### Source status
 
 A source (an installed scraper; parsers never appear in the UI) always shows exactly one status,
-identically in Sources and on desktop:
+identically in Sources and on desktop. A source with several accounts shows one per account,
+each on its own row (see [Accounts of a source](#accounts-of-a-source)):
 
 | Status | Colour, icon | Wording |
 |---|---|---|
@@ -363,6 +368,36 @@ would expire unseen.
     that the documents stay; Revenir aux sources · Relancer). Stopped from S5, D4 or the code
     sheet, a snackbar confirms it ("EDF arrêtée · 5 documents gardés", action Relancer).
 
+### Accounts of a source
+
+A household often has several logins on the same provider (two Ameli accounts, a personal and a
+joint bank account). Each is an **account** of the source: its own credentials, run, status,
+device and documents. Accounts never share a sign-in or a session, and they run independently,
+side by side.
+
+- **Name.** Each account has a name, "Nom du compte" (Marie, Compte joint), at most 60
+  characters. Left blank, it's the account's identifier as typed (the SDK picks the first non-secret
+  field, the username first), so it's never empty. It's renamed from S5c's or D4's Nom du compte
+  row, which reopens the credentials form with the name field focused.
+- **Where the name shows.** Only once a source has more than one account: "Ameli · Marie" (the
+  source's name, then the account's in `textMuted`, regular weight) on S1's rows, S5c's title,
+  D4's table and panel, the code sheet, snackbars and dialogs. A source with a single account
+  reads exactly as before: "EDF", never "EDF · pierre.p@exemple.fr".
+- **Adding one.** "Ajouter un autre compte <source>" (a text button with a plus, above Retirer)
+  on S5, S5c and D4's panel, and "Autre compte" in place of S2's Ajouter for a source already
+  added, open **S3b**: S3's form titled "Un autre compte <source>", an `info` note naming the
+  accounts already there, and the Nom du compte field after the credentials, with its help line.
+  S3, the first account, has no name field.
+- **Removing one.** With several accounts, S5c's "Retirer ce compte" opens **S7b**: that account's
+  documents stay, its credentials are erased everywhere, the others keep running. Removing the
+  last account is S7, "Retirer la source".
+- **Rows.** S1 sorts accounts like any row (by what they need, then A to Z), so two accounts of
+  a source aren't necessarily next to each other; S5c lists the source's other accounts under
+  "Autres comptes <source>", each opening its own S5c.
+- **The plan counts sources, not accounts.** A second account of an active source uses no
+  slot: "Autre compte" is never dimmed at the plan's limit, and the counters ("5 sources actives
+  sur 5") keep counting sources. The sidebar's Sources count is the number of rows: accounts.
+
 ### Verification code
 
 `OneTimeCodeField`: 6 boxes 52pt tall, `code` type; paste fills all boxes; backspace moves left;
@@ -398,6 +433,9 @@ picked (O7, DO7, S2). One row on `surface` with a `border` hairline: the plan in
 segment per allowed source (16×6, `primary` when used, `border` otherwise), and "n / max" in
 Plex Mono. Screen readers hear "3 sources choisies sur 5"; the count is announced as it changes.
 
+- The count is sources, never accounts: a source with two accounts counts once (see
+  [Accounts of a source](#accounts-of-a-source)), and adding an account to an active source
+  takes no slot.
 - The count is the sources already active plus the ones ticked on the screen
   (`Usage.enabled_scripts` + selection, against `Usage.max_scripts` from `getUsage`, read when the
   screen opens). During onboarding no source is active yet, so it's the selection alone.
@@ -597,6 +635,8 @@ that needs changing changes here first.
 | The encrypted store of documents | coffre | vault | coffre-fort, espace |
 | The OS secret store | trousseau (système) | keychain / keyring | coffre-fort système |
 | An installed scraper | source | source | connecteur, script |
+| One login on a source's site | compte (Ajouter un autre compte, Retirer ce compte) | account (Add another account, Remove this account) | identifiant, connexion, profil |
+| What tells a source's accounts apart | nom du compte | account name | libellé, alias |
 | The plan | offre (Gratuit) | plan (Free) | abonnement, forfait |
 | Adding a file by hand | Ajouter au coffre; Importer for the desktop file picker | Add to vault; Import | Mettre au coffre, Ajouter à Fyde |
 | A one-time code a source asks for | "<source> demande un code"; status "Attend votre code" | "<source> needs a code"; "Waiting for your code" | attend un code |
@@ -692,15 +732,18 @@ The tables hold each screen's content and states; how screens lead to one anothe
 
 | ID | Screen | Content | States |
 |---|---|---|---|
-| S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status; plan usage | Empty → Ajouter une source |
-| S2 | Catalogue | Search; every public scraper from A to Z; Ajouter or a check if already added; "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
+| S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status, one per account ("Ameli · Marie") when a source has several; plan usage, counting sources | Empty → Ajouter une source |
+| S2 | Catalogue | Search; every public scraper from A to Z; Ajouter, or for a source already added "n comptes ajoutés" (or "Déjà ajoutée") and Autre compte (→ S3b); "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
 | S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4) |
+| S3b | Connecter un autre compte | S3 for one more account of a source already added: "Un autre compte <source>", an info note naming the accounts already there, its fields, then Nom du compte (help: "Pour reconnaître ce compte parmi vos sources. Laissé vide : l'identifiant saisi plus haut."); Connecter ce compte | Connecter ce compte → S4 |
 | S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan; Arrêter la récupération (text) | Code or captcha → code sheet; Arrêter → S4b |
 | S4b | Récupération arrêtée | S4 once stopped: stepper frozen at the step reached (stop glyph, "Téléchargement arrêté 5 / 12"), later steps idle; info note "Les 5 documents déjà récupérés restent dans votre coffre…"; documents already arrived; Revenir aux sources · Relancer | Relancer → S4 |
-| S5 | Détail | Status, counts, automatic switch, Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Retirer la source | — |
+| S5 | Détail | Status, counts, automatic switch, Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Ajouter un autre compte <source> (text), Retirer la source | Ajouter un autre compte → S3b |
+| S5c | Détail d'un compte | S5 for one of a source's accounts: "Ameli · Marie", Nom du compte first in Réglages, then "Autres comptes <source>" (each with its status, opening its own S5c), Ajouter un autre compte, Retirer ce compte | Retirer ce compte → S7b; the last account left reads as S5 |
 | S5b | Détail, en cours | S5 while the source runs: status "Récupération… 5 / 12", Lancer's slot turned into an outlined Arrêter | Arrêter keeps S5b busy until the run ends, then S5 with the Stopped status and a snackbar |
 | S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | The report is the run's debug report, which never records headers, bodies or form values; a sheet shows what's sent before sending |
 | S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
+| S7b | Retirer un compte | Dialog over S5c: "Retirer le compte <source> « <nom> » ?"; its documents stay, its credentials are erased everywhere, the other accounts keep running; Retirer ce compte | — |
 | S6b | Site changé | Error note (the site changed, nothing fetched since …); info note that the credentials aren't at fault and the documents stay; Signaler le problème (filled) · Relancer quand même; what the report holds | No credential field: there's nothing for the user to fix |
 | S8 | Vérification demandée | Sheet over S4 (or a window on desktop): the provider's own page in an embedded browser (`fyde.browser`), with its address and "Page d'Ameli"; a line that Fyde fills nothing in and keeps nothing; Arrêter la récupération | Opens when a script hands a step to the browser (a captcha, a consent page); the run resumes when the page lets it through. Arrêter → S4b |
 
@@ -744,7 +787,7 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the folder if it was the last |
 | D11 | Documents similaires | D2 with its list column turned into V16 (back to the document's folder, "Documents similaires", the trust line, "Ce document" first, checkboxes, ressemblances), two ticked and the selection bar at the column's foot; the open document's pass, Informations and facts (its similar section left out: the list column already is it), and its preview beside. A row's tap opens it beside; only the checkbox ticks. Déplacer opens V9b as a 520dp dialog |
 | D11b | Supprimer les documents | V10b as a 500dp dialog over D11: `error` trash tile, title, names, text; Annuler (focused) · Supprimer |
-| D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
+| D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil), one row per account ("Ameli · Marie") · detail panel with Nom du compte · Renommer (several accounts only), Appareil · Changer, Ajouter un autre compte, Retirer ce compte (Retirer la source for a single account) |
 | D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
 | D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |
 | D6 | Tout le coffre | Sidebar · header with search and Importer · DOSSIERS with Nouveau dossier · 4-column folder cards as V1 · latest arrivals (with their folder path) |
@@ -821,7 +864,7 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `ColorIconPicker` | New | V12, D10: 8 swatches per row and the icon grid, selected = 2.5 `primary` outline |
 | `OneTimeCodeField` | New | See [Verification code](#verification-code) |
 | `SourceStatus`, `RunStepper` | Landed (S1, DO7c) | See [Source status](#source-status). `SourceStatus`: 12 glyph and caption Medium in the state's colour (spinner `primary`, clock `warning`, alert `error`, check `success`, muted stop square when stopped, muted clock when queued). `RunStepper`'s stopped step: the dot on `sunk` with a `borderStrong` ring and the stop square in `textMuted`, later steps idle |
-| `SourceRow` | New | Private to `SourcesTabScreen.kt` until another screen needs it. The tile shows the script's icon (`fetchIcon`, cached) on `surface`; without one, its initials on the fill of its main category. The references show the fallback (the app still falls back to a puzzle glyph: scripts have no category yet) |
+| `SourceRow` | New | Private to `SourcesTabScreen.kt` until another screen needs it. One row per account: the account's name follows the source's in `textMuted`, regular weight, once the source has several (see [Accounts of a source](#accounts-of-a-source)). The tile shows the script's icon (`fetchIcon`, cached) on `surface`; without one, its initials on the fill of its main category. The references show the fallback (the app still falls back to a puzzle glyph: scripts have no category yet) |
 | `PlanQuota` | New | See [Plan quota](#plan-quota) |
 | `SealHero` | Landed (O1) | `primary` disc and lock, `primaryWash` disc, two `border` rings at 168 (`AppDimensions.sealHero`); reused by M2 |
 | `DeviceTile` | New | Device glyph, name, sync dot |
