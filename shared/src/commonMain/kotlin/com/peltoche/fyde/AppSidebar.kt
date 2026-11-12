@@ -137,6 +137,7 @@ internal fun AppSidebar(
                         count = summary.unfiled,
                         selected = selection == SidebarSelection.Folder(null),
                         onClick = { navigation.onOpenFolder(null) },
+                        modifier = Modifier.vaultDropTarget(FolderChoice(null)),
                     ) {
                         UnfiledTile(size = 24.dp, iconSize = AppIconSize.sm, shape = RoundedCornerShape(7.dp))
                     }
@@ -265,11 +266,12 @@ private fun SidebarRow(
     selected: Boolean,
     onClick: () -> Unit,
     indent: Dp = 0.dp,
+    modifier: Modifier = Modifier,
     leading: @Composable (tint: Color) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(start = indent)
             .fillMaxWidth()
             .height(AppDimensions.sidebarRowHeight)
@@ -383,6 +385,7 @@ private fun SidebarFolderRows(
             selected = selection == SidebarSelection.Folder(folder.id),
             onClick = { navigation.onOpenFolder(folder.id) },
             indent = SidebarIndent * depth,
+            modifier = Modifier.vaultDropTarget(FolderChoice(folder.id)),
         ) {
             FolderTile(summary.folders, folder, size = 24.dp, iconSize = AppIconSize.sm, shape = RoundedCornerShape(7.dp))
         }

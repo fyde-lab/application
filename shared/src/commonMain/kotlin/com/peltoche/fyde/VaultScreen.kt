@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -245,7 +246,23 @@ fun VaultScreen(
     folderCallbacks: FolderCallbacks = FolderCallbacks(),
 ) {
     val folders = (state as? VaultUiState.Loaded)?.folders ?: VaultFolders()
-    CompositionLocalProvider(LocalVaultFolders provides folders) {
+    val currentFolders by rememberUpdatedState(folders)
+    val callbacks by rememberUpdatedState(folderCallbacks)
+    // Drag and drop is Expanded's, where a mouse is expected.
+    val drag = if (LocalAppWindowSizeClass.current == AppWindowSizeClass.Expanded) {
+        remember {
+            VaultDrag(folders = { currentFolders }) { item, choice ->
+                when (item) {
+                    is DragItem.Document -> callbacks.onDropDocument(item.document, choice.folderId)
+                    is DragItem.Folder -> choice.folderId?.let { callbacks.onDropFolder(item.folder.id, it) }
+                }
+            }
+        }
+    } else {
+        null
+    }
+    CompositionLocalProvider(LocalVaultFolders provides folders, LocalVaultDrag provides drag) {
+    VaultDragLayer(drag, modifier = modifier) {
     TopLevelScaffold(
         navigation = navigation.copy(
             // Re-selecting the tab from one of its pages returns home.
@@ -254,7 +271,6 @@ fun VaultScreen(
             onNewFolder = { folderCallbacks.onSheetChange(FolderSheetState(FolderSheet.Create(null))) },
         ),
         selection = focus.page.sidebarSelection(),
-        modifier = modifier,
     ) { contentPadding ->
         val windowSizeClass = LocalAppWindowSizeClass.current
         val pageModifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background)
@@ -289,6 +305,7 @@ fun VaultScreen(
                 }
             }
         }
+    }
     }
     }
 }
@@ -626,6 +643,9 @@ internal fun FolderSummaryCard(vault: Vault, summary: VaultFolderSummary) {
     val newest = summary.newest
     val caption = newest?.let { listOf(it.documentType?.label() ?: it.name, localizedShortDate(it.createdAt)).joinToString(" · ") }
     FolderCard(
+        modifier = Modifier
+            .vaultDropTarget(FolderChoice(folder?.id))
+            .then(if (folder != null) Modifier.vaultDragSource(DragItem.Folder(folder)) else Modifier),
         name = name,
         count = summary.count.toString(),
         caption = caption,
@@ -729,7 +749,11 @@ internal fun VaultDocumentRow(
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val place = if (showsFolder) document.folderLabel() else document.issuer
-    Box(modifier = if (onDelete != null) Modifier.onSecondaryClick { menuOpen = true } else Modifier) {
+    Box(
+        modifier = Modifier
+            .vaultDragSource(DragItem.Document(document))
+            .then(if (onDelete != null) Modifier.onSecondaryClick { menuOpen = true } else Modifier),
+    ) {
         DocumentRow(
             title = document.name,
             subtitle = listOfNotNull(place, localizedShortDate(document.createdAt)).joinToString(" · "),
