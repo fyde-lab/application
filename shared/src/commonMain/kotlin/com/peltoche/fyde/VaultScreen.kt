@@ -146,10 +146,13 @@ data class VaultFocus(
 )
 
 /**
- * A document the user asked to delete (V10, D2c), [busy] while its deletion
- * runs, [error] why it failed, in the SDK's wording.
+ * The documents the user asked to delete: one (V10, D2c) or the ticked ones
+ * (V10b, D11b). [busy] while their deletions publish; [error] why some
+ * failed, in the SDK's wording, [documents] then being those left.
  */
-data class DocumentDeletion(val document: FydeDocument, val busy: Boolean = false, val error: String? = null)
+data class DocumentDeletion(val documents: List<FydeDocument>, val busy: Boolean = false, val error: String? = null) {
+    constructor(document: FydeDocument, busy: Boolean = false, error: String? = null) : this(listOf(document), busy, error)
+}
 
 /**
  * A folder card or row: how many documents [folder] holds, its subfolders'
@@ -240,7 +243,7 @@ fun VaultScreen(
     loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     onRetryLoad: () -> Unit,
     onDeletionChange: (DocumentDeletion?) -> Unit,
-    onDelete: (FydeDocument) -> Unit,
+    onDelete: (List<FydeDocument>) -> Unit,
     navigation: TopLevelNavigation,
     modifier: Modifier = Modifier,
     folderCallbacks: FolderCallbacks = FolderCallbacks(),
@@ -298,7 +301,7 @@ fun VaultScreen(
                         deletion = deletion,
                         deviceCount = state.deviceCount,
                         wide = wide,
-                        onConfirm = { onDelete(deletion.document) },
+                        onConfirm = { onDelete(deletion.documents) },
                         onDismiss = { onDeletionChange(null) },
                     )
                 }
@@ -347,10 +350,16 @@ internal class Vault(
     fun openFolderSheet(sheet: FolderSheet) = folderCallbacks.onSheetChange(FolderSheetState(sheet))
 
     /** Opens V9 about [document]. */
-    fun askMove(document: FydeDocument) = folderCallbacks.onDocumentMoveChange(DocumentMove(document))
+    fun askMove(document: FydeDocument) = askMove(listOf(document))
+
+    /** Opens V9 about one document, or V9b about several. */
+    fun askMove(documents: List<FydeDocument>) = folderCallbacks.onDocumentMoveChange(DocumentMove(documents))
 
     /** Opens V10 / D2c about [document]. */
-    fun askDelete(document: FydeDocument) = onDeletionChange(DocumentDeletion(document))
+    fun askDelete(document: FydeDocument) = askDelete(listOf(document))
+
+    /** Opens V10 / D2c about one document, or V10b / D11b about several. */
+    fun askDelete(documents: List<FydeDocument>) = onDeletionChange(DocumentDeletion(documents))
 
     /** Back from a folder page: its parent folder's page, or home from the top level and À classer. */
     fun openParent(page: VaultPage.Folder) {

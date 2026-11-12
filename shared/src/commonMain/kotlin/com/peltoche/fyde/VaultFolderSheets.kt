@@ -61,6 +61,10 @@ import com.peltoche.fyde.resources.filing_change
 import com.peltoche.fyde.resources.document_move_where
 import com.peltoche.fyde.resources.document_move_type_note
 import com.peltoche.fyde.resources.document_move_title
+import com.peltoche.fyde.resources.documents_move_from
+import com.peltoche.fyde.resources.documents_move_title
+import com.peltoche.fyde.resources.documents_move_type_note
+import com.peltoche.fyde.resources.documents_move_where
 import com.peltoche.fyde.resources.folder_color
 import com.peltoche.fyde.resources.folder_color_n
 import com.peltoche.fyde.resources.folder_create
@@ -133,10 +137,13 @@ data class FolderSheetState(val sheet: FolderSheet, val busy: Boolean = false, v
 data class FolderForm(val name: String, val description: String, val appearance: FydeFolderAppearance?)
 
 /**
- * A document V9 moves, [busy] while the move publishes, [error] why it
- * failed, in the SDK's wording.
+ * The documents V9 moves (one), or V9b (the ticked ones). [busy] while
+ * their moves publish; [error] why some failed, in the SDK's wording,
+ * [documents] then being those left.
  */
-data class DocumentMove(val document: FydeDocument, val busy: Boolean = false, val error: String? = null)
+data class DocumentMove(val documents: List<FydeDocument>, val busy: Boolean = false, val error: String? = null) {
+    constructor(document: FydeDocument, busy: Boolean = false, error: String? = null) : this(listOf(document), busy, error)
+}
 
 /**
  * The folder changes the vault's sheets ask `App.kt` for; each reports back
@@ -145,7 +152,7 @@ data class DocumentMove(val document: FydeDocument, val busy: Boolean = false, v
 class FolderCallbacks(
     val onSheetChange: (FolderSheetState?) -> Unit = {},
     val onDocumentMoveChange: (DocumentMove?) -> Unit = {},
-    val onMoveDocument: (document: FydeDocument, folderId: String?) -> Unit = { _, _ -> },
+    val onMoveDocuments: (documents: List<FydeDocument>, folderId: String?) -> Unit = { _, _ -> },
     /** A document dropped on a folder (no sheet: the outcome is a snackbar). */
     val onDropDocument: (document: FydeDocument, folderId: String?) -> Unit = { _, _ -> },
     /** A folder dropped on another. */
@@ -441,12 +448,12 @@ private fun PickerCell(
  * at the top "À la racine du coffre", in a folder "Dans <folder> même",
  * then the level's folders, each with a chevron into its own. [excluded]
  * folders are left out (a moved folder and what's below it); [current] is
- * tagged Actuel and can't be picked.
+ * tagged Actuel and can't be picked (none for documents in several folders).
  */
 @Composable
 internal fun FolderPicker(
     excluded: Set<String>,
-    current: FolderChoice,
+    current: FolderChoice?,
     selected: FolderChoice?,
     onSelect: (FolderChoice) -> Unit,
     startLevel: String? = null,
@@ -648,38 +655,62 @@ private fun ContentsChoice(label: String, detail: String, selected: Boolean, onC
 
 /**
  * V9: where the document is, the folder picker on its folder's level (its
- * folder tagged Actuel), that its type doesn't change, then Déplacer.
+ * folder tagged Actuel), that its type doesn't change, then Déplacer. V9b,
+ * for several: where they are (their folder, or how many folders), the
+ * picker on the first one's folder's level, their folder tagged Actuel
+ * only when they all share it.
  */
 @Composable
 internal fun MoveDocumentSheet(vault: Vault) {
     val move = vault.state.documentMove ?: return
-    val document = move.document
+    val documents = move.documents
+    val first = documents.firstOrNull() ?: return
+    val single = documents.singleOrNull()
     val folders = LocalVaultFolders.current
     val callbacks = vault.folderCallbacks
-    var selected by remember(document.id) { mutableStateOf<FolderChoice?>(null) }
+    val folderIds = documents.map { it.folderId }.distinct()
+    var selected by remember(first.id) { mutableStateOf<FolderChoice?>(null) }
     val close = { callbacks.onDocumentMoveChange(null) }
     AppBottomSheet(onDismissRequest = { if (!move.busy) close() }) {
         Column(modifier = Modifier.padding(horizontal = AppSpacing.space5), verticalArrangement = Arrangement.spacedBy(AppSpacing.space4)) {
-            SheetHeader(stringResource(Res.string.document_move_title), close)
+            SheetHeader(
+                if (single != null) {
+                    stringResource(Res.string.document_move_title)
+                } else {
+                    pluralStringResource(Res.plurals.documents_move_title, documents.size, documents.size)
+                },
+                close,
+            )
             Text(
-                text = stringResource(Res.string.document_move_where, document.name, document.folderLabel()),
+                text = when {
+                    single != null -> stringResource(Res.string.document_move_where, single.name, single.folderLabel())
+                    folderIds.size == 1 -> stringResource(Res.string.documents_move_where, first.folderLabel())
+                    else -> pluralStringResource(Res.plurals.documents_move_from, folderIds.size, folderIds.size)
+                },
                 style = AppTypography.caption,
                 color = AppColors.textMuted,
             )
             FolderPicker(
                 excluded = emptySet(),
-                current = FolderChoice(document.folderId),
+                // No folder is "current" for documents spread over several.
+                current = FolderChoice(first.folderId).takeIf { folderIds.size == 1 },
                 selected = selected,
                 onSelect = { selected = it },
-                startLevel = folders[document.folderId]?.parentId,
+                startLevel = folders[first.folderId]?.parentId,
             )
-            document.documentType?.let {
-                Text(text = stringResource(Res.string.document_move_type_note, it.label()), style = AppTypography.caption, color = AppColors.textMuted)
+            // Several documents: only when they share a type.
+            val type = documents.map { it.documentType }.distinct().singleOrNull()
+            type?.let {
+                Text(
+                    text = stringResource(if (single != null) Res.string.document_move_type_note else Res.string.documents_move_type_note, it.label()),
+                    style = AppTypography.caption,
+                    color = AppColors.textMuted,
+                )
             }
             move.error?.let { AppErrorNote(it) }
             AppButton(
                 text = moveIntoLabel(selected),
-                onClick = { selected?.let { callbacks.onMoveDocument(document, it.folderId) } },
+                onClick = { selected?.let { callbacks.onMoveDocuments(documents, it.folderId) } },
                 enabled = selected != null,
                 loading = move.busy,
                 modifier = Modifier.fillMaxWidth(),

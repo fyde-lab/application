@@ -59,6 +59,10 @@ import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
 import com.peltoche.fyde.resources.document_move
 import com.peltoche.fyde.resources.document_move_shortcut
+import com.peltoche.fyde.resources.documents_delete_text
+import com.peltoche.fyde.resources.documents_delete_text_devices
+import com.peltoche.fyde.resources.documents_delete_title
+import com.peltoche.fyde.resources.documents_more
 import com.peltoche.fyde.resources.vault_delete
 import com.peltoche.fyde.resources.vault_delete_confirm
 import com.peltoche.fyde.resources.vault_delete_shortcut
@@ -409,7 +413,9 @@ private fun DocumentActionsSheet(
  * on Annuler): erased from the vault and every device, for good. Stays up,
  * busy, while the deletion runs, and with [DocumentDeletion.error] if it
  * failed. The note that a source won't fetch it again waits for the SDK to
- * remember deleted documents and say which source brought one.
+ * remember deleted documents and say which source brought one. For several
+ * documents (V10b, D11b): how many, then the first [DELETION_NAMES_SHOWN]
+ * names and "et n autres".
  */
 @Composable
 internal fun DeleteDocumentDialog(
@@ -419,15 +425,22 @@ internal fun DeleteDocumentDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val name = deletion.document.name
+    val documents = deletion.documents
+    val single = documents.singleOrNull()
     val error = deletion.error
     AppDialog(
         onDismissRequest = { if (!deletion.busy) onDismiss() },
-        title = stringResource(Res.string.vault_delete_title),
-        text = if (deviceCount != null) {
-            pluralStringResource(Res.plurals.vault_delete_text_devices, deviceCount, deviceCount, name)
+        title = if (single != null) {
+            stringResource(Res.string.vault_delete_title)
         } else {
-            stringResource(Res.string.vault_delete_text, name)
+            pluralStringResource(Res.plurals.documents_delete_title, documents.size, documents.size)
+        },
+        text = when {
+            single != null && deviceCount != null ->
+                pluralStringResource(Res.plurals.vault_delete_text_devices, deviceCount, deviceCount, single.name)
+            single != null -> stringResource(Res.string.vault_delete_text, single.name)
+            deviceCount != null -> pluralStringResource(Res.plurals.documents_delete_text_devices, deviceCount, deviceCount)
+            else -> stringResource(Res.string.documents_delete_text)
         },
         confirmLabel = stringResource(Res.string.vault_delete_confirm),
         onConfirm = onConfirm,
@@ -445,8 +458,34 @@ internal fun DeleteDocumentDialog(
             null
         },
         focusDismiss = wide,
-        content = error?.let { { AppErrorNote(it) } },
+        content = if (single == null || error != null) {
+            {
+                Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                    if (single == null) DeletedNames(documents)
+                    error?.let { AppErrorNote(it) }
+                }
+            }
+        } else {
+            null
+        },
     )
+}
+
+/** How many names V10b lists before "et n autres". */
+internal const val DELETION_NAMES_SHOWN = 3
+
+/** V10b's list: the first [DELETION_NAMES_SHOWN] names, then how many more. */
+@Composable
+private fun DeletedNames(documents: List<FydeDocument>) {
+    val more = documents.size - DELETION_NAMES_SHOWN
+    Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space1)) {
+        documents.take(DELETION_NAMES_SHOWN).forEach {
+            Text(text = it.name, style = AppTypography.bodyEmphasis, color = AppColors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        if (more > 0) {
+            Text(text = pluralStringResource(Res.plurals.documents_more, more, more), style = AppTypography.caption, color = AppColors.textMuted)
+        }
+    }
 }
 
 /** The document's file: its name, "PDF · 182 Ko", opening the viewer. */

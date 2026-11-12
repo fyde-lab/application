@@ -30,6 +30,10 @@ import com.peltoche.fyde.resources.usage_load_failed
 import com.peltoche.fyde.resources.search_failed
 import com.peltoche.fyde.resources.vault_load_failed
 import com.peltoche.fyde.resources.document_moved
+import com.peltoche.fyde.resources.documents_delete_failed
+import com.peltoche.fyde.resources.documents_deleted
+import com.peltoche.fyde.resources.documents_move_failed
+import com.peltoche.fyde.resources.documents_moved
 import com.peltoche.fyde.resources.folder_created
 import com.peltoche.fyde.resources.folder_layout_language
 import com.peltoche.fyde.resources.folder_deleted
@@ -50,6 +54,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.PluralStringResource
 import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
@@ -1080,6 +1085,41 @@ private suspend fun loadVaultSearch(query: VaultQuery): VaultSearchContents {
 }
 
 /**
+ * What [publishEach] got through: the ids of the documents it [done], those
+ * [refused] and the first [refusal] (`null` when none was).
+ */
+private class BatchOutcome(val total: Int, val done: Set<String>, val refused: List<FydeDocument>, val refusal: Throwable?) {
+    /** The error note: the SDK's wording alone for one document, else how many went with it. */
+    suspend fun message(refusal: Throwable, several: PluralStringResource): String = if (total == 1) {
+        refusal.userMessage()
+    } else {
+        getPluralString(several, refused.size, refused.size, total, refusal.userMessage())
+    }
+}
+
+/**
+ * Publishes [change] for each of [documents] in turn — fyde-sdk has no batch
+ * call, and one `FydeClient` takes no concurrent ones — going on past a
+ * refusal, so one refused document doesn't hold the others back. What was
+ * sent stays sent.
+ */
+private suspend fun publishEach(documents: List<FydeDocument>, change: suspend (FydeDocument) -> Result<Unit>): BatchOutcome {
+    val done = mutableSetOf<String>()
+    val refused = mutableListOf<FydeDocument>()
+    var refusal: Throwable? = null
+    for (document in documents) {
+        change(document)
+            .onSuccess { done += document.id }
+            .onFailure {
+                if (it is CancellationException) throw it
+                refused += document
+                if (refusal == null) refusal = it
+            }
+    }
+    return BatchOutcome(documents.size, done, refused, refusal)
+}
+
+/**
  * Owns the `fyde-sdk` connection and the changelog subscription, and maps
  * their results into [VaultUiState]: the folders, the home's summary, the
  * open folder's contents and the open search, all reloaded on every changelog event. Holds which
@@ -1235,6 +1275,11 @@ private fun VaultContainer(
             .onFailure { reportLoadFailure(it, Res.string.search_failed) }
     }
 
+    // After a batch change: the open document closes if it was deleted.
+    fun afterBatch(done: Set<String>, deleted: Boolean) {
+        if (deleted && focus.document?.id in done) focus = focus.copy(document = null, viewerOpen = false)
+    }
+
     // Polls fyde-sdk's own reachability check independently of the changelog
     // stream above, so the Import button and the offline note reflect
     // whether calls into the SDK are currently expected to succeed.
@@ -1288,18 +1333,26 @@ private fun VaultContainer(
             reloadKey++
         },
         onDeletionChange = { deletion = it },
-        // The document leaves the lists once sync consumes the Deleted event,
+        // Each document leaves the lists once sync consumes its Deleted event,
         // which reloads them like any other change.
-        onDelete = { document ->
-            deletion = DocumentDeletion(document, busy = true)
+        onDelete = { documents ->
+            deletion = DocumentDeletion(documents, busy = true)
             scope.launch {
-                FydeSdk.deleteDocument(document.id)
-                    .onSuccess {
-                        deletion = null
-                        if (focus.document?.id == document.id) focus = focus.copy(document = null, viewerOpen = false)
-                        snackbarHostState.showSnackbar(getString(Res.string.vault_deleted))
-                    }
-                    .onFailure { deletion = DocumentDeletion(document, error = it.userMessage()) }
+                val outcome = publishEach(documents) { FydeSdk.deleteDocument(it.id) }
+                afterBatch(outcome.done, deleted = true)
+                val refusal = outcome.refusal
+                if (refusal == null) {
+                    deletion = null
+                    snackbarHostState.showSnackbar(
+                        if (documents.size == 1) {
+                            getString(Res.string.vault_deleted)
+                        } else {
+                            getPluralString(Res.plurals.documents_deleted, documents.size, documents.size)
+                        },
+                    )
+                } else {
+                    deletion = DocumentDeletion(outcome.refused, error = outcome.message(refusal, Res.plurals.documents_delete_failed))
+                }
             }
         },
         navigation = navigation,
@@ -1339,16 +1392,25 @@ private fun VaultContainer(
                         )
                     }
                 },
-                // The open document shows its new folder once sync consumes the move.
-                onMoveDocument = { document, folderId ->
-                    documentMove = DocumentMove(document, busy = true)
+                // The documents show their new folder once sync consumes the moves.
+                onMoveDocuments = { documents, folderId ->
+                    documentMove = DocumentMove(documents, busy = true)
                     scope.launch {
-                        FydeSdk.moveDocument(document.id, folderId)
-                            .onSuccess {
-                                documentMove = null
-                                snackbarHostState.showSnackbar(getString(Res.string.document_moved))
-                            }
-                            .onFailure { documentMove = DocumentMove(document, error = it.userMessage()) }
+                        val outcome = publishEach(documents) { FydeSdk.moveDocument(it.id, folderId) }
+                        afterBatch(outcome.done, deleted = false)
+                        val refusal = outcome.refusal
+                        if (refusal == null) {
+                            documentMove = null
+                            snackbarHostState.showSnackbar(
+                                if (documents.size == 1) {
+                                    getString(Res.string.document_moved)
+                                } else {
+                                    getPluralString(Res.plurals.documents_moved, documents.size, documents.size)
+                                },
+                            )
+                        } else {
+                            documentMove = DocumentMove(outcome.refused, error = outcome.message(refusal, Res.plurals.documents_move_failed))
+                        }
                     }
                 },
                 onCreate = { parentId, form ->

@@ -656,4 +656,44 @@
     <string name="folder_layout_money">Money</string>
     <string name="folder_layout_work">Work</string>
     <string name="folder_layout_taxes">Taxes</string>
+    <!-- Several documents at once (V9b, V10b, D11b) -->
+    <plurals name="documents_move_title">
+        <item quantity="one">Move %1$d document</item>
+        <item quantity="other">Move %1$d documents</item>
+    </plurals>
+    <string name="documents_move_where">In %1$s</string>
+    <string name="documents_move_type_note">Their type (%1$s) doesn’t change.</string>
+    <plurals name="documents_move_from">
+        <item quantity="one">From %1$d folder</item>
+        <item quantity="other">From %1$d folders</item>
+    </plurals>
+    <plurals name="documents_moved">
+        <item quantity="one">%1$d document moved</item>
+        <item quantity="other">%1$d documents moved</item>
+    </plurals>
+    <plurals name="documents_move_failed">
+        <item quantity="one">%1$d of %2$d couldn’t be moved: %3$s</item>
+        <item quantity="other">%1$d of %2$d couldn’t be moved: %3$s</item>
+    </plurals>
+    <plurals name="documents_delete_title">
+        <item quantity="one">Delete %1$d document?</item>
+        <item quantity="other">Delete %1$d documents?</item>
+    </plurals>
+    <string name="documents_delete_text">They’ll be erased from your vault and from all your devices. You won’t be able to get them back.</string>
+    <plurals name="documents_delete_text_devices">
+        <item quantity="one">They’ll be erased from your vault and from your device. You won’t be able to get them back.</item>
+        <item quantity="other">They’ll be erased from your vault and from your %1$d devices. You won’t be able to get them back.</item>
+    </plurals>
+    <plurals name="documents_more">
+        <item quantity="one">and %1$d more</item>
+        <item quantity="other">and %1$d more</item>
+    </plurals>
+    <plurals name="documents_deleted">
+        <item quantity="one">%1$d document deleted</item>
+        <item quantity="other">%1$d documents deleted</item>
+    </plurals>
+    <plurals name="documents_delete_failed">
+        <item quantity="one">%1$d of %2$d couldn’t be deleted: %3$s</item>
+        <item quantity="other">%1$d of %2$d couldn’t be deleted: %3$s</item>
+    </plurals>
 </resources>
