@@ -289,6 +289,10 @@ private fun AppContent(
     var connectQueue by remember { mutableStateOf<List<FydeScript>>(emptyList()) }
     var connectIndex by remember { mutableStateOf(0) }
     var skippedSourceIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    // The account each source connected during onboarding got, by script id:
+    // its first run is followed by installation id, and going back to it
+    // replaces that account instead of adding a second one.
+    var onboardingAccounts by remember { mutableStateOf<Map<String, SourceAccount>>(emptyMap()) }
     var connectError by remember { mutableStateOf<String?>(null) }
     var isConnectingSource by remember { mutableStateOf(false) }
     // "Wait here" on SourceFetchingScreen: move on by itself once the run succeeds.
@@ -565,9 +569,10 @@ private fun AppContent(
     LaunchedEffect(screen, showsSidebar, accountChanged) {
         if (!signedIn || !showsSidebar) return@LaunchedEffect
         coroutineScope {
-            val usage = async { FydeSdk.getUsage().getOrNull() }
+            // The sidebar counts accounts, the rows Sources shows (design-system.md § Accounts of a source).
+            val installations = async { FydeSdk.listInstallations().getOrNull() }
             val sessions = async { FydeSdk.listSessions().getOrNull() }
-            val sourceCount = usage.await()?.enabledScripts
+            val sourceCount = installations.await()?.size
             val deviceCount = sessions.await()?.size
             sidebarSummary = sidebarSummary.copy(
                 sourceCount = sourceCount ?: sidebarSummary.sourceCount,
@@ -627,6 +632,7 @@ private fun AppContent(
         }
         connectQueue = emptyList()
         skippedSourceIds = emptySet()
+        onboardingAccounts = emptyMap()
         sourceSelection = emptySet()
         sourcesQuery = ""
         screen = Screen.Vault
@@ -639,15 +645,24 @@ private fun AppContent(
         connectError = null
         isConnectingSource = true
         scope.launch {
-            val result = FydeSdk.installScript(script.id, parameters)
-                .mapCatching { FydeSdk.enableScript(script.id).getOrThrow() }
+            val previous = onboardingAccounts[script.id]
+            val result = FydeSdk.installScript(previous?.installationId, script.id, label = "", parameters)
+                .mapCatching { id -> FydeSdk.enableScript(script.id).getOrThrow(); id }
             isConnectingSource = false
             // The session may have ended meanwhile, back to the login form.
             if (screen != Screen.ConnectSource) return@launch
             result
-                .onSuccess {
+                .onSuccess { id ->
+                    val account = SourceAccount(
+                        installationId = id,
+                        script = script,
+                        label = provisionalLabel(script, parameters),
+                        parameters = parameters,
+                        shared = false,
+                    )
+                    onboardingAccounts = onboardingAccounts + (script.id to account)
                     skippedSourceIds = skippedSourceIds - script.id
-                    scraperRuns.runOnceInstalled(script)
+                    scraperRuns.runOnceInstalled(account, parameters)
                     screen = Screen.FetchingSource
                 }
                 .onFailure { connectError = getString(Res.string.connect_source_failed, script.name, it.userMessage()) }
@@ -658,7 +673,8 @@ private fun AppContent(
     // "Wait here", a success moves on by itself, a failure stays to be seen.
     val fetchingOutcome = connectQueue.getOrNull(connectIndex)
         ?.takeIf { screen == Screen.FetchingSource }
-        ?.let { scraperRuns.outcomes[it.id] }
+        ?.let { onboardingAccounts[it.id] }
+        ?.let { scraperRuns.outcomes[it.installationId] }
     LaunchedEffect(fetchingOutcome, isWaitingForFetch) {
         if (!isWaitingForFetch || fetchingOutcome == null) return@LaunchedEffect
         if (fetchingOutcome is ScraperRunOutcome.Succeeded) nextSource() else isWaitingForFetch = false
@@ -672,7 +688,7 @@ private fun AppContent(
                 index == connectIndex -> current
                 index > connectIndex -> VaultSourceState.Next
                 source.id in skippedSourceIds -> VaultSourceState.Skipped
-                scraperRuns.isPending(source.id) -> VaultSourceState.Running
+                onboardingAccounts[source.id]?.let { scraperRuns.isPending(it.installationId) } == true -> VaultSourceState.Running
                 else -> VaultSourceState.Connected
             },
         )
@@ -817,16 +833,17 @@ private fun AppContent(
                 )
             }
             Screen.FetchingSource -> connectQueue.getOrNull(connectIndex)?.let { script ->
+                val account = onboardingAccounts[script.id]
                 SourceFetchingScreen(
                     script = script,
                     position = connectIndex + 1,
                     count = connectQueue.size,
                     sources = vaultSources(current = VaultSourceState.Fetching),
-                    status = sourceFetchStatusOf(script.id, scraperRuns),
+                    status = account?.let { sourceFetchStatusOf(it.installationId, scraperRuns) } ?: SourceFetchStatus.Queued,
                     isLast = connectIndex == connectQueue.lastIndex,
                     isWaiting = isWaitingForFetch,
                     onWait = { isWaitingForFetch = true },
-                    onRetry = { scraperRuns.runOnceInstalled(script) },
+                    onRetry = { account?.let { scraperRuns.runOnceInstalled(it) } },
                     onNext = ::nextSource,
                 )
             }
@@ -934,6 +951,7 @@ private fun AppContent(
             )
             Screen.Scripts -> SourcesTabContainer(
                 scraperRuns = scraperRuns,
+                changelogChanges = documentChanges,
                 onSourcesChange = { accountChanged++ },
                 navigation = navigation,
                 onOpenPlan = {
@@ -977,10 +995,10 @@ private fun AppContent(
         scraperRuns.question?.let { pending ->
             key(pending) {
                 ScraperQuestionDialog(
-                    scriptName = pending.scriptName,
+                    scriptName = pending.sourceName,
                     question = pending.text,
                     onAnswer = { text -> scraperRuns.answer(pending, text) },
-                    onStop = { scraperRuns.stop(pending.scriptId) },
+                    onStop = { scraperRuns.stop(pending.installationId) },
                 )
             }
         }
@@ -1487,14 +1505,16 @@ private fun VaultContainer(
 /**
  * Owns the `fyde-sdk` calls backing [SourcesTabScreen]: every scraper on
  * offer ([FydeSdk.listPublicScripts] + [FydeSdk.listUserScripts], parsers
- * left out), the user's enabled ones being their sources, installed with
- * [FydeSdk.installedScriptParameters]'s values, and the plan's source quota
- * ([FydeSdk.getUsage]). There's no live subscription for scripts, so all of
- * it is fetched once per visit (plus [retryKey] bumps).
+ * left out), the user's accounts ([FydeSdk.listInstallations], re-read on
+ * every changelog event, [changelogChanges], so accounts added or removed
+ * on another device show up), and the plan's source quota
+ * ([FydeSdk.getUsage]). Scripts and quota are fetched once per visit
+ * (plus [retryKey] bumps).
  */
 @Composable
 private fun SourcesTabContainer(
     scraperRuns: ScraperRuns,
+    changelogChanges: Int,
     onSourcesChange: () -> Unit,
     navigation: TopLevelNavigation,
     onOpenPlan: () -> Unit,
@@ -1534,8 +1554,7 @@ private fun SourcesTabContainer(
         val scripts = (userScripts + publicScripts).distinctBy { it.id }.filter { it.type == FydeScriptType.SCRAPER }
         uiState = SourcesTabUiState.Loaded(
             scripts = scripts,
-            installedIds = userScripts.map { it.id }.toSet(),
-            installedParameters = FydeSdk.installedScriptParameters().getOrElse { emptyMap() },
+            installations = FydeSdk.listInstallations().getOrElse { emptyList() },
         )
         refreshQuota()
 
@@ -1544,36 +1563,60 @@ private fun SourcesTabContainer(
         }
     }
 
-    // Installing publishes [parameters] through the changelog (so the source
-    // and the values it runs with sync to every device on the account), then
-    // enables it; installing an installed source again replaces its values.
+    // What sync has brought: an account published here (shown at once,
+    // provisionally, below) replaced by the SDK's own, one added or removed
+    // on another device. One being installed or removed here keeps its
+    // provisional state until its own call ends.
+    LaunchedEffect(changelogChanges) {
+        if (uiState !is SourcesTabUiState.Loaded || changelogChanges == 0) return@LaunchedEffect
+        val synced = FydeSdk.listInstallations().getOrNull() ?: return@LaunchedEffect
+        update { latest ->
+            val inFlight = latest.installations.filter { it.id in latest.pendingIds }
+            latest.copy(installations = synced.filter { it.id !in latest.pendingIds } + inFlight)
+        }
+    }
+
+    // Installing publishes the account's values through the changelog (so it
+    // syncs to every device on the account) and enables its source, idempotent
+    // for one already enabled; [existing] reinstalls that account, else it's a
+    // new one. Shown at once with a provisional label until sync returns the
+    // SDK's.
     fun install(
         script: FydeScript,
+        existing: SourceAccount?,
+        label: String,
         parameters: Map<String, FydeScriptParameterValue>,
-        onDone: suspend (Throwable?) -> Unit,
+        onDone: suspend (SourceAccount?, Throwable?) -> Unit,
     ) {
         val current = uiState as? SourcesTabUiState.Loaded ?: return
-        if (script.id in current.pendingIds) return
-        uiState = current.copy(pendingIds = current.pendingIds + script.id, errors = current.errors - script.id)
+        val key = existing?.installationId ?: script.id
+        if (key in current.pendingIds) return
+        uiState = current.copy(pendingIds = current.pendingIds + key, errors = current.errors - key)
         scope.launch {
-            val error = FydeSdk.installScript(script.id, parameters)
-                .mapCatching { FydeSdk.enableScript(script.id).getOrThrow() }
-                .exceptionOrNull()
+            val result = FydeSdk.installScript(existing?.installationId, script.id, label, parameters)
+                .mapCatching { id -> FydeSdk.enableScript(script.id).getOrThrow(); id }
+            val installed = result.getOrNull()?.let { id ->
+                FydeInstallation(id, script.id, label.trim().ifEmpty { provisionalLabel(script, parameters) }, parameters)
+            }
             update { latest ->
                 latest.copy(
-                    pendingIds = latest.pendingIds - script.id,
-                    installedIds = if (error == null) latest.installedIds + script.id else latest.installedIds,
-                    installedParameters = if (error == null) latest.installedParameters + (script.id to parameters) else latest.installedParameters,
+                    pendingIds = latest.pendingIds - key,
+                    installations = if (installed == null) {
+                        latest.installations
+                    } else {
+                        latest.installations.filter { it.id != installed.id } + installed
+                    },
                 )
             }
-            onDone(error)
+            val account = installed?.let { (uiState as? SourcesTabUiState.Loaded)?.accounts?.find { it.installationId == installed.id } }
+            onDone(account, result.exceptionOrNull())
         }
     }
 
     SourcesTabScreen(
         state = uiState,
-        statuses = (uiState as? SourcesTabUiState.Loaded)?.installedIds.orEmpty()
-            .mapNotNull { id -> sourceStatusOf(id, scraperRuns)?.let { id to it } }
+        statuses = (uiState as? SourcesTabUiState.Loaded)?.installations.orEmpty()
+            .mapNotNull { installation -> sourceStatusOf(installation.id, scraperRuns)?.let { installation.id to it } }
             .toMap(),
         runningIds = scraperRuns.runningIds,
         stoppingIds = scraperRuns.stoppingIds,
@@ -1583,60 +1626,70 @@ private fun SourcesTabContainer(
         onCatalogueOpenChange = { catalogueOpen = it },
         query = query,
         onQueryChange = { query = it },
-        onConnect = { script, parameters ->
-            install(script, parameters) { error ->
-                if (error == null) {
+        onConnect = { script, label, parameters ->
+            install(script, existing = null, label, parameters) { account, error ->
+                if (account != null) {
                     refreshQuota()
                     onSourcesChange()
-                    scraperRuns.runOnceInstalled(script, parameters)
-                    focus = SourceFocus.Fetching(script.id)
+                    scraperRuns.runOnceInstalled(account, parameters)
+                    focus = SourceFocus.Fetching(account.installationId)
                     catalogueOpen = false
                 } else {
-                    val message = getString(Res.string.connect_source_failed, script.name, error.userMessage())
+                    val message = getString(Res.string.connect_source_failed, script.name, error?.userMessage().orEmpty())
                     update { it.copy(errors = it.errors + (script.id to message)) }
                 }
             }
         },
-        onUpdate = { script, parameters, rerun ->
-            install(script, parameters) { error ->
+        onUpdate = { existing, label, parameters, rerun ->
+            install(existing.script, existing, label, parameters) { account, error ->
+                val id = existing.installationId
                 when {
-                    error != null -> {
-                        val message = getString(Res.string.source_update_failed, script.name, error.userMessage())
-                        update { it.copy(errors = it.errors + (script.id to message)) }
+                    account == null -> {
+                        val message = getString(Res.string.source_update_failed, existing.name, error?.userMessage().orEmpty())
+                        update { it.copy(errors = it.errors + (id to message)) }
                     }
                     rerun -> {
-                        scraperRuns.runOnceInstalled(script, parameters)
-                        focus = SourceFocus.Fetching(script.id)
+                        scraperRuns.runOnceInstalled(account, parameters)
+                        focus = SourceFocus.Fetching(id)
                     }
                     else -> {
-                        focus = SourceFocus.Detail(script.id)
-                        snackbarHostState.showSnackbar(getString(Res.string.source_credentials_saved, script.name))
+                        focus = SourceFocus.Detail(id)
+                        snackbarHostState.showSnackbar(getString(Res.string.source_credentials_saved, account.name))
                     }
                 }
             }
         },
-        onRun = { script -> scraperRuns.run(script) },
-        onStop = { script -> scraperRuns.stop(script.id) },
-        // Removing only disables the source: fyde-sdk has no uninstall event yet.
-        onRemove = { script ->
+        onRun = { account -> scraperRuns.run(account) },
+        onStop = { account -> scraperRuns.stop(account.installationId) },
+        // Uninstalling erases the account's credentials and sign-in on every
+        // device; its source is disabled with its last account, freeing its
+        // place in the plan.
+        onRemove = { account ->
             val current = uiState as? SourcesTabUiState.Loaded
-            if (current != null && script.id !in current.pendingIds) {
-                uiState = current.copy(pendingIds = current.pendingIds + script.id)
+            val id = account.installationId
+            if (current != null && id !in current.pendingIds) {
+                uiState = current.copy(pendingIds = current.pendingIds + id)
                 scope.launch {
-                    val error = FydeSdk.disableScript(script.id).exceptionOrNull()
+                    scraperRuns.stop(id)
+                    val last = current.accountsOf(account.script.id).none { it.installationId != id }
+                    val error = FydeSdk.uninstallScript(id)
+                        .mapCatching { if (last) FydeSdk.disableScript(account.script.id).getOrThrow() }
+                        .exceptionOrNull()
                     update { latest ->
                         latest.copy(
-                            pendingIds = latest.pendingIds - script.id,
-                            installedIds = if (error == null) latest.installedIds - script.id else latest.installedIds,
+                            pendingIds = latest.pendingIds - id,
+                            installations = if (error == null) latest.installations.filter { it.id != id } else latest.installations,
                         )
                     }
                     if (error == null) {
-                        if (focus?.scriptId == script.id) focus = null
+                        if (focus.let { it is SourceFocus.Detail && it.installationId == id || it is SourceFocus.Credentials && it.installationId == id }) {
+                            focus = null
+                        }
                         refreshQuota()
                         onSourcesChange()
-                        snackbarHostState.showSnackbar(getString(Res.string.source_removed, script.name))
+                        snackbarHostState.showSnackbar(getString(Res.string.source_removed, account.name))
                     } else {
-                        snackbarHostState.showSnackbar(getString(Res.string.source_remove_failed, script.name, error.userMessage()))
+                        snackbarHostState.showSnackbar(getString(Res.string.source_remove_failed, account.name, error.userMessage()))
                     }
                 }
             }
@@ -1647,15 +1700,15 @@ private fun SourcesTabContainer(
 }
 
 /**
- * Where [scriptId]'s latest run in this app session is: waiting for its
- * installation to reach this device, running, or over; `null` if it hasn't
- * been run.
+ * Where [installationId]'s latest run in this app session is: waiting for
+ * its installation to reach this device, running, or over; `null` if it
+ * hasn't been run.
  */
-private fun sourceStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStatus? {
-    runs.runOf(scriptId)?.let { run ->
+private fun sourceStatusOf(installationId: String, runs: ScraperRuns): SourceFetchStatus? {
+    runs.runOf(installationId)?.let { run ->
         return if (run.awaitingInstallation) SourceFetchStatus.Queued else SourceFetchStatus.Running(run.stepKind, run.update, run.found)
     }
-    return when (val outcome = runs.outcomes[scriptId]) {
+    return when (val outcome = runs.outcomes[installationId]) {
         is ScraperRunOutcome.Succeeded -> SourceFetchStatus.Succeeded(outcome.found)
         is ScraperRunOutcome.Failed -> SourceFetchStatus.Failed(outcome.message, outcome.step, outcome.found)
         is ScraperRunOutcome.Stopped -> SourceFetchStatus.Stopped(outcome.step, outcome.update, outcome.found)
@@ -1664,5 +1717,5 @@ private fun sourceStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStat
 }
 
 /** [sourceStatusOf] for [SourceFetchingScreen], which opens as the run is about to start. */
-private fun sourceFetchStatusOf(scriptId: String, runs: ScraperRuns): SourceFetchStatus =
-    sourceStatusOf(scriptId, runs) ?: SourceFetchStatus.Queued
+private fun sourceFetchStatusOf(installationId: String, runs: ScraperRuns): SourceFetchStatus =
+    sourceStatusOf(installationId, runs) ?: SourceFetchStatus.Queued

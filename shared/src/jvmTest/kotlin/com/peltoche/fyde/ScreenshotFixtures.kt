@@ -152,15 +152,20 @@ internal object ScreenshotFixtures {
         VaultSource("Ameli", VaultSourceState.Current),
         VaultSource("Impôts", VaultSourceState.Next),
     )
+    // Ameli with two accounts (design-system.md § Accounts of a source).
     private val sourcesTab = SourcesTabUiState.Loaded(
         scripts = scripts,
-        installedIds = setOf(edf.id, ameli.id),
-        installedParameters = mapOf(edf.id to mapOf("username" to FydeScriptParameterValue.Text("pierre@example.com"))),
+        installations = listOf(
+            FydeInstallation("edf-1", edf.id, "pierre@example.com", mapOf("username" to FydeScriptParameterValue.Text("pierre@example.com"))),
+            FydeInstallation("ameli-pierre", ameli.id, "Pierre", emptyMap()),
+            FydeInstallation("ameli-marie", ameli.id, "Marie", emptyMap()),
+        ),
         quota = SourceQuota("free", 2, 3),
     )
     private val statuses = mapOf(
-        edf.id to SourceFetchStatus.Succeeded(found = 12),
-        ameli.id to SourceFetchStatus.Running(FydeScraperStep.DOWNLOADING_DOCUMENTS, FydeScraperProgress.Update(3, 10), 3),
+        "edf-1" to SourceFetchStatus.Succeeded(found = 12),
+        "ameli-pierre" to SourceFetchStatus.Running(FydeScraperStep.DOWNLOADING_DOCUMENTS, FydeScraperProgress.Update(3, 10), 3),
+        "ameli-marie" to SourceFetchStatus.Succeeded(found = 17),
     )
 
     val screens: List<Pair<String, @Composable () -> Unit>> = listOf(
@@ -265,9 +270,11 @@ internal object ScreenshotFixtures {
         shot("folder-layout-blank") { FolderLayoutScreen(FolderLayoutChoice.Blank, {}, busy = false, error = null, onContinue = {}) },
         shot("sources-tab") { sourcesTab(sourcesTab, null) },
         shot("sources-tab-loading") { sourcesTab(SourcesTabUiState.Loaded(scripts = null), null) },
-        shot("sources-tab-detail") { sourcesTab(sourcesTab, SourceFocus.Detail(edf.id)) },
-        shot("sources-tab-fetching") { sourcesTab(sourcesTab, SourceFocus.Fetching(ameli.id)) },
+        shot("sources-tab-detail") { sourcesTab(sourcesTab, SourceFocus.Detail("edf-1")) },
+        shot("sources-tab-account-detail") { sourcesTab(sourcesTab, SourceFocus.Detail("ameli-marie")) },
+        shot("sources-tab-fetching") { sourcesTab(sourcesTab, SourceFocus.Fetching("ameli-pierre")) },
         shot("sources-tab-connect") { sourcesTab(sourcesTab, SourceFocus.Connect(free.id)) },
+        shot("sources-tab-connect-another") { sourcesTab(sourcesTab, SourceFocus.Connect(ameli.id)) },
         shot("sources-tab-catalogue") { sourcesTab(sourcesTab, null, catalogueOpen = true) },
         shot("settings-menu") { settings(null) },
         shot("settings-loading") {
@@ -325,8 +332,8 @@ internal object ScreenshotFixtures {
             onCatalogueOpenChange = {},
             query = "",
             onQueryChange = {},
-            onConnect = { _, _ -> },
-            onUpdate = { _, _, _ -> },
+            onConnect = { _, _, _ -> },
+            onUpdate = { _, _, _, _ -> },
             onRun = {},
             onStop = {},
             onRemove = {},

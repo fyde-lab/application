@@ -131,16 +131,25 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   event per document in turn (the SDK has no batch call), going on past a refusal, and the
   sheet stays open on those refused. The starting document's row isn't refreshed after a
   move (the SDK has no metadata-only getter).
-- Sources: `SourcesTabScreen.kt` (the design's S1–S7, D4), backed by `App.kt`'s
-  `SourcesTabContainer` (scrapers only; quota from `getUsage`). S1–S6 are pages at
+- Sources: `SourcesTabScreen.kt` (the design's S1–S7, S3b, S5c, S7b, D4), backed by `App.kt`'s
+  `SourcesTabContainer` (scrapers only; quota from `getUsage`). A source can have several
+  accounts (design-system.md § Accounts of a source): each is a `SourceAccount`
+  (`SourceAccounts.kt`, one `FydeInstallation` of a script, its own installation id, label,
+  credentials, runs and status), and every row, page, run and status is per account, keyed by
+  installation id; the label shows ("Ameli · Marie") only once a source has several. The
+  container re-reads `FydeSdk.listInstallations` on every changelog event. S1–S6 are pages at
   Compact/Medium; Expanded is D4, a table sortable by source and status beside a detail panel.
-  Which page is open is a `SourceFocus` held by the container. Connect = install + enable, then
+  Which page is open is a `SourceFocus` held by the container (`Connect` by script id, the
+  others by installation id). Connect = install (a new installation) + enable, then
   `ScraperRuns.runOnceInstalled` with the values just installed (it waits until they've synced)
-  and S4; editing credentials reinstalls, a blank secret keeping the installed one
-  (`validatedCredentials`); remove only disables (no uninstall event yet). Statuses come from
+  and S4; Ajouter un autre compte (S5/S5c/D4) and S2's Autre compte open the same form for one
+  more account (S3b, with Nom du compte; the plan counts sources, so it's never dimmed at the
+  limit). Editing credentials reinstalls the same installation, a blank secret keeping the
+  installed one (`validatedCredentials`). Remove uninstalls the account (`FydeSdk.uninstallScript`,
+  S7, or S7b for one among several) and disables the source with its last account. Statuses come from
   `ScraperRuns` (this app session's runs): no run history, schedule, counts or categories.
   Arrêter (`ScraperRuns.stop`, `FydeSdk.stopScriptRun`) sits under S4's primary and in S5/D4's
-  Lancer slot while the source runs, busy until the run has ended; a stopped run's outcome is
+  Lancer slot while the account runs, busy until the run has ended; a stopped run's outcome is
   `ScraperRunOutcome.Stopped` (from `FydeSdkException.isRunStopped`), shown muted, never as a
   failure (S4b's note, a snackbar with Relancer). The question dialog's dismiss stops the run.
 - Settings (`SettingsScreen.kt`, the design's Moi M1–M3 and M5–M8): a menu (seal card,
@@ -198,7 +207,7 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   field per script parameter (`ScriptParameterField`, `ScriptParameters.kt`, shared with the Sources tab);
   Connecter installs and enables it, then `ScraperRuns.runOnceInstalled` starts its first run
   once the installation has synced to this device (alongside any other source's: runs are
-  parallel, one `ScraperRun` per script, keyed by the script id the bridge's
+  parallel, one `ScraperRun` per account, keyed by the installation id the bridge's
   `ScraperListener` passes), and opens `SourceFetchingScreen`. Passer
   cette source / back move along the queue; after the last source → Vault until DO7d–DO7g
   and DO8 exist. No "Récupérer automatiquement" switch: fyde-sdk has no scheduled runs.

@@ -193,8 +193,11 @@ enum class FydeEventType {
     UPDATE_METADATA,
     DELETED,
 
-    /** A script was installed for the account, see [FydeSdk.installScript]. */
+    /** A script was installed for the account, or an installation replaced, see [FydeSdk.installScript]. */
     INSTALL_SCRIPT,
+
+    /** An installation was removed, see [FydeSdk.uninstallScript]. */
+    UNINSTALL_SCRIPT,
 
     /** A folder was created or changed. */
     SAVE_FOLDER,
@@ -208,7 +211,7 @@ enum class FydeEventType {
  * leaking `:sdkBridge`'s generated bindings into `commonMain`. [subjectId]
  * is the id of whatever the write is about: a document for
  * [FydeEventType.SAVE_DOCUMENT]/[FydeEventType.UPDATE_METADATA]/
- * [FydeEventType.DELETED], a script for [FydeEventType.INSTALL_SCRIPT].
+ * [FydeEventType.DELETED], an installation for [FydeEventType.INSTALL_SCRIPT]/[FydeEventType.UNINSTALL_SCRIPT].
  * [document] (metadata only) is only present for [FydeEventType.SAVE_DOCUMENT]
  * events, which are the only ones that carry document content and metadata today.
  */
@@ -444,6 +447,22 @@ data class FydeScript(
     val type: FydeScriptType = FydeScriptType.PARSER,
 )
 
+/**
+ * One installation of a script for the authenticated user: one account on
+ * its site, mirroring the SDK's `FfiInstalledScript`. A user can install the
+ * same script several times, once per account; each has its own [id] (what
+ * [FydeSdk.runInstalledScript], [FydeSdk.stopScriptRun],
+ * [FydeSdk.uninstallScript] and a reinstall take) and [label] (never blank),
+ * and runs, signs in and fails on its own. [parameters] are the values it
+ * was installed with, keyed by parameter machine name.
+ */
+data class FydeInstallation(
+    val id: String,
+    val scriptId: String,
+    val label: String,
+    val parameters: Map<String, FydeScriptParameterValue>,
+)
+
 /** A high-level stage of a scraper run, mirroring the SDK's `FfiProgressStep`. */
 enum class FydeScraperStep {
     LOGGING_IN,
@@ -468,13 +487,14 @@ sealed interface FydeScraperProgress {
  * Receives a [FydeSdk.runInstalledScript] run's progress, and answers the
  * questions its script asks (a one-time code, ...). Called from the run's
  * own background thread, never the UI's: [onQuestion] suspends until the
- * user answers, and its result goes back to the script. Several scripts can
- * run at once, so both name the [scriptId] whose run it is.
+ * user answers, and its result goes back to the script. Several
+ * installations can run at once, so both name the [installationId] whose
+ * run it is.
  */
 interface FydeScraperHandler {
-    fun onProgress(scriptId: String, progress: FydeScraperProgress)
+    fun onProgress(installationId: String, progress: FydeScraperProgress)
 
-    suspend fun onQuestion(scriptId: String, question: String): String
+    suspend fun onQuestion(installationId: String, question: String): String
 }
 
 /**
@@ -826,16 +846,31 @@ expect object FydeSdk {
     /**
      * Installs [scriptId] for the authenticated user, to be run with
      * [parameters] (keyed by parameter machine name, see
-     * [FydeScript.parameters]): publishes the script and those values,
-     * encrypted, as a [FydeEventType.INSTALL_SCRIPT] changelog event.
-     * Fails if a parameter the script marks required is missing. Mirrors
-     * [`crate::ScriptsService::install_script`]; fails if [initialize]
-     * hasn't been called yet.
+     * [FydeScript.parameters]): as a new installation (one more account on
+     * its site) when [installationId] is `null`, else replacing that one.
+     * [label] tells it apart from the user's other installations of the
+     * script; a blank one defaults to its username. Publishes the
+     * installation, encrypted, as a [FydeEventType.INSTALL_SCRIPT]
+     * changelog event, and returns its id. Fails if a parameter the script
+     * marks required is missing, or the label is too long. Mirrors
+     * [`crate::ScriptsService::install_script`]; doesn't enable the script
+     * ([enableScript]); fails if [initialize] hasn't been called yet.
      */
     suspend fun installScript(
+        installationId: String?,
         scriptId: String,
+        label: String,
         parameters: Map<String, FydeScriptParameterValue>,
-    ): Result<Unit>
+    ): Result<String>
+
+    /**
+     * Uninstalls [installationId]: publishes a
+     * [FydeEventType.UNINSTALL_SCRIPT] event, which erases its credentials
+     * and saved sign-in from every device once synced. Doesn't disable its
+     * script ([disableScript]): callers do once none of its installations
+     * remains. Mirrors [`crate::ScriptsService::uninstall_script`].
+     */
+    suspend fun uninstallScript(installationId: String): Result<Unit>
 
     /**
      * Lists the scripts currently enabled for the authenticated user.
@@ -861,31 +896,30 @@ expect object FydeSdk {
     suspend fun fetchIcon(iconId: String): Result<ByteArray>
 
     /**
-     * The parameter values each installed script was last installed with,
-     * keyed by script id, for every installation this device has synced so
-     * far — what [installScript] last published for it. Mirrors
+     * Every installation this device has synced so far, oldest first, as
+     * [installScript] last published it. Mirrors
      * [`crate::ScriptsService::list_installed_scripts`]; fails if
      * [initialize] hasn't been called yet.
      */
-    suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>>
+    suspend fun listInstallations(): Result<List<FydeInstallation>>
 
     /** Where [runInstalledScript] reports progress and asks questions; `null` answers every question with "". */
     fun setScraperHandler(handler: FydeScraperHandler?)
 
     /**
-     * Runs the installed script [scriptId] with the values it was installed
+     * Runs installation [installationId] with the values it was installed
      * with, until it finishes; documents it saves are uploaded like any
      * other. Mirrors `FfiClient::run_installed_script`; fails if the
      * installation hasn't synced to this device yet.
      */
-    suspend fun runInstalledScript(scriptId: String): Result<Unit>
+    suspend fun runInstalledScript(installationId: String): Result<Unit>
 
     /**
-     * Stops [scriptId]'s run that [runInstalledScript] started, returning
+     * Stops [installationId]'s run that [runInstalledScript] started, returning
      * whether there was one. Returns at once: that [runInstalledScript] call
      * then fails with [FydeSdkException.isRunStopped] once its script has
      * really stopped (unless it finished first). A question it was waiting
      * on is abandoned, its answer dropped. Mirrors `FfiClient::stop_script_run`.
      */
-    suspend fun stopScriptRun(scriptId: String): Result<Boolean>
+    suspend fun stopScriptRun(installationId: String): Result<Boolean>
 }

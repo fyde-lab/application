@@ -106,9 +106,13 @@ actual object FydeSdk {
     actual suspend fun disableScript(scriptId: String): Result<Unit> = unsupported()
 
     actual suspend fun installScript(
+        installationId: String?,
         scriptId: String,
+        label: String,
         parameters: Map<String, FydeScriptParameterValue>,
-    ): Result<Unit> = unsupported()
+    ): Result<String> = unsupported()
+
+    actual suspend fun uninstallScript(installationId: String): Result<Unit> = unsupported()
 
     actual suspend fun listUserScripts(): Result<List<FydeScript>> = unsupported()
 
@@ -116,13 +120,12 @@ actual object FydeSdk {
 
     actual suspend fun fetchIcon(iconId: String): Result<ByteArray> = unsupported()
 
-    actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =
-        unsupported()
+    actual suspend fun listInstallations(): Result<List<FydeInstallation>> = unsupported()
 
     actual fun setScraperHandler(handler: FydeScraperHandler?) {
     }
 
-    actual suspend fun runInstalledScript(scriptId: String): Result<Unit> = unsupported()
+    actual suspend fun runInstalledScript(installationId: String): Result<Unit> = unsupported()
 
-    actual suspend fun stopScriptRun(scriptId: String): Result<Boolean> = unsupported()
+    actual suspend fun stopScriptRun(installationId: String): Result<Boolean> = unsupported()
 }

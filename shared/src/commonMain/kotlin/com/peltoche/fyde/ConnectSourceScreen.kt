@@ -1,6 +1,8 @@
 package com.peltoche.fyde
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -42,13 +45,17 @@ import com.peltoche.fyde.components.action.AppButton
 import com.peltoche.fyde.components.action.AppTextButton
 import com.peltoche.fyde.components.feedback.AppNote
 import com.peltoche.fyde.components.feedback.AppNoteKind
+import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.icons.AlertGlyph
 import com.peltoche.fyde.icons.GlobeGlyph
+import com.peltoche.fyde.icons.InfoGlyph
 import com.peltoche.fyde.icons.LockGlyph
 import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.CenteredScrollColumn
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
+import com.peltoche.fyde.resources.connect_source_another_note
+import com.peltoche.fyde.resources.connect_source_another_title
 import com.peltoche.fyde.resources.connect_source_domains
 import com.peltoche.fyde.resources.connect_source_encrypted
 import com.peltoche.fyde.resources.connect_source_encrypted_short
@@ -60,6 +67,8 @@ import com.peltoche.fyde.resources.connect_source_submit
 import com.peltoche.fyde.resources.connect_source_submitting
 import com.peltoche.fyde.resources.script_parameter_invalid_number
 import com.peltoche.fyde.resources.script_parameter_required
+import com.peltoche.fyde.resources.source_account_name
+import com.peltoche.fyde.resources.source_account_name_help
 import com.peltoche.fyde.resources.source_secret_keep
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
@@ -156,6 +165,17 @@ internal class ConnectSourceForm(
     val keptSecrets: Set<String> = emptySet(),
     /** False while submitting can't do anything yet (the Sources tab's rerun while that source runs). */
     val canSubmit: Boolean = true,
+    /**
+     * The account's name ("Nom du compte"), shown after the fields once the
+     * source has (or is getting) several accounts; `null` leaves it out.
+     * Left blank, the SDK names the account after its identifier.
+     */
+    val accountName: MutableState<String>? = null,
+    /**
+     * The names of the source's accounts already there, when this form adds
+     * one more (S3b): its title says so and a note names them.
+     */
+    val otherAccounts: List<String>? = null,
 ) {
     val parameters = orderedParameters(script.parameters)
 
@@ -294,7 +314,11 @@ internal fun ConnectSourceForm(
         Spacer(Modifier.width(AppSpacing.space5))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = script.name,
+                text = if (form.otherAccounts != null) {
+                    stringResource(Res.string.connect_source_another_title, script.name)
+                } else {
+                    script.name
+                },
                 style = AppTypography.title,
                 color = AppColors.text,
                 modifier = Modifier.semantics { heading() },
@@ -304,6 +328,14 @@ internal fun ConnectSourceForm(
                 Text(text = summary, style = AppTypography.body, color = AppColors.textMuted)
             }
         }
+    }
+    form.otherAccounts?.takeIf { it.isNotEmpty() }?.let { names ->
+        Spacer(Modifier.height(AppSpacing.space5))
+        AppNote(
+            message = stringResource(Res.string.connect_source_another_note, names.joinToString(", ")),
+            kind = AppNoteKind.Info,
+            icon = { tint -> InfoGlyph(modifier = Modifier.size(AppIconSize.md), tint = tint) },
+        )
     }
     if (script.allowedDomains.isNotEmpty()) {
         Spacer(Modifier.height(AppSpacing.space5))
@@ -362,10 +394,11 @@ internal fun ConnectSourceFields(form: ConnectSourceForm, firstField: FocusReque
     val invalidNumberError = stringResource(Res.string.script_parameter_invalid_number)
     val secretHelp = stringResource(Res.string.connect_source_secret_help, form.script.name)
     val keptSecretHelp = "$secretHelp ${stringResource(Res.string.source_secret_keep)}"
+    val accountName = form.accountName
     form.parameters.forEachIndexed { index, (key, parameter) ->
         if (index > 0) Spacer(Modifier.height(AppSpacing.space5))
         val value = form.values[key].orEmpty()
-        val isLast = index == form.parameters.lastIndex
+        val isLast = index == form.parameters.lastIndex && accountName == null
         ScriptParameterField(
             parameter = parameter,
             value = value,
@@ -389,7 +422,45 @@ internal fun ConnectSourceFields(form: ConnectSourceForm, firstField: FocusReque
             modifier = if (index == focusedIndex) Modifier.focusRequester(firstField) else Modifier,
         )
     }
+    if (accountName != null) {
+        if (form.parameters.isNotEmpty()) Spacer(Modifier.height(AppSpacing.space5))
+        AccountNameField(
+            value = accountName.value,
+            onValueChange = { accountName.value = it },
+            enabled = !form.isSubmitting,
+            onDone = form::submit,
+            modifier = if (form.parameters.isEmpty()) Modifier.focusRequester(firstField) else Modifier,
+        )
+    }
 }
+
+/**
+ * "Nom du compte": what tells this account apart from the source's others
+ * (design-system.md § Accounts of a source), cut at the SDK's
+ * [MAX_ACCOUNT_NAME_CHARS]. Enter submits the form.
+ */
+@Composable
+internal fun AccountNameField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    enabled: Boolean,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AppTextField(
+        value = value,
+        onValueChange = { onValueChange(it.take(MAX_ACCOUNT_NAME_CHARS)) },
+        label = stringResource(Res.string.source_account_name),
+        supportingText = stringResource(Res.string.source_account_name_help),
+        enabled = enabled,
+        modifier = modifier,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
+        keyboardActions = KeyboardActions(onGo = { onDone() }),
+    )
+}
+
+/** The longest account name fyde-sdk takes (its `MAX_INSTALLATION_LABEL_CHARS`). */
+internal const val MAX_ACCOUNT_NAME_CHARS = 60
 
 /** "Connect EDF" unless [text] says otherwise, spinning while the source is installed. */
 @Composable

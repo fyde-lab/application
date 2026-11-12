@@ -38,7 +38,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.peltoche.fyde.components.action.AppBackButton
@@ -65,7 +69,6 @@ import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.icons.AlertGlyph
-import com.peltoche.fyde.icons.CheckGlyph
 import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.icons.InfoGlyph
 import com.peltoche.fyde.icons.PlusGlyph
@@ -78,7 +81,9 @@ import com.peltoche.fyde.layout.AppWindowSizeClass
 import com.peltoche.fyde.layout.LocalAppWindowSizeClass
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.cancel
+import com.peltoche.fyde.resources.catalogue_accounts
 import com.peltoche.fyde.resources.catalogue_add
+import com.peltoche.fyde.resources.catalogue_add_account
 import com.peltoche.fyde.resources.catalogue_added
 import com.peltoche.fyde.resources.catalogue_all
 import com.peltoche.fyde.resources.catalogue_limit
@@ -94,6 +99,8 @@ import com.peltoche.fyde.resources.script_parameter_no
 import com.peltoche.fyde.resources.script_parameter_yes
 import com.peltoche.fyde.resources.script_run_button
 import com.peltoche.fyde.resources.script_save_button
+import com.peltoche.fyde.resources.source_account_name
+import com.peltoche.fyde.resources.source_add_account
 import com.peltoche.fyde.resources.source_credentials
 import com.peltoche.fyde.resources.source_edit
 import com.peltoche.fyde.resources.source_fetch_background
@@ -105,10 +112,15 @@ import com.peltoche.fyde.resources.source_fetching_background
 import com.peltoche.fyde.resources.source_fetching_stop
 import com.peltoche.fyde.resources.source_fetching_title
 import com.peltoche.fyde.resources.source_last_run
+import com.peltoche.fyde.resources.source_other_accounts
 import com.peltoche.fyde.resources.source_remove
+import com.peltoche.fyde.resources.source_remove_account
+import com.peltoche.fyde.resources.source_remove_account_text
+import com.peltoche.fyde.resources.source_remove_account_title
 import com.peltoche.fyde.resources.source_remove_confirm
 import com.peltoche.fyde.resources.source_remove_text
 import com.peltoche.fyde.resources.source_remove_title
+import com.peltoche.fyde.resources.source_rename
 import com.peltoche.fyde.resources.source_rerun
 import com.peltoche.fyde.resources.source_settings
 import com.peltoche.fyde.resources.source_sites
@@ -160,22 +172,26 @@ sealed interface SourcesTabUiState {
 
     /**
      * [scripts] is every scraper on offer (the public ones and the user's
-     * own), `null` while it's fetched; [installedIds] those the user has
-     * connected, each installed with its [installedParameters]. A source in
-     * [pendingIds] has an install or removal in flight; [errors] says, by
-     * source, why its last install failed.
+     * own), `null` while it's fetched; [installations] the accounts the user
+     * has connected, one or more per source (design-system.md § Accounts of
+     * a source). An id in [pendingIds] — an installation's, or a script's
+     * while one more account of it is being connected — has an install or
+     * removal in flight; [errors] says, by the same ids, why it failed.
      */
     data class Loaded(
         val scripts: List<FydeScript>?,
-        val installedIds: Set<String> = emptySet(),
-        val installedParameters: Map<String, Map<String, FydeScriptParameterValue>> = emptyMap(),
+        val installations: List<FydeInstallation> = emptyList(),
         val quota: SourceQuota? = null,
         val pendingIds: Set<String> = emptySet(),
         val errors: Map<String, String> = emptyMap(),
     ) : SourcesTabUiState {
-        val installed: List<FydeScript> = scripts.orEmpty().filter { it.id in installedIds }.sortedBy { it.name.lowercase() }
+        /** Every connected account, by source then name. */
+        val accounts: List<SourceAccount> = sourceAccountsOf(scripts.orEmpty(), installations)
 
-        /** Whether the plan leaves no room for one more source. */
+        /** [scriptId]'s accounts, by name. */
+        fun accountsOf(scriptId: String): List<SourceAccount> = accounts.filter { it.script.id == scriptId }
+
+        /** Whether the plan leaves no room for one more source (more accounts of a connected one always fit). */
         val atLimit: Boolean get() = quota != null && !quota.allowsAnother(0)
     }
 }
@@ -184,28 +200,37 @@ sealed interface SourcesTabUiState {
  * Which source page is open over the list. At Compact and Medium each is a
  * page of its own; at Expanded [Connect] fills the main area and the others
  * open in the detail panel, [Fetching] reading there as [Detail] (its
- * "Last run" stepper shows the same run).
+ * "Last run" stepper shows the same run). Every page but [Connect] is about
+ * one account, by installation id.
  */
 sealed interface SourceFocus {
-    val scriptId: String
+    /** S5 (S5c when its source has several accounts), or S6 while its last run failed. */
+    data class Detail(val installationId: String) : SourceFocus
 
-    /** S5, or S6 while its last run failed. */
-    data class Detail(override val scriptId: String) : SourceFocus
-
-    /** S3. */
-    data class Connect(override val scriptId: String) : SourceFocus
+    /** S3, or S3b when [scriptId] already has accounts. */
+    data class Connect(val scriptId: String) : SourceFocus
 
     /** S4. */
-    data class Fetching(override val scriptId: String) : SourceFocus
+    data class Fetching(val installationId: String) : SourceFocus
 
-    /** S5's Identifiants, edited. */
-    data class Credentials(override val scriptId: String) : SourceFocus
+    /** S5's Identifiants (and Nom du compte), edited. */
+    data class Credentials(val installationId: String) : SourceFocus
 }
+
+/** The account a page is about, if [this] is about one. */
+private val SourceFocus.installationId: String?
+    get() = when (this) {
+        is SourceFocus.Detail -> installationId
+        is SourceFocus.Fetching -> installationId
+        is SourceFocus.Credentials -> installationId
+        is SourceFocus.Connect -> null
+    }
 
 /**
  * The Sources tab: S1–S7 as pages at Compact and Medium, D4 at Expanded
- * (a sortable table beside a detail panel). Statuses come from this app's
- * own runs ([statuses], by source); `fyde-sdk` keeps no run history,
+ * (a sortable table beside a detail panel), one row per account. Statuses
+ * come from this app's own runs ([statuses], by installation id);
+ * `fyde-sdk` keeps no run history,
  * schedule, provenance or category yet, so the mockups' next run, counts,
  * "Automatique", latest documents, category chips and pausing are left out.
  */
@@ -221,16 +246,16 @@ fun SourcesTabScreen(
     onCatalogueOpenChange: (Boolean) -> Unit,
     query: String,
     onQueryChange: (String) -> Unit,
-    onConnect: (FydeScript, Map<String, FydeScriptParameterValue>) -> Unit,
-    onUpdate: (FydeScript, Map<String, FydeScriptParameterValue>, rerun: Boolean) -> Unit,
-    onRun: (FydeScript) -> Unit,
-    onStop: (FydeScript) -> Unit,
-    onRemove: (FydeScript) -> Unit,
+    onConnect: (FydeScript, label: String, Map<String, FydeScriptParameterValue>) -> Unit,
+    onUpdate: (SourceAccount, label: String, Map<String, FydeScriptParameterValue>, rerun: Boolean) -> Unit,
+    onRun: (SourceAccount) -> Unit,
+    onStop: (SourceAccount) -> Unit,
+    onRemove: (SourceAccount) -> Unit,
     onOpenPlan: () -> Unit,
     navigation: TopLevelNavigation,
     modifier: Modifier = Modifier,
 ) {
-    var removing by remember { mutableStateOf<FydeScript?>(null) }
+    var removing by remember { mutableStateOf<SourceAccount?>(null) }
     TopLevelScaffold(
         // Re-selecting the tab from one of its pages returns to the list.
         navigation = navigation.copy(
@@ -281,15 +306,25 @@ fun SourcesTabScreen(
         }
     }
 
-    removing?.let { script ->
+    removing?.let { account ->
+        // S7b for one account among several, S7 for a source's last one.
+        val name = account.script.name
         AppDialog(
             onDismissRequest = { removing = null },
-            title = stringResource(Res.string.source_remove_title, script.name),
-            text = stringResource(Res.string.source_remove_text, script.name),
-            confirmLabel = stringResource(Res.string.source_remove_confirm),
+            title = if (account.shared) {
+                stringResource(Res.string.source_remove_account_title, name, account.label)
+            } else {
+                stringResource(Res.string.source_remove_title, name)
+            },
+            text = if (account.shared) {
+                stringResource(Res.string.source_remove_account_text, name)
+            } else {
+                stringResource(Res.string.source_remove_text, name)
+            },
+            confirmLabel = stringResource(if (account.shared) Res.string.source_remove_account else Res.string.source_remove_confirm),
             onConfirm = {
                 removing = null
-                onRemove(script)
+                onRemove(account)
             },
             dismissLabel = stringResource(Res.string.cancel),
             onDismiss = { removing = null },
@@ -309,43 +344,42 @@ private class SourcesTab(
     val onCatalogueOpenChange: (Boolean) -> Unit,
     val query: String,
     val onQueryChange: (String) -> Unit,
-    val onConnect: (FydeScript, Map<String, FydeScriptParameterValue>) -> Unit,
-    val onUpdate: (FydeScript, Map<String, FydeScriptParameterValue>, Boolean) -> Unit,
-    val onRun: (FydeScript) -> Unit,
-    val onStop: (FydeScript) -> Unit,
-    val onRemove: (FydeScript) -> Unit,
+    val onConnect: (FydeScript, String, Map<String, FydeScriptParameterValue>) -> Unit,
+    val onUpdate: (SourceAccount, String, Map<String, FydeScriptParameterValue>, Boolean) -> Unit,
+    val onRun: (SourceAccount) -> Unit,
+    val onStop: (SourceAccount) -> Unit,
+    val onRemove: (SourceAccount) -> Unit,
     val onOpenPlan: () -> Unit,
 ) {
     fun script(id: String): FydeScript? = state.scripts?.find { it.id == id }
 
-    fun isInstalled(id: String): Boolean = id in state.installedIds
+    fun account(installationId: String): SourceAccount? = state.accounts.find { it.installationId == installationId }
 
     fun isPending(id: String): Boolean = id in state.pendingIds
 
-    /** Whether [id] has a run in progress; other sources' runs don't matter (runs are parallel). */
-    fun isRunning(id: String): Boolean = id in runningIds
+    /** Whether [installationId] has a run in progress; other accounts' runs don't matter (runs are parallel). */
+    fun isRunning(installationId: String): Boolean = installationId in runningIds
 
-    /** Whether [id]'s run was asked to stop and hasn't ended yet. */
-    fun isStopping(id: String): Boolean = id in stoppingIds
-
-    fun installedParameters(id: String): Map<String, FydeScriptParameterValue> = state.installedParameters[id].orEmpty()
+    /** Whether [installationId]'s run was asked to stop and hasn't ended yet. */
+    fun isStopping(installationId: String): Boolean = installationId in stoppingIds
 }
 
 /** Compact and Medium: one page at a time, S1 at the bottom of the stack. */
 @Composable
 private fun NarrowSourcesTab(tab: SourcesTab, catalogueOpen: Boolean, modifier: Modifier) {
     val focus = tab.focus
-    val script = focus?.let { tab.script(it.scriptId) }
+    val connecting = (focus as? SourceFocus.Connect)?.let { tab.script(it.scriptId) }
+    val account = focus?.installationId?.let(tab::account)
     AppContentContainer(modifier = modifier, width = AppContentWidth.Detail) {
         when {
-            focus is SourceFocus.Connect && script != null -> key(script.id) {
-                ConnectPage(tab, script, onBack = { tab.onFocusChange(null) })
+            connecting != null -> key(connecting.id) {
+                ConnectPage(tab, connecting, onBack = { tab.onFocusChange(null) })
             }
-            focus is SourceFocus.Fetching && script != null -> key(script.id) { FetchingPage(tab, script) }
-            focus is SourceFocus.Credentials && script != null && tab.isInstalled(script.id) -> key(script.id) {
-                CredentialsPage(tab, script, onBack = { tab.onFocusChange(SourceFocus.Detail(script.id)) })
+            focus is SourceFocus.Fetching && account != null -> key(account.installationId) { FetchingPage(tab, account) }
+            focus is SourceFocus.Credentials && account != null -> key(account.installationId) {
+                CredentialsPage(tab, account, onBack = { tab.onFocusChange(SourceFocus.Detail(account.installationId)) })
             }
-            focus != null && script != null && tab.isInstalled(script.id) -> key(script.id) { DetailPage(tab, script) }
+            account != null -> key(account.installationId) { DetailPage(tab, account) }
             catalogueOpen -> CataloguePage(tab, onBack = { tab.onCatalogueOpenChange(false) })
             else -> SourceListPage(tab)
         }
@@ -355,14 +389,13 @@ private fun NarrowSourcesTab(tab: SourcesTab, catalogueOpen: Boolean, modifier: 
 /**
  * D4: the table (or the catalogue, or a source's connect form, in its place)
  * beside a detail panel flush to the window's right edge, showing the
- * selected source — the first one until another is picked.
+ * selected account — the first one until another is picked.
  */
 @Composable
 private fun WideSourcesTab(tab: SourcesTab, catalogueOpen: Boolean, modifier: Modifier) {
     val focus = tab.focus
     val connecting = (focus as? SourceFocus.Connect)?.let { tab.script(it.scriptId) }
-    val selected = focus?.takeIf { it !is SourceFocus.Connect && tab.isInstalled(it.scriptId) }?.let { tab.script(it.scriptId) }
-        ?: tab.state.installed.firstOrNull()
+    val selected = focus?.installationId?.let(tab::account) ?: tab.state.accounts.firstOrNull()
     Row(modifier = modifier) {
         Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
             when {
@@ -372,7 +405,7 @@ private fun WideSourcesTab(tab: SourcesTab, catalogueOpen: Boolean, modifier: Mo
                 catalogueOpen -> AppContentContainer(width = AppContentWidth.Detail) {
                     CataloguePage(tab, onBack = { tab.onCatalogueOpenChange(false) })
                 }
-                else -> AppContentContainer(width = AppContentWidth.List) { SourceTablePage(tab, selected?.id) }
+                else -> AppContentContainer(width = AppContentWidth.List) { SourceTablePage(tab, selected?.installationId) }
             }
         }
         AppDivider(vertical = true)
@@ -391,10 +424,10 @@ private fun WideSourcesTab(tab: SourcesTab, catalogueOpen: Boolean, modifier: Mo
                     modifier = Modifier.align(Alignment.Center).padding(AppSpacing.space7),
                 )
             } else {
-                key(selected.id) {
+                key(selected.installationId) {
                     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(AppSpacing.space6)) {
-                        if (focus is SourceFocus.Credentials && focus.scriptId == selected.id) {
-                            AppBackButton(onClick = { tab.onFocusChange(SourceFocus.Detail(selected.id)) })
+                        if (focus is SourceFocus.Credentials && focus.installationId == selected.installationId) {
+                            AppBackButton(onClick = { tab.onFocusChange(SourceFocus.Detail(selected.installationId)) })
                             Spacer(Modifier.height(AppSpacing.space4))
                             CredentialsBody(tab, selected, autofocus = true)
                         } else {
@@ -409,10 +442,10 @@ private fun WideSourcesTab(tab: SourcesTab, catalogueOpen: Boolean, modifier: Mo
 
 // S1 ------------------------------------------------------------------------------------------
 
-/** S1: the sources that need the user first, then the others, and the plan's count. */
+/** S1: the accounts that need the user first, then the others, and the plan's count. */
 @Composable
 private fun SourceListPage(tab: SourcesTab) {
-    val installed = tab.state.installed
+    val installed = tab.state.accounts
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(AppSpacing.space5))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -436,7 +469,7 @@ private fun SourceListPage(tab: SourcesTab) {
             }
             installed.isEmpty() -> EmptySources(tab)
             else -> {
-                val needsYou = installed.filter { tab.statuses[it.id].needsUser() }
+                val needsYou = installed.filter { tab.statuses[it.installationId].needsUser() }
                 val others = installed - needsYou.toSet()
                 if (needsYou.isNotEmpty()) {
                     AppSectionTitle(stringResource(Res.string.sources_tab_needs_you))
@@ -454,27 +487,32 @@ private fun SourceListPage(tab: SourcesTab) {
 }
 
 @Composable
-private fun SourceRows(tab: SourcesTab, scripts: List<FydeScript>) {
+private fun SourceRows(tab: SourcesTab, accounts: List<SourceAccount>, showSource: Boolean = true) {
     AppGroup {
-        scripts.forEachIndexed { index, script ->
+        accounts.forEachIndexed { index, account ->
             if (index > 0) AppDivider()
             SourceRow(
-                script = script,
-                status = tab.statuses[script.id],
-                onClick = { tab.onFocusChange(SourceFocus.Detail(script.id)) },
+                account = account,
+                status = tab.statuses[account.installationId],
+                showSource = showSource,
+                onClick = { tab.onFocusChange(SourceFocus.Detail(account.installationId)) },
             )
         }
     }
 }
 
-/** One S1 row: tile, name, status (or what it fetches until it has one), chevron. */
+/**
+ * One S1 row: tile, name ("Ameli · Marie" once the source has several
+ * accounts; the label alone under S5c's "Other accounts", [showSource]
+ * false), status (or what it fetches until it has one), chevron.
+ */
 @Composable
-private fun SourceRow(script: FydeScript, status: SourceFetchStatus?, onClick: () -> Unit) {
+private fun SourceRow(account: SourceAccount, status: SourceFetchStatus?, onClick: () -> Unit, showSource: Boolean = true) {
     AppGroupRow(onClick = onClick, minHeight = AppDimensions.rowHeightComfortable) {
-        ScriptIcon(icon = script.icon)
+        ScriptIcon(icon = account.script.icon)
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = script.name,
+                text = if (showSource) accountName(account) else AnnotatedString(account.label),
                 style = AppTypography.bodyEmphasis,
                 color = AppColors.text,
                 maxLines = 1,
@@ -483,10 +521,25 @@ private fun SourceRow(script: FydeScript, status: SourceFetchStatus?, onClick: (
             if (status != null) {
                 SourceStatusLine(status)
             } else {
-                Summary(script)
+                Summary(account.script)
             }
         }
         ChevronRightGlyph(modifier = Modifier.size(AppIconSize.sm))
+    }
+}
+
+/**
+ * [account]'s name as rows and titles show it: the source's, then " · " and
+ * the account's in `textMuted`, regular weight, once the source has several
+ * accounts (design-system.md § Accounts of a source).
+ */
+private fun accountName(account: SourceAccount): AnnotatedString = buildAnnotatedString {
+    append(account.script.name)
+    if (account.shared) {
+        withStyle(SpanStyle(color = AppColors.textMuted, fontWeight = FontWeight.Normal)) {
+            append(ACCOUNT_SEPARATOR)
+            append(account.label)
+        }
     }
 }
 
@@ -535,7 +588,7 @@ private data class SourceSort(val column: SourceColumn, val ascending: Boolean)
 @Composable
 private fun SourceTablePage(tab: SourcesTab, selectedId: String?) {
     var sort by remember { mutableStateOf(SourceSort(SourceColumn.Name, ascending = true)) }
-    val rows = remember(tab.state.installed, tab.statuses, sort) { sortedSources(tab.state.installed, tab.statuses, sort) }
+    val rows = remember(tab.state.accounts, tab.statuses, sort) { sortedSources(tab.state.accounts, tab.statuses, sort) }
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(AppSpacing.space7))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -564,12 +617,12 @@ private fun SourceTablePage(tab: SourcesTab, selectedId: String?) {
                     SortHeader(stringResource(Res.string.sources_tab_column_status), SourceColumn.Status, sort, { sort = it }, Modifier.weight(1f))
                 }
                 AppDivider()
-                rows.forEach { script ->
+                rows.forEach { account ->
                     SourceTableRow(
-                        script = script,
-                        status = tab.statuses[script.id],
-                        selected = script.id == selectedId,
-                        onClick = { tab.onFocusChange(SourceFocus.Detail(script.id)) },
+                        account = account,
+                        status = tab.statuses[account.installationId],
+                        selected = account.installationId == selectedId,
+                        onClick = { tab.onFocusChange(SourceFocus.Detail(account.installationId)) },
                     )
                     AppDivider()
                 }
@@ -617,7 +670,7 @@ private fun SortHeader(
 
 /** One D4 row: tile and name, then its status — "—" until this app has run it. */
 @Composable
-private fun SourceTableRow(script: FydeScript, status: SourceFetchStatus?, selected: Boolean, onClick: () -> Unit) {
+private fun SourceTableRow(account: SourceAccount, status: SourceFetchStatus?, selected: Boolean, onClick: () -> Unit) {
     AppGroupRow(
         onClick = onClick,
         minHeight = AppDimensions.rowHeightStandard,
@@ -625,10 +678,10 @@ private fun SourceTableRow(script: FydeScript, status: SourceFetchStatus?, selec
         horizontalPadding = AppSpacing.space4,
     ) {
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            ScriptIcon(icon = script.icon, size = AppDimensions.iconTileSmall)
+            ScriptIcon(icon = account.script.icon, size = AppDimensions.iconTileSmall)
             Spacer(Modifier.width(AppSpacing.space4))
             Text(
-                text = script.name,
+                text = accountName(account),
                 style = AppTypography.body.copy(fontWeight = FontWeight.SemiBold),
                 color = AppColors.text,
                 maxLines = 1,
@@ -647,14 +700,14 @@ private fun SourceTableRow(script: FydeScript, status: SourceFetchStatus?, selec
 
 /** [sources] in [sort]'s order; by status, those needing the user first and those never run last, then by name. */
 private fun sortedSources(
-    sources: List<FydeScript>,
+    sources: List<SourceAccount>,
     statuses: Map<String, SourceFetchStatus>,
     sort: SourceSort,
-): List<FydeScript> {
-    val byName = compareBy<FydeScript> { it.name.lowercase() }
+): List<SourceAccount> {
+    val byName = compareBy<SourceAccount>({ it.script.name.lowercase() }, { it.label.lowercase() })
     val comparator = when (sort.column) {
         SourceColumn.Name -> byName
-        SourceColumn.Status -> compareBy<FydeScript> { statusRank(statuses[it.id]) }.then(byName)
+        SourceColumn.Status -> compareBy<SourceAccount> { statusRank(statuses[it.installationId]) }.then(byName)
     }
     return sources.sortedWith(if (sort.ascending) comparator else comparator.reversed())
 }
@@ -736,7 +789,7 @@ private fun CatalogueRows(tab: SourcesTab, scripts: List<FydeScript>) {
     AppGroup {
         scripts.forEachIndexed { index, script ->
             if (index > 0) AppDivider()
-            val added = tab.isInstalled(script.id)
+            val accounts = tab.state.accountsOf(script.id).size
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
@@ -754,22 +807,24 @@ private fun CatalogueRows(tab: SourcesTab, scripts: List<FydeScript>) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    if (added) {
-                        Text(text = stringResource(Res.string.catalogue_added), style = AppTypography.caption, color = AppColors.textMuted)
-                    } else {
-                        Summary(script, maxLines = 2)
+                    when {
+                        accounts > 1 -> Text(
+                            text = stringResource(Res.string.catalogue_accounts, accounts),
+                            style = AppTypography.caption,
+                            color = AppColors.textMuted,
+                        )
+                        accounts == 1 -> Text(text = stringResource(Res.string.catalogue_added), style = AppTypography.caption, color = AppColors.textMuted)
+                        else -> Summary(script, maxLines = 2)
                     }
                 }
-                if (added) {
-                    CheckGlyph(modifier = Modifier.size(AppIconSize.md))
-                } else {
-                    AppButton(
-                        text = stringResource(Res.string.catalogue_add),
-                        onClick = { tab.onFocusChange(SourceFocus.Connect(script.id)) },
-                        variant = AppButtonVariant.Outlined,
-                        enabled = !tab.state.atLimit,
-                    )
-                }
+                // A source already added takes one more account (S3b), which
+                // the plan doesn't count: never dimmed at its limit.
+                AppButton(
+                    text = stringResource(if (accounts > 0) Res.string.catalogue_add_account else Res.string.catalogue_add),
+                    onClick = { tab.onFocusChange(SourceFocus.Connect(script.id)) },
+                    variant = AppButtonVariant.Outlined,
+                    enabled = accounts > 0 || !tab.state.atLimit,
+                )
             }
         }
     }
@@ -777,10 +832,16 @@ private fun CatalogueRows(tab: SourcesTab, scripts: List<FydeScript>) {
 
 // S3 ------------------------------------------------------------------------------------------
 
-/** S3: what the source fetches, the sites it may reach, its fields; the connect button stays pinned at the bottom. */
+/**
+ * S3: what the source fetches, the sites it may reach, its fields; the
+ * connect button stays pinned at the bottom. S3b once the source has
+ * accounts: titled as another one, naming those, with Nom du compte.
+ */
 @Composable
 private fun ConnectPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit) {
     val values = remember { mutableStateMapOf<String, String>() }
+    val others = tab.state.accountsOf(script.id).map { it.label }
+    val accountName = remember { mutableStateOf("") }
     var showRequiredErrors by remember { mutableStateOf(false) }
     val form = ConnectSourceForm(
         script = script,
@@ -790,8 +851,10 @@ private fun ConnectPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit)
         isSubmitting = tab.isPending(script.id),
         onSubmit = {
             val entered = validatedParameterValues(script.parameters, values)
-            if (entered != null) tab.onConnect(script, entered) else showRequiredErrors = true
+            if (entered != null) tab.onConnect(script, accountName.value, entered) else showRequiredErrors = true
         },
+        accountName = accountName.takeIf { others.isNotEmpty() },
+        otherAccounts = others.takeIf { it.isNotEmpty() },
     )
     Column(modifier = Modifier.fillMaxSize()) {
         AppPageBar(title = null, onBack = onBack, enabled = !form.isSubmitting)
@@ -810,12 +873,14 @@ private fun ConnectPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit)
 
 /** S4: the run as a stepper; it carries on in the background whatever the user does next. */
 @Composable
-private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
-    val status = tab.statuses[script.id] ?: SourceFetchStatus.Queued
+private fun FetchingPage(tab: SourcesTab, account: SourceAccount) {
+    val script = account.script
+    val id = account.installationId
+    val status = tab.statuses[id] ?: SourceFetchStatus.Queued
     val over = status is SourceFetchStatus.Succeeded || status is SourceFetchStatus.Failed || status is SourceFetchStatus.Stopped
     val leave = { tab.onFocusChange(null) }
     Column(modifier = Modifier.fillMaxSize()) {
-        AppPageBar(title = script.name, onBack = leave)
+        AppPageBar(title = account.name, onBack = leave)
         Column(modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
             Spacer(Modifier.height(AppSpacing.space3))
             Text(
@@ -869,16 +934,16 @@ private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
                 // S4: never confirmed, never red; busy until the run has really ended.
                 !over -> AppTextButton(
                     text = stringResource(Res.string.source_fetching_stop),
-                    onClick = { tab.onStop(script) },
-                    loading = tab.isStopping(script.id),
-                    enabled = !tab.isStopping(script.id),
+                    onClick = { tab.onStop(account) },
+                    loading = tab.isStopping(id),
+                    enabled = !tab.isStopping(id),
                     leadingIcon = { StopGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 status is SourceFetchStatus.Stopped -> AppTextButton(
                     text = stringResource(Res.string.source_rerun),
-                    onClick = { tab.onRun(script) },
-                    enabled = !tab.isRunning(script.id),
+                    onClick = { tab.onRun(account) },
+                    enabled = !tab.isRunning(id),
                     leadingIcon = { SyncGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) },
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -890,34 +955,39 @@ private fun FetchingPage(tab: SourcesTab, script: FydeScript) {
 // S5, S6 --------------------------------------------------------------------------------------
 
 @Composable
-private fun DetailPage(tab: SourcesTab, script: FydeScript) {
-    val failed = tab.statuses[script.id] is SourceFetchStatus.Failed
+private fun DetailPage(tab: SourcesTab, account: SourceAccount) {
+    val failed = tab.statuses[account.installationId] is SourceFetchStatus.Failed
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         AppPageBar(
             title = null,
             onBack = { tab.onFocusChange(null) },
-            trailing = if (failed) null else { { RunButton(tab, script) } },
+            trailing = if (failed) null else { { RunButton(tab, account) } },
         )
         Spacer(Modifier.height(AppSpacing.space3))
-        DetailBody(tab, script, wide = false)
+        DetailBody(tab, account, wide = false)
         Spacer(Modifier.height(AppSpacing.space7))
     }
 }
 
 /**
  * S5 (or S6 once its last run failed): the header, the last run of this app
- * session, Réglages, Retirer la source. In D4's panel ([wide]) Lancer sits
- * beside the header and Identifiants opens with Modifier rather than a chevron.
+ * session, Réglages, Ajouter un autre compte, Retirer la source. S5c when its
+ * source has several accounts: "Ameli · Marie", Nom du compte first in
+ * Réglages, the source's other accounts, Retirer ce compte. In D4's panel
+ * ([wide]) Lancer sits beside the header and Identifiants opens with
+ * Modifier rather than a chevron.
  */
 @Composable
-private fun ColumnScope.DetailBody(tab: SourcesTab, script: FydeScript, wide: Boolean) {
-    val status = tab.statuses[script.id]
+private fun ColumnScope.DetailBody(tab: SourcesTab, account: SourceAccount, wide: Boolean) {
+    val script = account.script
+    val id = account.installationId
+    val status = tab.statuses[id]
     Row(verticalAlignment = Alignment.CenterVertically) {
         ScriptIcon(icon = script.icon, size = if (wide) AppDimensions.iconTileHeader else AppDimensions.iconTileLarge)
         Spacer(Modifier.width(AppSpacing.space4))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = script.name,
+                text = accountName(account),
                 style = AppTypography.title,
                 color = AppColors.text,
                 maxLines = 2,
@@ -933,7 +1003,7 @@ private fun ColumnScope.DetailBody(tab: SourcesTab, script: FydeScript, wide: Bo
         }
         if (wide && status !is SourceFetchStatus.Failed) {
             Spacer(Modifier.width(AppSpacing.space3))
-            RunButton(tab, script)
+            RunButton(tab, account)
         }
     }
 
@@ -941,7 +1011,7 @@ private fun ColumnScope.DetailBody(tab: SourcesTab, script: FydeScript, wide: Bo
         Spacer(Modifier.height(AppSpacing.space5))
         AppErrorNote(status.message)
         Spacer(Modifier.height(AppSpacing.space5))
-        UpdateForm(tab, script, autofocus = !wide)
+        UpdateForm(tab, account, autofocus = !wide)
     } else {
         if (status != null) {
             AppSectionTitle(stringResource(Res.string.source_last_run))
@@ -949,32 +1019,47 @@ private fun ColumnScope.DetailBody(tab: SourcesTab, script: FydeScript, wide: Bo
                 RunStepper(steps = sourceFetchSteps(status))
             }
         }
-        SourceSettings(tab, script, wide)
+        SourceSettings(tab, account, wide)
+    }
+
+    val others = tab.state.accountsOf(script.id).filter { it.installationId != id }
+    if (others.isNotEmpty()) {
+        AppSectionTitle(stringResource(Res.string.source_other_accounts, script.name))
+        SourceRows(tab, others, showSource = false)
     }
 
     Spacer(Modifier.height(AppSpacing.space6))
+    AppTextButton(
+        text = stringResource(Res.string.source_add_account, script.name),
+        onClick = { tab.onFocusChange(SourceFocus.Connect(script.id)) },
+        enabled = !tab.isPending(script.id),
+        leadingIcon = { PlusGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) },
+        modifier = Modifier.fillMaxWidth(),
+    )
+    Spacer(Modifier.height(AppSpacing.space2))
     AppButton(
-        text = stringResource(Res.string.source_remove),
-        onClick = { tab.onRemove(script) },
+        text = stringResource(if (account.shared) Res.string.source_remove_account else Res.string.source_remove),
+        onClick = { tab.onRemove(account) },
         variant = AppButtonVariant.Outlined,
         destructive = true,
-        enabled = !tab.isPending(script.id),
+        enabled = !tab.isPending(id),
         modifier = Modifier.fillMaxWidth(),
     )
 }
 
 /**
- * Lancer, turned into an outlined Arrêter while this source runs (S5b, D4b),
- * busy until the stopped run has really ended; other sources' runs go in
+ * Lancer, turned into an outlined Arrêter while this account runs (S5b, D4b),
+ * busy until the stopped run has really ended; other accounts' runs go in
  * parallel.
  */
 @Composable
-private fun RunButton(tab: SourcesTab, script: FydeScript) {
-    if (tab.isRunning(script.id)) {
-        val stopping = tab.isStopping(script.id)
+private fun RunButton(tab: SourcesTab, account: SourceAccount) {
+    val id = account.installationId
+    if (tab.isRunning(id)) {
+        val stopping = tab.isStopping(id)
         AppButton(
             text = stringResource(Res.string.script_stop_button),
-            onClick = { tab.onStop(script) },
+            onClick = { tab.onStop(account) },
             variant = AppButtonVariant.Outlined,
             loading = stopping,
             enabled = !stopping,
@@ -983,39 +1068,67 @@ private fun RunButton(tab: SourcesTab, script: FydeScript) {
     } else {
         AppButton(
             text = stringResource(Res.string.script_run_button),
-            onClick = { tab.onRun(script) },
+            onClick = { tab.onRun(account) },
             variant = AppButtonVariant.Outlined,
-            enabled = !tab.isPending(script.id),
+            enabled = !tab.isPending(id),
             leadingIcon = { SyncGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.text) },
         )
     }
 }
 
-/** Réglages: the credentials it signs in with (first plain value shown) and the sites it may reach. */
+/**
+ * Réglages: Nom du compte once the source has several accounts, the
+ * credentials it signs in with (first plain value shown) and the sites it
+ * may reach. Nom du compte and Identifiants both open the credentials form.
+ */
 @Composable
-private fun SourceSettings(tab: SourcesTab, script: FydeScript, wide: Boolean) {
+private fun SourceSettings(tab: SourcesTab, account: SourceAccount, wide: Boolean) {
+    val script = account.script
+    val id = account.installationId
     val hasCredentials = script.parameters.isNotEmpty()
-    if (!hasCredentials && script.allowedDomains.isEmpty()) return
+    if (!account.shared && !hasCredentials && script.allowedDomains.isEmpty()) return
+    val openCredentials = { tab.onFocusChange(SourceFocus.Credentials(id)) }
     AppSectionTitle(stringResource(Res.string.source_settings))
     AppGroup {
+        if (account.shared) {
+            EditableSettingRow(
+                label = stringResource(Res.string.source_account_name),
+                value = account.label,
+                action = stringResource(Res.string.source_rename),
+                wide = wide,
+                enabled = !tab.isPending(id),
+                onClick = openCredentials,
+            )
+        }
         if (hasCredentials) {
-            val openCredentials = { tab.onFocusChange(SourceFocus.Credentials(script.id)) }
-            val label = stringResource(Res.string.source_credentials)
-            val value = credentialsSummary(script, tab.installedParameters(script.id))
-            if (wide) {
-                SettingRow(label = label, value = value) {
-                    AppTextButton(text = stringResource(Res.string.source_edit), onClick = openCredentials, enabled = !tab.isPending(script.id))
-                }
-            } else {
-                AppGroupRow(onClick = openCredentials, minHeight = AppDimensions.rowHeightStandard, enabled = !tab.isPending(script.id)) {
-                    SettingText(label = label, value = value, modifier = Modifier.weight(1f))
-                    ChevronRightGlyph(modifier = Modifier.size(AppIconSize.sm))
-                }
-            }
+            if (account.shared) AppDivider()
+            EditableSettingRow(
+                label = stringResource(Res.string.source_credentials),
+                value = credentialsSummary(script, account.parameters),
+                action = stringResource(Res.string.source_edit),
+                wide = wide,
+                enabled = !tab.isPending(id),
+                onClick = openCredentials,
+            )
         }
         if (script.allowedDomains.isNotEmpty()) {
-            if (hasCredentials) AppDivider()
+            if (account.shared || hasCredentials) AppDivider()
             SettingRow(label = stringResource(Res.string.source_sites), value = script.allowedDomains.joinToString(", "))
+        }
+    }
+}
+
+/** A Réglages row opening the credentials form: with [action] in D4's panel ([wide]), as a chevron row elsewhere. */
+@Composable
+private fun EditableSettingRow(label: String, value: String, action: String, wide: Boolean, enabled: Boolean, onClick: () -> Unit) {
+    if (wide) {
+        SettingRow(label = label, value = value) {
+            AppTextButton(text = action, onClick = onClick, enabled = enabled)
+        }
+    } else {
+        AppGroupRow(onClick = onClick, minHeight = AppDimensions.rowHeightStandard, enabled = enabled) {
+            SettingText(label = label, value = value, modifier = Modifier.weight(1f))
+            ChevronRightGlyph(modifier = Modifier.size(AppIconSize.sm))
         }
     }
 }
@@ -1052,19 +1165,19 @@ private fun credentialsSummary(script: FydeScript, installed: Map<String, FydeSc
 
 /** S6: the fields again, a blank secret keeping the installed one, then Mettre à jour et relancer. */
 @Composable
-private fun UpdateForm(tab: SourcesTab, script: FydeScript, autofocus: Boolean) {
-    if (script.parameters.isEmpty()) {
+private fun UpdateForm(tab: SourcesTab, account: SourceAccount, autofocus: Boolean) {
+    if (account.script.parameters.isEmpty()) {
         AppButton(
             text = stringResource(Res.string.source_rerun),
-            onClick = { tab.onRun(script) },
-            enabled = !tab.isRunning(script.id),
+            onClick = { tab.onRun(account) },
+            enabled = !tab.isRunning(account.installationId),
             modifier = Modifier.fillMaxWidth(),
         )
         return
     }
     CredentialsFields(
         tab = tab,
-        script = script,
+        account = account,
         submitLabel = stringResource(Res.string.source_update_rerun),
         rerun = true,
         autofocus = autofocus,
@@ -1074,17 +1187,17 @@ private fun UpdateForm(tab: SourcesTab, script: FydeScript, autofocus: Boolean) 
 // Credentials ---------------------------------------------------------------------------------
 
 @Composable
-private fun CredentialsPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit) {
+private fun CredentialsPage(tab: SourcesTab, account: SourceAccount, onBack: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-        AppPageBar(title = script.name, onBack = onBack, enabled = !tab.isPending(script.id))
+        AppPageBar(title = account.name, onBack = onBack, enabled = !tab.isPending(account.installationId))
         Spacer(Modifier.height(AppSpacing.space3))
-        CredentialsBody(tab, script, autofocus = true)
+        CredentialsBody(tab, account, autofocus = true)
         Spacer(Modifier.height(AppSpacing.space7))
     }
 }
 
 @Composable
-private fun CredentialsBody(tab: SourcesTab, script: FydeScript, autofocus: Boolean) {
+private fun CredentialsBody(tab: SourcesTab, account: SourceAccount, autofocus: Boolean) {
     Text(
         text = stringResource(Res.string.source_credentials),
         style = AppTypography.title,
@@ -1094,7 +1207,7 @@ private fun CredentialsBody(tab: SourcesTab, script: FydeScript, autofocus: Bool
     Spacer(Modifier.height(AppSpacing.space5))
     CredentialsFields(
         tab = tab,
-        script = script,
+        account = account,
         submitLabel = stringResource(Res.string.script_save_button),
         rerun = false,
         autofocus = autofocus,
@@ -1102,40 +1215,45 @@ private fun CredentialsBody(tab: SourcesTab, script: FydeScript, autofocus: Bool
 }
 
 /**
- * A source's fields prefilled with what it's installed with, secrets left
- * blank (a blank one keeps the installed value), and [submitLabel]
- * reinstalling it — then running it again when [rerun].
+ * An account's fields prefilled with what it's installed with, secrets left
+ * blank (a blank one keeps the installed value), its name once its source
+ * has several accounts, and [submitLabel] reinstalling it — then running it
+ * again when [rerun].
  */
 @Composable
 private fun CredentialsFields(
     tab: SourcesTab,
-    script: FydeScript,
+    account: SourceAccount,
     submitLabel: String,
     rerun: Boolean,
     autofocus: Boolean,
 ) {
-    val installed = tab.installedParameters(script.id)
+    val script = account.script
+    val id = account.installationId
+    val installed = account.parameters
     val keptSecrets = remember(installed) { keptSecretKeys(script.parameters, installed) }
     val values = remember {
         mutableStateMapOf<String, String>().apply {
             putAll(formValues(installed.filterKeys { script.parameters[it]?.secret == false }))
         }
     }
+    val accountName = remember { mutableStateOf(account.label) }
     var showRequiredErrors by remember { mutableStateOf(false) }
     val form = ConnectSourceForm(
         script = script,
         values = values,
         showRequiredErrors = showRequiredErrors,
-        errorMessage = tab.state.errors[script.id],
-        isSubmitting = tab.isPending(script.id),
+        errorMessage = tab.state.errors[id],
+        isSubmitting = tab.isPending(id),
         keptSecrets = keptSecrets,
-        // Rerunning needs this source's run over: ScraperRuns won't start a
+        // Rerunning needs this account's run over: ScraperRuns won't start a
         // second one, so the new credentials would only be saved.
-        canSubmit = !(rerun && tab.isRunning(script.id)),
+        canSubmit = !(rerun && tab.isRunning(id)),
         onSubmit = {
             val entered = validatedCredentials(script.parameters, values, installed)
-            if (entered != null) tab.onUpdate(script, entered, rerun) else showRequiredErrors = true
+            if (entered != null) tab.onUpdate(account, accountName.value, entered, rerun) else showRequiredErrors = true
         },
+        accountName = accountName.takeIf { account.shared },
     )
     val focus = remember { FocusRequester() }
     val firstSecret = orderedParameters(script.parameters).firstOrNull { it.value.secret }?.key
