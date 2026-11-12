@@ -624,6 +624,16 @@ expect object FydeSdk {
     suspend fun isConnected(): Result<Boolean>
 
     /**
+     * Starts loading the on-device models in memory in the background
+     * (downloading any not there yet) and returns at once: call it as the
+     * user is about to add sources, so their first documents don't wait for
+     * the models. [register] already does it. Mirrors
+     * `Client::start_loading_models`; fails if [initialize] hasn't been
+     * called yet.
+     */
+    fun startLoadingModels(): Result<Unit>
+
+    /**
      * Ends the session on this device: tells the server, then always clears
      * every local trace of the account — the master key and session token in
      * the OS credential store, and the local database with its decrypted

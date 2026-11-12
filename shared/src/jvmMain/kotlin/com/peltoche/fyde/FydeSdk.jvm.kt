@@ -195,6 +195,10 @@ actual object FydeSdk {
         client.isConnected()
     }
 
+    actual fun startLoadingModels(): Result<Unit> = withClient("startLoadingModels") { client ->
+        client.startLoadingModels()
+    }
+
     actual suspend fun logout(): Result<Unit> = withClient("logout") { client ->
         client.logout()
     }

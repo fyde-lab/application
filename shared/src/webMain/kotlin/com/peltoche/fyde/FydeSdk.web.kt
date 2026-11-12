@@ -34,6 +34,8 @@ actual object FydeSdk {
 
     actual suspend fun isConnected(): Result<Boolean> = unsupported()
 
+    actual fun startLoadingModels(): Result<Unit> = unsupported()
+
     actual suspend fun logout(): Result<Unit> = unsupported()
 
     actual suspend fun isServerReachable(): Result<Boolean> = unsupported()

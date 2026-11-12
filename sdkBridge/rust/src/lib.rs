@@ -1498,6 +1498,14 @@ impl FydeClient {
         self.localized(self.inner.is_connected()).await
     }
 
+    /// Starts loading the on-device models in memory in the background
+    /// (downloading any not there yet) and returns at once: call it as the
+    /// user is about to add sources, e.g. on opening the sources page.
+    /// Callable from any thread. Mirrors [`Client::start_loading_models`].
+    pub fn start_loading_models(&self) {
+        self.inner.start_loading_models();
+    }
+
     /// Fetches the signed-in account's plan, limits and current usage.
     /// Mirrors [`fyde_sdk::UsageService::get_usage`].
     pub async fn get_usage(&self) -> Result<FfiUsage, FfiError> {

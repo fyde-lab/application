@@ -600,6 +600,9 @@ private fun AppContent(
             return@LaunchedEffect
         }
         sources = SourcesUiState.Loading
+        // The user is about to add sources, whose documents need the
+        // on-device models: load them now (a no-op once loaded).
+        FydeSdk.startLoadingModels()
         val listed = FydeSdk.listPublicScripts().getOrElse {
             sources = SourcesUiState.Failed(message = it.userMessage(), onRetry = { sourcesAttempt++ })
             return@LaunchedEffect
@@ -1528,6 +1531,10 @@ private fun SourcesTabContainer(
             return@LaunchedEffect
         }
 
+        // Opening the sources page usually means adding or running one,
+        // whose documents need the on-device models: load them now (a
+        // no-op once loaded).
+        FydeSdk.startLoadingModels()
         uiState = SourcesTabUiState.Loaded(scripts = null)
         val publicScripts = FydeSdk.listPublicScripts().getOrElse { emptyList() }
         val userScripts = FydeSdk.listUserScripts().getOrElse { emptyList() }
