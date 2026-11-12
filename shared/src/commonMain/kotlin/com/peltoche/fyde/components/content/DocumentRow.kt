@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import com.peltoche.fyde.components.form.AppCheckbox
 import com.peltoche.fyde.theme.AppCategoryColor
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppDimensions
@@ -46,6 +48,10 @@ import com.peltoche.fyde.theme.appFocusRing
  * ("84,20 €", in `data`) at the end when it has one. [highlightTerms] are marked in the title wherever they
  * occur, ignoring case — the words a search matched. [selected] is the
  * document open beside the list (D2), drawn in the folder's fill.
+ *
+ * With [checked] (V16, D11) an [AppCheckbox] named [checkDescription] leads
+ * the row, a control of its own beside the row's click. [trailing], when
+ * given, takes the amount's place (a [SimilarityBadge], a tag).
  */
 @Composable
 fun DocumentRow(
@@ -57,7 +63,47 @@ fun DocumentRow(
     modifier: Modifier = Modifier,
     selected: Boolean = false,
     highlightTerms: List<String> = emptyList(),
+    checked: Boolean? = null,
+    onCheckedChange: (Boolean) -> Unit = {},
+    checkDescription: String? = null,
+    trailing: (@Composable () -> Unit)? = null,
     icon: @Composable (tint: Color) -> Unit,
+) {
+    if (checked == null) {
+        DocumentRowContent(title, subtitle, amount, color, onClick, modifier, selected, highlightTerms, trailing, icon)
+        return
+    }
+    Row(
+        modifier = modifier.fillMaxWidth().background(if (selected) color.fill else Color.Transparent),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        AppCheckbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier
+                .padding(start = AppSpacing.space2)
+                .semantics { if (checkDescription != null) contentDescription = checkDescription },
+        )
+        DocumentRowContent(
+            title, subtitle, amount, color, onClick, Modifier.weight(1f), selected, highlightTerms, trailing, icon,
+            startPadding = AppSpacing.space1,
+        )
+    }
+}
+
+@Composable
+private fun DocumentRowContent(
+    title: String,
+    subtitle: String?,
+    amount: String?,
+    color: AppCategoryColor,
+    onClick: () -> Unit,
+    modifier: Modifier,
+    selected: Boolean,
+    highlightTerms: List<String>,
+    trailing: (@Composable () -> Unit)?,
+    icon: @Composable (tint: Color) -> Unit,
+    startPadding: Dp = AppSpacing.space5,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -68,7 +114,7 @@ fun DocumentRow(
             .appFocusRing(interactionSource, shape = AppRadius.none)
             .semantics(mergeDescendants = true) { this.selected = selected }
             .heightIn(min = AppDimensions.rowHeightStandard)
-            .padding(horizontal = AppSpacing.space5, vertical = AppSpacing.space3),
+            .padding(start = startPadding, end = AppSpacing.space5, top = AppSpacing.space3, bottom = AppSpacing.space3),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
     ) {
@@ -85,8 +131,9 @@ fun DocumentRow(
                 Text(text = subtitle, style = AppTypography.caption, color = AppColors.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
-        if (amount != null) {
-            Text(text = amount, style = AppTypography.data, color = AppColors.text, maxLines = 1)
+        when {
+            trailing != null -> trailing()
+            amount != null -> Text(text = amount, style = AppTypography.data, color = AppColors.text, maxLines = 1)
         }
     }
 }

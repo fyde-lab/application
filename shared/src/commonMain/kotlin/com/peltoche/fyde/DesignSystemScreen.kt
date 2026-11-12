@@ -31,6 +31,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.components.action.SelectionBar
 import com.peltoche.fyde.components.action.AppBackButton
 import com.peltoche.fyde.components.action.AppCircleButton
 import com.peltoche.fyde.components.action.AppButton
@@ -60,6 +61,7 @@ import com.peltoche.fyde.components.content.DocumentPass
 import com.peltoche.fyde.components.content.DocumentPassCell
 import com.peltoche.fyde.components.content.DocumentPassHeadline
 import com.peltoche.fyde.components.content.DocumentRow
+import com.peltoche.fyde.components.content.SimilarityBadge
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.feedback.AppErrorState
@@ -228,6 +230,22 @@ private fun ActionsSection(onShowSnackbar: () -> Unit) {
                 }
                 AppCircleButton(onClick = {}, contentDescription = "More", active = true) {
                     MoreGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.primary)
+                }
+            }
+        }
+        CatalogueRow("SelectionBar — stacked (Compact) / inline (V16b, D11)") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                listOf(true, false).forEach { stacked ->
+                    SelectionBar(count = "3 sélectionnés", clearDescription = "Tout désélectionner", onClear = {}, stacked = stacked) {
+                        AppButton(text = "Déplacer", onClick = {}, modifier = if (stacked) Modifier.weight(1f) else Modifier)
+                        AppButton(
+                            text = "Supprimer",
+                            onClick = {},
+                            modifier = if (stacked) Modifier.weight(1f) else Modifier,
+                            variant = AppButtonVariant.Outlined,
+                            destructive = true,
+                        )
+                    }
                 }
             }
         }
@@ -425,6 +443,34 @@ private fun ContentSection() {
                     onClick = {},
                     selected = true,
                     icon = { tint -> FolderIconGlyph(Work.icon, tint) },
+                )
+            }
+        }
+        CatalogueRow("DocumentRow — checkbox and SimilarityBadge (V16) / tag (\"Ce document\")") {
+            var checked by remember { mutableStateOf(true) }
+            Column {
+                DocumentRow(
+                    title = "Facture d'électricité — septembre",
+                    subtitle = "Logement › Énergie · 12 sept.",
+                    amount = null,
+                    color = Housing.colors(),
+                    onClick = {},
+                    checked = checked,
+                    onCheckedChange = { checked = it },
+                    checkDescription = "Sélectionner « Facture d'électricité — septembre »",
+                    trailing = { SimilarityBadge(text = "96 %", description = "ressemblance 96 %") },
+                    icon = { tint -> FolderIconGlyph(Housing.icon, tint) },
+                )
+                DocumentRow(
+                    title = "Facture d'électricité — octobre",
+                    subtitle = "Logement › Énergie · 12 oct.",
+                    amount = null,
+                    color = Housing.colors(),
+                    onClick = {},
+                    checked = false,
+                    checkDescription = "Sélectionner « Facture d'électricité — octobre »",
+                    trailing = { Text("Ce document", style = AppTypography.caption, color = AppColors.textMuted) },
+                    icon = { tint -> FolderIconGlyph(Housing.icon, tint) },
                 )
             }
         }
