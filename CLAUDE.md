@@ -119,6 +119,18 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   `DocumentDeletion` in `VaultUiState.Loaded`) calls `FydeSdk.deleteDocument`, which only
   publishes the event: the document leaves the lists once sync consumes it. On success the
   document closes with a snackbar; on failure the dialog keeps the SDK's wording in its note.
+  Similar documents (`VaultSimilarPage.kt`, design-system.md § Similar documents, § Selection):
+  `FydeSdk.similarDocuments` (the SDK's `similar` at its `DEFAULT_SIMILAR_MIN_CONFIDENCE`),
+  shown as `similarityPercent` of its 0–1 confidence, never re-ranked or filtered here. A
+  document's page (V6c, D2) ends with the three closest (`documentSimilar`, hidden while loading,
+  when empty or when the SDK fails) and Tout voir, opening `VaultPage.Similar` (V16; D11 at
+  Expanded, in D2's list column with the document kept open beside): the document it started
+  from tagged Ce document, then up to 50 with checkboxes; the ticks live in the page
+  (`VaultPage.Similar.ticked`). The `SelectionBar`'s Déplacer / Supprimer open V9 / V10 for
+  several (`DocumentMove` and `DocumentDeletion` hold a list): `App.kt`'s `publishEach` sends one
+  event per document in turn (the SDK has no batch call), going on past a refusal, and the
+  sheet stays open on those refused. The starting document's row isn't refreshed after a
+  move (the SDK has no metadata-only getter).
 - Sources: `SourcesTabScreen.kt` (the design's S1–S7, D4), backed by `App.kt`'s
   `SourcesTabContainer` (scrapers only; quota from `getUsage`). S1–S6 are pages at
   Compact/Medium; Expanded is D4, a table sortable by source and status beside a detail panel.

@@ -52,6 +52,26 @@ internal object ScreenshotFixtures {
     private val unfiled = document("d7", "Scan 2026-03-02", null, null, T0 - DAY)
     private val housing = listOf(invoice, water, rent)
 
+    // The invoice's similar documents (V6c, V16, D11), most similar first.
+    private val invoiceCopy = document("d8", "Facture EDF mars 2026 (2)", null, FydeDocumentType.INVOICE, T0 - DAY)
+    private val invoiceFebruary = document(
+        "d9", "Facture EDF février 2026", "energy", FydeDocumentType.INVOICE, T0 - 28 * DAY,
+        mapOf("issuer" to FydeAttribute.Text("EDF"), "total_amount" to FydeAttribute.Amount(7_963, "EUR")),
+    )
+    private val invoiceJanuary = document("d10", "Facture EDF janvier 2026", "energy", FydeDocumentType.INVOICE, T0 - 59 * DAY)
+    private val schedule = document("d11", "Échéancier EDF 2026-2027", "energy", FydeDocumentType.STATEMENT, T0 - 70 * DAY)
+    private val similarToInvoice = listOf(
+        FydeSimilarDocument(invoiceCopy, 0.995f),
+        FydeSimilarDocument(invoiceFebruary, 0.96f),
+        FydeSimilarDocument(invoiceJanuary, 0.93f),
+        FydeSimilarDocument(schedule, 0.62f),
+        FydeSimilarDocument(water, 0.41f),
+    )
+    private val invoiceSimilar = VaultSimilarContents("d1", similarToInvoice)
+    private val similarPage = VaultPage.Similar(invoice, origin = VaultPage.Folder("housing"))
+    private val similarTicked = similarPage.copy(ticked = setOf("d1", "d8", "d9"))
+    private val ticked = listOf(invoice, invoiceCopy, invoiceFebruary)
+
     private val sessions = listOf(
         FydeOpenSession("s1", "MacBook Pro de Pierre", T0 - 40 * DAY, isCurrent = true),
         FydeOpenSession("s2", "Pixel 9", T0 - 10 * DAY),
@@ -118,7 +138,15 @@ internal object ScreenshotFixtures {
         ),
         documents = housing,
     )
-    private val vaultLoaded = VaultUiState.Loaded(folders = folders, home = home, folder = housingContents, search = searchContents, deviceCount = 2)
+    private val vaultLoaded = VaultUiState.Loaded(
+        folders = folders,
+        home = home,
+        folder = housingContents,
+        search = searchContents,
+        documentSimilar = invoiceSimilar,
+        similar = invoiceSimilar,
+        deviceCount = 2,
+    )
     private val creationSources = listOf(
         VaultSource("EDF", VaultSourceState.Connected),
         VaultSource("Ameli", VaultSourceState.Current),
@@ -216,6 +244,20 @@ internal object ScreenshotFixtures {
             vault(
                 vaultLoaded.copy(deletion = DocumentDeletion(invoice, error = "La suppression des documents n’est pas encore disponible.")),
                 VaultFocus(page = housingPage, document = invoice),
+            )
+        },
+        shot("vault-similar") { vault(vaultLoaded, VaultFocus(page = similarPage)) },
+        shot("vault-similar-loading") { vault(vaultLoaded.copy(similar = null), VaultFocus(page = similarPage)) },
+        shot("vault-similar-selected") { vault(vaultLoaded, VaultFocus(page = similarTicked)) },
+        shot("vault-similar-beside") { vault(vaultLoaded, VaultFocus(page = similarTicked, document = invoice)) },
+        shot("vault-documents-move") { vault(vaultLoaded.copy(documentMove = DocumentMove(ticked)), VaultFocus(page = similarTicked)) },
+        shot("vault-documents-delete") {
+            vault(vaultLoaded.copy(deletion = DocumentDeletion(ticked + invoiceJanuary + schedule)), VaultFocus(page = similarTicked))
+        },
+        shot("vault-documents-delete-failed") {
+            vault(
+                vaultLoaded.copy(deletion = DocumentDeletion(listOf(invoiceCopy), error = "1 sur 3 n’a pas pu être supprimé : le serveur est injoignable.")),
+                VaultFocus(page = similarTicked),
             )
         },
         shot("vault-failed") { vault(VaultUiState.ConnectFailed("Le serveur est injoignable.", onRetry = {}), VaultFocus()) },

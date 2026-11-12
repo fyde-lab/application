@@ -690,4 +690,20 @@
         <item quantity="one">%1$d sur %2$d n’a pas pu être supprimé : %3$s</item>
         <item quantity="other">%1$d sur %2$d n’ont pas pu être supprimés : %3$s</item>
     </plurals>
+    <!-- Documents similaires (V6c, V16, D11) -->
+    <string name="vault_similar">Documents similaires</string>
+    <string name="vault_similar_see_all">Tout voir</string>
+    <string name="vault_similar_local">Comparés sur cet appareil, d’après leur texte.</string>
+    <string name="vault_similar_this">Ce document</string>
+    <string name="vault_similar_none_title">Aucun document similaire</string>
+    <string name="vault_similar_none">Fyde n’a trouvé aucun autre document assez proche de celui-ci.</string>
+    <string name="similarity_percent">%1$d&#8239;%</string>
+    <string name="similarity_description">ressemblance %1$d&#8239;%</string>
+    <string name="select_all">Tout sélectionner</string>
+    <string name="deselect_all">Tout désélectionner</string>
+    <string name="select_document">Sélectionner « %1$s »</string>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d sélectionné</item>
+        <item quantity="other">%1$d sélectionnés</item>
+    </plurals>
 </resources>
