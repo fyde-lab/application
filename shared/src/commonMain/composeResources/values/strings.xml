@@ -200,6 +200,7 @@
     <string name="source_secret_keep">Leave empty to keep the current one.</string>
     <string name="connect_source_another_title">Another %1$s account</string>
     <string name="connect_source_another_note">You already have: %1$s. This account gets its own credentials and its own fetching.</string>
+    <string name="connect_source_another_submit">Connect this account</string>
     <string name="source_account_name">Account name</string>
     <string name="source_account_name_help">To recognise this account among your sources. Left blank: the identifier entered above.</string>
     <string name="source_add_account">Add another %1$s account</string>

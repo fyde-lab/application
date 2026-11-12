@@ -200,6 +200,7 @@
     <string name="source_secret_keep">Laissez vide pour garder l’actuel.</string>
     <string name="connect_source_another_title">Un autre compte %1$s</string>
     <string name="connect_source_another_note">Vous avez déjà : %1$s. Ce compte aura ses propres identifiants et sa propre récupération.</string>
+    <string name="connect_source_another_submit">Connecter ce compte</string>
     <string name="source_account_name">Nom du compte</string>
     <string name="source_account_name_help">Pour reconnaître ce compte parmi vos sources. Laissé vide : l’identifiant saisi plus haut.</string>
     <string name="source_add_account">Ajouter un autre compte %1$s</string>

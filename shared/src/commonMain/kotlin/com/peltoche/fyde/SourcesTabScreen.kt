@@ -90,6 +90,7 @@ import com.peltoche.fyde.resources.catalogue_limit
 import com.peltoche.fyde.resources.catalogue_own
 import com.peltoche.fyde.resources.catalogue_search_placeholder
 import com.peltoche.fyde.resources.connect_failed_title
+import com.peltoche.fyde.resources.connect_source_another_submit
 import com.peltoche.fyde.resources.connect_source_encrypted
 import com.peltoche.fyde.resources.connecting_message
 import com.peltoche.fyde.resources.document_detail_value_unset
@@ -868,7 +869,7 @@ private fun ConnectPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit)
             Spacer(Modifier.height(AppSpacing.space6))
         }
         Box(modifier = Modifier.fillMaxWidth().padding(top = AppSpacing.space4, bottom = AppSpacing.space5)) {
-            ConnectButton(form)
+            if (others.isEmpty()) ConnectButton(form) else ConnectButton(form, text = stringResource(Res.string.connect_source_another_submit))
         }
     }
 }
