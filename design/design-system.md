@@ -530,6 +530,55 @@ Bulletins de paie") with Modifier and C'est bon. Modifier opens the folder picke
 folder's level. In a blank vault it reads "Dans À classer" and its primary action is "Ranger",
 the same picker.
 
+### Similar documents
+
+Documents whose text is close in meaning to the open one: last month's payslip next to this one,
+the same invoice imported twice, every notice from one tax office. They come from the SDK's
+`similar` (it compares the embeddings indexing stored on the device: nothing is sent, and no
+content is loaded), most similar first; the app never ranks, scores or filters them itself.
+
+- **Ressemblance.** Each one shows how close it is as a percentage in a `SimilarityBadge`
+  ("94 %", `data` on `sunk`): the SDK's confidence (0 at the model's "unrelated" floor, 1 for
+  identical text), rounded down so only identical text reads 100 %. It's never the raw cosine
+  (the model puts unrelated documents around 0.8), and never a colour alone. Screen readers say
+  "ressemblance 94 %".
+- **On the document** (V6c, D2): a DOCUMENTS SIMILAIRES section after the actions, the three
+  closest as rows (folder tile, title, its path · date, the badge in the amount's place) under a
+  "Tout voir" action. A row opens that document. The section is hidden while it loads and when
+  there's none (a document without text, or not indexed yet): an empty section would look like
+  something failed.
+- **The page** (V16, D11): the document it started from pinned first, tagged "Ce document" and
+  without a badge, then every similar document the SDK returns, each with a checkbox, under
+  "Comparés sur cet appareil, d'après leur texte" and DOCUMENTS · n with "Tout sélectionner".
+  Its back returns to the document. Loading shows row skeletons; once its documents are deleted
+  it says "Aucun document similaire" with nothing to do.
+
+### Selection
+
+Several documents ticked together for one action (only on V16 and D11 for now, so folder pages
+and the search don't change).
+
+- **Ticking.** The checkbox at a row's start ticks it. Below Expanded, once one is ticked, tapping
+  anywhere on a row ticks or unticks it too; with nothing ticked a tap opens the document. At
+  Expanded a row's tap always opens it beside the list; only the checkbox ticks. "Tout
+  sélectionner" ticks every row shown, "Ce document" included, and reads "Tout désélectionner"
+  once every row is ticked. Nothing is ticked when the page opens.
+- **Selection bar** (`SelectionBar`, V16b, D11): while one or more are ticked, a `surface` bar
+  with a top hairline at the foot of the list (above the tab bar on a phone, the list column's
+  foot on desktop): "3 sélectionnés" with a close glyph that unticks everything, then
+  **Déplacer** (filled, the screen's primary) and **Supprimer** (outlined, `error`).
+- **Déplacer** opens V9b / the same 520dp dialog on desktop: V9 for several documents, "Déplacer
+  3 documents", where they are now ("Dans Logement › Énergie", or "Depuis 2 dossiers"), the folder
+  picker on the first ticked document's folder's level, that folder tagged Actuel only when they
+  all share it. **Supprimer** opens V10b / D11b: V10 for several, "Supprimer 3 documents ?", the
+  first three names then "et 2 autres", erased from the vault and every device, for good.
+- Both publish one changelog event per document, one after another, and stay busy until the last
+  is sent. All sent: the sheet or dialog closes, the ticks clear, and a snackbar says "3
+  documents déplacés" / "3 documents supprimés". Some refused: it stays open on those left, with
+  an error note giving how many went and the SDK's wording for the first refusal; the ones sent
+  aren't undone. Deleting the document the page started from returns to the page it was
+  opened from.
+
 ### Devices
 
 A device is named when it signs in: the OS's name for it ("iPhone", "Pixel 8"), or "Ordinateur
@@ -555,6 +604,9 @@ that needs changing changes here first.
 | Ending another device's session | Retirer (cet appareil) | Remove (this device) | Déconnecter |
 | A document's place | dossier › sous-dossier (its path), type | folder › subfolder, type | catégorie, classeur, répertoire |
 | Documents with no folder | À classer | Unfiled | Non classé, Racine |
+| Documents close in meaning to another | documents similaires | similar documents | doublons, apparentés |
+| How close a similar document is | ressemblance, "94 %" | similarity, "94%" | confiance, score, pertinence |
+| Ticked documents | "3 sélectionnés"; Tout sélectionner | "3 selected"; Select all | cochés, choisis |
 
 The references show one plan everywhere, **Gratuit**: 5 active sources, 3 devices, 5 Go.
 
@@ -605,6 +657,11 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
 | V5 | Résultats | Facet chips Dossier / Type / Année / Source (Dossier lists folders with matches, as paths); rows say where each document is ("Logement › Assurance habitation"); matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
 | V6 | Document | Pass, file row with thumbnail, Informations (every attribute), facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) and [Informations](#informations) |
+| V6c | Document, documents similaires | V6 scrolled to its end: after Enregistrer, DOCUMENTS SIMILAIRES with Tout voir, the three closest as rows with their path, date and ressemblance ("94 %") | Hidden while loading and when there's none. See [Similar documents](#similar-documents) |
+| V16 | Documents similaires | Back to the document; title; "Comparés sur cet appareil, d'après leur texte"; the document it started from tagged "Ce document"; DOCUMENTS · n with Tout sélectionner; each similar document with a checkbox, its path · date and its ressemblance, most similar first | Loading → row skeletons; none left → "Aucun document similaire". See [Selection](#selection) |
+| V16b | Sélection | V16 with three ticked (Tout sélectionner stays until every row is); the selection bar above the tab bar, "3 sélectionnés" (close unticks all), Déplacer (filled) · Supprimer (outlined `error`) | A row's tap now ticks it |
+| V9b | Déplacer les documents | V9 for the ticked documents: "Déplacer 3 documents", "Dans Logement › Énergie" (or "Depuis 2 dossiers"), the picker (their shared folder tagged Actuel), "Leur type (Facture) ne change pas" when they share one, Déplacer dans <folder> | Busy until the last move is sent; some refused → stays open on those, with an error note. Then the ticks clear and a snackbar "3 documents déplacés" |
+| V10b | Supprimer les documents | V10 for the ticked documents: "Supprimer 3 documents ?", the first three names and "et n autres", erased from the vault and every device, for good (no source note, as V10 until the SDK backs it); Supprimer (`error`) · Annuler | As V10, then "3 documents supprimés"; some refused → stays open on those, with an error note. Deleting the document V16 started from returns to where it was opened |
 | V6b | Document (sombre) | V6 in the dark theme: the pass on its folder's dark fill, Informations on `surface` | Dark reference for passes |
 | V7 | Lecteur | Full-screen dark viewer, zoom, pages, share | No preview → "Ouvrir avec…" |
 | V8 | Actions | Sheet: Partager, Enregistrer dans Fichiers, Renommer, Déplacer (with the current path), Informations techniques, Supprimer de tous mes appareils | Delete opens V10 |
@@ -681,9 +738,11 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | D8 | Déplacer le dossier | 520dp dialog over D1: what moves and the colour rule; a search field over the folder tree (À la racine, every folder with disclosure, the current parent tagged and muted, the target selected); Nouveau dossier ici · Annuler · Déplacer dans <folder>. Dropping a card on a folder moves it without the dialog, with an Annuler snackbar |
 | D9 | Supprimer le dossier | V15 as a 500dp dialog: `error` trash tile, title, the two radio rows, the info note; Annuler (focused) · Supprimer le dossier |
 | D10 | Nouveau dossier | 560dp dialog: preview tile with name and location; Nom (focused), Description with its help line, Emplacement · Changer, Couleur and Icône for a top-level folder; Annuler · Créer le dossier (Enter) |
-| D2 | Document | Sidebar · 400dp list of the document's folder (breadcrumb, name) · pass, Informations and facts (Dossier: its path), Enregistrer · Déplacer · "…" · live preview |
+| D2 | Document | Sidebar · 400dp list of the document's folder (breadcrumb, name) · pass, Informations and facts (Dossier: its path), Enregistrer · Déplacer · "…", then DOCUMENTS SIMILAIRES as V6c (below the fold, so not in the drawing) · live preview |
 | D2b | Actions du document | D2 with "…" open: a menu with what the row's buttons don't hold (Partager, Renommer, Informations techniques), then a divider and Supprimer de tous mes appareils in `error`, each with its shortcut; right-click on a row opens the same menu |
 | D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the folder if it was the last |
+| D11 | Documents similaires | D2 with its list column turned into V16 (back to the document's folder, "Documents similaires", the trust line, "Ce document" first, checkboxes, ressemblances), two ticked and the selection bar at the column's foot; the open document's pass, Informations and facts (its similar section left out: the list column already is it), and its preview beside. A row's tap opens it beside; only the checkbox ticks. Déplacer opens V9b as a 520dp dialog |
+| D11b | Supprimer les documents | V10b as a 500dp dialog over D11: `error` trash tile, title, names, text; Annuler (focused) · Supprimer |
 | D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil) · detail panel with Appareil · Changer |
 | D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
 | D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |

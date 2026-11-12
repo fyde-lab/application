@@ -184,3 +184,12 @@
 .minifolders span{height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:8px;background:var(--cbg);color:var(--ci);font:600 12px var(--font)}
 .sadd{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--muted)}
 .schev{width:13px;flex:none;margin-left:-4px}
+
+/* Similar documents and selection: SimilarityBadge, the ticked rows' checkbox (.box), SelectionBar, a confirmation's names */
+.sim{flex:none;display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:var(--sunk);color:var(--text);font:500 15px/20px "Plex Mono";font-feature-settings:"tnum";white-space:nowrap}
+.doc.pick{gap:10px;padding-left:14px;padding-right:14px}
+.selbar{position:absolute;left:0;right:0;z-index:4;background:var(--surface);border-top:1px solid var(--border);padding:12px 20px}
+.selbar .circ{width:40px;height:40px}
+.names{margin-top:12px;border-radius:var(--r);background:var(--sunk);padding:10px 14px}
+.names p{font:400 13px/18px var(--font);color:var(--muted)}
+.names p+p{margin-top:4px}

@@ -20,8 +20,9 @@ NODES = {
     "O7": ("Choisir ses sources", "onb"), "O7b": ("Limite de l’offre", "onb"), "O8": ("Notifications", "onb"),
     "O9": ("Ouverture", "onb"), "O10": ("Récupérer mon coffre", "onb"), "O10b": ("Nouveau mot de passe", "onb"),
     "V1": ("Coffre", "vault"), "V2": ("Coffre en remplissage", "vault"), "V3": ("Dossier", "vault"),
-    "V4": ("Recherche", "vault"), "V5": ("Résultats", "vault"), "V6": ("Document", "vault"), "V6b": ("Document sombre", "vault"), "V7": ("Lecteur", "vault"),
+    "V4": ("Recherche", "vault"), "V5": ("Résultats", "vault"), "V6": ("Document", "vault"), "V6b": ("Document sombre", "vault"), "V6c": ("Document, similaires", "vault"), "V7": ("Lecteur", "vault"),
     "V8": ("Actions", "vault"), "V8b": ("Actions sombres", "vault"), "V9": ("Déplacer le document", "vault"), "V10": ("Supprimer le document", "vault"),
+    "V16": ("Documents similaires", "vault"), "V16b": ("Sélection", "vault"), "V9b": ("Déplacer les documents", "vault"), "V10b": ("Supprimer les documents", "vault"),
     "V12": ("Nouveau dossier", "vault"), "V13": ("Actions du dossier", "vault"), "V14": ("Déplacer le dossier", "vault"), "V15": ("Supprimer le dossier", "vault"),
     "V11": ("Coffre sombre", "vault"), "X1": ("Hors ligne", "vault"), "X2": ("Texte à 200 %", "vault"),
     "K1": ("Scanner", "capture"), "K2": ("Vérifier le scan", "capture"), "K3": ("Depuis une autre app", "capture"),
@@ -44,7 +45,7 @@ NODES = {
     "DO7f": ("Mot de passe refusé", "donb"),
     "DO7g": ("Sources connectées", "donb"), "DO8": ("Notifications", "donb"), "DO9": ("Ouverture", "donb"), "DO10": ("Récupérer mon coffre", "donb"), "DO10b": ("Nouveau mot de passe", "donb"),
     "SIDE": ("Barre latérale", "dentry"), "T1": ("Tablette — Coffre", "dapp"), "T2": ("Tablette portrait", "dapp"), "D1": ("Dossier", "dapp"),
-    "D2": ("Document", "dapp"), "D2b": ("Actions du document", "dapp"), "D2c": ("Supprimer le document", "dapp"), "D4": ("Sources", "dapp"), "D4b": ("Source en cours", "dapp"),
+    "D2": ("Document", "dapp"), "D2b": ("Actions du document", "dapp"), "D2c": ("Supprimer le document", "dapp"), "D11": ("Documents similaires", "dapp"), "D11b": ("Supprimer les documents", "dapp"), "D4": ("Sources", "dapp"), "D4b": ("Source en cours", "dapp"),
     "D5": ("Moi", "dapp"), "D6": ("Tout le coffre", "dapp"),
     "D7": ("Actions du dossier", "dapp"), "D8": ("Déplacer le dossier", "dapp"), "D9": ("Supprimer le dossier", "dapp"), "D10": ("Nouveau dossier", "dapp"),
 }
@@ -75,6 +76,8 @@ MOBILE = [
     ("V1", "V3", "dossier", "nav"), ("V3", "V3", "sous-dossier", "nav"), ("V1", "V12", "Nouveau dossier", "overlay"), ("V3", "V12", "Nouveau", "overlay"),
     ("V3", "V13", "…", "overlay"), ("V13", "V12", "Nouveau sous-dossier", "overlay"), ("V13", "V14", "Déplacer", "overlay"), ("V13", "V15", "Supprimer", "overlay"), ("V15", "V3", "supprimé", "nav"), ("V1", "V4", "recherche", "nav"), ("V4", "V5", "", "nav"),
     ("V3", "V6", "", "nav"), ("V5", "V6", "", "nav"), ("V6", "V7", "fichier", "nav"), ("V6", "V8", "…", "overlay"),
+    ("V6", "V6c", "fin de la page", "state"), ("V6c", "V6", "un similaire", "nav"), ("V6c", "V16", "Tout voir", "nav"), ("V16", "V6", "document", "nav"),
+    ("V16", "V16b", "coché", "state"), ("V16b", "V9b", "Déplacer", "overlay"), ("V16b", "V10b", "Supprimer", "overlay"), ("V9b", "V16", "déplacés", "nav"), ("V10b", "V16", "supprimés", "nav"),
     ("V8", "V9", "Déplacer", "overlay"), ("V8", "V10", "Supprimer", "overlay"), ("V10", "V3", "supprimé", "nav"), ("V1", "V11", "sombre", "state"),
     ("V1", "X1", "sans réseau", "state"), ("V1", "M1", "avatar", "nav"),
     ("V1", "M2", "ligne « Scellé »", "nav"), ("V1", "O2", "session expirée", "nav"),
@@ -103,7 +106,7 @@ DESKTOP = [
     ("DO7f", "DO7g", "Passer (dernière)", "nav"), ("DO7g", "DO8", "Continuer", "nav"), ("DO8", "SIDE", "", "nav"),
     ("DO9", "SIDE", "Parcourir le coffre", "nav"),
     ("SIDE", "D6", "Tout le coffre", "nav"), ("D6", "T1", "sur tablette", "state"), ("T1", "T2", "portrait", "state"), ("D6", "D1", "dossier", "nav"), ("SIDE", "D1", "dossier", "nav"), ("SIDE", "D10", "+", "overlay"), ("D1", "D10", "Nouveau dossier", "overlay"), ("D1", "D7", "… ou clic droit", "overlay"), ("D7", "D8", "Déplacer…", "overlay"), ("D7", "D9", "Supprimer", "overlay"), ("D9", "D1", "supprimé", "nav"),
-    ("SIDE", "D4", "Sources", "nav"), ("D4", "D4b", "Lancer", "state"), ("D4b", "D4", "Arrêter", "state"), ("SIDE", "D5", "pierre (avatar)", "nav"), ("D1", "D2", "", "nav"), ("D2", "D2b", "… ou clic droit", "overlay"), ("D2b", "D2c", "Supprimer", "overlay"), ("D2", "D2c", "⌘⌫", "overlay"), ("D2c", "D2", "document suivant", "nav"), ("T1", "D1", "dossier", "nav"),
+    ("SIDE", "D4", "Sources", "nav"), ("D4", "D4b", "Lancer", "state"), ("D4b", "D4", "Arrêter", "state"), ("SIDE", "D5", "pierre (avatar)", "nav"), ("D1", "D2", "", "nav"), ("D2", "D2b", "… ou clic droit", "overlay"), ("D2b", "D2c", "Supprimer", "overlay"), ("D2", "D2c", "⌘⌫", "overlay"), ("D2c", "D2", "document suivant", "nav"), ("D2", "D11", "Tout voir", "nav"), ("D11", "D11b", "Supprimer", "overlay"), ("T1", "D1", "dossier", "nav"),
 ]
 
 GROUPS = {
