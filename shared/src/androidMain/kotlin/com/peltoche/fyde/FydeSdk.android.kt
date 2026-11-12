@@ -238,6 +238,11 @@ actual object FydeSdk {
             client.searchDocumentFacets(text, filters.toFfiSearchFilters()).toFydeSearchFacets()
         }
 
+    actual suspend fun similarDocuments(id: String, limit: Long): Result<List<FydeSimilarDocument>> =
+        withClient("similarDocuments") { client ->
+            client.similarDocuments(id, limit).map { FydeSimilarDocument(it.metadata.toFydeDocument(), it.confidence) }
+        }
+
     actual suspend fun getDocumentContent(id: String): Result<ByteArray?> = withClient("getDocumentContent") { client ->
         client.getDocument(id)?.content
     }
