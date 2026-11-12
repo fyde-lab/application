@@ -146,14 +146,14 @@ actual object FydeSdk {
                     }
                 }
                 val scraperListener = object : ScraperListener {
-                    override fun onProgress(scriptId: String, event: FfiProgressEvent) {
-                        scraperHandler?.onProgress(scriptId, event.toFydeScraperProgress())
+                    override fun onProgress(installationId: String, event: FfiProgressEvent) {
+                        scraperHandler?.onProgress(installationId, event.toFydeScraperProgress())
                     }
 
                     // Called on the scraper's own blocking thread, so it may
                     // block until the user answers.
-                    override fun onQuestion(scriptId: String, question: String): String =
-                        scraperHandler?.let { handler -> runBlocking { handler.onQuestion(scriptId, question) } } ?: ""
+                    override fun onQuestion(installationId: String, question: String): String =
+                        scraperHandler?.let { handler -> runBlocking { handler.onQuestion(installationId, question) } } ?: ""
                 }
                 client = FydeClient.init(config, AndroidLogListener(), documentListener, scraperListener)
             }
@@ -318,10 +318,16 @@ actual object FydeSdk {
     }
 
     actual suspend fun installScript(
+        installationId: String?,
         scriptId: String,
+        label: String,
         parameters: Map<String, FydeScriptParameterValue>,
-    ): Result<Unit> = withClient("installScript") { client ->
-        client.installScript(scriptId, encodeScriptParametersJson(parameters))
+    ): Result<String> = withClient("installScript") { client ->
+        client.installScript(installationId, scriptId, label, encodeScriptParametersJson(parameters))
+    }
+
+    actual suspend fun uninstallScript(installationId: String): Result<Unit> = withClient("uninstallScript") { client ->
+        client.uninstallScript(installationId)
     }
 
     actual suspend fun listUserScripts(): Result<List<FydeScript>> = withClient("listUserScripts") { client ->
@@ -340,18 +346,21 @@ actual object FydeSdk {
         scraperHandler = handler
     }
 
-    actual suspend fun runInstalledScript(scriptId: String): Result<Unit> = withClient("runInstalledScript") { client ->
-        client.runInstalledScript(scriptId)
-    }
+    actual suspend fun runInstalledScript(installationId: String): Result<Unit> =
+        withClient("runInstalledScript") { client -> client.runInstalledScript(installationId) }
 
-    actual suspend fun stopScriptRun(scriptId: String): Result<Boolean> = withClient("stopScriptRun") { client ->
-        client.stopScriptRun(scriptId)
-    }
+    actual suspend fun stopScriptRun(installationId: String): Result<Boolean> =
+        withClient("stopScriptRun") { client -> client.stopScriptRun(installationId) }
 
-    actual suspend fun installedScriptParameters(): Result<Map<String, Map<String, FydeScriptParameterValue>>> =
-        withClient("installedScriptParameters") { client ->
-            client.listInstalledScripts().associate { installed ->
-                installed.script.id to decodeScriptParametersJson(installed.parametersJson)
+    actual suspend fun listInstallations(): Result<List<FydeInstallation>> =
+        withClient("listInstallations") { client ->
+            client.listInstalledScripts().map { installed ->
+                FydeInstallation(
+                    id = installed.installationId,
+                    scriptId = installed.script.id,
+                    label = installed.label,
+                    parameters = decodeScriptParametersJson(installed.parametersJson),
+                )
             }
         }
 }
@@ -592,6 +601,7 @@ private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
         FfiEventType.UPDATE_METADATA -> FydeEventType.UPDATE_METADATA
         FfiEventType.DELETED -> FydeEventType.DELETED
         FfiEventType.INSTALL_SCRIPT -> FydeEventType.INSTALL_SCRIPT
+        FfiEventType.UNINSTALL_SCRIPT -> FydeEventType.UNINSTALL_SCRIPT
         FfiEventType.SAVE_FOLDER -> FydeEventType.SAVE_FOLDER
         FfiEventType.DELETE_FOLDER -> FydeEventType.DELETE_FOLDER
     },

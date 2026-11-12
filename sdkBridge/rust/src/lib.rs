@@ -969,12 +969,18 @@ impl From<ScriptMetadata> for FfiScriptMetadata {
     }
 }
 
-/// A script installed for the authenticated user, mirroring
-/// [`InstalledScript`] across the FFI boundary. `parameters_json` is the
+/// One installation of a script for the authenticated user (one per account
+/// on its site), mirroring [`InstalledScript`] across the FFI boundary.
+/// `installation_id` is what [`FydeClient::run_installed_script`],
+/// [`FydeClient::stop_script_run`], [`FydeClient::uninstall_script`] and a
+/// reinstall take; `label` tells it apart from the user's other
+/// installations of the same script, never blank. `parameters_json` is the
 /// JSON object of values the script was installed with (e.g.
 /// `{"username": "alice"}`), since UniFFI has no native JSON value type.
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct FfiInstalledScript {
+    pub installation_id: String,
+    pub label: String,
     pub script: FfiScript,
     pub parameters_json: String,
 }
@@ -985,12 +991,14 @@ impl TryFrom<InstalledScript> for FfiInstalledScript {
     fn try_from(installed: InstalledScript) -> Result<Self, Self::Error> {
         let parameters_json = serde_json::to_string(installed.parameters()).with_context(|| {
             format!(
-                "failed to serialize parameters of installed script {}",
-                installed.script().id()
+                "failed to serialize parameters of installation {}",
+                installed.installation_id()
             )
         })?;
 
         Ok(Self {
+            installation_id: installed.installation_id().to_string(),
+            label: installed.label().to_string(),
             script: installed.script().clone().into(),
             parameters_json,
         })
@@ -1005,6 +1013,7 @@ pub enum FfiEventType {
     UpdateMetadata,
     Deleted,
     InstallScript,
+    UninstallScript,
     SaveFolder,
     DeleteFolder,
 }
@@ -1016,6 +1025,7 @@ impl From<EventType> for FfiEventType {
             EventType::UpdateMetadata => FfiEventType::UpdateMetadata,
             EventType::Deleted => FfiEventType::Deleted,
             EventType::InstallScript => FfiEventType::InstallScript,
+            EventType::UninstallScript => FfiEventType::UninstallScript,
             EventType::SaveFolder => FfiEventType::SaveFolder,
             EventType::DeleteFolder => FfiEventType::DeleteFolder,
         }
@@ -1265,12 +1275,13 @@ impl FfiProgressEvent {
 /// user questions (a one-time code, ...) on screen. Both are invoked from
 /// the run's own blocking thread, never the caller's: `on_question` may
 /// block until the user answers, and returns their answer to the script.
-/// Several scripts can run at once, so both first get the id of the script
-/// whose run it is; an answer only ever goes back to that run.
+/// Several installations can run at once (of different scripts, or of the
+/// same script for different accounts), so both first get the installation
+/// id of the run; an answer only ever goes back to that run.
 #[uniffi::export(callback_interface)]
 pub trait ScraperListener: Send + Sync {
-    fn on_progress(&self, script_id: String, event: FfiProgressEvent);
-    fn on_question(&self, script_id: String, question: String) -> String;
+    fn on_progress(&self, installation_id: String, event: FfiProgressEvent);
+    fn on_question(&self, installation_id: String, question: String) -> String;
 }
 
 /// A connection to a fyde server, exposed to Kotlin as `FydeClient`.
@@ -1335,17 +1346,18 @@ impl FydeClient {
             let listener: Arc<dyn ScraperListener> = Arc::from(listener);
             let for_progress = listener.clone();
             let language = scraper_language.clone();
-            config.on_scraper_progress =
-                Some(Arc::new(move |script_id: &str, event: ProgressEvent| {
+            config.on_scraper_progress = Some(Arc::new(
+                move |installation_id: &str, event: ProgressEvent| {
                     let language = language.read().unwrap_or_else(PoisonError::into_inner);
                     for_progress.on_progress(
-                        script_id.to_string(),
+                        installation_id.to_string(),
                         FfiProgressEvent::localized(event, &language),
                     )
-                }));
+                },
+            ));
             config.on_scraper_question =
-                Some(Arc::new(move |script_id: &str, question: String| {
-                    listener.on_question(script_id.to_string(), question)
+                Some(Arc::new(move |installation_id: &str, question: String| {
+                    listener.on_question(installation_id.to_string(), question)
                 }));
         }
 
@@ -1883,34 +1895,56 @@ impl FydeClient {
 
     /// Installs `script_id` for the authenticated user, to be run with
     /// `parameters_json` — a JSON object keyed by the script's parameter
-    /// names (e.g. `{"username": "alice"}`). Mirrors
+    /// names (e.g. `{"username": "alice"}`) — as a new installation (one
+    /// more account on its site) when `installation_id` is `None`, else
+    /// replacing that installation. `label` tells it apart from the user's
+    /// other installations of the script; a blank one defaults to its
+    /// username. Returns the installation id. Mirrors
     /// [`fyde_sdk::ScriptsService::install_script`]: the installation only
     /// shows up in [`Self::list_installed_scripts`] once the background
     /// sync job has consumed it back.
     pub async fn install_script(
         &self,
+        installation_id: Option<String>,
         script_id: String,
+        label: String,
         parameters_json: String,
-    ) -> Result<(), FfiError> {
+    ) -> Result<String, FfiError> {
         self.localized(async {
+            let installation_id = installation_id.as_deref().map(parse_uuid).transpose()?;
             let script_id = parse_uuid(&script_id)?;
             let parameters = serde_json::from_str(&parameters_json).with_context(|| {
                 format!("invalid parameters json for script {script_id}: expected a JSON object")
             })?;
 
-            self.inner
+            let installation_id = self
+                .inner
                 .scripts()
                 .install_script(InstallScriptRequest {
+                    installation_id,
                     script_id,
+                    label,
                     parameters,
                 })
                 .await?;
-            Ok(())
+            Ok(installation_id.to_string())
         })
         .await
     }
 
-    /// Lists every script installed for the authenticated user that's been
+    /// Uninstalls installation `installation_id`: its credentials and
+    /// scraper state go from every device once synced. Mirrors
+    /// [`fyde_sdk::ScriptsService::uninstall_script`]; doesn't disable the
+    /// script (see [`Self::disable_script`]).
+    pub async fn uninstall_script(&self, installation_id: String) -> Result<(), FfiError> {
+        self.localized(async {
+            let installation_id = parse_uuid(&installation_id)?;
+            self.inner.scripts().uninstall_script(installation_id).await
+        })
+        .await
+    }
+
+    /// Lists every installation for the authenticated user that's been
     /// synced to this device so far. Mirrors
     /// [`fyde_sdk::ScriptsService::list_installed_scripts`].
     pub async fn list_installed_scripts(&self) -> Result<Vec<FfiInstalledScript>, FfiError> {
@@ -1924,20 +1958,20 @@ impl FydeClient {
         .await
     }
 
-    /// Runs the installed script `script_id` — with the parameter values it
+    /// Runs installation `installation_id` — with the parameter values it
     /// was installed with — until it finishes, reporting progress and
     /// questions through `init`'s `scraper_listener`; the documents it
     /// saves are uploaded like any other. Fails if the installation hasn't
     /// synced to this device yet. Mirrors
     /// [`fyde_sdk::ScriptsService::fetch_installed_script`] then
     /// [`fyde_sdk::ScrapersService::run_installed`].
-    pub async fn run_installed_script(&self, script_id: String) -> Result<(), FfiError> {
+    pub async fn run_installed_script(&self, installation_id: String) -> Result<(), FfiError> {
         self.localized(async {
-            let script_id = parse_uuid(&script_id)?;
+            let installation_id = parse_uuid(&installation_id)?;
             let installed = self
                 .inner
                 .scripts()
-                .fetch_installed_script(script_id)
+                .fetch_installed_script(installation_id)
                 .await?;
             *self
                 .scraper_language
@@ -1948,19 +1982,19 @@ impl FydeClient {
         .await
     }
 
-    /// Stops the run of the installed script `script_id` that
+    /// Stops the run of installation `installation_id` that
     /// [`Self::run_installed_script`] started (and one of it waiting for its
     /// turn), returning whether there was one. Returns at once: that
     /// `run_installed_script` call then fails with `ScraperRunStopped` once
     /// its script has really stopped (unless it finished first). A question
     /// it was waiting on is abandoned, its answer dropped: the caller should
     /// dismiss it. Mirrors [`fyde_sdk::ScrapersService::stop`].
-    pub async fn stop_script_run(&self, script_id: String) -> Result<bool, FfiError> {
+    pub async fn stop_script_run(&self, installation_id: String) -> Result<bool, FfiError> {
         self.localized(async {
             // Canonical form, as `run_installed` names the run after the
-            // script's id.
-            let script_id = parse_uuid(&script_id)?;
-            Ok(self.inner.scrapers().stop(&script_id.to_string()))
+            // installation's id.
+            let installation_id = parse_uuid(&installation_id)?;
+            Ok(self.inner.scrapers().stop(&installation_id.to_string()))
         })
         .await
     }
@@ -2207,6 +2241,14 @@ mod tests {
         assert!(matches!(
             FfiEventType::from(EventType::Deleted),
             FfiEventType::Deleted
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::InstallScript),
+            FfiEventType::InstallScript
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::UninstallScript),
+            FfiEventType::UninstallScript
         ));
     }
 
