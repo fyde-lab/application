@@ -1336,6 +1336,31 @@ private fun VaultContainer(
                     filingReviewed = next
                     scope.launch { FydeSdk.setSetting(FILING_REVIEWED_SETTING, encodeFilingReviewed(next)) }
                 },
+                // A drop has no sheet to keep a failure in: both outcomes are snackbars.
+                onDropDocument = { document, folderId ->
+                    scope.launch {
+                        FydeSdk.moveDocument(document.id, folderId).fold(
+                            onSuccess = {
+                                // Filing it by hand settles where it goes.
+                                filingReviewed?.let { reviewed ->
+                                    val next = withFilingReviewed(reviewed, document.id)
+                                    filingReviewed = next
+                                    FydeSdk.setSetting(FILING_REVIEWED_SETTING, encodeFilingReviewed(next))
+                                }
+                                snackbarHostState.showSnackbar(getString(Res.string.document_moved))
+                            },
+                            onFailure = { snackbarHostState.showSnackbar(it.userMessage()) },
+                        )
+                    }
+                },
+                onDropFolder = { id, parentId ->
+                    scope.launch {
+                        FydeSdk.moveFolder(id, parentId).fold(
+                            onSuccess = { snackbarHostState.showSnackbar(getString(Res.string.folder_moved)) },
+                            onFailure = { snackbarHostState.showSnackbar(it.userMessage()) },
+                        )
+                    }
+                },
                 // The open document shows its new folder once sync consumes the move.
                 onMoveDocument = { document, folderId ->
                     documentMove = DocumentMove(document, busy = true)

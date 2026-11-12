@@ -579,6 +579,7 @@
     <string name="vault_folders">Folders</string>
     <string name="vault_subfolders">Subfolders</string>
     <string name="vault_folder_documents">Documents</string>
+    <string name="drag_hint">Drag a document onto a folder to file it there.</string>
     <string name="vault_folder_empty_title">Empty folder</string>
     <string name="vault_folder_empty_description">Nothing has been filed here yet.</string>
     <string name="vault_unfiled_description">Documents Fyde couldn’t file in a folder.</string>
@@ -629,6 +630,7 @@
     <string name="folder_create">Create folder</string>
     <string name="folder_save">Save</string>
     <string name="document_move">Move</string>
+    <string name="document_move_shortcut">Ctrl+Shift+M</string>
     <string name="document_move_title">Move the document</string>
     <string name="document_move_where">“%1$s” is in %2$s.</string>
     <string name="document_move_type_note">Its type (%1$s) doesn’t change.</string>

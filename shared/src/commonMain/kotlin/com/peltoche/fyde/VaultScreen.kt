@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +39,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
@@ -245,7 +248,23 @@ fun VaultScreen(
     folderCallbacks: FolderCallbacks = FolderCallbacks(),
 ) {
     val folders = (state as? VaultUiState.Loaded)?.folders ?: VaultFolders()
-    CompositionLocalProvider(LocalVaultFolders provides folders) {
+    val currentFolders by rememberUpdatedState(folders)
+    val callbacks by rememberUpdatedState(folderCallbacks)
+    // Drag and drop is Expanded's, where a mouse is expected.
+    val drag = if (LocalAppWindowSizeClass.current == AppWindowSizeClass.Expanded) {
+        remember {
+            VaultDrag(folders = { currentFolders }) { item, choice ->
+                when (item) {
+                    is DragItem.Document -> callbacks.onDropDocument(item.document, choice.folderId)
+                    is DragItem.Folder -> choice.folderId?.let { callbacks.onDropFolder(item.folder.id, it) }
+                }
+            }
+        }
+    } else {
+        null
+    }
+    CompositionLocalProvider(LocalVaultFolders provides folders, LocalVaultDrag provides drag) {
+    VaultDragLayer(drag, modifier = modifier) {
     TopLevelScaffold(
         navigation = navigation.copy(
             // Re-selecting the tab from one of its pages returns home.
@@ -253,7 +272,6 @@ fun VaultScreen(
             onOpenFolder = { onFocusChange(VaultFocus(page = VaultPage.Folder(it))) },
         ),
         selection = focus.page.sidebarSelection(),
-        modifier = modifier,
     ) { contentPadding ->
         val windowSizeClass = LocalAppWindowSizeClass.current
         val pageModifier = Modifier.fillMaxSize().padding(contentPadding).background(AppColors.background)
@@ -288,6 +306,7 @@ fun VaultScreen(
                 }
             }
         }
+    }
     }
     }
 }
@@ -381,23 +400,23 @@ private fun NarrowVault(vault: Vault, modifier: Modifier) {
 private fun WideVault(vault: Vault, modifier: Modifier) {
     val document = vault.focus.document
     val page = vault.focus.page
-    when {
-        document != null -> DocumentShortcuts(vault, document, modifier) { shortcutsModifier ->
-            Row(modifier = shortcutsModifier) {
+    VaultShortcuts(vault, modifier) { shortcutsModifier ->
+        when {
+            document != null -> Row(modifier = shortcutsModifier) {
                 if (page !is VaultPage.Home) {
                     DocumentBesideList(vault, page, document)
                 } else {
                     key(document.id) { DocumentBeside(vault, document, onBack = vault::closeDocument) }
                 }
             }
+            page is VaultPage.Folder -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.List) {
+                FolderGridPage(vault, page)
+            }
+            page is VaultPage.Search -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.Detail) {
+                SearchPage(vault, page)
+            }
+            else -> AppContentContainer(modifier = shortcutsModifier, width = AppContentWidth.List) { HomePage(vault) }
         }
-        page is VaultPage.Folder -> AppContentContainer(modifier = modifier, width = AppContentWidth.List) {
-            FolderGridPage(vault, page)
-        }
-        page is VaultPage.Search -> AppContentContainer(modifier = modifier, width = AppContentWidth.Detail) {
-            SearchPage(vault, page)
-        }
-        else -> AppContentContainer(modifier = modifier, width = AppContentWidth.List) { HomePage(vault) }
     }
 }
 
@@ -421,29 +440,48 @@ private fun RowScope.DocumentBesideList(vault: Vault, page: VaultPage, document:
 }
 
 /**
- * Expanded with [document] open: ⌘⌫ (macOS) or Delete opens D2c. The area
- * takes the focus as the document opens and again once D2c closes, so the
- * keys reach it without a click; a focused text field keeps them.
+ * Expanded's keyboard (design-system.md § Layout), on the open document,
+ * else the open folder: ⇧⌘N a new folder (a subfolder of the open one),
+ * F2 renames the open folder, ⇧⌘M moves the document or folder (V9, D8),
+ * ⌘⌫ or Delete deletes it (D2c, D9). Ctrl stands for ⌘ off macOS. The
+ * area takes the focus as the page or document opens and again once a
+ * sheet closes, so the keys reach it without a click; a focused text
+ * field keeps them.
  */
 @Composable
-private fun DocumentShortcuts(
-    vault: Vault,
-    document: FydeDocument,
-    modifier: Modifier,
-    content: @Composable (Modifier) -> Unit,
-) {
+private fun VaultShortcuts(vault: Vault, modifier: Modifier, content: @Composable (Modifier) -> Unit) {
     val focus = remember { FocusRequester() }
-    val idle = vault.state.deletion == null
-    LaunchedEffect(document.id, idle) { if (idle) focus.requestFocus() }
+    val state = vault.state
+    val idle = state.deletion == null && state.folderSheet == null && state.documentMove == null
+    val document = vault.focus.document
+    val folderId = (vault.focus.page as? VaultPage.Folder)?.folderId
+    val usesCommandKey = getPlatform().usesCommandKey
+    // The search page focuses its own field as it opens.
+    val searching = vault.focus.page is VaultPage.Search && document == null
+    LaunchedEffect(document?.id, vault.focus.page, idle) { if (idle && !searching) focus.requestFocus() }
     content(
         modifier
             .focusRequester(focus)
             .focusable()
             .onKeyEvent { event ->
-                val delete = event.type == KeyEventType.KeyDown &&
-                    (event.key == Key.Delete || (event.key == Key.Backspace && event.isMetaPressed))
-                if (delete) vault.askDelete(document)
-                delete
+                if (event.type != KeyEventType.KeyDown || !idle) return@onKeyEvent false
+                val command = if (usesCommandKey) event.isMetaPressed else event.isCtrlPressed
+                when {
+                    command && event.isShiftPressed && event.key == Key.N -> vault.openFolderSheet(FolderSheet.Create(folderId))
+                    event.key == Key.F2 && document == null && folderId != null -> vault.openFolderSheet(FolderSheet.Edit(folderId))
+                    command && event.isShiftPressed && event.key == Key.M -> when {
+                        document != null -> vault.askMove(document)
+                        folderId != null -> vault.openFolderSheet(FolderSheet.Move(folderId))
+                        else -> return@onKeyEvent false
+                    }
+                    event.key == Key.Delete || (event.key == Key.Backspace && command) -> when {
+                        document != null -> vault.askDelete(document)
+                        folderId != null -> vault.openFolderSheet(FolderSheet.Delete(folderId))
+                        else -> return@onKeyEvent false
+                    }
+                    else -> return@onKeyEvent false
+                }
+                true
             },
     )
 }
@@ -606,6 +644,9 @@ internal fun FolderSummaryCard(vault: Vault, summary: VaultFolderSummary) {
     val newest = summary.newest
     val caption = newest?.let { listOf(it.documentType?.label() ?: it.name, localizedShortDate(it.createdAt)).joinToString(" · ") }
     FolderCard(
+        modifier = Modifier
+            .vaultDropTarget(FolderChoice(folder?.id))
+            .then(if (folder != null) Modifier.vaultDragSource(DragItem.Folder(folder)) else Modifier),
         name = name,
         count = summary.count.toString(),
         caption = caption,
@@ -709,7 +750,11 @@ internal fun VaultDocumentRow(
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val place = if (showsFolder) document.folderLabel() else document.issuer
-    Box(modifier = if (onDelete != null) Modifier.onSecondaryClick { menuOpen = true } else Modifier) {
+    Box(
+        modifier = Modifier
+            .vaultDragSource(DragItem.Document(document))
+            .then(if (onDelete != null) Modifier.onSecondaryClick { menuOpen = true } else Modifier),
+    ) {
         DocumentRow(
             title = document.name,
             subtitle = listOfNotNull(place, localizedShortDate(document.createdAt)).joinToString(" · "),

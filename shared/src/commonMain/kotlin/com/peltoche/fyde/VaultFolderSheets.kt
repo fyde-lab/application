@@ -150,6 +150,10 @@ class FolderCallbacks(
     val onMoveDocument: (document: FydeDocument, folderId: String?) -> Unit = { _, _ -> },
     /** The filing card's "C'est bon": [document]'s folder is right. */
     val onFilingReviewed: (document: FydeDocument) -> Unit = {},
+    /** A document dropped on a folder (no sheet: the outcome is a snackbar). */
+    val onDropDocument: (document: FydeDocument, folderId: String?) -> Unit = { _, _ -> },
+    /** A folder dropped on another. */
+    val onDropFolder: (id: String, parentId: String) -> Unit = { _, _ -> },
     val onCreate: (parentId: String?, form: FolderForm) -> Unit = { _, _ -> },
     val onUpdate: (id: String, form: FolderForm) -> Unit = { _, _ -> },
     val onMove: (id: String, parentId: String?) -> Unit = { _, _ -> },

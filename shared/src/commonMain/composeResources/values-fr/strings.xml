@@ -573,6 +573,7 @@
     <string name="vault_folders">Dossiers</string>
     <string name="vault_subfolders">Sous-dossiers</string>
     <string name="vault_folder_documents">Documents</string>
+    <string name="drag_hint">Glissez un document sur un dossier pour l’y ranger.</string>
     <string name="vault_folder_empty_title">Dossier vide</string>
     <string name="vault_folder_empty_description">Rien n’est encore rangé ici.</string>
     <string name="vault_unfiled_description">Les documents que Fyde n’a pu ranger dans aucun dossier.</string>
@@ -623,6 +624,7 @@
     <string name="folder_create">Créer le dossier</string>
     <string name="folder_save">Enregistrer</string>
     <string name="document_move">Déplacer</string>
+    <string name="document_move_shortcut">Ctrl+Maj+M</string>
     <string name="document_move_title">Déplacer le document</string>
     <string name="document_move_where">« %1$s » est dans %2$s.</string>
     <string name="document_move_type_note">Le type du document (%1$s) ne change pas.</string>
