@@ -1,6 +1,6 @@
 # Screen map
 
-How the 99 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
+How the 106 reference screens in [`assets/screens/`](assets/screens/) lead to one another. Two
 graphs: the phone app, and desktop and tablet. Screen IDs and content are specified in
 [`design-system.md`](design-system.md); this page is only about the links between them.
 
@@ -62,6 +62,10 @@ app's share sheet.
   actions sheet, whose "Déplacer" opens the **V9** folder picker and "Supprimer de tous mes appareils" the
   **V10** dialog; confirming it returns to the list the document was opened from. How the pass changes by document type
   is a pattern, not a screen ([`modeles-cartes.png`](assets/sheets/modeles-cartes.png)).
+- **V6c** is V6 scrolled to its end: DOCUMENTS SIMILAIRES, where a row opens that document (another
+  V6) and "Tout voir" → **V16 Documents similaires**, whose rows open theirs too. Ticking one turns
+  it into **V16b**, whose selection bar opens **V9b** (Déplacer, the folder picker for several
+  documents) or **V10b** (Supprimer, the dialog for several); either returns to V16 once sent.
 
 ### Capture (K1–K4)
 
@@ -126,7 +130,10 @@ Lancer's place (**D4b**). D1 → **D2 Document**, whose "…" (or a right-click)
 its "Supprimer de tous mes appareils" (or ⌘⌫) opens the **D2c** dialog, then the next document. A
 folder's "…" or right-click opens the **D7** menu: Déplacer… → **D8**, Supprimer → **D9**, then back to its
 parent; D1's "Nouveau dossier" opens D10. The avatar row at the foot of the
-sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
+sidebar opens **D5 Moi**, the M1 menu with its pages beside it. D2's DOCUMENTS SIMILAIRES "Tout
+voir" turns its list column into **D11 Documents similaires**, the open document still beside it;
+its selection bar's Supprimer opens the **D11b** dialog (its Déplacer opens V9b as a dialog, not
+drawn).
 
 ## Phone and desktop counterparts
 
@@ -140,6 +147,8 @@ sidebar opens **D5 Moi**, the M1 menu with its pages beside it.
 | V12, V13, V14, V15 | D10, D7, D8, D9 |
 | V6 + V7 | D2 |
 | V8, V10 | D2b, D2c |
+| V16, V16b | D11 |
+| V9b, V10b | D11b (and V9b as a dialog) |
 | S1 + S5 | D4 |
 | S5b | D4b |
 | M1–M12 | D5 (menu and page side by side) |
