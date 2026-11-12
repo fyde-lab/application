@@ -650,4 +650,44 @@
     <string name="folder_layout_money">Argent</string>
     <string name="folder_layout_work">Travail</string>
     <string name="folder_layout_taxes">Impôts</string>
+    <!-- Plusieurs documents à la fois (V9b, V10b, D11b) -->
+    <plurals name="documents_move_title">
+        <item quantity="one">Déplacer %1$d document</item>
+        <item quantity="other">Déplacer %1$d documents</item>
+    </plurals>
+    <string name="documents_move_where">Dans %1$s</string>
+    <string name="documents_move_type_note">Leur type (%1$s) ne change pas.</string>
+    <plurals name="documents_move_from">
+        <item quantity="one">Depuis %1$d dossier</item>
+        <item quantity="other">Depuis %1$d dossiers</item>
+    </plurals>
+    <plurals name="documents_moved">
+        <item quantity="one">%1$d document déplacé</item>
+        <item quantity="other">%1$d documents déplacés</item>
+    </plurals>
+    <plurals name="documents_move_failed">
+        <item quantity="one">%1$d sur %2$d n’a pas pu être déplacé : %3$s</item>
+        <item quantity="other">%1$d sur %2$d n’ont pas pu être déplacés : %3$s</item>
+    </plurals>
+    <plurals name="documents_delete_title">
+        <item quantity="one">Supprimer %1$d document ?</item>
+        <item quantity="other">Supprimer %1$d documents ?</item>
+    </plurals>
+    <string name="documents_delete_text">Ils seront effacés de votre coffre et de tous vos appareils. Vous ne pourrez pas les retrouver.</string>
+    <plurals name="documents_delete_text_devices">
+        <item quantity="one">Ils seront effacés de votre coffre et de votre appareil. Vous ne pourrez pas les retrouver.</item>
+        <item quantity="other">Ils seront effacés de votre coffre et de vos %1$d appareils. Vous ne pourrez pas les retrouver.</item>
+    </plurals>
+    <plurals name="documents_more">
+        <item quantity="one">et %1$d autre</item>
+        <item quantity="other">et %1$d autres</item>
+    </plurals>
+    <plurals name="documents_deleted">
+        <item quantity="one">%1$d document supprimé</item>
+        <item quantity="other">%1$d documents supprimés</item>
+    </plurals>
+    <plurals name="documents_delete_failed">
+        <item quantity="one">%1$d sur %2$d n’a pas pu être supprimé : %3$s</item>
+        <item quantity="other">%1$d sur %2$d n’ont pas pu être supprimés : %3$s</item>
+    </plurals>
 </resources>
