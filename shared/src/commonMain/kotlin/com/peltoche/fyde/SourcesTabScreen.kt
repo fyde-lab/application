@@ -533,12 +533,16 @@ private fun SourceRow(account: SourceAccount, status: SourceFetchStatus?, onClic
  * the account's in `textMuted`, regular weight, once the source has several
  * accounts (design-system.md § Accounts of a source).
  */
-private fun accountName(account: SourceAccount): AnnotatedString = buildAnnotatedString {
-    append(account.script.name)
-    if (account.shared) {
-        withStyle(SpanStyle(color = AppColors.textMuted, fontWeight = FontWeight.Normal)) {
-            append(ACCOUNT_SEPARATOR)
-            append(account.label)
+@Composable
+private fun accountName(account: SourceAccount): AnnotatedString {
+    val muted = AppColors.textMuted
+    return buildAnnotatedString {
+        append(account.script.name)
+        if (account.shared) {
+            withStyle(SpanStyle(color = muted, fontWeight = FontWeight.Normal)) {
+                append(ACCOUNT_SEPARATOR)
+                append(account.label)
+            }
         }
     }
 }
