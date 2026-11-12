@@ -7,6 +7,7 @@
 .sl{display:flex;align-items:center;gap:5px;font:500 13px var(--font);margin-top:2px}
 .sl.ok{color:var(--ok)}.sl.warn{color:var(--warn)}.sl.err{color:var(--err)}.sl.mut{color:var(--muted)}
 .lock{background:#22302A;color:#fff}
+.acct{color:var(--muted);font-weight:400}
 .glass{margin:0 10px 8px;border-radius:22px;background:rgba(245,245,242,.86);color:#1C1B17;padding:12px 14px;display:flex;gap:12px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);margin:12px 16px 0;border-radius:var(--rl);background:var(--surface);border:1px solid var(--border)}
 .stats div{padding:12px 14px}.stats div+div{border-left:1px solid var(--border)}
@@ -30,13 +31,13 @@
  <p class="sec">Ont besoin de vous</p>
  <div class="group">
   <div class="src"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i)">IG</span><div class="grow"><p class="t1">impots.gouv</p><p class="sl warn"><svg class="ic xs"><use href="#i-clock"/></svg>Attend votre code</p></div><button class="pbtn f sm">Saisir</button></div>
-  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="sl err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli<span class="acct"> · Pierre</span></p><p class="sl err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
  </div>
  <p class="sec">À jour</p>
  <div class="group">
   <div class="src"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div class="grow"><p class="t1">EDF</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>Ce matin · 38 documents</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli<span class="acct"> · Marie</span></p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>Ce matin · 17 documents</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
   <div class="src"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i)">PJ</span><div class="grow"><p class="t1">Pajemploi</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>Hier · 41 documents</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
-  <div class="src"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">FR</span><div class="grow"><p class="t1">Free</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>Hier · 24 documents</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
   <div class="src"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">MA</span><div class="grow"><p class="t1">MAIF</p><p class="sl mut"><svg class="ic xs"><use href="#i-pause"/></svg>En pause</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
  </div>
  <p class="t3" style="text-align:center;margin-top:12px">5 sources actives sur 5 avec l’offre Gratuit</p>
@@ -53,7 +54,7 @@
  <p class="sec">Sources disponibles · de A à Z</p>
  <div class="group">
   <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AL</span><div class="grow"><p class="t1">Alan</p><p class="t2">Remboursements, cartes de tiers payant</p></div><button class="pbtn o sm">Ajouter</button></div>
-  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="t2">Déjà ajoutée</p></div><svg class="ic" style="color:var(--ok)"><use href="#i-check"/></svg></div>
+  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Ameli</p><p class="t2">2 comptes ajoutés</p></div><button class="pbtn o sm">Autre compte</button></div>
   <div class="src"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i)">EP</span><div class="grow"><p class="t1">Eau de Paris</p><p class="t2">Factures d’eau</p></div><button class="pbtn o sm">Ajouter</button></div>
   <div class="src"><span class="tile" style="--cbg:var(--c-tel);--ci:var(--c-tel-i)">OR</span><div class="grow"><p class="t1">Orange</p><p class="t2">Factures mobile et box</p></div><button class="pbtn o sm">Ajouter</button></div>
   <div class="src"><span class="tile" style="--cbg:var(--c-trans);--ci:var(--c-trans-i)">SN</span><div class="grow"><p class="t1">SNCF Connect</p><p class="t2">Billets, factures</p></div><button class="pbtn o sm">Ajouter</button></div>
@@ -74,6 +75,21 @@
  <div class="note ok" style="margin:0 20px 14px"><svg class="ic"><use href="#i-lock"/></svg><span>Identifiants chiffrés avec votre coffre : le serveur Fyde ne les voit jamais.</span></div>
  <div class="row" style="gap:12px;margin:0 20px"><div class="grow"><p class="t1" style="font-weight:500">Récupérer automatiquement</p><p class="t2">Une fois par jour, depuis cet iPhone</p></div><span class="sw on"></span></div>
  <div class="foot"><button class="pbtn f w">Connecter EDF</button></div>
+ <!--HB-->
+</div></div>
+
+<!-- S3b -->
+<div class="board"><p class="caption-board">S3b · Connecter un autre compte</p>
+<div class="phone fyde" data-shot="S3b-autre-compte">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <div class="row pad" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div><p class="h2">Un autre compte Ameli</p><p class="t2">Remboursements, attestations</p></div></div>
+ <div class="note info" style="margin:16px 20px 16px"><svg class="ic"><use href="#i-info"/></svg><span>Vous avez déjà le compte <b style="font-weight:600">Pierre</b>. Celui-ci aura ses propres identifiants et sa propre récupération.</span></div>
+ <div class="field"><label>Identifiant</label><div class="in">2840775112048</div></div>
+ <div class="field"><label>Mot de passe Ameli</label><div class="in"><span class="grow" style="letter-spacing:.2em">••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div></div>
+ <div class="field"><label>Nom du compte</label><div class="in on">Marie</div><p class="t3" style="margin-top:6px">Pour reconnaître ce compte parmi vos sources. Laissé vide : l’identifiant saisi plus haut.</p></div>
+ <div class="note ok" style="margin:0 20px 14px"><svg class="ic"><use href="#i-lock"/></svg><span>Identifiants chiffrés avec votre coffre : le serveur Fyde ne les voit jamais.</span></div>
+ <div class="foot"><button class="pbtn f w">Connecter ce compte</button></div>
  <!--HB-->
 </div></div>
 
@@ -131,6 +147,43 @@
  <!--SB-->
  <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><button class="pbtn o sm"><svg class="ic sm"><use href="#i-sync"/></svg>Lancer</button></div>
  <div class="row pad" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div><p class="h2">EDF</p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>À jour · ce matin à 06:02</p></div></div>
+ <div class="stats"><div><span class="t3">Documents</span><b>38</b></div><div><span class="t3">Depuis</span><b>mars 2024</b></div><div><span class="t3">Dernier</span><b>12 oct.</b></div></div>
+ <p class="sec">Réglages</p>
+ <div class="group">
+  <div class="it"><div class="grow"><p class="body">Récupération automatique</p><p class="t2">Une fois par jour</p></div><span class="sw on"></span></div>
+  <div class="it"><div class="grow"><p class="body">Appareil</p><p class="t2">MacBook Air</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><div class="grow"><p class="body">Identifiants</p><p class="t2">pierre.p@exemple.fr</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><div class="grow"><p class="body">Sites consultés</p><p class="t2">edf.fr, particulier.edf.fr</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <p class="sec">Derniers documents</p>
+ <div class="group">
+  <div class="doc"><div class="mini"><i style="width:60%"></i><i></i><i></i></div><div class="grow"><p class="t1 trunc">Facture d’électricité — octobre</p><p class="t2">12 oct.</p></div><p class="amt">84,20 €</p></div>
+ </div>
+ <div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:6px"><button class="pbtn t w"><svg class="ic sm"><use href="#i-plus"/></svg>Ajouter un autre compte EDF</button><button class="pbtn do w">Retirer la source</button></div>
+ <!--HB-->
+</div></div>
+
+<!-- S5c -->
+<div class="board"><p class="caption-board">S5c · Détail d’un compte parmi plusieurs</p>
+<div class="phone fyde" data-shot="S5c-detail-compte">
+ <!--SB-->
+ <div class="navb"><button class="circ" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><button class="pbtn o sm"><svg class="ic sm"><use href="#i-sync"/></svg>Lancer</button></div>
+ <div class="row pad" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div><p class="h2">Ameli<span class="acct"> · Marie</span></p><p class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>À jour · ce matin à 06:14</p></div></div>
+ <div class="stats"><div><span class="t3">Documents</span><b>17</b></div><div><span class="t3">Depuis</span><b>janv. 2025</b></div><div><span class="t3">Dernier</span><b>3 nov.</b></div></div>
+ <p class="sec">Réglages</p>
+ <div class="group">
+  <div class="it"><div class="grow"><p class="body">Nom du compte</p><p class="t2">Marie</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><div class="grow"><p class="body">Récupération automatique</p><p class="t2">Une fois par jour</p></div><span class="sw on"></span></div>
+  <div class="it"><div class="grow"><p class="body">Appareil</p><p class="t2">MacBook Air</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+  <div class="it"><div class="grow"><p class="body">Identifiants</p><p class="t2">2840775112048</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <p class="sec">Autres comptes Ameli</p>
+ <div class="group">
+  <div class="src"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="t1">Pierre</p><p class="sl err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</p></div><svg class="ic ch"><use href="#i-chev-r"/></svg></div>
+ </div>
+ <div style="padding:14px 16px 0;display:flex;flex-direction:column;gap:6px"><button class="pbtn t w"><svg class="ic sm"><use href="#i-plus"/></svg>Ajouter un autre compte Ameli</button><button class="pbtn do w">Retirer ce compte</button></div>
+ <!--HB-->
+</div></div>
 
 <!-- S5b -->
 <div class="board"><p class="caption-board">S5b · Détail, récupération en cours</p>
@@ -215,6 +268,22 @@
   <p class="h3">Retirer EDF ?</p>
   <p class="body" style="color:var(--muted);margin-top:8px">Les 38 documents déjà récupérés restent dans votre coffre. Fyde arrête de se connecter à EDF et efface vos identifiants EDF de tous vos appareils.</p>
   <div style="display:flex;flex-direction:column;gap:6px;margin-top:18px"><button class="pbtn d w">Retirer</button><button class="pbtn t w">Annuler</button></div>
+ </div>
+ <!--HB-->
+</div></div>
+
+<!-- S7b -->
+<div class="board"><p class="caption-board">S7b · Retirer un compte</p>
+<div class="phone fyde" data-shot="S7b-retirer-compte">
+ <!--SB-->
+ <div class="navb"><button class="circ"><svg class="ic"><use href="#i-chev-l"/></svg></button><span></span><span style="width:44px"></span></div>
+ <div class="row pad" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div><p class="h2">Ameli<span class="acct"> · Marie</span></p><p class="sl ok">À jour · ce matin à 06:14</p></div></div>
+ <div class="stats"><div><span class="t3">Documents</span><b>17</b></div><div><span class="t3">Depuis</span><b>janv. 2025</b></div><div><span class="t3">Dernier</span><b>3 nov.</b></div></div>
+ <div class="scrim"></div>
+ <div class="dialog">
+  <p class="h3">Retirer le compte Ameli « Marie » ?</p>
+  <p class="body" style="color:var(--muted);margin-top:8px">Ses 17 documents restent dans votre coffre. Fyde efface les identifiants de ce compte de tous vos appareils. Votre compte Ameli « Pierre » continue d’être récupéré.</p>
+  <div style="display:flex;flex-direction:column;gap:6px;margin-top:18px"><button class="pbtn d w">Retirer ce compte</button><button class="pbtn t w">Annuler</button></div>
  </div>
  <!--HB-->
 </div></div>

@@ -84,6 +84,11 @@ app's share sheet.
 - "Arrêter la récupération" on S4 or S8 stops the run: **S4b** shows what it got, with "Revenir
   aux sources" (S1) and "Relancer" (S4). On S5, Lancer turns into Arrêter while the source runs
   (**S5b**); once stopped, S5 comes back with the stopped status.
+- A source can hold several accounts (one per login on the provider's site, e.g. two Ameli
+  accounts in one household). "Ajouter un autre compte" on S5 (or "Autre compte" on S2, for a
+  source already added) → **S3b**, the connect form for one more account with its Nom du compte,
+  → S4. With several accounts, each is its own S1 row and opens **S5c**, which lists the source's
+  other accounts; its "Retirer ce compte" opens the **S7b** dialog.
 - At the plan's source limit S1 points to M6.
 
 ### Moi (M1–M12)
@@ -149,6 +154,6 @@ drawn).
 | V8, V10 | D2b, D2c |
 | V16, V16b | D11 |
 | V9b, V10b | D11b (and V9b as a dialog) |
-| S1 + S5 | D4 |
+| S1 + S5, S5c | D4 |
 | S5b | D4b |
 | M1–M12 | D5 (menu and page side by side) |
