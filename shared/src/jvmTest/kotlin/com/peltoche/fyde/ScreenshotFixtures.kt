@@ -205,7 +205,7 @@ internal object ScreenshotFixtures {
                 position = 2,
                 count = 3,
                 sources = creationSources,
-                status = statuses.getValue(ameli.id),
+                status = statuses.getValue("ameli-pierre"),
                 isLast = false,
                 isWaiting = false,
                 onWait = {},
