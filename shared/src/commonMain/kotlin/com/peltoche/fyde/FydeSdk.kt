@@ -21,6 +21,14 @@ data class FydeDocument(
 )
 
 /**
+ * A document [FydeSdk.similarDocuments] found close in meaning to another,
+ * mirroring the SDK's `SimilarDocument`. [confidence] is how close, from 0
+ * (the model's "unrelated" floor) to 1 (identical text): the SDK's own
+ * scale, shown as a percentage, never re-ranked or filtered in the app.
+ */
+data class FydeSimilarDocument(val document: FydeDocument, val confidence: Float)
+
+/**
  * One typed value of a document's attributes, mirroring the SDK's
  * `FfiAttribute`. Amounts are minor units of their ISO 4217 currency (cents
  * for `"EUR"`), never floats; dates are ISO 8601 `YYYY-MM-DD`.
@@ -715,6 +723,14 @@ expect object FydeSdk {
      * hasn't been called yet.
      */
     suspend fun searchDocumentFacets(text: String, filters: FydeSearchFilters): Result<FydeSearchFacets>
+
+    /**
+     * The other documents cached locally whose text is close in meaning to
+     * that of the document [id], most similar first, at most [limit], each
+     * with its [FydeSimilarDocument.confidence]; none for a document without
+     * text or not indexed yet. Mirrors [`crate::DocumentsService::similar`].
+     */
+    suspend fun similarDocuments(id: String, limit: Long): Result<List<FydeSimilarDocument>>
 
     /**
      * The content of the document [id] previously cached locally, or `null`

@@ -15,13 +15,13 @@ use uuid::Uuid;
 
 use fyde_sdk::{
     Attribute, AttributeDefinition, AttributeType, ChangelogEvent, Client, ClientConfig,
-    CreateFolderRequest, Document, DocumentType, Error, ErrorCode, ErrorContext as _, EventType,
-    FacetCount, Folder, FolderAppearance, FolderColor, FolderContents, FolderFilter, FolderIcon,
-    InstallScriptRequest, InstalledScript, LogLevel, LoginOutcome, Metadata, OpenSession,
-    PasswordAnalysis, PasswordStrength, ProgressEvent, ProgressStep, Script, ScriptMetadata,
-    ScriptParameter, ScriptParameterType, ScriptType, SearchFacets, SearchFilters, SearchOrder,
-    SearchQuery, SetAttributeRequest, Storage, UpdateFolderRequest, UploadRequest, Usage,
-    system_language,
+    CreateFolderRequest, DEFAULT_SIMILAR_MIN_CONFIDENCE, Document, DocumentType, Error, ErrorCode,
+    ErrorContext as _, EventType, FacetCount, Folder, FolderAppearance, FolderColor,
+    FolderContents, FolderFilter, FolderIcon, InstallScriptRequest, InstalledScript, LogLevel,
+    LoginOutcome, Metadata, OpenSession, PasswordAnalysis, PasswordStrength, ProgressEvent,
+    ProgressStep, Script, ScriptMetadata, ScriptParameter, ScriptParameterType, ScriptType,
+    SearchFacets, SearchFilters, SearchOrder, SearchQuery, SetAttributeRequest, SimilarDocument,
+    Storage, UpdateFolderRequest, UploadRequest, Usage, system_language,
 };
 
 // Keeps the generated Kotlin package `uniffi.fyde_sdk` (the namespace
@@ -618,6 +618,24 @@ impl From<Document> for FfiDocument {
             id: document.id().to_string(),
             content: document.content().to_vec(),
             metadata: document.metadata().clone().into(),
+        }
+    }
+}
+
+/// A document [`FydeClient::similar_documents`] found close in meaning to
+/// another, mirroring [`SimilarDocument`] across the FFI boundary:
+/// `confidence` is the SDK's 0.0..=1.0 scale, not the raw similarity.
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct FfiSimilarDocument {
+    pub metadata: FfiMetadata,
+    pub confidence: f32,
+}
+
+impl From<SimilarDocument> for FfiSimilarDocument {
+    fn from(similar: SimilarDocument) -> Self {
+        Self {
+            metadata: similar.metadata.into(),
+            confidence: similar.confidence,
         }
     }
 }
@@ -1619,6 +1637,27 @@ impl FydeClient {
         .await
     }
 
+    /// The other documents cached locally whose text is close in meaning
+    /// to that of the document `id`, most similar first, at most `limit`,
+    /// down to the SDK's [`DEFAULT_SIMILAR_MIN_CONFIDENCE`]. Mirrors
+    /// [`fyde_sdk::DocumentsService::similar`].
+    pub async fn similar_documents(
+        &self,
+        id: String,
+        limit: i64,
+    ) -> Result<Vec<FfiSimilarDocument>, FfiError> {
+        self.localized(async {
+            let id = parse_uuid(&id)?;
+            let similar = self
+                .inner
+                .documents()
+                .similar(id, DEFAULT_SIMILAR_MIN_CONFIDENCE, limit)
+                .await?;
+            Ok(similar.into_iter().map(FfiSimilarDocument::from).collect())
+        })
+        .await
+    }
+
     /// Encrypts `metadata` as given and publishes it as an "update metadata"
     /// changelog event, replacing whatever metadata was previously
     /// associated with `metadata.id`. Mirrors
@@ -1968,6 +2007,21 @@ mod tests {
     #[test]
     fn parse_uuid_rejects_malformed_input() {
         assert!(parse_uuid("not-a-uuid").is_err());
+    }
+
+    #[test]
+    fn similar_document_conversion_keeps_the_metadata_and_confidence() {
+        let metadata = FakeMetadata::new().build();
+
+        let ffi: FfiSimilarDocument = SimilarDocument {
+            metadata: metadata.clone(),
+            confidence: 0.75,
+        }
+        .into();
+
+        assert_eq!(ffi.metadata.id, metadata.id().to_string());
+        assert_eq!(ffi.metadata.name, metadata.name());
+        assert_eq!(ffi.confidence, 0.75);
     }
 
     #[test]

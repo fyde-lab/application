@@ -65,6 +65,8 @@ actual object FydeSdk {
     actual suspend fun searchDocumentFacets(text: String, filters: FydeSearchFilters): Result<FydeSearchFacets> =
         unsupported()
 
+    actual suspend fun similarDocuments(id: String, limit: Long): Result<List<FydeSimilarDocument>> = unsupported()
+
     actual suspend fun getDocumentContent(id: String): Result<ByteArray?> = unsupported()
 
     actual suspend fun uploadDocument(path: String): Result<String> = unsupported()
