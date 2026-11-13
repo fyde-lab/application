@@ -21,17 +21,17 @@ LABELS = {
     "V5": "Résultats", "V6": "Document", "V6b": "Document sombre", "V6c": "Document, similaires", "V16": "Documents similaires", "V16b": "Sélection", "V9b": "Déplacer les documents", "V10b": "Supprimer les documents", "V7": "Lecteur", "V8": "Actions", "V8b": "Actions sombres", "V9": "Déplacer le document", "V12": "Nouveau dossier", "V13": "Actions du dossier", "V14": "Déplacer le dossier", "V15": "Supprimer le dossier", "V10": "Supprimer le document",
     "V11": "Coffre sombre", "K1": "Scanner", "K2": "Vérifier le scan",
     "K3": "Depuis une autre app", "K4": "Ajout en cours",
-    "S1": "Sources", "S2": "Catalogue", "S3": "Connecter", "S3b": "Autre compte",
+    "S1": "Sources", "S2": "Catalogue", "S3": "Connecter", "S3b": "Autre compte", "S3c": "Connecter, coffre sans dossier", "S9": "Ranger les documents", "S9b": "Nouveau dossier pour une source",
     "S4": "Récupération", "S4b": "Récupération arrêtée", "S5": "Détail", "S5b": "Détail, en cours", "S5c": "Un compte parmi plusieurs", "S6": "En échec", "S6b": "Site changé", "S8": "Vérification demandée", "S7": "Retirer", "S7b": "Retirer un compte", "M1": "Moi", "M2": "Sécurité", "M2b": "Sécurité sombre",
     "M3": "Ce que voit le serveur", "M4": "Vérifier le mot de passe", "M5": "Appareils", "M6": "Offre et usage",
     "M7": "Apparence et langue", "M8": "Se déconnecter", "M9": "Offres", "M10": "Aide", "M11": "Changer le mot de passe", "M12": "Mes données", "M12b": "Supprimer mon compte", "M8b": "Se déconnecter, sombre", "X1": "Hors ligne", "X2": "Texte à 200 %", "D1": "Bureau — Dossier", "D7": "Bureau — Actions du dossier", "D8": "Bureau — Déplacer le dossier", "D9": "Bureau — Supprimer le dossier", "D10": "Bureau — Nouveau dossier",
     "DO1": "Bienvenue", "DO2": "Connexion", "DO2b": "Connexion en cours", "DO2c": "Échec de connexion",
     "DO3": "Créer le coffre", "DO3b": "Créer — erreurs",
     "DO4b": "Trousseau absent", "DO5": "Trop d’appareils", "DO6": "Kit de récupération", "DO6b": "Vérifier le kit",
-    "DO7": "Choisir ses sources", "DO7b": "Connecter une source", "DO7c": "Récupération en cours",
+    "DO7": "Choisir ses sources", "DO7b": "Connecter une source", "DO7i": "Nouveau dossier pour une source", "DO7c": "Récupération en cours",
     "DO7d": "Code reçu par SMS ou e-mail", "DO7f": "Mot de passe refusé",
     "DO7g": "Sources connectées", "DO7h": "Limite de l’offre", "DO8": "Notifications", "DO9": "Ouverture", "DO10": "Récupérer mon coffre", "DO10b": "Nouveau mot de passe",
-    "D2": "Bureau — Document", "D2b": "Bureau — Actions du document", "D2c": "Bureau — Supprimer", "D11": "Bureau — Documents similaires", "D11b": "Bureau — Supprimer les documents", "D4": "Bureau — Sources", "D4b": "Bureau — Source en cours", "T1": "Tablette — Coffre", "T2": "Tablette portrait", "D5": "Bureau — Moi", "D6": "Bureau — Tout le coffre",
+    "D2": "Bureau — Document", "D2b": "Bureau — Actions du document", "D2c": "Bureau — Supprimer", "D11": "Bureau — Documents similaires", "D11b": "Bureau — Supprimer les documents", "D4": "Bureau — Sources", "D4b": "Bureau — Source en cours", "D12": "Bureau — Ranger les documents", "T1": "Tablette — Coffre", "T2": "Tablette portrait", "D5": "Bureau — Moi", "D6": "Bureau — Tout le coffre",
 }
 GROUPS = {"onboarding": "O", "coffre": "V", "capture": "K", "sources": "S", "moi": "MX"}
 BG, INK, GAP, PAD, LABEL_H = "#E4E2DD", "#3d3a33", 28, 36, 50

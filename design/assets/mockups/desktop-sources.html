@@ -49,6 +49,8 @@
 .linux b{flex:1;text-align:center;font:600 13px var(--font);color:#2e2e2e}
 .linux i{width:24px;height:24px;border-radius:12px;background:#DCDCDC;display:grid;place-items:center;margin-left:8px;color:#333;font:600 12px var(--font);font-style:normal}
 .scrimd{position:absolute;inset:0;background:rgba(15,20,18,.45);z-index:10}
+.dfield{display:block;font:500 14px var(--font);margin:16px 0 6px}
+.dinput{height:46px;border-radius:var(--r);border:2px solid var(--primary);background:var(--surface);display:flex;align-items:center;padding:0 13px;font:400 16px var(--font)}
 </style><style>
 .subs{margin:-14px 0 18px 46px;display:flex;flex-direction:column;gap:8px}
 .sub{display:flex;align-items:center;gap:10px;font:500 14px var(--font);color:rgba(255,255,255,.88)}
@@ -84,10 +86,40 @@
  <div class="note info" style="margin:18px 0 18px"><svg class="ic"><use href="#i-globe"/></svg><span>Fyde se connectera uniquement à <b style="font-weight:600">edf.fr</b> et <b style="font-weight:600">particulier.edf.fr</b>, depuis vos appareils.</span></div>
  <div class="field"><label>Adresse e-mail EDF</label><div class="in"><span class="grow">pierre.p@exemple.fr</span></div></div>
  <div class="field"><label>Mot de passe EDF</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div><p class="help">Celui de votre espace client EDF, pas celui de Fyde.</p></div>
+ <div class="field"><label>Ranger dans</label><div class="in" style="padding-right:4px"><span class="ftile sm" style="width:28px;height:28px;border-radius:8px;--cbg:var(--c-none);--ci:var(--c-none-i)"><svg class="ic sm"><use href="#i-doc"/></svg></span><span class="grow">À classer</span><button class="pbtn t sm"><svg class="ic sm"><use href="#i-plus"/></svg>Créer un dossier</button></div><p class="help">Votre coffre n’a pas encore de dossier : sans dossier, les documents d’EDF arrivent dans À classer.</p></div>
  <div class="note ok" style="margin:0 0 16px"><svg class="ic"><use href="#i-lock"/></svg><span>Chiffrés avec votre coffre : le serveur Fyde ne les voit jamais.</span></div>
  <div class="row" style="gap:12px"><div class="grow"><p class="t1" style="font-weight:500">Récupérer automatiquement</p><p class="t2">Une fois par jour, depuis cet ordinateur</p></div><span class="sw on"></span></div>
  <button class="pbtn f w" style="margin-top:20px">Connecter EDF</button>
 </div></div></div>
+</div></div>
+<div class="board"><p class="caption-board">DO7i · Nouveau dossier pour une source</p>
+<div class="desktop fyde" data-shot="DO7i-nouveau-dossier-source">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="split"><div class="brand"><div class="logo"><span><svg class="ic sm"><use href="#i-lock"/></svg></span>Fyde</div><div class="mid">
+ <p class="btitle" style="margin-top:0">Créer votre coffre</p>
+ <p style="font:400 16px/23px var(--font);color:rgba(255,255,255,.8);margin-top:10px">Trois étapes, environ deux minutes.</p>
+ <div class="steps"><div class="stp done"><span class="n"><svg class="ic sm"><use href="#i-check"/></svg></span><div><p>Votre compte</p><small>Identifiant et mot de passe</small></div></div><div class="stp now"><span class="n">2</span><div><p>Vos sources</p><small>D’où viennent vos documents</small></div></div><div class="subs"><div class="sub now"><span class="d"></span>EDF<small>identifiants</small></div><div class="sub todo"><span class="d"></span>impots.gouv<small>ensuite</small></div><div class="sub todo"><span class="d"></span>Ameli<small>ensuite</small></div></div><div class="stp todo"><span class="n">3</span><div><p>Notifications</p><small>Pour ne rater aucun code</small></div></div></div>
+ </div><p class="foot2"><svg class="ic sm"><use href="#i-lock"/></svg>Vos identifiants de sources sont chiffrés sur cet ordinateur.</p></div><div class="pane"><button class="circ tl" aria-label="Retour"><svg class="ic"><use href="#i-chev-l"/></svg></button><p class="tr"><b style="color:var(--primary);font-weight:600">Passer cette source</b></p><div class="form">
+ <p class="count">Source 1 sur 3</p>
+ <div class="srchead"><span class="tile lg" style="--cbg:var(--c-home);--ci:var(--c-home-i)">ED</span><div><p class="h2">EDF</p><p class="t2">Factures et échéanciers d’électricité</p></div></div>
+ <div class="note info" style="margin:18px 0 18px"><svg class="ic"><use href="#i-globe"/></svg><span>Fyde se connectera uniquement à <b style="font-weight:600">edf.fr</b> et <b style="font-weight:600">particulier.edf.fr</b>, depuis vos appareils.</span></div>
+ <div class="field"><label>Adresse e-mail EDF</label><div class="in"><span class="grow">pierre.p@exemple.fr</span></div></div>
+ <div class="field"><label>Mot de passe EDF</label><div class="in on"><span class="grow" style="letter-spacing:.2em">••••••••••</span><svg class="ic" style="color:var(--muted)"><use href="#i-eye"/></svg></div><p class="help">Celui de votre espace client EDF, pas celui de Fyde.</p></div>
+ <div class="field"><label>Ranger dans</label><div class="in" style="padding-right:4px"><span class="ftile sm" style="width:28px;height:28px;border-radius:8px;--cbg:var(--c-none);--ci:var(--c-none-i)"><svg class="ic sm"><use href="#i-doc"/></svg></span><span class="grow">À classer</span><button class="pbtn t sm"><svg class="ic sm"><use href="#i-plus"/></svg>Créer un dossier</button></div><p class="help">Votre coffre n’a pas encore de dossier : sans dossier, les documents d’EDF arrivent dans À classer.</p></div>
+ <div class="note ok" style="margin:0 0 16px"><svg class="ic"><use href="#i-lock"/></svg><span>Chiffrés avec votre coffre : le serveur Fyde ne les voit jamais.</span></div>
+ <div class="row" style="gap:12px"><div class="grow"><p class="t1" style="font-weight:500">Récupérer automatiquement</p><p class="t2">Une fois par jour, depuis cet ordinateur</p></div><span class="sw on"></span></div>
+ <button class="pbtn f w" style="margin-top:20px">Connecter EDF</button>
+</div></div></div>
+ <div class="scrimd"></div>
+ <div class="dlg" style="width:520px">
+  <div class="row" style="gap:14px"><span class="ftile" style="width:52px;height:52px;border-radius:16px;--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic lg"><use href="#i-folder"/></svg></span><div><p class="h2">Nouveau dossier pour EDF</p><p class="t2">Dans Coffre · EDF y rangera tous ses documents</p></div></div>
+  <label class="dfield">Nom</label><div class="dinput"><span style="background:color-mix(in srgb,var(--primary) 22%,transparent);border-radius:3px;padding:0 1px">EDF</span></div>
+  <label class="dfield">Description <span class="t3" style="font-weight:400">· facultative</span></label><div class="dinput" style="height:auto;min-height:64px;align-items:flex-start;border-width:1px;border-color:var(--bstrong);padding:10px 13px;line-height:22px;color:var(--muted)">Ce qui va dans ce dossier</div><p class="t3" style="margin-top:6px">EDF y range ses documents même sans description. Elle sert à y ranger aussi ceux d’ailleurs.</p>
+  <label class="dfield">Emplacement</label><div class="row" style="height:46px;border-radius:var(--r);border:1px solid var(--bstrong);padding:0 8px 0 14px;gap:10px;background:var(--surface)"><svg class="ic" style="color:var(--muted)"><use href="#i-grid"/></svg><span class="grow body">Coffre</span><button class="pbtn t sm">Changer</button></div>
+  <label class="dfield">Couleur</label><div class="swatches"><span class="on" style="--cbg:var(--c-home)"></span><span class="" style="--cbg:var(--c-money)"></span><span class="" style="--cbg:var(--c-work)"></span><span class="" style="--cbg:var(--c-tax)"></span><span class="" style="--cbg:var(--c-health)"></span><span class="" style="--cbg:var(--c-tel)"></span><span class="" style="--cbg:var(--c-trans)"></span><span class="" style="--cbg:var(--c-shop)"></span></div>
+  <label class="dfield">Icône</label><div class="icons"><span class="on" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-folder"/></svg></span><span class="" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-zap"/></svg></span><span class="" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-home"/></svg></span><span class="" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-key"/></svg></span><span class="" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-wallet"/></svg></span><span class="" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-brief"/></svg></span><span class="" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-heart"/></svg></span><span class="" style="--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic"><use href="#i-bag"/></svg></span></div>
+  <div class="acts"><button class="pbtn t sm">Annuler</button><button class="pbtn f sm">Créer le dossier</button></div>
+ </div>
 </div></div>
 <div class="board"><p class="caption-board">DO7c · Récupération en cours</p>
 <div class="desktop fyde" data-shot="DO7c-recuperation-en-cours">

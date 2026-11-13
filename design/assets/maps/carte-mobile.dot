@@ -55,6 +55,9 @@ subgraph "cluster_sources" { label="Sources (S)"; fontname="Inter SemiBold"; fon
   "S2" [label="S2\nCatalogue" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S3" [label="S3\nConnecter" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S3b" [label="S3b\nAutre compte" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S3c" [label="S3c\nConnecter, coffre sans dossier" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S9" [label="S9\nRanger les documents" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
+  "S9b" [label="S9b\nNouveau dossier pour une source" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S4" [label="S4\nRécupération" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S4b" [label="S4b\nRécupération arrêtée" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
   "S5" [label="S5\nDétail" shape=box style="rounded,filled" color="#8C877B" fillcolor="#D4E6E3"];
@@ -185,6 +188,14 @@ subgraph "cluster_moi" { label="Moi (M)"; fontname="Inter SemiBold"; fontsize=15
 "S5c" -> "S7b" [color="#2C5582" style=dashed penwidth=1.4 label="Retirer ce compte"];
 "S1>M6" [label="→ M6 · Offre et usage" shape=box style="rounded,filled" fillcolor="#FFFFFF" color="#1F4D3A" fontcolor="#1F4D3A" fontsize=11 margin="0.10,0.04" penwidth=1];
 "S1" -> "S1>M6" [color="#1F4D3A" penwidth=1.6 label="limite" arrowhead=none];
+"S3" -> "S9" [color="#2C5582" style=dashed penwidth=1.4 label="Ranger dans"];
+"S3b" -> "S9" [color="#2C5582" style=dashed penwidth=1.4 label="Ranger dans"];
+"S5" -> "S9" [color="#2C5582" style=dashed penwidth=1.4 label="Ranger dans"];
+"S5c" -> "S9" [color="#2C5582" style=dashed penwidth=1.4 label="Ranger dans"];
+"S9" -> "S9b" [color="#2C5582" style=dashed penwidth=1.4 label="Nouveau dossier ici"];
+"O7" -> "S3c" [color="#1F4D3A" penwidth=1.6 label="coffre sans dossier"];
+"S3c" -> "S9b" [color="#2C5582" style=dashed penwidth=1.4 label="Créer un dossier"];
+"S3c" -> "S4" [color="#1F4D3A" penwidth=1.6 label="Connecter"];
 "M1" -> "M2" [color="#1F4D3A" penwidth=1.6];
 "M1" -> "M5" [color="#1F4D3A" penwidth=1.6];
 "M1" -> "M6" [color="#1F4D3A" penwidth=1.6];

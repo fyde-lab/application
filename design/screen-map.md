@@ -90,6 +90,10 @@ app's share sheet.
   source already added) → **S3b**, the connect form for one more account with its Nom du compte,
   → S4. With several accounts, each is its own S1 row and opens **S5c**, which lists the source's
   other accounts; its "Retirer ce compte" opens the **S7b** dialog.
+- Where an account files its documents: the Ranger dans row of S3, S3b, S5, S5b and S5c opens
+  **S9** (the folder picker, with Rangement automatique first); its "Nouveau dossier ici" opens
+  **S9b** (V12 for the source, named after it), which picks the new folder and closes. Inside vault
+  creation the vault starts empty, so S3 is **S3c**: its Créer un dossier opens S9b directly.
 - At the plan's source limit S1 points to M6.
 
 ### Moi (M1–M12)
@@ -119,6 +123,8 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 - **DO6** → **DO6b** (the recovery kit) open from M2 Sécurité, beside the Moi menu, not on the
   vault-creation path: their mockups still show the step-2 brand panel.
 - **DO7** (or **DO7h** at the limit) → **DO7b** for each ticked source → **DO7c** while it runs.
+  DO7b's Ranger dans: Créer un dossier → **DO7i** (D10 for the source) while the vault is empty,
+  else Changer → D12.
   From DO7c: a code asked by SMS or e-mail (**DO7d**, one card for both; its "Arrêter la
   récupération" stops the run), "Source suivante" back to
   DO7b, or **DO7g** after the last source. **DO7f** is DO7b after a refused password; skipping
@@ -132,7 +138,8 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 The sidebar replaces the tab bar: "Tout le coffre" (**D6**, **T1** on tablet, **T2** in portrait), a folder (**D1**; its "+"
 opens **D10 Nouveau dossier**)
 and **D4 Sources**; while the selected source runs, D4's panel offers Arrêter in
-Lancer's place (**D4b**). D1 → **D2 Document**, whose "…" (or a right-click) opens the **D2b** menu;
+Lancer's place (**D4b**); its Ranger dans · Changer opens **D12** (its "Nouveau dossier ici" opens
+D10 for the source, as DO7i). D1 → **D2 Document**, whose "…" (or a right-click) opens the **D2b** menu;
 its "Supprimer de tous mes appareils" (or ⌘⌫) opens the **D2c** dialog, then the next document. A
 folder's "…" or right-click opens the **D7** menu: Déplacer… → **D8**, Supprimer → **D9**, then back to its
 parent; D1's "Nouveau dossier" opens D10. The avatar row at the foot of the
@@ -148,6 +155,8 @@ drawn).
 | O1–O10 | DO1–DO10 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
 | O7b | DO7h |
 | S3, S4 inside vault creation | DO7b, DO7c |
+| S3c, S9b | DO7b, DO7i |
+| S9 | D12 |
 | V1 | D6, T1 and T2 (tablet) |
 | V3 | D1 |
 | V12, V13, V14, V15 | D10, D7, D8, D9 |
