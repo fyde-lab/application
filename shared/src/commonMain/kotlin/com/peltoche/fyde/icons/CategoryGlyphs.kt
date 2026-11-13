@@ -114,6 +114,11 @@ fun SortGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
 fun PlugGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
     PathGlyph(PlugPaths, modifier, tint, strokeWidth)
 
+/** Rangement automatique: Fyde files by itself (design-system.md § A source's folder). */
+@Composable
+fun SparkleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) =
+    PathGlyph(SparklePaths, modifier, tint, strokeWidth)
+
 @Composable
 private fun PathGlyph(paths: List<Path>, modifier: Modifier, tint: Color, strokeWidth: Dp) {
     Canvas(modifier = modifier) {
@@ -227,3 +232,7 @@ private val GridPaths = listOf(
 private val PlugPaths = listOf(svg("M9 3v4M15 3v4M6.5 7h11v4a5.5 5.5 0 0 1-11 0zM12 16.5V21"))
 
 private val SortPaths = listOf(svg("M7 4.5v15M3.5 16 7 19.5l3.5-3.5M17 19.5v-15M13.5 8 17 4.5 20.5 8"))
+
+private val SparklePaths = listOf(
+    svg("M12 3.5v4M12 16.5v4M3.5 12h4M16.5 12h4M6.2 6.2l2.6 2.6M15.2 15.2l2.6 2.6M17.8 6.2l-2.6 2.6M8.8 15.2l-2.6 2.6"),
+)

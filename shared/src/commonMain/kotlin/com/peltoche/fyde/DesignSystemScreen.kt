@@ -79,11 +79,13 @@ import com.peltoche.fyde.components.feedback.SourceStatus
 import com.peltoche.fyde.components.feedback.SourceStatusKind
 import com.peltoche.fyde.components.feedback.AppSkeleton
 import com.peltoche.fyde.components.feedback.AppSnackbarHost
+import com.peltoche.fyde.components.content.FolderFillTile
 import com.peltoche.fyde.components.form.AppCheckbox
 import com.peltoche.fyde.components.form.AppDropdown
 import com.peltoche.fyde.components.form.AppSearchField
 import com.peltoche.fyde.components.form.AppSwitch
 import com.peltoche.fyde.components.form.AppTextField
+import com.peltoche.fyde.components.form.SourceFolderField
 import com.peltoche.fyde.components.navigation.AppNavigationBar
 import com.peltoche.fyde.components.navigation.AppNavigationItem
 import com.peltoche.fyde.components.navigation.AppNavigationRail
@@ -102,9 +104,11 @@ import com.peltoche.fyde.icons.AlertTriangleGlyph
 import com.peltoche.fyde.icons.BoltGlyph
 import com.peltoche.fyde.icons.ClockGlyph
 import com.peltoche.fyde.icons.DocumentGlyph
+import com.peltoche.fyde.icons.HeartGlyph
 import com.peltoche.fyde.icons.GridGlyph
 import com.peltoche.fyde.icons.LockGlyph
 import com.peltoche.fyde.icons.PlusGlyph
+import com.peltoche.fyde.icons.SparkleGlyph
 import com.peltoche.fyde.icons.PuzzleGlyph
 import com.peltoche.fyde.icons.SearchGlyph
 import com.peltoche.fyde.icons.SortGlyph
@@ -292,6 +296,41 @@ private fun FormsSection() {
             Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space2)) {
                 AppSwitch(checked = switchOn, onCheckedChange = { switchOn = it }, label = "Sync over Wi-Fi only")
                 AppSwitch(checked = false, onCheckedChange = {}, label = "Disabled", enabled = false)
+            }
+        }
+        CatalogueRow("SourceFolderField — a folder / Rangement automatique / empty vault (S3, S3b, S3c)") {
+            Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
+                SourceFolderField(
+                    label = "Ranger dans",
+                    value = "Santé",
+                    actionLabel = "Changer",
+                    onAction = {},
+                    tile = {
+                        FolderFillTile(size = 28.dp, color = AppColors.category.health, iconSize = AppIconSize.sm) { tint -> HeartGlyph(tint = tint) }
+                    },
+                    supportingText = "Comme le compte Pierre.",
+                )
+                SourceFolderField(
+                    label = "Ranger dans",
+                    value = "Rangement automatique",
+                    actionLabel = "Changer",
+                    onAction = {},
+                    tile = {
+                        FolderFillTile(size = 28.dp, color = AppColors.category.unclassified, iconSize = AppIconSize.sm) { tint -> SparkleGlyph(tint = tint) }
+                    },
+                    supportingText = "D’après les documents déjà dans vos dossiers.",
+                )
+                SourceFolderField(
+                    label = "Ranger dans",
+                    value = "À classer",
+                    actionLabel = "Créer un dossier",
+                    onAction = {},
+                    tile = {
+                        FolderFillTile(size = 28.dp, color = AppColors.category.unclassified, iconSize = AppIconSize.sm) { tint -> DocumentGlyph(tint = tint) }
+                    },
+                    actionIcon = { PlusGlyph(modifier = Modifier.size(AppIconSize.sm), tint = AppColors.primary) },
+                    supportingText = "Votre coffre n’a pas encore de dossier : sans dossier, ses documents arrivent dans À classer.",
+                )
             }
         }
         CatalogueRow("AppDropdown") {
