@@ -210,8 +210,14 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - `ConnectSourceScreen` (S3 inside onboarding at Compact, DO7b at Medium/Expanded in
   `VaultCreationSplitLayout`, whose brand panel lists the ticked sources as `VaultSource`s):
   each ticked source in turn, `App.kt` holding the queue (`connectQueue`/`connectIndex`). One
-  field per script parameter (`ScriptParameterField`, `ScriptParameters.kt`, shared with the Sources tab);
-  Connecter installs and enables it, then `ScraperRuns.runOnceInstalled` starts its first run
+  field per script parameter (`ScriptParameterField`, `ScriptParameters.kt`, shared with the Sources tab),
+  then Ranger dans (`SourceFolderRow`, as in the Sources tab): a new vault has no folder, so it
+  reads À classer with Créer un dossier (S3c, DO7b), opening the new-folder sheet named after the
+  source (S9b, DO7i) whose folder is picked; once a folder exists (one made for an earlier source
+  of the queue included) it's the usual row with Changer (S9, D12). `App.kt` re-reads
+  `listFolders` as the step opens and on each changelog event, keeping those created here until
+  they sync, and going back to a connected source starts from the folder its account got.
+  Connecter installs it with that folder (waiting for a just-created one to sync) and enables it, then `ScraperRuns.runOnceInstalled` starts its first run
   once the installation has synced to this device (alongside any other source's: runs are
   parallel, one `ScraperRun` per account, keyed by the installation id the bridge's
   `ScraperListener` passes), and opens `SourceFetchingScreen`. Passer

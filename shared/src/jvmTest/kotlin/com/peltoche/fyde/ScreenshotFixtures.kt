@@ -198,8 +198,22 @@ internal object ScreenshotFixtures {
         shot("onboarding-sources-loading") {
             SourcesScreen(state = SourcesUiState.Loading, selected = emptySet(), onToggle = {}, query = "", onQueryChange = {}, onConnect = {}, onSkip = {})
         },
-        shot("connect-source") {
-            ConnectSourceScreen(script = ameli, position = 2, count = 3, sources = creationSources, onConnect = {}, onSkip = {}, onBack = {})
+        shot("connect-source") { connectSource(folders) },
+        // S3c / DO7b: a new vault has no folder yet; DO7i over it.
+        shot("connect-source-empty-vault") { connectSource(VaultFolders()) },
+        shot("connect-source-folder-new") {
+            connectSource(VaultFolders())
+            CompositionLocalProvider(LocalVaultFolders provides VaultFolders()) {
+                SourceFolderSheets(
+                    sheet = SourceFolderSheet.Create(parentId = null, fromPicker = false),
+                    onSheetChange = {},
+                    accountName = ameli.name,
+                    sourceName = ameli.name,
+                    current = null,
+                    onChoose = {},
+                    createFolder = { _, _ -> FolderCreation.Refused("") },
+                )
+            }
         },
         shot("source-fetching") {
             SourceFetchingScreen(
@@ -346,6 +360,21 @@ internal object ScreenshotFixtures {
             onRemove = {},
             onOpenPlan = {},
             navigation = navigation,
+        )
+    }
+
+    @Composable
+    private fun connectSource(folders: VaultFolders) {
+        ConnectSourceScreen(
+            script = ameli,
+            position = 2,
+            count = 3,
+            sources = creationSources,
+            folders = folders,
+            onConnect = { _, _ -> },
+            createFolder = { _, _ -> FolderCreation.Refused("") },
+            onSkip = {},
+            onBack = {},
         )
     }
 
