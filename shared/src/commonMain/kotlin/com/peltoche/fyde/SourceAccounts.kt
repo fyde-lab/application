@@ -5,8 +5,9 @@ package com.peltoche.fyde
  * its site (design-system.md § Accounts of a source). A user can connect
  * the same source several times; each account has its own
  * [installationId], credentials ([parameters]), runs and status, and a
- * [label] telling it apart from the others. [shared] says whether [script]
- * has other accounts, which is when the label shows.
+ * [label] telling it apart from the others, and the folder its documents
+ * are filed in ([folderId], `null` for automatic filing). [shared] says
+ * whether [script] has other accounts, which is when the label shows.
  */
 data class SourceAccount(
     val installationId: String,
@@ -14,6 +15,7 @@ data class SourceAccount(
     val label: String,
     val parameters: Map<String, FydeScriptParameterValue>,
     val shared: Boolean,
+    val folderId: String? = null,
 ) {
     /** How snackbars, dialogs and the code sheet name it: "Ameli · Marie" once the source has several accounts, else "Ameli". */
     val name: String get() = if (shared) "${script.name}$ACCOUNT_SEPARATOR$label" else script.name
@@ -38,6 +40,7 @@ fun sourceAccountsOf(scripts: List<FydeScript>, installations: List<FydeInstalla
                 label = installation.label,
                 parameters = installation.parameters,
                 shared = (perScript[installation.scriptId] ?: 0) > 1,
+                folderId = installation.folderId,
             )
         }
         .sortedWith(compareBy({ it.script.name.lowercase() }, { it.label.lowercase() }))
