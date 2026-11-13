@@ -26,10 +26,16 @@ provider's site (see [Accounts of a source](#accounts-of-a-source)): S1, S2, S5 
 with them, and S3b, S5c and S7b are new. The app builds them (see the S1–S7 row below).
 
 **A folder per source.** Each account of a source can file its documents into a folder the user
-picks, or creates on the spot, instead of by the folders' descriptions (see
+picks, or creates on the spot, instead of filing them automatically (see
 [A source's folder](#a-sources-folder)): S3, S3b, S5, S5b, S5c, D4 and DO7b are drawn with its
 "Ranger dans" row, and S3c, S9, S9b, D12 and DO7i are new. Neither the app nor fyde-sdk backs it
 yet.
+
+**Filing by folder content.** Folder descriptions are gone: automatic filing compares a new
+document with the documents already in each folder, on the device (see [Folders](#folders)'s
+Filing). V3, V12–V15, D1, D7–D10, S3, S9, S9b, D12, DO7i and M3 are redrawn without
+descriptions, and the source's folder pattern words automatic filing by content; no screen is
+new. Neither the app nor fyde-sdk files this way yet.
 
 Screens built so far to a reference screen, on the current tokens until they're migrated (so in
 the old palette and type, with the reference's layout, copy and proportions):
@@ -74,9 +80,10 @@ French and English.
 
 1. **The vault is organised the way its owner wants.** Documents live in folders the user owns:
    a folder holds documents, subfolders, or both, and can be created, renamed, moved and
-   deleted. A new vault starts empty: onboarding doesn't propose folders, everything arrives in
-   À classer until the user creates and describes their own. Search is always one
-   tap away, but browsing is the default on a phone.
+   deleted. A new vault starts empty: onboarding doesn't propose folders, and everything arrives
+   in À classer until the user creates folders and files documents into them by hand, which is
+   what teaches Fyde where the next ones go. Search is always one tap away, but browsing is the
+   default on a phone.
 2. **The automation is visible.** Fetching documents is the reason to use Fyde, so its state is
    on screen at all times: what arrived, which source needs the user, when the next run is.
 3. **Trust is shown, not claimed.** The encryption, the sync across devices and the single
@@ -409,12 +416,15 @@ Where an account of a source files the documents it fetches, set by its **Ranger
 choices:
 
 - **Rangement automatique** (the default): as any new document (see [Folders](#folders)'s
-  Filing), against every described folder of the vault; with no winner, À classer. Its line is
-  "Selon les descriptions de vos dossiers".
+  Filing), against the documents already in every folder of the vault; with no clear winner, À
+  classer. Its line is "D'après les documents déjà dans vos dossiers" ("Based on the documents
+  already in your folders").
 - **A folder** ("Logement › Énergie"): every document the account fetches goes into that folder.
-  Below it, it's filed among the folder's subfolders by their descriptions (the closest one at any
-  depth, with the classifier's usual margin), else into the folder itself; never outside it,
-  never À classer. The chosen folder needs no description of its own.
+  Below it, it's filed among the folder's subfolders by their content: into the subfolder, at any
+  depth, whose documents are closest, with filing's usual margin over the runner-up; else into the
+  folder itself; never outside it, never À classer. An empty subfolder attracts nothing, so a
+  folder just made for a source takes everything until the user sorts some of its documents
+  into subfolders.
 
 Details:
 
@@ -426,30 +436,28 @@ Details:
 - **Picking** (S9, a sheet; D12, a 600dp dialog). The folder picker as in V9 / D8 (levels with a
   breadcrumb on phones, the searchable tree on desktop), titled "Ranger les documents d'<source>"
   ("d'Ameli · Marie" once a source has several accounts), with one line saying they'll go into
-  the chosen folder and its subfolders. **Rangement automatique** is the first entry, in place of
-  "À la racine du coffre": a source can't target À classer itself, it's where automatic filing
-  puts what matches nothing. The current choice is tagged Actuel and isn't pickable; a line under
+  the chosen folder, or the subfolder whose documents are closest ("Ils iront dans le dossier
+  choisi, ou dans le sous-dossier aux documents les plus proches."). **Rangement automatique**
+  is the first entry, in place of "À la racine du coffre": a source can't target À classer
+  itself, it's where automatic filing puts what matches nothing. The current choice is tagged Actuel and isn't pickable; a line under
   the list says documents already there don't move. Confirm "Ranger dans <folder>" (or "Choisir
   le rangement automatique"), Nouveau dossier ici beside it.
 - **Creating one** (S9b, DO7i): Nouveau dossier ici in the picker, or Créer un dossier on the row
   while the vault has no folder, opens V12 / D10 titled "Nouveau dossier pour <source>", saying
   the source will file all its documents there. The name is prefilled with the source's name
   ("EDF", selected so typing replaces it); the location is the picker's level (the root from the
-  row); colour and icon as V12 (a random colour among the first eight, the folder glyph); the
-  description is marked facultative, its help line saying the source files there without one and
-  that it's for documents from elsewhere. Créer le dossier publishes the folder at once (as from
-  V1), picks it for the source and closes back to the form or page it came from. Leaving the form
-  without connecting keeps the folder, empty.
+  row); colour and icon as V12 (a random colour among the first eight, the folder glyph). Créer
+  le dossier publishes the folder at once (as from V1), picks it for the source and closes back
+  to the form or page it came from. Leaving the form without connecting keeps the folder, empty.
 - **An empty vault** (S3c, DO7b: a new vault has no folder, so onboarding's first source always
   meets it): the row reads À classer, on À classer's tile, with **Créer un dossier** in place of
   Changer, and the help line "Votre coffre n'a pas encore de dossier : sans dossier, ses documents
-  arrivent dans À classer." Rangement automatique isn't offered: with nothing described it would
-  only mean À classer. Once a folder exists (one made for an earlier source in the queue
+  arrivent dans À classer." Rangement automatique isn't offered: with no folder to compare with, it
+  would only mean À classer. Once a folder exists (one made for an earlier source in the queue
   included), the row is the usual one with Changer.
 - **Per account.** Each account has its own. S3b starts from the folder of the source's first
   account ("Comme le compte Pierre."), changeable before connecting.
-- **Changing it** only changes where later documents go: nothing already fetched moves (as when a
-  description is edited).
+- **Changing it** only changes where later documents go: nothing already fetched moves.
 - **The folder changes.** Renamed or moved, it stays the source's (it's kept by id). Deleted, the
   source goes back to Rangement automatique, and V15 / D9's dialog says so in an info note ("EDF
   y rangeait ses documents : ils seront rangés automatiquement.").
@@ -578,21 +586,21 @@ the documents: the server never sees them (M3).
   than ten.
 - **Counts** include every document below the folder; a folder card or row shows that count, the
   folder page's band also "n sous-dossiers · n documents".
-- **Description.** A folder can have a description: what belongs in it, in the user's words
-  ("Carte grise, assurance auto, entretien et contrôles techniques, amendes"), up to 300
-  characters; it's optional, but a folder without one is never filed into by itself. It is what Fyde files by (below), so the create form (V12, D10) asks for
-  it under the name with that reason in its help line; it's shown under the folder's title (V3's
-  band, D1's header, with Modifier on desktop) and edited from the folder's actions (V13, D7).
-  Like the name, it's encrypted and never reaches the server.
-- **Filing.** A new document is matched against the folders' descriptions on the device: its
-  transcript embedded as for search, each described folder's "name — description" embedded as a
-  label, the closest folder at any depth wins if it clears the classifier's margin over the
-  runner-up. A folder without a description is never picked by itself; with no winner the
-  document goes to À classer. A new vault has no folder, so
-  everything arrives in À classer until the user describes the folders they create. The user
-  files by hand from V9. A source's documents can go into one folder instead (see
-  [A source's folder](#a-sources-folder)). Editing a description
-  only changes where later documents go; nothing already filed moves.
+- **Filing.** A new document is compared, on the device, with the documents already in each
+  folder: its content embedded as for search and [Similar documents](#similar-documents), each
+  folder at any depth judged by how close its documents are. It goes to the closest folder if
+  that one leads the runner-up by a margin; with no clear winner, to À classer. Folders have no
+  description and no rule to set up: what's in a folder is all Fyde files by.
+  - An empty folder never attracts anything, and neither does À classer: it's where documents
+    that match no folder wait.
+  - A new vault has no folder and nothing filed, so everything starts in À classer. Filing
+    improves as the user files documents by hand (V9, drag and drop, the filing card's
+    Modifier): filing by hand is what teaches Fyde. Every document in a folder counts, whoever
+    put it there, so moving a misfiled document also corrects where the next ones go.
+  - It only decides where a new document goes: nothing already filed moves when folders fill up,
+    empty out or move.
+  - A source's documents can go into one folder instead (see
+    [A source's folder](#a-sources-folder)).
 - **Create** (V12, D10): name (required, unique among its siblings, case-insensitive, 1–60
   characters), location (where it was asked from: the root from V1, the open folder from V3 or
   its "Nouveau sous-dossier"), and for a top-level folder a colour and an icon (preview at the
@@ -614,10 +622,9 @@ the documents: the server never sees them (M3).
 - **Delete** (V15, D9): an empty folder asks a plain confirmation. Otherwise the dialog says what
   it holds and offers **Les garder** (default: documents and subfolders move up to the parent,
   or to À classer from the root) or **Les supprimer aussi** (every document under it is deleted
-  from all devices, as V10). If the folder had a description, the dialog notes where the
-  documents that matched it will now go (the next best described folder, else À classer), and if
-  a source filed into it, that the source goes back to Rangement automatique. Supprimer
-  stays busy until done; then the parent opens with a snackbar "Dossier supprimé".
+  from all devices, as V10). Kept documents count among the parent's from then on, so documents
+  like them go there (moved to À classer, they attract nothing). If a source filed into the
+  folder, an info note says the source goes back to Rangement automatique. Supprimer stays busy until done; then the parent opens with a snackbar "Dossier supprimé".
 - Every change is a changelog event like a document's, so it reaches every device; a move or
   rename made on two devices at once keeps the later one.
 
@@ -625,8 +632,10 @@ the documents: the server never sees them (M3).
 
 Every new document, fetched or added, shows the folder Fyde put it in ("Rangé dans Travail ›
 Bulletins de paie") with Modifier and C'est bon. Modifier opens the folder picker (V9) on that
-folder's level. In a blank vault it reads "Dans À classer" and its primary action is "Ranger",
-the same picker.
+folder's level; moving it is how the user corrects Fyde, since the document then counts among
+its new folder's (see [Folders](#folders)'s Filing). C'est bon only closes the card: the document
+already counts where it is. In a new vault, and whenever no folder's documents are close enough,
+it reads "Dans À classer" and its primary action is "Ranger", the same picker.
 
 ### Similar documents
 
@@ -753,7 +762,7 @@ The tables hold each screen's content and states; how screens lead to one anothe
 |---|---|---|---|
 | V1 | Coffre | Title, search, avatar; seal line; DOSSIERS with "+ Nouveau dossier" (V12); 2-column folder cards (a divider tab on top, the folder's fill, icon, count, name, latest document): À classer first while it holds documents, then the top-level folders by name; an empty folder is a dashed card | Pull to refresh = sync |
 | V2 | Coffre en remplissage | Running sources with progress; filled cards for folders with documents; dashed cards for empty ones, naming the source expected to fill them ("Bientôt, via impots.gouv") | Until each connected source ran once |
-| V3 | Dossier | Back to the parent; search within the folder; "…" (V13); the path as a breadcrumb (each part tappable); the folder band (tile, name, "n sous-dossiers · n documents", the description under them); SOUS-DOSSIERS with "+ Nouveau", one row each (folder tile, name, count, chevron); DOCUMENTS · n with sort, the folder's own documents | A subfolder opens as another V3, pushed. Only subfolders or only documents → the other section is left out; an empty folder says "Dossier vide" with Nouveau dossier and Importer. Rows swipe to Partager / Déplacer, also in V8 |
+| V3 | Dossier | Back to the parent; search within the folder; "…" (V13); the path as a breadcrumb (each part tappable); the folder band (tile, name, "n sous-dossiers · n documents"); SOUS-DOSSIERS with "+ Nouveau", one row each (folder tile, name, count, chevron); DOCUMENTS · n with sort, the folder's own documents | A subfolder opens as another V3, pushed. Only subfolders or only documents → the other section is left out; an empty folder says "Dossier vide" with Nouveau dossier and Importer. Rows swipe to Partager / Déplacer, also in V8 |
 | V4 | Recherche | Full-screen field, recent searches, type shortcuts | Opened from any search icon |
 | V5 | Résultats | Facet chips Dossier / Type / Année / Source (Dossier lists folders with matches, as paths); rows say where each document is ("Logement › Assurance habitation"); matched words highlighted; "Recherche faite sur cet appareil" | No result → clear filters |
 | V6 | Document | Pass, file row with thumbnail, Informations (every attribute), facts (arrivée, chiffré, mots-clés), Enregistrer / Partager | See [Document pass](#document-pass) and [Informations](#informations) |
@@ -768,10 +777,10 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | V8b | Actions (sombre) | V8 in the dark theme | Dark reference for sheets and the scrim |
 | V10 | Supprimer le document | Dialog over V6: the document's title, erased from the vault and every device, for good; for a document a source fetched, an info note that the source won't fetch it again; Supprimer (`error`) · Annuler | Supprimer stays busy until the deletion is recorded, then back to the list it came from (V3, V5 or V1) with a snackbar "Document supprimé", no undo: other devices drop it at once. On failure the dialog stays open with the SDK's wording in an error note. Never offered as a swipe action |
 | V9 | Déplacer le document | Sheet: where the document is now; the folder picker opened on its folder's level (breadcrumb with back, "Dans <folder> même", subfolders, the current one tagged Actuel), the type left as it is; Déplacer dans <folder> · Nouveau dossier ici | See [Folders](#folders) |
-| V12 | Nouveau dossier | Sheet over V1 (or V3): Nom with the tile it will have; Description (multi-line, "Fyde s'en sert pour ranger ici les documents qui arrivent. Sans description, rien n'y est rangé tout seul."); Emplacement with Changer (the folder picker); for a top-level folder COULEUR (palette swatches) and ICÔNE; a line that a subfolder takes its folder's colour; Créer le dossier | A subfolder's sheet has no colour or icon. A taken name is a field error |
-| V13 | Actions du dossier | Sheet over V3: the folder's tile, name, where it is and what it holds; Nouveau sous-dossier, Renommer, Description (its first line; opens a sheet with the field and the help line), Couleur et icône (top-level only), Déplacer (with the current parent); Supprimer le dossier in `error` | — |
+| V12 | Nouveau dossier | Sheet over V1 (or V3): Nom with the tile it will have; Emplacement with Changer (the folder picker); for a top-level folder COULEUR (palette swatches) and ICÔNE; a line that a subfolder takes its folder's colour; Créer le dossier | A subfolder's sheet has no colour or icon. A taken name is a field error |
+| V13 | Actions du dossier | Sheet over V3: the folder's tile, name, where it is and what it holds; Nouveau sous-dossier, Renommer, Couleur et icône (top-level only), Déplacer (with the current parent); Supprimer le dossier in `error` | — |
 | V14 | Déplacer le dossier | Sheet: "Déplacer « Internet »", what moves with it and that it takes the chosen folder's colour; the folder picker at the root (À la racine du coffre, every folder, the current parent tagged Actuel, the selected one ticked; a chevron opens a folder's subfolders); Déplacer dans <folder> · Nouveau dossier ici | The moved folder and its descendants aren't listed |
-| V15 | Supprimer le dossier | Dialog over V3: the folder's name and content; Les garder (into the parent, pre-selected) or Les supprimer aussi (from every device); an info note, when the folder had a description, on where documents matching it will now go (the next best described folder, else À classer); Supprimer le dossier (`error`) · Annuler | An empty folder: a one-line confirmation. Deleting documents too behaves as V10 |
+| V15 | Supprimer le dossier | Dialog over V3: the folder's name and content; Les garder (into the parent, pre-selected) or Les supprimer aussi (from every device); an info note, when a source filed into it, that the source goes back to automatic filing ("EDF y rangeait ses documents : ils seront rangés automatiquement."); Supprimer le dossier (`error`) · Annuler | An empty folder: a one-line confirmation. Deleting documents too behaves as V10 |
 | V11 | Coffre sombre | Dark reference | — |
 
 ### Capture (K1–K4)
@@ -793,7 +802,7 @@ The tables hold each screen's content and states; how screens lead to one anothe
 |---|---|---|---|
 | S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status, one per account ("Ameli · Marie") when a source has several; plan usage, counting sources | Empty → Ajouter une source |
 | S2 | Catalogue | Search; every public scraper from A to Z; Ajouter, or for a source already added "n comptes ajoutés" (or "Déjà ajoutée") and Autre compte (→ S3b); "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
-| S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); Ranger dans (Rangement automatique by default, Changer → S9); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4). See [A source's folder](#a-sources-folder) |
+| S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); Ranger dans (Rangement automatique by default, "D'après les documents déjà dans vos dossiers."; Changer → S9); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4). See [A source's folder](#a-sources-folder) |
 | S3c | Connecter, coffre sans dossier | S3 inside vault creation ("Source 1 sur 3", Passer) while the vault has no folder: Ranger dans reads À classer, with Créer un dossier and "Votre coffre n'a pas encore de dossier : sans dossier, ses documents arrivent dans À classer." | Créer un dossier → S9b; once created, the row shows it with Changer |
 | S3b | Connecter un autre compte | S3 for one more account of a source already added: "Un autre compte <source>", an info note naming the accounts already there, its fields, then Nom du compte (help: "Pour reconnaître ce compte parmi vos sources. Laissé vide : l'identifiant saisi plus haut."), Ranger dans starting from the first account's folder ("Comme le compte Pierre."); Connecter ce compte | Connecter ce compte → S4 |
 | S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan; Arrêter la récupération (text) | Code or captcha → code sheet; Arrêter → S4b |
@@ -801,8 +810,8 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | S5 | Détail | Status, counts, automatic switch, Ranger dans (the folder's path, or Rangement automatique; → S9), Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Ajouter un autre compte <source> (text), Retirer la source | Ajouter un autre compte → S3b |
 | S5c | Détail d'un compte | S5 for one of a source's accounts: "Ameli · Marie", Nom du compte first in Réglages, then Ranger dans, then "Autres comptes <source>" (each with its status, opening its own S5c), Ajouter un autre compte, Retirer ce compte | Retirer ce compte → S7b; the last account left reads as S5 |
 | S5b | Détail, en cours | S5 while the source runs: status "Récupération… 5 / 12", Lancer's slot turned into an outlined Arrêter | Arrêter keeps S5b busy until the run ends, then S5 with the Stopped status and a snackbar |
-| S9 | Ranger les documents | Sheet over S3, S3b or S5: "Ranger les documents d'EDF", that they go into the chosen folder and its subfolders by their descriptions; the picker at the root: Rangement automatique first (tagged Actuel when it's the choice), then the folders, the picked one ticked; "Les documents déjà là ne bougent pas."; Ranger dans <folder> · Nouveau dossier ici | A chevron opens a folder's subfolders, as V9. Nouveau dossier ici → S9b |
-| S9b | Nouveau dossier pour une source | V12 over S3c (or S9): "Nouveau dossier pour EDF", "EDF y rangera tous ses documents."; Nom prefilled "EDF" and selected; Description marked facultative ("EDF y range ses documents même sans description. Elle sert à y ranger aussi ceux d'ailleurs."); Emplacement; Couleur, Icône; Créer le dossier | Créer le dossier publishes the folder, picks it for the source and closes back to the form. A taken name is a field error |
+| S9 | Ranger les documents | Sheet over S3, S3b or S5: "Ranger les documents d'EDF", that they go into the chosen folder or the subfolder whose documents are closest; the picker at the root: Rangement automatique first, with its line (tagged Actuel when it's the choice), then the folders, the picked one ticked; "Les documents déjà là ne bougent pas."; Ranger dans <folder> · Nouveau dossier ici | A chevron opens a folder's subfolders, as V9. Nouveau dossier ici → S9b |
+| S9b | Nouveau dossier pour une source | V12 over S3c (or S9): "Nouveau dossier pour EDF", "EDF y rangera tous ses documents."; Nom prefilled "EDF" and selected; Emplacement; Couleur, Icône; Créer le dossier | Créer le dossier publishes the folder, picks it for the source and closes back to the form. A taken name is a field error |
 | S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | The report is the run's debug report, which never records headers, bodies or form values; a sheet shows what's sent before sending |
 | S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
 | S7b | Retirer un compte | Dialog over S5c: "Retirer le compte <source> « <nom> » ?"; its documents stay, its credentials are erased everywhere, the other accounts keep running; Retirer ce compte | — |
@@ -839,11 +848,11 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 
 | ID | Screen | Layout |
 |---|---|---|
-| D1 | Dossier | Sidebar (the folder's branch open) · breadcrumb and title with the folder's tile, the description under them with Modifier; search within, Nouveau dossier, Importer, "…" · SOUS-DOSSIERS · n as 4-column folder cards · DOCUMENTS · n as 4-column cards with first-page thumbnails, with a hint that dragging onto a folder moves |
-| D7 | Actions du dossier | D1 with a folder's menu (right-click on a card or sidebar row, or "…"): Ouvrir, Nouveau sous-dossier, Renommer, Modifier la description, Déplacer…, Couleur et icône (top-level only), a divider and Supprimer le dossier in `error`, each with its shortcut |
+| D1 | Dossier | Sidebar (the folder's branch open) · breadcrumb and title with the folder's tile; search within, Nouveau dossier, Importer, "…" · SOUS-DOSSIERS · n as 4-column folder cards · DOCUMENTS · n as 4-column cards with first-page thumbnails, with a hint that dragging onto a folder moves |
+| D7 | Actions du dossier | D1 with a folder's menu (right-click on a card or sidebar row, or "…"): Ouvrir, Nouveau sous-dossier, Renommer, Déplacer…, Couleur et icône (top-level only), a divider and Supprimer le dossier in `error`, each with its shortcut |
 | D8 | Déplacer le dossier | 520dp dialog over D1: what moves and the colour rule; a search field over the folder tree (À la racine, every folder with disclosure, the current parent tagged and muted, the target selected); Nouveau dossier ici · Annuler · Déplacer dans <folder>. Dropping a card on a folder moves it without the dialog, with an Annuler snackbar |
-| D9 | Supprimer le dossier | V15 as a 500dp dialog: `error` trash tile, title, the two radio rows, the info note; Annuler (focused) · Supprimer le dossier |
-| D10 | Nouveau dossier | 560dp dialog: preview tile with name and location; Nom (focused), Description with its help line, Emplacement · Changer, Couleur and Icône for a top-level folder; Annuler · Créer le dossier (Enter) |
+| D9 | Supprimer le dossier | V15 as a 500dp dialog: `error` trash tile, title, the two radio rows, the source's info note; Annuler (focused) · Supprimer le dossier |
+| D10 | Nouveau dossier | 560dp dialog: preview tile with name and location; Nom (focused), Emplacement · Changer, Couleur and Icône for a top-level folder; Annuler · Créer le dossier (Enter) |
 | D2 | Document | Sidebar · 400dp list of the document's folder (breadcrumb, name) · pass, Informations and facts (Dossier: its path), Enregistrer · Déplacer · "…", then DOCUMENTS SIMILAIRES as V6c (below the fold, so not in the drawing) · live preview |
 | D2b | Actions du document | D2 with "…" open: a menu with what the row's buttons don't hold (Partager, Renommer, Informations techniques), then a divider and Supprimer de tous mes appareils in `error`, each with its shortcut; right-click on a row opens the same menu |
 | D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the folder if it was the last |
@@ -877,7 +886,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO7 | Choisir ses sources | Step 2 of 3: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); Ranger dans (drawn with the vault still empty: À classer, Créer un dossier → DO7i; Changer → D12 once a folder exists); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 2 with their state | Connect installs the script and starts its first run |
-| DO7i | Nouveau dossier pour une source | D10 over DO7b: "Nouveau dossier pour EDF", "Dans Coffre · EDF y rangera tous ses documents"; Nom "EDF" selected; Description facultative with S9b's help line; Emplacement · Changer; Couleur, Icône; Annuler · Créer le dossier | Créer le dossier picks it for the source and returns to DO7b, whose row then shows it with Changer |
+| DO7i | Nouveau dossier pour une source | D10 over DO7b: "Nouveau dossier pour EDF", "Dans Coffre · EDF y rangera tous ses documents"; Nom "EDF" selected; Emplacement · Changer; Couleur, Icône; Annuler · Créer le dossier | Créer le dossier picks it for the source and returns to DO7b, whose row then shows it with Changer |
 | DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel. No Arrêter here: the first run is short, and it can be stopped from DO7d or, later, D4 |
 | DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Arrêter la récupération / Valider. An e-mail code uses the same card: "Code reçu par e-mail", the masked address, a spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
 | DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
@@ -915,7 +924,7 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `AppNote` | Landed (O2) | `Info` / `Ok` / `Warning` / `Error`: wash, icon in the kind's colour, text; replaces inline `AppBanner`, which screens drop as they're rebuilt |
 | `AppTabBar` | New | Replaces `AppNavigationBar` |
 | `AppSidebar` | Landed (D6, T1, T2) | `AppSidebar` (260, Expanded) and `AppSidebarRail` (80, Medium) in `AppSidebar.kt`, replacing `AppNavigationTopBar` and `AppNavigationRail` in the app (both stay in the catalogue); selected row = `selectionSurface` + 3dp `primary` leading bar + SemiBold |
-| `FolderCard`, `FolderBand` | Landed (V1, V3, D1) | Card: 132 tall (`AppDimensions.folderCardHeight`) on the top-level folder's fill, a 38 `categoryTile` square with the icon in ink and the count in ink above the name (`section`) and the newest document (`caption`, `categoryCaption`); an empty folder (`empty`) is a dashed `borderStrong` outline on the page instead of the fill; one control for screen readers; `FolderCardPlaceholder` while loading. No divider tab yet. Band: 52 tile, name in `title`, "n sous-dossiers · n documents" under it, then the description. Glyphs in `icons/CategoryGlyphs.kt`, the folder → fill, ink and icon mapping in `VaultFolders.kt`. Still the current card radius |
+| `FolderCard`, `FolderBand` | Landed (V1, V3, D1) | Card: 132 tall (`AppDimensions.folderCardHeight`) on the top-level folder's fill, a 38 `categoryTile` square with the icon in ink and the count in ink above the name (`section`) and the newest document (`caption`, `categoryCaption`); an empty folder (`empty`) is a dashed `borderStrong` outline on the page instead of the fill; one control for screen readers; `FolderCardPlaceholder` while loading. No divider tab yet. Band: 52 tile, name in `title`, "n sous-dossiers · n documents" under it. Glyphs in `icons/CategoryGlyphs.kt`, the folder → fill, ink and icon mapping in `VaultFolders.kt`. Still the current card radius |
 | `DocumentRow`, `DocumentCard` | Landed (V3, V5, D1, D2) | Row: the category's tile (fill and ink; no thumbnails yet), title (`bodyEmphasis`, matched words on `highlight`), subtitle (`issuer` · date, the date alone without an issuer), the pass's headline amount at the end in `data` (nothing when the template has no amount); `selected` fills it with the category (D2). With `checked` (V16, D11), an `AppCheckbox` leads it, before the tile; `trailing` replaces the amount (a `SimilarityBadge`, or the "Ce document" tag in `caption` `textMuted`). Pending is left out until the SDK carries it. Card: D1's grid cell, a preview well holding the tile, then title and date |
 | `SimilarityBadge` | Landed (V6c, V16, D11) | A similar document's ressemblance: "94 %" in `data`, `text` on a `sunk` pill (`AppRadius.full`; `surfaceElevated` until the tokens migrate), `space3` × `space1` padding; read as "ressemblance 94 %". In `DocumentRow`'s amount slot |
 | `SelectionBar` | Landed (V16b, D11) | `surface`, `border` top hairline, `space5` × `space3`: a close circle and "n sélectionnés" (`bodyEmphasis`), then the caller's actions (V16b: Déplacer filled, Supprimer outlined `destructive`), full width at Compact, at the end wider |
@@ -957,8 +966,9 @@ left out (principle 5), not faked.
 | Per-source run record: last run, outcome, failure kind, new count | S1, S5, S6, D4 |
 | Runs on a chosen device: once a day on open, in the background where the OS allows | S1, S3, S5, D4, DO7b |
 | Provenance on document metadata (source script, device, fetched at) | V5 Source facet, V6, S5 |
-| Folders: create, rename, describe, recolour, move, delete (as encrypted changelog events), a document's folder, classifying an upload against folder descriptions (today's zero-shot classifier with the folders as labels), folder facets and counts, searching within a folder | V1–V3, V5, V9, V12–V15, D1, D6–D10, sidebar |
-| A folder per source account: kept in the installation (encrypted with it), its fetched documents filed into that folder by its subfolders' descriptions, back to automatic filing when the folder is deleted | S3, S3b, S3c, S5, S5b, S5c, S9, S9b, D4, D12, DO7b, DO7i, V2 |
+| Folders: create, rename, recolour, move, delete (as encrypted changelog events), a document's folder, folder facets and counts, searching within a folder | V1–V3, V5, V9, V12–V15, D1, D6–D10, sidebar |
+| Filing by folder content: a new document compared on the device with the embeddings of the documents already in each folder, the closest folder kept if it leads the runner-up by a margin, else À classer; empty folders and À classer never attract anything; no folder descriptions | K2, K3, the filing card (V6, D2), S3, S9, V15, D9 |
+| A folder per source account: kept in the installation (encrypted with it), its fetched documents filed into that folder, or the subfolder whose documents are closest, back to automatic filing when the folder is deleted | S3, S3b, S3c, S5, S5b, S5c, S9, S9b, D4, D12, DO7b, DO7i, V2 |
 | Remembering a deleted document so its source doesn't fetch it again (scrapers skip only what is still saved) | V10, D2c note |
 | Account recovery (`recoverAccount`, in fyde-sdk, not yet in the bindings) | O10, DO10 |
 | Replay progress and per-device last seen | O9, M5, M2 |
