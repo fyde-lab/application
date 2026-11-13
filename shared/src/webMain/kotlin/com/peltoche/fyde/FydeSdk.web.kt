@@ -93,8 +93,6 @@ actual object FydeSdk {
 
     actual suspend fun deleteFolder(id: String, contents: FydeFolderContents): Result<Unit> = unsupported()
 
-    actual suspend fun createProposedFolders(language: String): Result<List<FydeFolder>> = unsupported()
-
     actual suspend fun deleteDocument(id: String): Result<Unit> = unsupported()
 
     actual suspend fun setLanguage(language: String): Result<Unit> = unsupported()

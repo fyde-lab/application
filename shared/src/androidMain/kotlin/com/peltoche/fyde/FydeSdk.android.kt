@@ -292,11 +292,6 @@ actual object FydeSdk {
             )
         }
 
-    actual suspend fun createProposedFolders(language: String): Result<List<FydeFolder>> =
-        withClient("createProposedFolders") { client ->
-            client.createProposedFolders(language).map(FfiFolder::toFydeFolder)
-        }
-
     actual suspend fun deleteDocument(id: String): Result<Unit> = withClient("deleteDocument") { client ->
         client.deleteDocument(id)
     }

@@ -42,9 +42,10 @@ app's share sheet.
 - **O9 Ouverture** follows a first sign-in on this device, then "Parcourir le coffre" → V1.
 - **O10 Récupérer mon coffre** opens from O2's "Mot de passe oublié ?": the 24 words, then a new
   password in **O10b**, which signs in and continues to O9.
-- Vault creation is a four-step line: **O3** (account) → **O11** (proposed folders or an empty vault) → **O7** (choose sources) → **O8**
+- Vault creation is a three-step line: **O3** (account) → **O7** (choose sources) → **O8**
   (notifications) → **V2** (the vault filling up). The recovery kit (**O6**) is not a step: it's
-  made later, from M2.
+  made later, from M2. The vault starts with no folder: everything arrives in À classer until
+  the user creates their own.
 - From **O7**, "Connecter n sources" takes each ticked source through **S3** (credentials) and
   **S4** (first run) in turn; after the last one, S4 → O8. "Passer" goes straight to O8.
   **O7b** is O7 at the plan's source limit, and points to M6.
@@ -114,7 +115,7 @@ The same flows as O1–O9 in a split window, with the states drawn as their own 
 - **DO2** → **DO2b** while the key is derived → **DO2c** on failure, **DO5** at the device
   limit, or **DO9** on a first sign-in here. **DO4b** is the missing-keyring dialog
   over DO2 as over DO3.
-- **DO3** shows its errors as **DO3b**; **DO4b** again if there is no keyring; then **DO11** (folders) → **DO7**.
+- **DO3** shows its errors as **DO3b**; **DO4b** again if there is no keyring; then **DO7**.
 - **DO6** → **DO6b** (the recovery kit) open from M2 Sécurité, beside the Moi menu, not on the
   vault-creation path: their mockups still show the step-2 brand panel.
 - **DO7** (or **DO7h** at the limit) → **DO7b** for each ticked source → **DO7c** while it runs.
@@ -144,7 +145,7 @@ drawn).
 
 | Phone | Desktop / tablet |
 |---|---|
-| O1–O11 | DO1–DO11 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
+| O1–O10 | DO1–DO10 (plus DO2b, DO2c, DO3b, DO4b, DO7b–DO7h as separate states) |
 | O7b | DO7h |
 | S3, S4 inside vault creation | DO7b, DO7c |
 | V1 | D6, T1 and T2 (tablet) |

@@ -45,8 +45,6 @@ import com.peltoche.fyde.resources.auth_source_credentials_device
 import com.peltoche.fyde.resources.register_account_title
 import com.peltoche.fyde.resources.register_brand_title
 import com.peltoche.fyde.resources.vault_step_account_subtitle
-import com.peltoche.fyde.resources.vault_step_folders_subtitle
-import com.peltoche.fyde.resources.vault_step_folders_title
 import com.peltoche.fyde.resources.vault_step_progress
 import com.peltoche.fyde.resources.vault_step_sources_subtitle
 import com.peltoche.fyde.resources.vault_step_sources_title
@@ -143,13 +141,12 @@ fun SignInSplitLayout(modifier: Modifier = Modifier, form: @Composable (Modifier
 
 /**
  * The steps of creating a vault, in order: what [VaultCreationBrandPanel]'s
- * stepper and [VaultStepDots] count. The design has four (DO3, DO6–DO8);
- * only those the app has screens for are listed (the recovery kit, DO6, is
- * left out of onboarding), so the stepper never
+ * stepper and [VaultStepDots] count. The design has three (DO3, DO7, DO8);
+ * only those the app has screens for are listed, so the stepper never
  * promises a step that doesn't come — notifications join here once it
  * exists.
  */
-enum class VaultCreationStep { Account, Folders, Sources }
+enum class VaultCreationStep { Account, Sources }
 
 /** Where a ticked source is in being connected during vault creation, as the brand panel lists it (DO7b–DO7g). */
 enum class VaultSourceState {
@@ -460,7 +457,6 @@ fun VaultStepDots(currentStep: VaultCreationStep, modifier: Modifier = Modifier)
 private fun VaultCreationStep.title(): String = stringResource(
     when (this) {
         VaultCreationStep.Account -> Res.string.register_account_title
-        VaultCreationStep.Folders -> Res.string.vault_step_folders_title
         VaultCreationStep.Sources -> Res.string.vault_step_sources_title
     },
 )
@@ -469,7 +465,6 @@ private fun VaultCreationStep.title(): String = stringResource(
 private fun VaultCreationStep.subtitle(): String = stringResource(
     when (this) {
         VaultCreationStep.Account -> Res.string.vault_step_account_subtitle
-        VaultCreationStep.Folders -> Res.string.vault_step_folders_subtitle
         VaultCreationStep.Sources -> Res.string.vault_step_sources_subtitle
     },
 )
