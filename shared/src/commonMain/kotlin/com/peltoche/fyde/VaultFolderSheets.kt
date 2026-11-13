@@ -103,6 +103,8 @@ import com.peltoche.fyde.resources.folder_picker_root
 import com.peltoche.fyde.resources.folder_save
 import com.peltoche.fyde.resources.folder_subfolder_color_note
 import com.peltoche.fyde.resources.folder_vault_root
+import com.peltoche.fyde.resources.source_folder_automatic
+import com.peltoche.fyde.resources.source_folder_automatic_detail
 import com.peltoche.fyde.resources.subfolders_count
 import com.peltoche.fyde.resources.vault_unclassified
 import com.peltoche.fyde.theme.AppColors
@@ -173,7 +175,7 @@ internal const val FOLDER_DESCRIPTION_MAX = 300
 private val DefaultAppearance = FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.FOLDER)
 
 /** A new top-level folder's appearance until one is picked: one of the picker's first colours, at random. */
-private fun randomNewAppearance() =
+internal fun randomNewAppearance() =
     FydeFolderAppearance(FydeFolderColor.entries.take(FIRST_COLORS).random(), FydeFolderIcon.FOLDER)
 
 /** Where a folder picker's choice lands: [folderId], or the top level for `null`. */
@@ -234,7 +236,7 @@ internal fun FolderSheets(vault: Vault) {
 
 /** A sheet's title with Annuler beside it. */
 @Composable
-private fun SheetHeader(title: String, onCancel: () -> Unit) {
+internal fun SheetHeader(title: String, onCancel: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Text(text = title, style = AppTypography.section, color = AppColors.text, modifier = Modifier.weight(1f))
         AppTextButton(text = stringResource(Res.string.cancel), onClick = onCancel)
@@ -322,9 +324,10 @@ private fun ActionRow(label: String, icon: @Composable () -> Unit, detail: Strin
  * V12 / D10, and editing a folder: its name (with the tile it will have),
  * its description with what Fyde does with it, where it is, and for a
  * top-level folder its colour and icon. A subfolder picks neither.
+ * [subtitle] goes under the title (S9b's "EDF y rangera tous ses documents.").
  */
 @Composable
-private fun FolderFormSheet(
+internal fun FolderFormSheet(
     title: String,
     initial: FolderForm,
     parentId: String?,
@@ -332,6 +335,7 @@ private fun FolderFormSheet(
     state: FolderSheetState,
     onConfirm: (FolderForm) -> Unit,
     onDismissRequest: () -> Unit,
+    subtitle: String? = null,
 ) {
     var name by remember(state.sheet) { mutableStateOf(initial.name) }
     var description by remember(state.sheet) { mutableStateOf(initial.description) }
@@ -344,6 +348,7 @@ private fun FolderFormSheet(
     AppBottomSheet(onDismissRequest = onDismissRequest) {
         Column(modifier = Modifier.padding(horizontal = AppSpacing.space5), verticalArrangement = Arrangement.spacedBy(AppSpacing.space4)) {
             SheetHeader(title, onDismissRequest)
+            subtitle?.let { Text(text = it, style = AppTypography.caption, color = AppColors.textMuted) }
             AppTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -467,6 +472,9 @@ private fun PickerCell(
  * then the level's folders, each with a chevron into its own. [excluded]
  * folders are left out (a moved folder and what's below it); [current] is
  * tagged Actuel and can't be picked (none for documents in several folders).
+ * With [automaticFiling] (S9, D12: a source's folder), the top's entry is
+ * Rangement automatique instead, `FolderChoice(null)` meaning it. The level
+ * shown goes to [onLevelChange], as it opens and on each move.
  */
 @Composable
 internal fun FolderPicker(
@@ -475,9 +483,12 @@ internal fun FolderPicker(
     selected: FolderChoice?,
     onSelect: (FolderChoice) -> Unit,
     startLevel: String? = null,
+    automaticFiling: Boolean = false,
+    onLevelChange: (String?) -> Unit = {},
 ) {
     val folders = LocalVaultFolders.current
     var level by remember { mutableStateOf(startLevel?.takeIf { it !in excluded && folders[it] != null }) }
+    LaunchedEffect(level) { onLevelChange(level) }
     val levelFolder = folders[level]
     Column(verticalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
         if (levelFolder != null) {
@@ -491,16 +502,17 @@ internal fun FolderPicker(
         AppGroup {
             val here = FolderChoice(level)
             PickerRow(
-                label = if (levelFolder == null) {
-                    stringResource(Res.string.folder_picker_root)
-                } else {
-                    stringResource(Res.string.folder_picker_here, levelFolder.name)
+                label = when {
+                    levelFolder != null -> stringResource(Res.string.folder_picker_here, levelFolder.name)
+                    automaticFiling -> stringResource(Res.string.source_folder_automatic)
+                    else -> stringResource(Res.string.folder_picker_root)
                 },
+                detail = stringResource(Res.string.source_folder_automatic_detail).takeIf { levelFolder == null && automaticFiling },
                 tile = {
-                    if (levelFolder != null) {
-                        SheetFolderTile(levelFolder)
-                    } else {
-                        FolderFillTile(size = AppDimensions.iconTile, color = null.colors(), shape = AppShapes.iconTile, iconSize = AppIconSize.md) { tint ->
+                    when {
+                        levelFolder != null -> SheetFolderTile(levelFolder)
+                        automaticFiling -> SourceFolderTile(null, AppDimensions.iconTile, AppIconSize.md)
+                        else -> FolderFillTile(size = AppDimensions.iconTile, color = null.colors(), shape = AppShapes.iconTile, iconSize = AppIconSize.md) { tint ->
                             GridGlyph(tint = tint)
                         }
                     }
@@ -534,17 +546,23 @@ private fun PickerRow(
     selected: Boolean,
     onSelect: () -> Unit,
     onOpen: (() -> Unit)?,
+    detail: String? = null,
 ) {
     AppGroupRow(onClick = onSelect.takeIf { !current }, selected = selected, enabled = !current) {
         tile()
-        Text(
-            text = label,
-            style = AppTypography.body,
-            color = if (current) AppColors.textMuted else AppColors.text,
-            modifier = Modifier.weight(1f),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = AppTypography.body,
+                color = if (current) AppColors.textMuted else AppColors.text,
+                // Rangement automatique wraps beside Actuel rather than lose its end.
+                maxLines = if (detail != null) 2 else 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (detail != null) {
+                Text(text = detail, style = AppTypography.caption, color = AppColors.textMuted)
+            }
+        }
         if (current) {
             Text(text = stringResource(Res.string.folder_picker_current), style = AppTypography.caption, color = AppColors.textMuted)
         }

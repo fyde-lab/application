@@ -206,6 +206,25 @@
     <string name="source_add_account">Ajouter un autre compte %1$s</string>
     <string name="source_other_accounts">Autres comptes %1$s</string>
     <string name="source_rename">Renommer</string>
+    <!-- A source's folder (design-system.md § A source's folder): S3's Ranger dans row, S9 / D12, S9b / DO7i. -->
+    <string name="source_folder_label">Ranger dans</string>
+    <string name="source_folder_automatic">Rangement automatique</string>
+    <string name="source_folder_automatic_detail">D’après les documents déjà dans vos dossiers</string>
+    <string name="source_folder_automatic_help">D’après les documents déjà dans vos dossiers.</string>
+    <string name="source_folder_chosen_help">Ses documents iront dans ce dossier et ses sous-dossiers.</string>
+    <string name="source_folder_same_as">Comme le compte %1$s.</string>
+    <string name="source_folder_empty_help">Votre coffre n’a pas encore de dossier : sans dossier, ses documents arrivent dans À classer.</string>
+    <string name="source_folder_change">Changer</string>
+    <string name="source_folder_create">Créer un dossier</string>
+    <string name="source_folder_title">Ranger les documents de %1$s</string>
+    <string name="source_folder_title_elided">Ranger les documents d’%1$s</string>
+    <string name="source_folder_note">Ils iront dans le dossier choisi et dans ses sous-dossiers.</string>
+    <string name="source_folder_stay">Les documents déjà là ne bougent pas.</string>
+    <string name="source_folder_into">Ranger dans %1$s</string>
+    <string name="source_folder_choose_automatic">Choisir le rangement automatique</string>
+    <string name="source_folder_new_here">Nouveau dossier ici</string>
+    <string name="source_folder_new_title">Nouveau dossier pour %1$s</string>
+    <string name="source_folder_new_line">%1$s y rangera tous ses documents.</string>
     <string name="source_remove_account">Retirer ce compte</string>
     <string name="source_remove_account_title">Retirer le compte %1$s « %2$s » ?</string>
     <string name="source_remove_account_text">Ses documents déjà récupérés restent dans votre coffre. Fyde efface les identifiants de ce compte de tous vos appareils ; vos autres comptes %1$s continuent d’être récupérés.</string>

@@ -22,6 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -112,6 +113,8 @@ import com.peltoche.fyde.resources.source_fetching_back
 import com.peltoche.fyde.resources.source_fetching_background
 import com.peltoche.fyde.resources.source_fetching_stop
 import com.peltoche.fyde.resources.source_fetching_title
+import com.peltoche.fyde.resources.source_folder_change
+import com.peltoche.fyde.resources.source_folder_label
 import com.peltoche.fyde.resources.source_last_run
 import com.peltoche.fyde.resources.source_other_accounts
 import com.peltoche.fyde.resources.source_remove
@@ -178,6 +181,8 @@ sealed interface SourcesTabUiState {
      * a source). An id in [pendingIds] — an installation's, or a script's
      * while one more account of it is being connected — has an install or
      * removal in flight; [errors] says, by the same ids, why it failed.
+     * [folders] are the vault's, for where each account files its documents
+     * (design-system.md § A source's folder).
      */
     data class Loaded(
         val scripts: List<FydeScript>?,
@@ -185,6 +190,7 @@ sealed interface SourcesTabUiState {
         val quota: SourceQuota? = null,
         val pendingIds: Set<String> = emptySet(),
         val errors: Map<String, String> = emptyMap(),
+        val folders: VaultFolders = VaultFolders(),
     ) : SourcesTabUiState {
         /** Every connected account, by source then name. */
         val accounts: List<SourceAccount> = sourceAccountsOf(scripts.orEmpty(), installations)
@@ -247,8 +253,10 @@ fun SourcesTabScreen(
     onCatalogueOpenChange: (Boolean) -> Unit,
     query: String,
     onQueryChange: (String) -> Unit,
-    onConnect: (FydeScript, label: String, Map<String, FydeScriptParameterValue>) -> Unit,
+    onConnect: (FydeScript, label: String, Map<String, FydeScriptParameterValue>, folderId: String?) -> Unit,
     onUpdate: (SourceAccount, label: String, Map<String, FydeScriptParameterValue>, rerun: Boolean) -> Unit,
+    onChangeFolder: (SourceAccount, folderId: String?) -> Unit,
+    createFolder: CreateFolder,
     onRun: (SourceAccount) -> Unit,
     onStop: (SourceAccount) -> Unit,
     onRemove: (SourceAccount) -> Unit,
@@ -293,15 +301,19 @@ fun SourcesTabScreen(
                     onQueryChange = onQueryChange,
                     onConnect = onConnect,
                     onUpdate = onUpdate,
+                    onChangeFolder = onChangeFolder,
+                    createFolder = createFolder,
                     onRun = onRun,
                     onStop = onStop,
                     onRemove = { removing = it },
                     onOpenPlan = onOpenPlan,
                 )
-                if (windowSizeClass == AppWindowSizeClass.Expanded) {
-                    WideSourcesTab(tab, catalogueOpen, pageModifier)
-                } else {
-                    NarrowSourcesTab(tab, catalogueOpen, pageModifier)
+                CompositionLocalProvider(LocalVaultFolders provides state.folders) {
+                    if (windowSizeClass == AppWindowSizeClass.Expanded) {
+                        WideSourcesTab(tab, catalogueOpen, pageModifier)
+                    } else {
+                        NarrowSourcesTab(tab, catalogueOpen, pageModifier)
+                    }
                 }
             }
         }
@@ -345,8 +357,10 @@ private class SourcesTab(
     val onCatalogueOpenChange: (Boolean) -> Unit,
     val query: String,
     val onQueryChange: (String) -> Unit,
-    val onConnect: (FydeScript, String, Map<String, FydeScriptParameterValue>) -> Unit,
+    val onConnect: (FydeScript, String, Map<String, FydeScriptParameterValue>, String?) -> Unit,
     val onUpdate: (SourceAccount, String, Map<String, FydeScriptParameterValue>, Boolean) -> Unit,
+    val onChangeFolder: (SourceAccount, String?) -> Unit,
+    val createFolder: CreateFolder,
     val onRun: (SourceAccount) -> Unit,
     val onStop: (SourceAccount) -> Unit,
     val onRemove: (SourceAccount) -> Unit,
@@ -838,16 +852,23 @@ private fun CatalogueRows(tab: SourcesTab, scripts: List<FydeScript>) {
 // S3 ------------------------------------------------------------------------------------------
 
 /**
- * S3: what the source fetches, the sites it may reach, its fields; the
- * connect button stays pinned at the bottom. S3b once the source has
- * accounts: titled as another one, naming those, with Nom du compte.
+ * S3: what the source fetches, the sites it may reach, its fields, Ranger
+ * dans (Rangement automatique until changed; S3c's À classer in a vault
+ * with no folder); the connect button stays pinned at the bottom. S3b once
+ * the source has accounts: titled as another one, naming those, with Nom du
+ * compte, and Ranger dans starting from its first account's folder.
  */
 @Composable
 private fun ConnectPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit) {
     val values = remember { mutableStateMapOf<String, String>() }
-    val others = tab.state.accountsOf(script.id).map { it.label }
+    val accounts = tab.state.accountsOf(script.id)
+    val others = accounts.map { it.label }
     val accountName = remember { mutableStateOf("") }
     var showRequiredErrors by remember { mutableStateOf(false) }
+    val first = remember { accounts.firstOrNull() }
+    var folderId by remember { mutableStateOf(first?.folderId) }
+    var folderChanged by remember { mutableStateOf(false) }
+    var folderSheet by remember { mutableStateOf<SourceFolderSheet?>(null) }
     val form = ConnectSourceForm(
         script = script,
         values = values,
@@ -856,10 +877,29 @@ private fun ConnectPage(tab: SourcesTab, script: FydeScript, onBack: () -> Unit)
         isSubmitting = tab.isPending(script.id),
         onSubmit = {
             val entered = validatedParameterValues(script.parameters, values)
-            if (entered != null) tab.onConnect(script, accountName.value, entered) else showRequiredErrors = true
+            // A folder deleted meanwhile files automatically, as the row reads.
+            val folder = folderId?.takeIf { tab.state.folders[it] != null }
+            if (entered != null) tab.onConnect(script, accountName.value, entered, folder) else showRequiredErrors = true
         },
         accountName = accountName.takeIf { others.isNotEmpty() },
         otherAccounts = others.takeIf { it.isNotEmpty() },
+        folder = SourceFolderPick(
+            folderId = folderId,
+            sameAs = first?.label?.takeIf { !folderChanged },
+            onOpen = { folderSheet = it },
+        ),
+    )
+    SourceFolderSheets(
+        sheet = folderSheet,
+        onSheetChange = { folderSheet = it },
+        accountName = script.name,
+        sourceName = script.name,
+        current = folderId,
+        onChoose = {
+            folderId = it
+            folderChanged = true
+        },
+        createFolder = tab.createFolder,
     )
     Column(modifier = Modifier.fillMaxSize()) {
         AppPageBar(title = null, onBack = onBack, enabled = !form.isSubmitting)
@@ -1082,17 +1122,19 @@ private fun RunButton(tab: SourcesTab, account: SourceAccount) {
 }
 
 /**
- * Réglages: Nom du compte once the source has several accounts, the
- * credentials it signs in with (first plain value shown) and the sites it
- * may reach. Nom du compte and Identifiants both open the credentials form.
+ * Réglages: Nom du compte once the source has several accounts, Ranger dans
+ * (S9, or D12 in D4's panel: changing it reinstalls the account with the
+ * new folder), the credentials it signs in with (first plain value shown)
+ * and the sites it may reach. Nom du compte and Identifiants both open the
+ * credentials form.
  */
 @Composable
 private fun SourceSettings(tab: SourcesTab, account: SourceAccount, wide: Boolean) {
     val script = account.script
     val id = account.installationId
     val hasCredentials = script.parameters.isNotEmpty()
-    if (!account.shared && !hasCredentials && script.allowedDomains.isEmpty()) return
     val openCredentials = { tab.onFocusChange(SourceFocus.Credentials(id)) }
+    var folderSheet by remember(id) { mutableStateOf<SourceFolderSheet?>(null) }
     AppSectionTitle(stringResource(Res.string.source_settings))
     AppGroup {
         if (account.shared) {
@@ -1104,9 +1146,18 @@ private fun SourceSettings(tab: SourcesTab, account: SourceAccount, wide: Boolea
                 enabled = !tab.isPending(id),
                 onClick = openCredentials,
             )
+            AppDivider()
         }
+        EditableSettingRow(
+            label = stringResource(Res.string.source_folder_label),
+            value = sourceFolderLabel(account.folderId),
+            action = stringResource(Res.string.source_folder_change),
+            wide = wide,
+            enabled = !tab.isPending(id),
+            onClick = { folderSheet = SourceFolderSheet.Pick },
+        )
         if (hasCredentials) {
-            if (account.shared) AppDivider()
+            AppDivider()
             EditableSettingRow(
                 label = stringResource(Res.string.source_credentials),
                 value = credentialsSummary(script, account.parameters),
@@ -1117,13 +1168,22 @@ private fun SourceSettings(tab: SourcesTab, account: SourceAccount, wide: Boolea
             )
         }
         if (script.allowedDomains.isNotEmpty()) {
-            if (account.shared || hasCredentials) AppDivider()
+            AppDivider()
             SettingRow(label = stringResource(Res.string.source_sites), value = script.allowedDomains.joinToString(", "))
         }
     }
+    SourceFolderSheets(
+        sheet = folderSheet,
+        onSheetChange = { folderSheet = it },
+        accountName = account.name,
+        sourceName = script.name,
+        current = account.folderId?.takeIf { tab.state.folders[it] != null },
+        onChoose = { tab.onChangeFolder(account, it) },
+        createFolder = tab.createFolder,
+    )
 }
 
-/** A Réglages row opening the credentials form: with [action] in D4's panel ([wide]), as a chevron row elsewhere. */
+/** A Réglages row opening a form or sheet: with [action] in D4's panel ([wide]), as a chevron row elsewhere. */
 @Composable
 private fun EditableSettingRow(label: String, value: String, action: String, wide: Boolean, enabled: Boolean, onClick: () -> Unit) {
     if (wide) {
