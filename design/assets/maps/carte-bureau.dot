@@ -20,6 +20,7 @@ subgraph "cluster_donb" { label="Accueil et accès au bureau (DO)"; fontname="In
   "DO7" [label="DO7\nChoisir ses sources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7h" [label="DO7h\nLimite de l’offre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7b" [label="DO7b\nConnecter une source" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
+  "DO7i" [label="DO7i\nNouveau dossier pour une source" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7c" [label="DO7c\nRécupération en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7d" [label="DO7d\nCode reçu (SMS ou e-mail)" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
   "DO7f" [label="DO7f\nMot de passe refusé" shape=box style="rounded,filled" color="#8C877B" fillcolor="#DCE8E0"];
@@ -41,6 +42,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
   "D11b" [label="D11b\nSupprimer les documents" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D4" [label="D4\nSources" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D4b" [label="D4b\nSource en cours" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
+  "D12" [label="D12\nRanger les documents" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D5" [label="D5\nMoi" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D6" [label="D6\nTout le coffre" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
   "D7" [label="D7\nActions du dossier" shape=box style="rounded,filled" color="#8C877B" fillcolor="#E8DCC6"];
@@ -71,6 +73,8 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "DO7" -> "DO7b" [color="#1F4D3A" penwidth=1.6 label="Connecter n sources"];
 "DO7" -> "DO8" [color="#1F4D3A" penwidth=1.6 label="Passer"];
 "DO7b" -> "DO7c" [color="#1F4D3A" penwidth=1.6 label="Connecter"];
+"DO7b" -> "DO7i" [color="#2C5582" style=dashed penwidth=1.4 label="Créer un dossier"];
+"DO7b" -> "D12" [color="#2C5582" style=dashed penwidth=1.4 label="Changer"];
 "DO7b" -> "DO7f" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="refusé"];
 "DO7c" -> "DO7d" [color="#2C5582" style=dashed penwidth=1.4 label="code SMS ou e-mail"];
 "DO7c" -> "DO7b" [color="#1F4D3A" penwidth=1.6 label="Source suivante"];
@@ -92,6 +96,7 @@ subgraph "cluster_dapp" { label="Coffre au bureau et sur tablette (D, T)"; fontn
 "D9" -> "D1" [color="#1F4D3A" penwidth=1.6 label="supprimé"];
 "SIDE" -> "D4" [color="#1F4D3A" penwidth=1.6 label="Sources"];
 "D4" -> "D4b" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Lancer"];
+"D4" -> "D12" [color="#2C5582" style=dashed penwidth=1.4 label="Ranger dans"];
 "D4b" -> "D4" [color="#8C877B" style=dotted penwidth=1.6 arrowhead=open label="Arrêter"];
 "SIDE" -> "D5" [color="#1F4D3A" penwidth=1.6 label="pierre (avatar)"];
 "D1" -> "D2" [color="#1F4D3A" penwidth=1.6];

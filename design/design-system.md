@@ -25,6 +25,12 @@ drawn.
 provider's site (see [Accounts of a source](#accounts-of-a-source)): S1, S2, S5 and D4 are drawn
 with them, and S3b, S5c and S7b are new. The app builds them (see the S1–S7 row below).
 
+**A folder per source.** Each account of a source can file its documents into a folder the user
+picks, or creates on the spot, instead of by the folders' descriptions (see
+[A source's folder](#a-sources-folder)): S3, S3b, S5, S5b, S5c, D4 and DO7b are drawn with its
+"Ranger dans" row, and S3c, S9, S9b, D12 and DO7i are new. Neither the app nor fyde-sdk backs it
+yet.
+
 Screens built so far to a reference screen, on the current tokens until they're migrated (so in
 the old palette and type, with the reference's layout, copy and proportions):
 
@@ -42,7 +48,7 @@ the old palette and type, with the reference's layout, copy and proportions):
 
 ## Reference screens
 
-Every screen of the app is drawn in `assets/screens/` (106 PNGs at 2×, phone frames at 390×844,
+Every screen of the app is drawn in `assets/screens/` (114 PNGs at 2×, phone frames at 390×844,
 desktop at 1440×900, tablet at 1194×834 or 834×1194 upright), rendered from the HTML in `assets/mockups/` by
 `render.py`; `sheets.py` assembles them into the contact sheets in `assets/sheets/`. To change a
 reference screen, edit its HTML (values come from `assets/mockups/tokens.css`, which mirrors the
@@ -397,6 +403,62 @@ side by side.
   slot: "Autre compte" is never dimmed at the plan's limit, and the counters ("5 sources actives
   sur 5") keep counting sources. The sidebar's Sources count is the number of rows: accounts.
 
+### A source's folder
+
+Where an account of a source files the documents it fetches, set by its **Ranger dans** row. Two
+choices:
+
+- **Rangement automatique** (the default): as any new document (see [Folders](#folders)'s
+  Filing), against every described folder of the vault; with no winner, À classer. Its line is
+  "Selon les descriptions de vos dossiers".
+- **A folder** ("Logement › Énergie"): every document the account fetches goes into that folder.
+  Below it, it's filed among the folder's subfolders by their descriptions (the closest one at any
+  depth, with the classifier's usual margin), else into the folder itself; never outside it,
+  never À classer. The chosen folder needs no description of its own.
+
+Details:
+
+- **Where it's set.** On the connect form (S3, S3b, S3c and DO7b, so in onboarding too), after the
+  credentials and before the trust note: a field-like row with the choice's tile (the folder's
+  own, or a `sunk` tile with the sparkle for Rangement automatique), its path or name, Changer
+  and a help line. Later from S5, S5b and S5c's Réglages (after Nom du compte when there is one;
+  the row opens S9) and D4's panel (Ranger dans · Changer, opening D12).
+- **Picking** (S9, a sheet; D12, a 600dp dialog). The folder picker as in V9 / D8 (levels with a
+  breadcrumb on phones, the searchable tree on desktop), titled "Ranger les documents d'<source>"
+  ("d'Ameli · Marie" once a source has several accounts), with one line saying they'll go into
+  the chosen folder and its subfolders. **Rangement automatique** is the first entry, in place of
+  "À la racine du coffre": a source can't target À classer itself, it's where automatic filing
+  puts what matches nothing. The current choice is tagged Actuel and isn't pickable; a line under
+  the list says documents already there don't move. Confirm "Ranger dans <folder>" (or "Choisir
+  le rangement automatique"), Nouveau dossier ici beside it.
+- **Creating one** (S9b, DO7i): Nouveau dossier ici in the picker, or Créer un dossier on the row
+  while the vault has no folder, opens V12 / D10 titled "Nouveau dossier pour <source>", saying
+  the source will file all its documents there. The name is prefilled with the source's name
+  ("EDF", selected so typing replaces it); the location is the picker's level (the root from the
+  row); colour and icon as V12 (a random colour among the first eight, the folder glyph); the
+  description is marked facultative, its help line saying the source files there without one and
+  that it's for documents from elsewhere. Créer le dossier publishes the folder at once (as from
+  V1), picks it for the source and closes back to the form or page it came from. Leaving the form
+  without connecting keeps the folder, empty.
+- **An empty vault** (S3c, DO7b: a new vault has no folder, so onboarding's first source always
+  meets it): the row reads À classer, on À classer's tile, with **Créer un dossier** in place of
+  Changer, and the help line "Votre coffre n'a pas encore de dossier : sans dossier, ses documents
+  arrivent dans À classer." Rangement automatique isn't offered: with nothing described it would
+  only mean À classer. Once a folder exists (one made for an earlier source in the queue
+  included), the row is the usual one with Changer.
+- **Per account.** Each account has its own. S3b starts from the folder of the source's first
+  account ("Comme le compte Pierre."), changeable before connecting.
+- **Changing it** only changes where later documents go: nothing already fetched moves (as when a
+  description is edited).
+- **The folder changes.** Renamed or moved, it stays the source's (it's kept by id). Deleted, the
+  source goes back to Rangement automatique, and V15 / D9's dialog says so in an info note ("EDF
+  y rangeait ses documents : ils seront rangés automatiquement.").
+- **Elsewhere.** V2's dashed card for an empty folder chosen by a source names it ("Bientôt, via
+  EDF"). The filing card on a fetched document reads as for any document ("Rangé dans
+  Logement › Énergie").
+- **Privacy.** The folder is kept in the account's installation, encrypted with its credentials:
+  the server sees neither which folder nor whether one is set, so M3 doesn't change.
+
 ### Verification code
 
 `OneTimeCodeField`: 6 boxes 52pt tall, `code` type; paste fills all boxes; backspace moves left;
@@ -528,7 +590,8 @@ the documents: the server never sees them (M3).
   runner-up. A folder without a description is never picked by itself; with no winner the
   document goes to À classer. A new vault has no folder, so
   everything arrives in À classer until the user describes the folders they create. The user
-  files by hand from V9. Editing a description
+  files by hand from V9. A source's documents can go into one folder instead (see
+  [A source's folder](#a-sources-folder)). Editing a description
   only changes where later documents go; nothing already filed moves.
 - **Create** (V12, D10): name (required, unique among its siblings, case-insensitive, 1–60
   characters), location (where it was asked from: the root from V1, the open folder from V3 or
@@ -552,7 +615,8 @@ the documents: the server never sees them (M3).
   it holds and offers **Les garder** (default: documents and subfolders move up to the parent,
   or to À classer from the root) or **Les supprimer aussi** (every document under it is deleted
   from all devices, as V10). If the folder had a description, the dialog notes where the
-  documents that matched it will now go (the next best described folder, else À classer). Supprimer
+  documents that matched it will now go (the next best described folder, else À classer), and if
+  a source filed into it, that the source goes back to Rangement automatique. Supprimer
   stays busy until done; then the parent opens with a snackbar "Dossier supprimé".
 - Every change is a changelog event like a document's, so it reaches every device; a move or
   rename made on two devices at once keeps the later one.
@@ -632,6 +696,7 @@ that needs changing changes here first.
 | An installed scraper | source | source | connecteur, script |
 | One login on a source's site | compte (Ajouter un autre compte, Retirer ce compte) | account (Add another account, Remove this account) | identifiant, connexion, profil |
 | What tells a source's accounts apart | nom du compte | account name | libellé, alias |
+| Where a source's documents go | Ranger dans <dossier>; Rangement automatique | File into <folder>; Automatic filing | destination, dossier cible, classement auto |
 | The plan | offre (Gratuit) | plan (Free) | abonnement, forfait |
 | Adding a file by hand | Ajouter au coffre; Importer for the desktop file picker | Add to vault; Import | Mettre au coffre, Ajouter à Fyde |
 | A one-time code a source asks for | "<source> demande un code"; status "Attend votre code" | "<source> needs a code"; "Waiting for your code" | attend un code |
@@ -728,13 +793,16 @@ The tables hold each screen's content and states; how screens lead to one anothe
 |---|---|---|---|
 | S1 | Sources | "Une fois par jour, sur l'appareil de chaque source"; "Ont besoin de vous" then "À jour"; rows with the source's tile and status, one per account ("Ameli · Marie") when a source has several; plan usage, counting sources | Empty → Ajouter une source |
 | S2 | Catalogue | Search; every public scraper from A to Z; Ajouter, or for a source already added "n comptes ajoutés" (or "Déjà ajoutée") and Autre compte (→ S3b); "Il manque votre fournisseur ?" points to Aide | User's own scripts in a last group. No category chips or "often added" group until the SDK has script categories and popularity |
-| S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4) |
-| S3b | Connecter un autre compte | S3 for one more account of a source already added: "Un autre compte <source>", an info note naming the accounts already there, its fields, then Nom du compte (help: "Pour reconnaître ce compte parmi vos sources. Laissé vide : l'identifiant saisi plus haut."); Connecter ce compte | Connecter ce compte → S4 |
+| S3 | Connecter | What it fetches; the sites it may reach (`allowedDomains`); one field per script parameter (secret → masked, number → numeric, boolean → switch); Ranger dans (Rangement automatique by default, Changer → S9); automatic switch, "Une fois par jour, depuis cet iPhone" | Connect installs and runs at once (S4). See [A source's folder](#a-sources-folder) |
+| S3c | Connecter, coffre sans dossier | S3 inside vault creation ("Source 1 sur 3", Passer) while the vault has no folder: Ranger dans reads À classer, with Créer un dossier and "Votre coffre n'a pas encore de dossier : sans dossier, ses documents arrivent dans À classer." | Créer un dossier → S9b; once created, the row shows it with Changer |
+| S3b | Connecter un autre compte | S3 for one more account of a source already added: "Un autre compte <source>", an info note naming the accounts already there, its fields, then Nom du compte (help: "Pour reconnaître ce compte parmi vos sources. Laissé vide : l'identifiant saisi plus haut."), Ranger dans starting from the first account's folder ("Comme le compte Pierre."); Connecter ce compte | Connecter ce compte → S4 |
 | S4 | Récupération en cours | Stepper Connexion → Recherche → Téléchargement i / n → Rangement; documents appear under it; Continuer en arrière-plan; Arrêter la récupération (text) | Code or captcha → code sheet; Arrêter → S4b |
 | S4b | Récupération arrêtée | S4 once stopped: stepper frozen at the step reached (stop glyph, "Téléchargement arrêté 5 / 12"), later steps idle; info note "Les 5 documents déjà récupérés restent dans votre coffre…"; documents already arrived; Revenir aux sources · Relancer | Relancer → S4 |
-| S5 | Détail | Status, counts, automatic switch, Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Ajouter un autre compte <source> (text), Retirer la source | Ajouter un autre compte → S3b |
-| S5c | Détail d'un compte | S5 for one of a source's accounts: "Ameli · Marie", Nom du compte first in Réglages, then "Autres comptes <source>" (each with its status, opening its own S5c), Ajouter un autre compte, Retirer ce compte | Retirer ce compte → S7b; the last account left reads as S5 |
+| S5 | Détail | Status, counts, automatic switch, Ranger dans (the folder's path, or Rangement automatique; → S9), Appareil (the device it runs on, changeable), identifiants, sites, latest documents, Lancer, Ajouter un autre compte <source> (text), Retirer la source | Ajouter un autre compte → S3b |
+| S5c | Détail d'un compte | S5 for one of a source's accounts: "Ameli · Marie", Nom du compte first in Réglages, then Ranger dans, then "Autres comptes <source>" (each with its status, opening its own S5c), Ajouter un autre compte, Retirer ce compte | Retirer ce compte → S7b; the last account left reads as S5 |
 | S5b | Détail, en cours | S5 while the source runs: status "Récupération… 5 / 12", Lancer's slot turned into an outlined Arrêter | Arrêter keeps S5b busy until the run ends, then S5 with the Stopped status and a snackbar |
+| S9 | Ranger les documents | Sheet over S3, S3b or S5: "Ranger les documents d'EDF", that they go into the chosen folder and its subfolders by their descriptions; the picker at the root: Rangement automatique first (tagged Actuel when it's the choice), then the folders, the picked one ticked; "Les documents déjà là ne bougent pas."; Ranger dans <folder> · Nouveau dossier ici | A chevron opens a folder's subfolders, as V9. Nouveau dossier ici → S9b |
+| S9b | Nouveau dossier pour une source | V12 over S3c (or S9): "Nouveau dossier pour EDF", "EDF y rangera tous ses documents."; Nom prefilled "EDF" and selected; Description marked facultative ("EDF y range ses documents même sans description. Elle sert à y ranger aussi ceux d'ailleurs."); Emplacement; Couleur, Icône; Créer le dossier | Créer le dossier publishes the folder, picks it for the source and closes back to the form. A taken name is a field error |
 | S6 | En échec | Error note with time; the failing field refocused; Mettre à jour et relancer; Signaler un problème | The report is the run's debug report, which never records headers, bodies or form values; a sheet shows what's sent before sending |
 | S7 | Retirer | Dialog: documents stay, credentials erased everywhere | — |
 | S7b | Retirer un compte | Dialog over S5c: "Retirer le compte <source> « <nom> » ?"; its documents stay, its credentials are erased everywhere, the other accounts keep running; Retirer ce compte | — |
@@ -781,7 +849,8 @@ How the account screens connect is in [`screen-map.md`](screen-map.md#moi-m1m12)
 | D2c | Supprimer le document | V10 as a 500dp dialog over D2: `error` trash tile, title, the same text and note; Annuler · Supprimer, focus on Annuler so Enter never deletes; Esc cancels. Afterwards the list's next document opens, or the folder if it was the last |
 | D11 | Documents similaires | D2 with its list column turned into V16 (back to the document's folder, "Documents similaires", the trust line, "Ce document" first, checkboxes, ressemblances), two ticked and the selection bar at the column's foot; the open document's pass, Informations and facts (its similar section left out: the list column already is it), and its preview beside. A row's tap opens it beside; only the checkbox ticks. Déplacer opens V9b as a 520dp dialog |
 | D11b | Supprimer les documents | V10b as a 500dp dialog over D11: `error` trash tile, title, names, text; Annuler (focused) · Supprimer |
-| D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil), one row per account ("Ameli · Marie") · detail panel with Nom du compte · Renommer (several accounts only), Appareil · Changer, Ajouter un autre compte, Retirer ce compte (Retirer la source for a single account) |
+| D4 | Sources | Sidebar · sortable table (source, état, dernier passage, documents, appareil), one row per account ("Ameli · Marie") · detail panel with Nom du compte · Renommer (several accounts only), Ranger dans · Changer (D12), Appareil · Changer, Ajouter un autre compte, Retirer ce compte (Retirer la source for a single account) |
+| D12 | Ranger les documents | S9 as a 600dp dialog over D4: "Ranger les documents d'Ameli · Marie", the line, D8's search field and tree with Rangement automatique first, the current folder (Santé) tagged Actuel and muted, the target (Santé › Marie) selected; "Les documents déjà là ne bougent pas."; Nouveau dossier ici · Annuler · Ranger dans <folder> |
 | D4b | Source en cours | D4 with the selected source running: "Récupération… 5 / 12" in the table, the panel's live stepper ("En cours · lancée à 14:58") and an outlined Arrêter in Lancer's place; another row shows the Stopped status ("Arrêtée · 3 gardés") |
 | D5 | Moi | Sidebar (avatar row selected) · the M1 menu as a 360dp column · the open page beside it (Sécurité by default), with the phone pages' content |
 | D6 | Tout le coffre | Sidebar · header with search and Importer · DOSSIERS with Nouveau dossier · 4-column folder cards as V1 · latest arrivals (with their folder path) |
@@ -807,7 +876,8 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO6b | Vérifier le kit | As O6b, beside the Moi menu | — |
 | DO7 | Choisir ses sources | Step 2 of 3: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
-| DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 2 with their state | Connect installs the script and starts its first run |
+| DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); Ranger dans (drawn with the vault still empty: À classer, Créer un dossier → DO7i; Changer → D12 once a folder exists); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 2 with their state | Connect installs the script and starts its first run |
+| DO7i | Nouveau dossier pour une source | D10 over DO7b: "Nouveau dossier pour EDF", "Dans Coffre · EDF y rangera tous ses documents"; Nom "EDF" selected; Description facultative with S9b's help line; Emplacement · Changer; Couleur, Icône; Annuler · Créer le dossier | Créer le dossier picks it for the source and returns to DO7b, whose row then shows it with Changer |
 | DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel. No Arrêter here: the first run is short, and it can be stopped from DO7d or, later, D4 |
 | DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Arrêter la récupération / Valider. An e-mail code uses the same card: "Code reçu par e-mail", the masked address, a spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
 | DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
@@ -852,7 +922,8 @@ Screens compose `App*` components and never style a raw Material 3 component. Ta
 | `DocumentPass` | Landed (V6, D2) | Issuer and type in ink, headline in `passAmount` (`DocumentPassHeadline.Value`) or `title` for a name, the line under it, a dashed perforation in ink at 40%, up to three `DocumentPassCell`s. The caller picks the template from the document's type and attributes (see [Document pass](#document-pass)) |
 | `DocumentAttributes` | Landed (V6, D2) | The [Informations](#informations) section: a `section` heading and a `surface` group of label / value rows, values formatted by attribute type, amounts in `data` |
 | `ClassificationSuggestion` | New | K2, K3 |
-| `FolderPicker` | New | V9, V14, D8: levels with breadcrumb (phone) or a tree (desktop), the root entry, the current folder tagged, "Nouveau dossier ici"; the confirm names the target |
+| `FolderPicker` | New | V9, V14, D8, S9, D12: levels with breadcrumb (phone) or a tree (desktop), the root entry (Rangement automatique in S9 / D12), the current folder tagged, "Nouveau dossier ici"; the confirm names the target |
+| `SourceFolderField` | New | The Ranger dans row of S3, S3b, S3c and DO7b: a field-like box with the choice's tile, its path, Changer (Créer un dossier in an empty vault) and a help line |
 | `FolderRow`, `FolderTree` | New | V3's subfolder rows; the sidebar's tree (disclosure, indented subfolders) |
 | `ColorIconPicker` | New | V12, D10: 8 swatches per row and the icon grid, selected = 2.5 `primary` outline |
 | `OneTimeCodeField` | New | See [Verification code](#verification-code) |
@@ -887,6 +958,7 @@ left out (principle 5), not faked.
 | Runs on a chosen device: once a day on open, in the background where the OS allows | S1, S3, S5, D4, DO7b |
 | Provenance on document metadata (source script, device, fetched at) | V5 Source facet, V6, S5 |
 | Folders: create, rename, describe, recolour, move, delete (as encrypted changelog events), a document's folder, classifying an upload against folder descriptions (today's zero-shot classifier with the folders as labels), folder facets and counts, searching within a folder | V1–V3, V5, V9, V12–V15, D1, D6–D10, sidebar |
+| A folder per source account: kept in the installation (encrypted with it), its fetched documents filed into that folder by its subfolders' descriptions, back to automatic filing when the folder is deleted | S3, S3b, S3c, S5, S5b, S5c, S9, S9b, D4, D12, DO7b, DO7i, V2 |
 | Remembering a deleted document so its source doesn't fetch it again (scrapers skip only what is still saved) | V10, D2c note |
 | Account recovery (`recoverAccount`, in fyde-sdk, not yet in the bindings) | O10, DO10 |
 | Replay progress and per-device last seen | O9, M5, M2 |

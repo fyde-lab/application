@@ -445,6 +445,7 @@
     <p class="sec" style="padding:20px 0 8px">Réglages</p>
     <div class="group" style="margin:0">
      <div class="it"><div class="grow"><p class="body">Nom du compte</p><p class="t2">Marie</p></div><button class="pbtn t sm">Renommer</button></div>
+     <div class="it"><div class="grow"><p class="body">Ranger dans</p><p class="t2">Santé</p></div><button class="pbtn t sm">Changer</button></div>
      <div class="it"><div class="grow"><p class="body">Récupération automatique</p><p class="t2">Une fois par jour</p></div><span class="sw on"></span></div>
      <div class="it"><div class="grow"><p class="body">Appareil</p><p class="t2">Cet ordinateur</p></div><button class="pbtn t sm">Changer</button></div>
      <div class="it"><div class="grow"><p class="body">Identifiants</p><p class="t2">2840775112048</p></div><button class="pbtn t sm">Modifier</button></div>
@@ -453,6 +454,57 @@
     <button class="pbtn do w sm" style="margin-top:8px">Retirer ce compte</button>
    </div>
   </div>
+ </div>
+</div></div>
+
+<!-- D12 -->
+<div class="board"><p class="caption-board">D12 · Bureau — Ranger les documents d’une source</p>
+<div class="desktop fyde" data-shot="D12-bureau-ranger-dans">
+ <div class="chrome"><i style="background:#ee6a5f"></i><i style="background:#f5be4f"></i><i style="background:#62c554"></i><b>Fyde</b></div>
+ <div class="row" style="flex:1;align-items:stretch;overflow:hidden">
+  <!--SIDE:sources-->
+  <div class="main">
+   <div class="col" style="flex:1;padding:24px 28px">
+    <div class="row" style="justify-content:space-between"><div><p class="h2">Sources</p><p class="t2 row" style="gap:6px;margin-top:2px"><svg class="ic xs"><use href="#i-clock"/></svg>Une fois par jour, sur l’appareil de chaque source · 5 actives sur 5 avec l’offre Gratuit</p></div><button class="pbtn f sm"><svg class="ic sm"><use href="#i-plus"/></svg>Ajouter une source</button></div>
+    <table class="tbl" style="margin-top:18px">
+     <tr><th>Source</th><th>État</th><th>Dernier passage</th><th style="text-align:right">Documents</th><th>Appareil</th></tr>
+     <tr><td><span class="row" style="gap:10px"><span class="tile" style="--cbg:var(--c-tax);--ci:var(--c-tax-i);width:34px;height:34px">IG</span><b style="font-weight:600">impots.gouv</b></span></td><td><span class="sl warn"><svg class="ic xs"><use href="#i-clock"/></svg>Attend votre code</span></td><td class="mono t2">09:40</td><td style="text-align:right" class="amt">12</td><td>iPhone de Pierre</td></tr>
+     <tr><td><span class="row" style="gap:10px"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i);width:34px;height:34px">AM</span><b style="font-weight:600">Ameli<span class="acct"> · Pierre</span></b></span></td><td><span class="sl err"><svg class="ic xs"><use href="#i-alert-c"/></svg>Mot de passe refusé</span></td><td class="mono t2">hier 22:01</td><td style="text-align:right" class="amt">33</td><td>Cet ordinateur</td></tr>
+     <tr class="sel"><td><span class="row" style="gap:10px"><span class="tile" style="--cbg:var(--c-health);--ci:var(--c-health-i);width:34px;height:34px">AM</span><b style="font-weight:600">Ameli<span class="acct"> · Marie</span></b></span></td><td><span class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>À jour</span></td><td class="mono t2">06:14</td><td style="text-align:right" class="amt">17</td><td>Cet ordinateur</td></tr>
+     <tr><td><span class="row" style="gap:10px"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i);width:34px;height:34px">ED</span><b style="font-weight:600">EDF</b></span></td><td><span class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>À jour</span></td><td class="mono t2">06:02</td><td style="text-align:right" class="amt">38</td><td>Cet ordinateur</td></tr>
+     <tr><td><span class="row" style="gap:10px"><span class="tile" style="--cbg:var(--c-work);--ci:var(--c-work-i);width:34px;height:34px">PJ</span><b style="font-weight:600">Pajemploi</b></span></td><td><span class="sl ok"><svg class="ic xs"><use href="#i-check"/></svg>À jour</span></td><td class="mono t2">hier 18:40</td><td style="text-align:right" class="amt">41</td><td>Cet ordinateur</td></tr>
+     <tr><td><span class="row" style="gap:10px"><span class="tile" style="--cbg:var(--c-home);--ci:var(--c-home-i);width:34px;height:34px">MA</span><b style="font-weight:600">MAIF</b></span></td><td><span class="sl mut"><svg class="ic xs"><use href="#i-pause"/></svg>En pause</span></td><td class="mono t2">2 sept.</td><td style="text-align:right" class="amt">6</td><td>—</td></tr>
+    </table>
+   </div>
+   <div style="width:380px;flex:none;padding:24px 24px;background:var(--surface);border-left:1px solid var(--border)">
+    <div class="row" style="gap:14px"><span class="tile lg" style="--cbg:var(--c-health);--ci:var(--c-health-i)">AM</span><div class="grow"><p class="h3">Ameli<span class="acct"> · Marie</span></p><p class="t2">Remboursements, attestations</p></div><button class="pbtn o sm"><svg class="ic sm"><use href="#i-sync"/></svg>Lancer</button></div>
+    <p class="sec" style="padding:20px 0 8px">Dernier passage · ce matin</p>
+    <div class="stepper">
+     <div class="st done"><span class="dot"><svg class="ic xs"><use href="#i-check"/></svg></span><span>Connexion</span><span class="t3 mono">06:13</span></div>
+     <div class="st done"><span class="dot"><svg class="ic xs"><use href="#i-check"/></svg></span><span>Recherche · 4 trouvés</span><span class="t3 mono">06:13</span></div>
+     <div class="st done"><span class="dot"><svg class="ic xs"><use href="#i-check"/></svg></span><span>1 nouveau, 3 déjà là</span><span class="t3 mono">06:14</span></div>
+    </div>
+    <p class="sec" style="padding:20px 0 8px">Réglages</p>
+    <div class="group" style="margin:0">
+     <div class="it"><div class="grow"><p class="body">Nom du compte</p><p class="t2">Marie</p></div><button class="pbtn t sm">Renommer</button></div>
+     <div class="it"><div class="grow"><p class="body">Ranger dans</p><p class="t2">Santé</p></div><button class="pbtn t sm">Changer</button></div>
+     <div class="it"><div class="grow"><p class="body">Récupération automatique</p><p class="t2">Une fois par jour</p></div><span class="sw on"></span></div>
+     <div class="it"><div class="grow"><p class="body">Appareil</p><p class="t2">Cet ordinateur</p></div><button class="pbtn t sm">Changer</button></div>
+     <div class="it"><div class="grow"><p class="body">Identifiants</p><p class="t2">2840775112048</p></div><button class="pbtn t sm">Modifier</button></div>
+    </div>
+    <button class="pbtn t w sm" style="margin-top:14px"><svg class="ic sm"><use href="#i-plus"/></svg>Ajouter un autre compte Ameli</button>
+    <button class="pbtn do w sm" style="margin-top:8px">Retirer ce compte</button>
+   </div>
+  </div>
+ </div>
+ <div class="scrimd"></div>
+ <div class="dlg" style="width:600px">
+  <p class="h2">Ranger les documents d’Ameli<span class="acct"> · Marie</span></p>
+  <p class="body" style="color:var(--muted);margin-top:6px">Ils iront dans le dossier choisi, et dans ses sous-dossiers d’après leurs descriptions.</p>
+  <div class="search" style="margin:16px 0 8px;height:42px"><svg class="ic"><use href="#i-search"/></svg>Chercher un dossier</div>
+  <div class="tree" style="border:1px solid var(--border);border-radius:14px;padding:6px"><div class="tr " style="padding-left:12px;height:52px"><span style="width:13px"></span><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--sunk);--ci:var(--text)"><svg class="ic xs"><use href="#i-sparkle"/></svg></span><span class="grow">Rangement automatique<span class="t3" style="display:block;font-weight:400">Selon les descriptions de vos dossiers</span></span></div><div class="tr " style="padding-left:12px"><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-r"/></svg><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-shop);--ci:var(--c-shop-i)"><svg class="ic xs"><use href="#i-bag"/></svg></span><span class="grow">Achats</span></div><div class="tr " style="padding-left:12px"><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-r"/></svg><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-money);--ci:var(--c-money-i)"><svg class="ic xs"><use href="#i-wallet"/></svg></span><span class="grow">Argent</span></div><div class="tr " style="padding-left:12px"><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-r"/></svg><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-tax);--ci:var(--c-tax-i)"><svg class="ic xs"><use href="#i-landmark"/></svg></span><span class="grow">Impôts</span></div><div class="tr " style="padding-left:12px"><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-r"/></svg><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-home);--ci:var(--c-home-i)"><svg class="ic xs"><use href="#i-home"/></svg></span><span class="grow">Logement</span></div><div class="tr cur" style="padding-left:12px"><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-d"/></svg><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-health);--ci:var(--c-health-i)"><svg class="ic xs"><use href="#i-heart"/></svg></span><span class="grow">Santé</span><span class="tag">Actuel</span></div><div class="tr sel" style="padding-left:36px"><span style="width:13px"></span><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-health);--ci:var(--c-health-i)"><svg class="ic xs"><use href="#i-folder"/></svg></span><span class="grow">Marie</span><span class="radio on"></span></div><div class="tr " style="padding-left:36px"><span style="width:13px"></span><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-health);--ci:var(--c-health-i)"><svg class="ic xs"><use href="#i-folder"/></svg></span><span class="grow">Pierre</span></div><div class="tr " style="padding-left:12px"><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-r"/></svg><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-tel);--ci:var(--c-tel-i)"><svg class="ic xs"><use href="#i-phone"/></svg></span><span class="grow">Télécom</span></div><div class="tr " style="padding-left:12px"><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-r"/></svg><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-trans);--ci:var(--c-trans-i)"><svg class="ic xs"><use href="#i-train"/></svg></span><span class="grow">Transport</span></div><div class="tr " style="padding-left:12px"><svg class="ic xs" style="color:var(--muted)"><use href="#i-chev-r"/></svg><span class="ftile sm" style="width:26px;height:26px;border-radius:8px;--cbg:var(--c-work);--ci:var(--c-work-i)"><svg class="ic xs"><use href="#i-brief"/></svg></span><span class="grow">Travail</span></div></div>
+  <p class="t3" style="margin-top:10px">Les documents déjà là ne bougent pas.</p>
+  <div class="acts" style="justify-content:space-between"><button class="pbtn t sm" style="white-space:nowrap"><svg class="ic sm"><use href="#i-plus"/></svg>Nouveau dossier ici</button><div class="row" style="gap:10px"><button class="pbtn t sm">Annuler</button><button class="pbtn f sm" style="white-space:nowrap">Ranger dans Marie</button></div></div>
  </div>
 </div></div>
 
