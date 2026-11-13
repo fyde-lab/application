@@ -108,6 +108,7 @@ actual object FydeSdk {
         scriptId: String,
         label: String,
         parameters: Map<String, FydeScriptParameterValue>,
+        folderId: String?,
     ): Result<String> = unsupported()
 
     actual suspend fun uninstallScript(installationId: String): Result<Unit> = unsupported()

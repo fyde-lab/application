@@ -977,12 +977,15 @@ impl From<ScriptMetadata> for FfiScriptMetadata {
 /// installations of the same script, never blank. `parameters_json` is the
 /// JSON object of values the script was installed with (e.g.
 /// `{"username": "alice"}`), since UniFFI has no native JSON value type.
+/// `folder_id` is the folder every document it fetches is filed in (`None`:
+/// automatic filing); it may name a folder deleted since.
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct FfiInstalledScript {
     pub installation_id: String,
     pub label: String,
     pub script: FfiScript,
     pub parameters_json: String,
+    pub folder_id: Option<String>,
 }
 
 impl TryFrom<InstalledScript> for FfiInstalledScript {
@@ -1001,6 +1004,7 @@ impl TryFrom<InstalledScript> for FfiInstalledScript {
             label: installed.label().to_string(),
             script: installed.script().clone().into(),
             parameters_json,
+            folder_id: installed.folder_id().map(|id| id.to_string()),
         })
     }
 }
@@ -1881,7 +1885,9 @@ impl FydeClient {
     /// more account on its site) when `installation_id` is `None`, else
     /// replacing that installation. `label` tells it apart from the user's
     /// other installations of the script; a blank one defaults to its
-    /// username. Returns the installation id. Mirrors
+    /// username. Its documents are filed in `folder_id`, or automatically
+    /// when `None`; a folder not synced here fails with `FolderNotFound`.
+    /// Returns the installation id. Mirrors
     /// [`fyde_sdk::ScriptsService::install_script`]: the installation only
     /// shows up in [`Self::list_installed_scripts`] once the background
     /// sync job has consumed it back.
@@ -1891,10 +1897,12 @@ impl FydeClient {
         script_id: String,
         label: String,
         parameters_json: String,
+        folder_id: Option<String>,
     ) -> Result<String, FfiError> {
         self.localized(async {
             let installation_id = installation_id.as_deref().map(parse_uuid).transpose()?;
             let script_id = parse_uuid(&script_id)?;
+            let folder_id = folder_id.as_deref().map(parse_uuid).transpose()?;
             let parameters = serde_json::from_str(&parameters_json).with_context(|| {
                 format!("invalid parameters json for script {script_id}: expected a JSON object")
             })?;
@@ -1907,6 +1915,7 @@ impl FydeClient {
                     script_id,
                     label,
                     parameters,
+                    folder_id,
                 })
                 .await?;
             Ok(installation_id.to_string())
@@ -2055,6 +2064,39 @@ mod tests {
         assert_eq!(ffi.transcript, metadata.transcript());
         assert_eq!(ffi.r#type, metadata.r#type().map(FfiDocumentType::from));
         assert_eq!(ffi.folder_id, metadata.folder_id().map(|id| id.to_string()));
+    }
+
+    /// Builds an [`InstalledScript`] through its JSON form, the only way to
+    /// make one outside fyde-sdk.
+    fn installed_script(folder_id: Option<Uuid>) -> InstalledScript {
+        serde_json::from_value(serde_json::json!({
+            "installation_id": Uuid::now_v7(),
+            "label": "Marie",
+            "script": FakeScript::new().build(),
+            "parameters": { "username": "marie" },
+            "folder_id": folder_id,
+        }))
+        .unwrap()
+    }
+
+    #[test]
+    fn installed_script_conversion_keeps_its_folder() {
+        let folder_id = Uuid::now_v7();
+        let installed = installed_script(Some(folder_id));
+
+        let ffi = FfiInstalledScript::try_from(installed.clone()).unwrap();
+
+        assert_eq!(ffi.installation_id, installed.installation_id().to_string());
+        assert_eq!(ffi.label, "Marie");
+        assert_eq!(ffi.parameters_json, r#"{"username":"marie"}"#);
+        assert_eq!(ffi.folder_id, Some(folder_id.to_string()));
+    }
+
+    #[test]
+    fn installed_script_conversion_keeps_automatic_filing() {
+        let ffi = FfiInstalledScript::try_from(installed_script(None)).unwrap();
+
+        assert_eq!(ffi.folder_id, None);
     }
 
     #[test]

@@ -454,13 +454,16 @@ data class FydeScript(
  * [FydeSdk.runInstalledScript], [FydeSdk.stopScriptRun],
  * [FydeSdk.uninstallScript] and a reinstall take) and [label] (never blank),
  * and runs, signs in and fails on its own. [parameters] are the values it
- * was installed with, keyed by parameter machine name.
+ * was installed with, keyed by parameter machine name. [folderId] is the
+ * folder every document it fetches is filed in, `null` for automatic filing;
+ * it may name a folder deleted since.
  */
 data class FydeInstallation(
     val id: String,
     val scriptId: String,
     val label: String,
     val parameters: Map<String, FydeScriptParameterValue>,
+    val folderId: String? = null,
 )
 
 /** A high-level stage of a scraper run, mirroring the SDK's `FfiProgressStep`. */
@@ -846,10 +849,13 @@ expect object FydeSdk {
      * [FydeScript.parameters]): as a new installation (one more account on
      * its site) when [installationId] is `null`, else replacing that one.
      * [label] tells it apart from the user's other installations of the
-     * script; a blank one defaults to its username. Publishes the
-     * installation, encrypted, as a [FydeEventType.INSTALL_SCRIPT]
-     * changelog event, and returns its id. Fails if a parameter the script
-     * marks required is missing, or the label is too long. Mirrors
+     * script; a blank one defaults to its username. Every document it
+     * fetches is filed in [folderId], or automatically when `null`; a
+     * reinstall passes the installation's [FydeInstallation.folderId] to keep
+     * it. Publishes the installation, encrypted, as a
+     * [FydeEventType.INSTALL_SCRIPT] changelog event, and returns its id.
+     * Fails if a parameter the script marks required is missing, the label is
+     * too long, or [folderId] isn't a folder synced here. Mirrors
      * [`crate::ScriptsService::install_script`]; doesn't enable the script
      * ([enableScript]); fails if [initialize] hasn't been called yet.
      */
@@ -858,6 +864,7 @@ expect object FydeSdk {
         scriptId: String,
         label: String,
         parameters: Map<String, FydeScriptParameterValue>,
+        folderId: String?,
     ): Result<String>
 
     /**

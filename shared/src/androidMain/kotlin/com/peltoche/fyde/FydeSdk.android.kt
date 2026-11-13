@@ -317,8 +317,9 @@ actual object FydeSdk {
         scriptId: String,
         label: String,
         parameters: Map<String, FydeScriptParameterValue>,
+        folderId: String?,
     ): Result<String> = withClient("installScript") { client ->
-        client.installScript(installationId, scriptId, label, encodeScriptParametersJson(parameters))
+        client.installScript(installationId, scriptId, label, encodeScriptParametersJson(parameters), folderId)
     }
 
     actual suspend fun uninstallScript(installationId: String): Result<Unit> = withClient("uninstallScript") { client ->
@@ -355,6 +356,7 @@ actual object FydeSdk {
                     scriptId = installed.script.id,
                     label = installed.label,
                     parameters = decodeScriptParametersJson(installed.parametersJson),
+                    folderId = installed.folderId,
                 )
             }
         }

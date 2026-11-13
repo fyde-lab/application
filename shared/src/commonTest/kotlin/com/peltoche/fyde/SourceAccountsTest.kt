@@ -54,6 +54,16 @@ class SourceAccountsTest {
     }
 
     @Test
+    fun anAccountKeepsItsInstallationsFolder() {
+        val accounts = sourceAccountsOf(
+            listOf(edf),
+            listOf(installation("1", "edf", "x").copy(folderId = "energie"), installation("2", "edf", "y")),
+        )
+
+        assertEquals(listOf("energie", null), accounts.map { it.folderId })
+    }
+
+    @Test
     fun anInstallationOfAScriptNoLongerOfferedIsLeftOut() {
         val accounts = sourceAccountsOf(listOf(edf), listOf(installation("1", "gone", "x"), installation("2", "edf", "y")))
 

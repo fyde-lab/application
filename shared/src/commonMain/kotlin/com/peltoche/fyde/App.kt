@@ -632,7 +632,7 @@ private fun AppContent(
         isConnectingSource = true
         scope.launch {
             val previous = onboardingAccounts[script.id]
-            val result = FydeSdk.installScript(previous?.installationId, script.id, label = "", parameters)
+            val result = FydeSdk.installScript(previous?.installationId, script.id, label = "", parameters, previous?.folderId)
                 .mapCatching { id -> FydeSdk.enableScript(script.id).getOrThrow(); id }
             isConnectingSource = false
             // The session may have ended meanwhile, back to the login form.
@@ -645,6 +645,7 @@ private fun AppContent(
                         label = provisionalLabel(script, parameters),
                         parameters = parameters,
                         shared = false,
+                        folderId = previous?.folderId,
                     )
                     onboardingAccounts = onboardingAccounts + (script.id to account)
                     skippedSourceIds = skippedSourceIds - script.id
@@ -1540,13 +1541,14 @@ private fun SourcesTabContainer(
     // Installing publishes the account's values through the changelog (so it
     // syncs to every device on the account) and enables its source, idempotent
     // for one already enabled; [existing] reinstalls that account, else it's a
-    // new one. Shown at once with a provisional label until sync returns the
-    // SDK's.
+    // new one, its documents filed in [folderId] (automatically when null).
+    // Shown at once with a provisional label until sync returns the SDK's.
     fun install(
         script: FydeScript,
         existing: SourceAccount?,
         label: String,
         parameters: Map<String, FydeScriptParameterValue>,
+        folderId: String?,
         onDone: suspend (SourceAccount?, Throwable?) -> Unit,
     ) {
         val current = uiState as? SourcesTabUiState.Loaded ?: return
@@ -1554,10 +1556,10 @@ private fun SourcesTabContainer(
         if (key in current.pendingIds) return
         uiState = current.copy(pendingIds = current.pendingIds + key, errors = current.errors - key)
         scope.launch {
-            val result = FydeSdk.installScript(existing?.installationId, script.id, label, parameters)
+            val result = FydeSdk.installScript(existing?.installationId, script.id, label, parameters, folderId)
                 .mapCatching { id -> FydeSdk.enableScript(script.id).getOrThrow(); id }
             val installed = result.getOrNull()?.let { id ->
-                FydeInstallation(id, script.id, label.trim().ifEmpty { provisionalLabel(script, parameters) }, parameters)
+                FydeInstallation(id, script.id, label.trim().ifEmpty { provisionalLabel(script, parameters) }, parameters, folderId)
             }
             update { latest ->
                 latest.copy(
@@ -1588,7 +1590,7 @@ private fun SourcesTabContainer(
         query = query,
         onQueryChange = { query = it },
         onConnect = { script, label, parameters ->
-            install(script, existing = null, label, parameters) { account, error ->
+            install(script, existing = null, label, parameters, folderId = null) { account, error ->
                 if (account != null) {
                     refreshQuota()
                     onSourcesChange()
@@ -1602,7 +1604,8 @@ private fun SourcesTabContainer(
             }
         },
         onUpdate = { existing, label, parameters, rerun ->
-            install(existing.script, existing, label, parameters) { account, error ->
+            // Editing the credentials keeps the account's folder.
+            install(existing.script, existing, label, parameters, existing.folderId) { account, error ->
                 val id = existing.installationId
                 when {
                     account == null -> {
