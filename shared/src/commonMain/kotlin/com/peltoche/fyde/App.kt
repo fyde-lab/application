@@ -286,6 +286,10 @@ private fun AppContent(
     var onboardingAccounts by remember { mutableStateOf<Map<String, SourceAccount>>(emptyMap()) }
     var connectError by remember { mutableStateOf<String?>(null) }
     var isConnectingSource by remember { mutableStateOf(false) }
+    // The vault's folders while sources are connected, for where each files
+    // its documents, and those created there that sync hasn't brought back yet.
+    var onboardingFolders by remember { mutableStateOf<List<FydeFolder>>(emptyList()) }
+    var onboardingCreatedFolders by remember { mutableStateOf<List<FydeFolder>>(emptyList()) }
     // "Wait here" on SourceFetchingScreen: move on by itself once the run succeeds.
     var isWaitingForFetch by remember { mutableStateOf(false) }
     // fyde-sdk's wording while startup is refused because another instance
@@ -625,15 +629,26 @@ private fun AppContent(
         screen = Screen.Vault
     }
 
+    // Re-read as the connect step opens and on every changelog event (a
+    // folder created for an earlier source of the queue shows up there).
+    LaunchedEffect(screen, documentChanges) {
+        if (screen != Screen.ConnectSource) return@LaunchedEffect
+        val synced = FydeSdk.listFolders().getOrNull() ?: return@LaunchedEffect
+        onboardingFolders = synced
+        onboardingCreatedFolders = onboardingCreatedFolders.filter { created -> synced.none { it.id == created.id } }
+    }
+
     // Installs [script] with what was typed (publishing the values, encrypted,
-    // to the account's devices) and enables it, then starts its first run in
+    // to the account's devices), its documents filed in [folderId]
+    // (automatically when null), and enables it, then starts its first run in
     // the background once the installation has synced here, and follows it.
-    fun connectSource(script: FydeScript, parameters: Map<String, FydeScriptParameterValue>) {
+    fun connectSource(script: FydeScript, parameters: Map<String, FydeScriptParameterValue>, folderId: String?) {
         connectError = null
         isConnectingSource = true
         scope.launch {
             val previous = onboardingAccounts[script.id]
-            val result = FydeSdk.installScript(previous?.installationId, script.id, label = "", parameters, previous?.folderId)
+            if (folderId != null) awaitFolderSynced(folderId)
+            val result = FydeSdk.installScript(previous?.installationId, script.id, label = "", parameters, folderId)
                 .mapCatching { id -> FydeSdk.enableScript(script.id).getOrThrow(); id }
             isConnectingSource = false
             // The session may have ended meanwhile, back to the login form.
@@ -646,7 +661,7 @@ private fun AppContent(
                         label = provisionalLabel(script, parameters),
                         parameters = parameters,
                         shared = false,
-                        folderId = previous?.folderId,
+                        folderId = folderId,
                     )
                     onboardingAccounts = onboardingAccounts + (script.id to account)
                     skippedSourceIds = skippedSourceIds - script.id
@@ -780,9 +795,21 @@ private fun AppContent(
                     position = connectIndex + 1,
                     count = connectQueue.size,
                     sources = vaultSources(current = VaultSourceState.Current),
+                    folders = VaultFolders(onboardingFolders + onboardingCreatedFolders),
+                    // Back to a source already connected: the folder it got.
+                    initialFolderId = onboardingAccounts[script.id]?.folderId,
                     errorMessage = connectError,
                     isSubmitting = isConnectingSource,
-                    onConnect = { parameters -> connectSource(script, parameters) },
+                    onConnect = { parameters, folderId -> connectSource(script, parameters, folderId) },
+                    createFolder = { parentId, form ->
+                        FydeSdk.createFolder(parentId, form.name, form.description, form.appearance).fold(
+                            onSuccess = { folder ->
+                                onboardingCreatedFolders = onboardingCreatedFolders + folder
+                                FolderCreation.Created(folder)
+                            },
+                            onFailure = { FolderCreation.Refused(it.userMessage()) },
+                        )
+                    },
                     onSkip = {
                         skippedSourceIds = skippedSourceIds + script.id
                         nextSource()

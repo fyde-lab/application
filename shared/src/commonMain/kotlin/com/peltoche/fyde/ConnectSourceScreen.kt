@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -96,10 +97,19 @@ import org.jetbrains.compose.resources.stringResource
  *
  * Both show the source's tile and what it fetches, an info note naming the
  * only sites it may reach (`allowedDomains`), the fields (a secret one says
- * it's the source's password, not Fyde's), and an ok note that they're
- * encrypted with the vault. [errorMessage] says why the last attempt failed,
- * as an error note; while [isSubmitting] the fields are disabled and the
- * button spins.
+ * it's the source's password, not Fyde's), Ranger dans, and an ok note that
+ * they're encrypted with the vault. [errorMessage] says why the last attempt
+ * failed, as an error note; while [isSubmitting] the fields are disabled and
+ * the button spins.
+ *
+ * Ranger dans (design-system.md § A source's folder) starts from
+ * [initialFolderId] (the folder of the account already connected for this
+ * source, if going back to it), else Rangement automatique. With no folder
+ * in [folders] (a new vault has none) it reads À classer with Créer un
+ * dossier (S3c, DO7b), opening S9b / DO7i named after the source; the folder
+ * [createFolder] publishes is picked, and once one exists (made for an
+ * earlier source of the queue included) the row has Changer, opening S9 /
+ * D12. [onConnect] gets the choice with the typed values.
  *
  * Not drawn from the mockups: "Récupérer automatiquement" — `fyde-sdk` has
  * no scheduled runs yet (design-system.md § SDK dependencies).
@@ -110,10 +120,13 @@ fun ConnectSourceScreen(
     position: Int,
     count: Int,
     sources: List<VaultSource>,
-    onConnect: (Map<String, FydeScriptParameterValue>) -> Unit,
+    folders: VaultFolders,
+    onConnect: (Map<String, FydeScriptParameterValue>, folderId: String?) -> Unit,
+    createFolder: CreateFolder,
     onSkip: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    initialFolderId: String? = null,
     errorMessage: String? = null,
     isSubmitting: Boolean = false,
 ) {
@@ -121,6 +134,8 @@ fun ConnectSourceScreen(
     // keyed on the source, so the next one starts empty.
     val values = remember(script.id) { mutableStateMapOf<String, String>() }
     var showRequiredErrors by remember(script.id) { mutableStateOf(false) }
+    var folderId by remember(script.id) { mutableStateOf(initialFolderId) }
+    var folderSheet by remember(script.id) { mutableStateOf<SourceFolderSheet?>(null) }
     val form = ConnectSourceForm(
         script = script,
         position = position,
@@ -131,19 +146,32 @@ fun ConnectSourceScreen(
         isSubmitting = isSubmitting,
         onSubmit = {
             val entered = validatedParameterValues(script.parameters, values)
-            if (entered != null) onConnect(entered) else showRequiredErrors = true
+            // A folder deleted meanwhile files automatically, as the row reads.
+            if (entered != null) onConnect(entered, folderId?.takeIf { folders[it] != null }) else showRequiredErrors = true
         },
+        folder = SourceFolderPick(folderId = folderId, onOpen = { folderSheet = it }),
     )
 
-    when (LocalAppWindowSizeClass.current) {
-        AppWindowSizeClass.Compact -> CompactConnectSource(form, onSkip, onBack, modifier)
-        AppWindowSizeClass.Medium, AppWindowSizeClass.Expanded -> VaultCreationSplitLayout(
-            currentStep = VaultCreationStep.Sources,
-            sources = sources,
-            modifier = modifier,
-        ) { paneModifier ->
-            WideConnectSourcePane(form, onSkip, onBack, paneModifier)
+    CompositionLocalProvider(LocalVaultFolders provides folders) {
+        when (LocalAppWindowSizeClass.current) {
+            AppWindowSizeClass.Compact -> CompactConnectSource(form, onSkip, onBack, modifier)
+            AppWindowSizeClass.Medium, AppWindowSizeClass.Expanded -> VaultCreationSplitLayout(
+                currentStep = VaultCreationStep.Sources,
+                sources = sources,
+                modifier = modifier,
+            ) { paneModifier ->
+                WideConnectSourcePane(form, onSkip, onBack, paneModifier)
+            }
         }
+        SourceFolderSheets(
+            sheet = folderSheet,
+            onSheetChange = { folderSheet = it },
+            accountName = script.name,
+            sourceName = script.name,
+            current = folderId,
+            onChoose = { folderId = it },
+            createFolder = createFolder,
+        )
     }
 }
 
