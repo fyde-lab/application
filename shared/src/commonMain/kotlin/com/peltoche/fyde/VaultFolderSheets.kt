@@ -169,8 +169,12 @@ class FolderCallbacks(
 internal const val FOLDER_NAME_MAX = 60
 internal const val FOLDER_DESCRIPTION_MAX = 300
 
-/** A new top-level folder's appearance until one is picked. */
+/** The appearance of a top-level folder that has none. */
 private val DefaultAppearance = FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.FOLDER)
+
+/** A new top-level folder's appearance until one is picked: one of the picker's first colours, at random. */
+private fun randomNewAppearance() =
+    FydeFolderAppearance(FydeFolderColor.entries.take(FIRST_COLORS).random(), FydeFolderIcon.FOLDER)
 
 /** Where a folder picker's choice lands: [folderId], or the top level for `null`. */
 data class FolderChoice(val folderId: String?)
@@ -201,7 +205,7 @@ internal fun FolderSheets(vault: Vault) {
         is FolderSheet.Actions -> FolderActionsSheet(folder!!, onOpen = ::open, onDismissRequest = close)
         is FolderSheet.Create -> FolderFormSheet(
             title = stringResource(Res.string.folder_new),
-            initial = FolderForm("", "", DefaultAppearance.takeIf { sheet.parentId == null }),
+            initial = FolderForm("", "", remember(sheet) { randomNewAppearance() }.takeIf { sheet.parentId == null }),
             parentId = sheet.parentId,
             confirmLabel = stringResource(Res.string.folder_create),
             state = state,

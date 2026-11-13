@@ -539,7 +539,8 @@ the documents: the server never sees them (M3).
 - **Create** (V12, D10): name (required, unique among its siblings, case-insensitive, 1–60
   characters), location (where it was asked from: the root from V1, the open folder from V3 or
   its "Nouveau sous-dossier"), and for a top-level folder a colour and an icon (preview at the
-  top). A subfolder picks neither.
+  top; the colour starts as one of the picker's first eight at random, the icon as the folder
+  glyph). A subfolder picks neither.
 - **Rename** inline: the name field in place of the title (phone: a sheet with the field);
   same rules as create.
 - **Name clashes.** A name the user chooses or a move they make that would put two folders of the
