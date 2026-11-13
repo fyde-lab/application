@@ -145,7 +145,18 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   and S4; Ajouter un autre compte (S5/S5c/D4) and S2's Autre compte open the same form for one
   more account (S3b, with Nom du compte; the plan counts sources, so it's never dimmed at the
   limit). Editing credentials reinstalls the same installation, a blank secret keeping the
-  installed one (`validatedCredentials`). Remove uninstalls the account (`FydeSdk.uninstallScript`,
+  installed one (`validatedCredentials`) and its folder. Each account files into a folder
+  (design-system.md § A source's folder, `SourceFolders.kt`): the connect form's Ranger dans
+  row (`SourceFolderField`; Rangement automatique by default, S3b starting from the source's
+  first account's folder, À classer with Créer un dossier while the vault has no folder) and
+  S5/S5c's and D4's Réglages row open S9/D12, `FolderPicker` with Rangement automatique as its
+  top entry, whose Nouveau dossier ici (or Créer un dossier) opens the new-folder sheet named
+  after the source; the folder it creates is picked at once. Changing it from S5/D4 reinstalls
+  the account with its parameters, label and the new folder (no snackbar unless it fails). An
+  install with a folder not synced yet waits for it (`awaitFolderSynced`: the SDK refuses a
+  folder it doesn't know), and a folder no longer in `listFolders` reads Rangement automatique.
+  The container's folders come from `listFolders`, re-read on every changelog event, plus those
+  created here until they sync. Remove uninstalls the account (`FydeSdk.uninstallScript`,
   S7, or S7b for one among several) and disables the source with its last account. Statuses come from
   `ScraperRuns` (this app session's runs): no run history, schedule, counts or categories.
   Arrêter (`ScraperRuns.stop`, `FydeSdk.stopScriptRun`) sits under S4's primary and in S5/D4's

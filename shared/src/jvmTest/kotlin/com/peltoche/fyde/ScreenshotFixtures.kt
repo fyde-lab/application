@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
@@ -156,11 +157,12 @@ internal object ScreenshotFixtures {
     private val sourcesTab = SourcesTabUiState.Loaded(
         scripts = scripts,
         installations = listOf(
-            FydeInstallation("edf-1", edf.id, "pierre@example.com", mapOf("username" to FydeScriptParameterValue.Text("pierre@example.com"))),
-            FydeInstallation("ameli-pierre", ameli.id, "Pierre", emptyMap()),
+            FydeInstallation("edf-1", edf.id, "pierre@example.com", mapOf("username" to FydeScriptParameterValue.Text("pierre@example.com")), folderId = "energy"),
+            FydeInstallation("ameli-pierre", ameli.id, "Pierre", emptyMap(), folderId = "health"),
             FydeInstallation("ameli-marie", ameli.id, "Marie", emptyMap()),
         ),
         quota = SourceQuota("free", 2, 3),
+        folders = folders,
     )
     private val statuses = mapOf(
         "edf-1" to SourceFetchStatus.Succeeded(found = 12),
@@ -274,6 +276,11 @@ internal object ScreenshotFixtures {
         shot("sources-tab-connect") { sourcesTab(sourcesTab, SourceFocus.Connect(free.id)) },
         shot("sources-tab-connect-another") { sourcesTab(sourcesTab, SourceFocus.Connect(ameli.id)) },
         shot("sources-tab-catalogue") { sourcesTab(sourcesTab, null, catalogueOpen = true) },
+        // A source's folder (S3c, S9 / D12, S9b): the sheets drawn over the account they're for.
+        shot("sources-tab-connect-empty-vault") { sourcesTab(sourcesTab.copy(folders = VaultFolders()), SourceFocus.Connect(free.id)) },
+        shot("sources-tab-folder-pick") { sourceFolderSheet(SourceFolderSheet.Pick, current = "health") },
+        shot("sources-tab-folder-pick-automatic") { sourceFolderSheet(SourceFolderSheet.Pick, current = null) },
+        shot("sources-tab-folder-new") { sourceFolderSheet(SourceFolderSheet.Create(parentId = null, fromPicker = true), current = null) },
         shot("settings-menu") { settings(null) },
         shot("settings-loading") {
             settings(SettingsSection.Devices, planUsage = PlanUsageUiState.Loading, sessions = SessionsUiState.Loading)
@@ -330,14 +337,33 @@ internal object ScreenshotFixtures {
             onCatalogueOpenChange = {},
             query = "",
             onQueryChange = {},
-            onConnect = { _, _, _ -> },
+            onConnect = { _, _, _, _ -> },
             onUpdate = { _, _, _, _ -> },
+            onChangeFolder = { _, _ -> },
+            createFolder = { _, _ -> FolderCreation.Refused("") },
             onRun = {},
             onStop = {},
             onRemove = {},
             onOpenPlan = {},
             navigation = navigation,
         )
+    }
+
+    /** [sheet] over Ameli · Pierre's page, its folder [current]. */
+    @Composable
+    private fun sourceFolderSheet(sheet: SourceFolderSheet, current: String?) {
+        sourcesTab(sourcesTab, SourceFocus.Detail("ameli-pierre"))
+        CompositionLocalProvider(LocalVaultFolders provides folders) {
+            SourceFolderSheets(
+                sheet = sheet,
+                onSheetChange = {},
+                accountName = "Ameli · Pierre",
+                sourceName = ameli.name,
+                current = current,
+                onChoose = {},
+                createFolder = { _, _ -> FolderCreation.Refused("") },
+            )
+        }
     }
 
     @Composable

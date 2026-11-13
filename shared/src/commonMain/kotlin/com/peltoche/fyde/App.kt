@@ -52,6 +52,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.PluralStringResource
 import org.jetbrains.compose.resources.getPluralString
@@ -1484,6 +1485,10 @@ private fun SourcesTabContainer(
     var retryKey by remember { mutableStateOf(0) }
     var uiState by remember { mutableStateOf<SourcesTabUiState>(SourcesTabUiState.Connecting) }
     var focus by remember { mutableStateOf<SourceFocus?>(null) }
+    // The vault's folders, for where each account files its documents, and
+    // those created here that sync hasn't brought back yet.
+    var syncedFolders by remember { mutableStateOf<List<FydeFolder>>(emptyList()) }
+    var createdFolders by remember { mutableStateOf<List<FydeFolder>>(emptyList()) }
     var catalogueOpen by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -1496,6 +1501,16 @@ private fun SourcesTabContainer(
     suspend fun refreshQuota() {
         val quota = FydeSdk.getUsage().getOrNull()?.let(::sourceQuotaOf)
         update { it.copy(quota = quota) }
+    }
+
+    fun showFolders() {
+        createdFolders = createdFolders.filter { created -> syncedFolders.none { it.id == created.id } }
+        update { it.copy(folders = VaultFolders(syncedFolders + createdFolders)) }
+    }
+
+    suspend fun refreshFolders() {
+        syncedFolders = FydeSdk.listFolders().getOrNull() ?: return
+        showFolders()
     }
 
     LaunchedEffect(retryKey) {
@@ -1518,6 +1533,7 @@ private fun SourcesTabContainer(
             scripts = scripts,
             installations = FydeSdk.listInstallations().getOrElse { emptyList() },
         )
+        refreshFolders()
         refreshQuota()
 
         fetchScriptIcons(scripts) { scriptId, icon ->
@@ -1531,6 +1547,7 @@ private fun SourcesTabContainer(
     // provisional state until its own call ends.
     LaunchedEffect(changelogChanges) {
         if (uiState !is SourcesTabUiState.Loaded || changelogChanges == 0) return@LaunchedEffect
+        refreshFolders()
         val synced = FydeSdk.listInstallations().getOrNull() ?: return@LaunchedEffect
         update { latest ->
             val inFlight = latest.installations.filter { it.id in latest.pendingIds }
@@ -1556,6 +1573,7 @@ private fun SourcesTabContainer(
         if (key in current.pendingIds) return
         uiState = current.copy(pendingIds = current.pendingIds + key, errors = current.errors - key)
         scope.launch {
+            if (folderId != null) awaitFolderSynced(folderId)
             val result = FydeSdk.installScript(existing?.installationId, script.id, label, parameters, folderId)
                 .mapCatching { id -> FydeSdk.enableScript(script.id).getOrThrow(); id }
             val installed = result.getOrNull()?.let { id ->
@@ -1589,8 +1607,8 @@ private fun SourcesTabContainer(
         onCatalogueOpenChange = { catalogueOpen = it },
         query = query,
         onQueryChange = { query = it },
-        onConnect = { script, label, parameters ->
-            install(script, existing = null, label, parameters, folderId = null) { account, error ->
+        onConnect = { script, label, parameters, folderId ->
+            install(script, existing = null, label, parameters, folderId) { account, error ->
                 if (account != null) {
                     refreshQuota()
                     onSourcesChange()
@@ -1622,6 +1640,26 @@ private fun SourcesTabContainer(
                     }
                 }
             }
+        },
+        // Reinstalls the account as it is, its documents now filed in
+        // [folderId]; only later documents go there. No snackbar on success:
+        // the row shows the new folder at once.
+        onChangeFolder = { account, folderId ->
+            install(account.script, account, account.label, account.parameters, folderId) { installed, error ->
+                if (installed == null) {
+                    snackbarHostState.showSnackbar(getString(Res.string.source_update_failed, account.name, error?.userMessage().orEmpty()))
+                }
+            }
+        },
+        createFolder = { parentId, form ->
+            FydeSdk.createFolder(parentId, form.name, form.description, form.appearance).fold(
+                onSuccess = { folder ->
+                    createdFolders = createdFolders + folder
+                    showFolders()
+                    FolderCreation.Created(folder)
+                },
+                onFailure = { FolderCreation.Refused(it.userMessage()) },
+            )
         },
         onRun = { account -> scraperRuns.run(account) },
         onStop = { account -> scraperRuns.stop(account.installationId) },
@@ -1662,6 +1700,20 @@ private fun SourcesTabContainer(
         navigation = navigation,
     )
 }
+
+/**
+ * Waits, up to [FOLDER_SYNC_TIMEOUT_MS], for the folder [id] to sync to this
+ * device: [FydeSdk.createFolder] only publishes it, and [FydeSdk.installScript]
+ * refuses a folder it doesn't know yet. Past the wait, the install says so.
+ */
+private suspend fun awaitFolderSynced(id: String) {
+    withTimeoutOrNull(FOLDER_SYNC_TIMEOUT_MS) {
+        while (FydeSdk.listFolders().getOrNull()?.any { it.id == id } != true) delay(FOLDER_SYNC_POLL_MS)
+    }
+}
+
+private const val FOLDER_SYNC_POLL_MS = 300L
+private const val FOLDER_SYNC_TIMEOUT_MS = 15_000L
 
 /**
  * Where [installationId]'s latest run in this app session is: waiting for
