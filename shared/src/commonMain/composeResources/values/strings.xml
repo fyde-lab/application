@@ -206,6 +206,25 @@
     <string name="source_add_account">Add another %1$s account</string>
     <string name="source_other_accounts">Other %1$s accounts</string>
     <string name="source_rename">Rename</string>
+    <!-- A source's folder (design-system.md § A source's folder): S3's Ranger dans row, S9 / D12, S9b / DO7i. -->
+    <string name="source_folder_label">File into</string>
+    <string name="source_folder_automatic">Automatic filing</string>
+    <string name="source_folder_automatic_detail">Based on the documents already in your folders</string>
+    <string name="source_folder_automatic_help">Based on the documents already in your folders.</string>
+    <string name="source_folder_chosen_help">Its documents will go into this folder and its subfolders.</string>
+    <string name="source_folder_same_as">Same as the %1$s account.</string>
+    <string name="source_folder_empty_help">Your vault has no folder yet: without one, its documents arrive in Unfiled.</string>
+    <string name="source_folder_change">Change</string>
+    <string name="source_folder_create">Create a folder</string>
+    <string name="source_folder_title">File documents from %1$s</string>
+    <string name="source_folder_title_elided">File documents from %1$s</string>
+    <string name="source_folder_note">They’ll go into the chosen folder and its subfolders.</string>
+    <string name="source_folder_stay">Documents already there don’t move.</string>
+    <string name="source_folder_into">File into %1$s</string>
+    <string name="source_folder_choose_automatic">Choose automatic filing</string>
+    <string name="source_folder_new_here">New folder here</string>
+    <string name="source_folder_new_title">New folder for %1$s</string>
+    <string name="source_folder_new_line">%1$s will file all its documents there.</string>
     <string name="source_remove_account">Remove this account</string>
     <string name="source_remove_account_title">Remove the %1$s account “%2$s”?</string>
     <string name="source_remove_account_text">Its documents already fetched stay in your vault. Fyde erases this account’s credentials from all your devices; your other %1$s accounts keep being fetched.</string>

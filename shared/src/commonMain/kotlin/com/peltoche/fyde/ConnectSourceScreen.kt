@@ -176,6 +176,8 @@ internal class ConnectSourceForm(
      * one more (S3b): its title says so and a note names them.
      */
     val otherAccounts: List<String>? = null,
+    /** Where the account will file its documents, its Ranger dans row after the fields; `null` leaves it out. */
+    val folder: SourceFolderPick? = null,
 ) {
     val parameters = orderedParameters(script.parameters)
 
@@ -183,6 +185,17 @@ internal class ConnectSourceForm(
         if (!isSubmitting && canSubmit) onSubmit()
     }
 }
+
+/**
+ * A connect form's Ranger dans choice: [folderId] (`null`: Rangement
+ * automatique), [sameAs] naming the account it was taken from while it's
+ * unchanged (S3b), and [onOpen] opening S9 or S9b.
+ */
+internal class SourceFolderPick(
+    val folderId: String?,
+    val onOpen: (SourceFolderSheet) -> Unit,
+    val sameAs: String? = null,
+)
 
 /** S3 inside onboarding. The fields scroll when the window is too short; the connect button stays pinned at the bottom. */
 @Composable
@@ -287,7 +300,7 @@ private fun WideConnectSourcePane(
 
 /**
  * "Source 1 of 3", the source's header, the sites it may reach, the last
- * attempt's failure, its fields and the note that they're encrypted —
+ * attempt's failure, its fields, Ranger dans and the note that they're encrypted —
  * [encryptedNote] worded for the room each layout has.
  */
 @Composable
@@ -351,6 +364,10 @@ internal fun ConnectSourceForm(
     }
     Spacer(Modifier.height(AppSpacing.space6))
     ConnectSourceFields(form, firstField)
+    form.folder?.let { folder ->
+        if (form.parameters.isNotEmpty() || form.accountName != null) Spacer(Modifier.height(AppSpacing.space5))
+        SourceFolderRow(folderId = folder.folderId, onOpen = folder.onOpen, enabled = !form.isSubmitting, sameAs = folder.sameAs)
+    }
     if (form.parameters.isNotEmpty()) {
         Spacer(Modifier.height(AppSpacing.space6))
         AppNote(
