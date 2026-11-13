@@ -67,7 +67,7 @@
     <string name="register_acknowledge">J’ai compris, je le garde en lieu sûr.</string>
     <string name="register_submit">Continuer</string>
     <string name="register_submitting">Création du coffre…</string>
-    <string name="vault_steps_summary">Trois étapes, environ deux minutes.</string>
+    <string name="vault_steps_summary">Deux étapes, environ deux minutes.</string>
     <string name="vault_step_progress">Étape %1$d sur %2$d</string>
     <string name="vault_step_account_subtitle">Identifiant et mot de passe</string>
 
@@ -648,23 +648,6 @@
     <string name="filing_unfiled">Dans À classer</string>
     <string name="filing_change">Modifier</string>
     <string name="filing_file">Ranger</string>
-    <string name="folder_layout_language">fr</string>
-    <string name="vault_step_folders_title">Vos dossiers</string>
-    <string name="vault_step_folders_subtitle">Comment ranger vos documents</string>
-    <string name="folder_layout_title">Comment ranger vos documents ?</string>
-    <string name="folder_layout_subtitle">Tout pourra changer ensuite : les dossiers, leurs noms et leurs descriptions.</string>
-    <string name="folder_layout_proposed">Dossiers proposés</string>
-    <string name="folder_layout_recommended">Conseillé</string>
-    <string name="folder_layout_proposed_text">16 dossiers et leurs sous-dossiers, chacun avec une description. Fyde range vos documents d’après elles.</string>
-    <string name="folder_layout_more">+ %1$d autres</string>
-    <string name="folder_layout_blank">Coffre vide</string>
-    <string name="folder_layout_blank_text">Vous créez et décrivez vos propres dossiers. En attendant, tout arrive dans À classer.</string>
-    <string name="folder_layout_your_folders">Vos dossiers</string>
-    <string name="folder_layout_continue">Continuer</string>
-    <string name="folder_layout_housing">Logement</string>
-    <string name="folder_layout_money">Argent</string>
-    <string name="folder_layout_work">Travail</string>
-    <string name="folder_layout_taxes">Impôts</string>
     <!-- Plusieurs documents à la fois (V9b, V10b, D11b) -->
     <plurals name="documents_move_title">
         <item quantity="one">Déplacer %1$d document</item>

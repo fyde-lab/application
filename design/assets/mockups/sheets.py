@@ -16,7 +16,7 @@ OUT.mkdir(exist_ok=True)
 
 LABELS = {
     "O1": "Bienvenue", "O2": "Connexion", "O3": "Créer le coffre", "O4": "Stockage indisponible",
-    "O5": "Trop d’appareils", "O6": "Kit de récupération", "O6b": "Vérifier le kit", "O11": "Vos dossiers", "O7": "Choisir ses sources", "O8": "Notifications",
+    "O5": "Trop d’appareils", "O6": "Kit de récupération", "O6b": "Vérifier le kit", "O7": "Choisir ses sources", "O8": "Notifications",
     "O7b": "Limite de l’offre", "O9": "Ouverture", "O10": "Récupérer mon coffre", "O10b": "Nouveau mot de passe", "V1": "Coffre", "V2": "Coffre en remplissage", "V3": "Dossier", "V4": "Recherche",
     "V5": "Résultats", "V6": "Document", "V6b": "Document sombre", "V6c": "Document, similaires", "V16": "Documents similaires", "V16b": "Sélection", "V9b": "Déplacer les documents", "V10b": "Supprimer les documents", "V7": "Lecteur", "V8": "Actions", "V8b": "Actions sombres", "V9": "Déplacer le document", "V12": "Nouveau dossier", "V13": "Actions du dossier", "V14": "Déplacer le dossier", "V15": "Supprimer le dossier", "V10": "Supprimer le document",
     "V11": "Coffre sombre", "K1": "Scanner", "K2": "Vérifier le scan",
@@ -27,7 +27,7 @@ LABELS = {
     "M7": "Apparence et langue", "M8": "Se déconnecter", "M9": "Offres", "M10": "Aide", "M11": "Changer le mot de passe", "M12": "Mes données", "M12b": "Supprimer mon compte", "M8b": "Se déconnecter, sombre", "X1": "Hors ligne", "X2": "Texte à 200 %", "D1": "Bureau — Dossier", "D7": "Bureau — Actions du dossier", "D8": "Bureau — Déplacer le dossier", "D9": "Bureau — Supprimer le dossier", "D10": "Bureau — Nouveau dossier",
     "DO1": "Bienvenue", "DO2": "Connexion", "DO2b": "Connexion en cours", "DO2c": "Échec de connexion",
     "DO3": "Créer le coffre", "DO3b": "Créer — erreurs",
-    "DO4b": "Trousseau absent", "DO5": "Trop d’appareils", "DO6": "Kit de récupération", "DO6b": "Vérifier le kit", "DO11": "Vos dossiers",
+    "DO4b": "Trousseau absent", "DO5": "Trop d’appareils", "DO6": "Kit de récupération", "DO6b": "Vérifier le kit",
     "DO7": "Choisir ses sources", "DO7b": "Connecter une source", "DO7c": "Récupération en cours",
     "DO7d": "Code reçu par SMS ou e-mail", "DO7f": "Mot de passe refusé",
     "DO7g": "Sources connectées", "DO7h": "Limite de l’offre", "DO8": "Notifications", "DO9": "Ouverture", "DO10": "Récupérer mon coffre", "DO10b": "Nouveau mot de passe",

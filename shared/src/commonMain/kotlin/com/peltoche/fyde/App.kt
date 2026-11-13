@@ -35,7 +35,6 @@ import com.peltoche.fyde.resources.documents_deleted
 import com.peltoche.fyde.resources.documents_move_failed
 import com.peltoche.fyde.resources.documents_moved
 import com.peltoche.fyde.resources.folder_created
-import com.peltoche.fyde.resources.folder_layout_language
 import com.peltoche.fyde.resources.folder_deleted
 import com.peltoche.fyde.resources.folder_moved
 import com.peltoche.fyde.resources.folder_saved
@@ -154,13 +153,8 @@ private sealed interface Screen {
     ) : Screen
 
     /**
-     * Vault creation's folders step, right after the account is created:
-     * [FolderLayoutScreen] creates the proposed folders or none.
-     */
-    data object FolderLayout : Screen
-
-    /**
-     * Vault creation's sources step, after the folders:
+     * Vault creation's sources step, right after the account is created
+     * (the vault starts with no folder):
      * [SourcesScreen] picks the public scrapers to connect, within the plan.
      */
     data object Sources : Screen
@@ -278,10 +272,6 @@ private fun AppContent(
     // order they'll be connected in) and searched for.
     var sources by remember { mutableStateOf<SourcesUiState>(SourcesUiState.Loading) }
     var sourcesAttempt by remember { mutableStateOf(0) }
-    // Vault creation's folders step: the picked layout, while its folders publish, and why they couldn't.
-    var folderLayoutChoice by remember { mutableStateOf(FolderLayoutChoice.Proposed) }
-    var folderLayoutBusy by remember { mutableStateOf(false) }
-    var folderLayoutError by remember { mutableStateOf<String?>(null) }
     var sourceSelection by remember { mutableStateOf<Set<String>>(emptySet()) }
     var sourcesQuery by remember { mutableStateOf("") }
     // The ticked sources ConnectSourceScreen connects one by one (in ticking
@@ -413,11 +403,7 @@ private fun AppContent(
         isAuthenticating = true
         scope.launch {
             authenticate(username, password) { user, pass -> FydeSdk.register(user, pass, allowInsecureStorage) }
-                .onSuccess {
-                    folderLayoutChoice = FolderLayoutChoice.Proposed
-                    folderLayoutError = null
-                    screen = Screen.FolderLayout
-                }
+                .onSuccess { screen = Screen.Sources }
                 .onFailure {
                     if (lostSecureStorage(allowInsecureStorage)) {
                         storageConsent = PendingStorageConsent(isRegistration = true) { allow ->
@@ -756,31 +742,6 @@ private fun AppContent(
                     screen = Screen.Welcome
                 },
             )
-            Screen.FolderLayout -> {
-                val layoutLanguage = stringResource(Res.string.folder_layout_language)
-                FolderLayoutScreen(
-                    choice = folderLayoutChoice,
-                    onChoiceChange = { folderLayoutChoice = it },
-                    busy = folderLayoutBusy,
-                    error = folderLayoutError,
-                    // The proposed folders are named in the app's language;
-                    // an empty vault creates nothing.
-                    onContinue = {
-                        if (folderLayoutChoice == FolderLayoutChoice.Blank) {
-                            screen = Screen.Sources
-                        } else {
-                            folderLayoutBusy = true
-                            folderLayoutError = null
-                            scope.launch {
-                                FydeSdk.createProposedFolders(layoutLanguage)
-                                    .onSuccess { screen = Screen.Sources }
-                                    .onFailure { folderLayoutError = it.userMessage() }
-                                folderLayoutBusy = false
-                            }
-                        }
-                    },
-                )
-            }
             Screen.Sources -> SourcesScreen(
                 state = sources,
                 selected = sourceSelection,

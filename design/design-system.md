@@ -16,9 +16,8 @@ them is tracked in [Delivery](#delivery). New UI work follows this document, not
 
 **Folders replace categories.** The vault is now browsed by user-owned folders (see
 [Folders](#folders)): V1, V3, V9, D1, D6, T1, T2 and the sidebar are drawn with folders, and
-V12–V15, D7–D10, O11 and DO11 are new. The app's built V1, V3, D1, D6 and sidebar browse folders
-(with V12–V15 / D7–D10 as sheets and dialogs, V9 and the filing card, and O11 / DO11 in
-onboarding; not yet the sidebar's "+"; drag and drop only between the vault's own folder
+V12–V15 and D7–D10 are new. The app's built V1, V3, D1, D6 and sidebar browse folders
+(with V12–V15 / D7–D10 as sheets and dialogs, V9 and the filing card; not yet the sidebar's "+"; drag and drop only between the vault's own folder
 cards and sidebar rows; a folder page listing every document below it); the table below says what was built, not what is
 drawn.
 
@@ -69,8 +68,8 @@ French and English.
 
 1. **The vault is organised the way its owner wants.** Documents live in folders the user owns:
    a folder holds documents, subfolders, or both, and can be created, renamed, moved and
-   deleted. A new vault starts either with Fyde's proposed folders (the life areas Logement,
-   Argent, Travail, Impôts, Santé… with their subfolders) or empty (O11). Search is always one
+   deleted. A new vault starts empty: onboarding doesn't propose folders, everything arrives in
+   À classer until the user creates and describes their own. Search is always one
    tap away, but browsing is the default on a phone.
 2. **The automation is visible.** Fetching documents is the reason to use Fyde, so its state is
    on screen at all times: what arrived, which source needs the user, when the next run is.
@@ -130,7 +129,7 @@ with the folder glyph, and takes the new one's when it moves. A document's pass 
 top-level folder's colour; a document in À classer (at the root) uses À classer's.
 
 The palette below is the one offered (the picker shows its first eight, then the rest); the names
-are the folders the proposed layout creates with that colour and icon. À classer's colour is not
+are the kind of folder each colour and icon suits. À classer's colour is not
 in the picker: a folder never looks like À classer. Any icon of `icons.svg`'s
 folder set can go with any colour.
 
@@ -280,9 +279,9 @@ Without a session there's no sidebar. The window splits in two (DO1–DO10):
   Fyde mark at the top, a reassurance line at the bottom ("Votre mot de passe ne quitte jamais
   cet ordinateur."). In between, on the sign-in path (DO1, DO2, DO5, DO9, DO10): the seal on
   `onPrimary` (white disc, lock in `primary`, rings at 22% and 16% white), "Vos documents, sous
-  scellé." in 38/44 SemiBold and the three promises. On the vault-creation path (DO3, DO11, DO7, DO7b–DO7h, DO8):
-  "Créer votre coffre", "Quatre étapes, environ deux minutes." and a vertical 4-step stepper
-  (Votre compte, Vos dossiers, Vos sources, Notifications)
+  scellé." in 38/44 SemiBold and the three promises. On the vault-creation path (DO3, DO7, DO7b–DO7h, DO8):
+  "Créer votre coffre", "Trois étapes, environ deux minutes." and a vertical 3-step stepper
+  (Votre compte, Vos sources, Notifications)
   (done = `success` disc with check, current = white disc, to do = outline at 35% white, joined
   by a 2dp line at 18% white).
 - **Form pane**, `background`, the form centred horizontally and vertically in a 440dp column
@@ -523,16 +522,11 @@ the documents: the server never sees them (M3).
   it under the name with that reason in its help line; it's shown under the folder's title (V3's
   band, D1's header, with Modifier on desktop) and edited from the folder's actions (V13, D7).
   Like the name, it's encrypted and never reaches the server.
-- **Proposed layout** (O11's "Dossiers proposés"): one top-level folder per SDK category,
-  coloured and iconed as in [Folder colours](#folder-colours), with one subfolder per
-  subcategory, each with its description written in (the French descriptions the SDK's
-  classifier already uses per label, so filing starts as good as today's categories). They're
-  ordinary descriptions: the user can rewrite or clear them.
 - **Filing.** A new document is matched against the folders' descriptions on the device: its
   transcript embedded as for search, each described folder's "name — description" embedded as a
   label, the closest folder at any depth wins if it clears the classifier's margin over the
   runner-up. A folder without a description is never picked by itself; with no winner the
-  document goes to À classer. A blank vault ("Coffre vide") starts with nothing described, so
+  document goes to À classer. A new vault has no folder, so
   everything arrives in À classer until the user describes the folders they create. The user
   files by hand from V9. Editing a description
   only changes where later documents go; nothing already filed moves.
@@ -676,15 +670,14 @@ The tables hold each screen's content and states; how screens lead to one anothe
 |---|---|---|---|
 | O1 | Bienvenue | Seal hero, "Vos documents, sous scellé.", three promises (fetched, encrypted, on every device), Créer mon coffre / J'ai déjà un coffre | Only without an account on the device: first screen until signed in and after logging out; an expired session skips it |
 | O2 | Connexion | Identifiant, Mot de passe (eye), "Il ne quitte jamais cet appareil", Ouvrir le coffre, Mot de passe oublié ? | Session expired → warning note. Loading → spinner, fields disabled (key stretching takes seconds). Failed attempt → error note |
-| O3 | Créer le coffre | Step 1/4; username; password with strength meter (the SDK's `analyzePassword`; a Weak password can't be submitted); confirm; warning "seule clé de votre coffre", saying Fyde can't reset it (the recovery kit is made later, from Moi › Sécurité); required "J'ai compris" | Mismatch and taken username as field errors |
+| O3 | Créer le coffre | Step 1/3; username; password with strength meter (the SDK's `analyzePassword`; a Weak password can't be submitted); confirm; warning "seule clé de votre coffre", saying Fyde can't reset it (the recovery kit is made later, from Moi › Sécurité); required "J'ai compris" | Mismatch and taken username as field errors |
 | O4 | Stockage indisponible | Sheet: explanation, opt-in checkbox, Continuer quand même (enabled once checked) | On `SecureStorageUnavailable`; retries with `allowInsecureStorage` |
 | O5 | Trop d'appareils | Plan limit, radio list of open sessions with none picked, "Retirer l'appareil choisi" (disabled until one is picked, then "Retirer le Pixel 8") | Nothing is pre-selected, so one tap can't cut off a device in use. Re-runs login with `replaceSessionId`; credentials kept only while open |
 | O6 | Kit de récupération | Reached from M2, not a vault-creation step (the mockup's step dots and "Plus tard" are dropped). Before any words: a warning note when the account has no kit, else a note that a new kit voids the previous one; Créer un kit de récupération. Then the 24 words (3 columns, Plex Mono, numbered); Enregistrer le PDF / Imprimer; "Captures d'écran désactivées"; Je l'ai noté | `generateRecoveryKey` only on that tap, confirmed in a dialog when a kit exists (it replaces it). Screenshots blocked. The words are shown once and dropped when the page closes. They are the SDK's English BIP39 words in every language |
 | O6b | Vérifier le kit | Two of the words asked back by number ("Mot n° 7", "Mot n° 19", picked at random), each checked as typed; note that the kit is checked on the device; Vérifier (enabled once both match) / Revoir les mots | A wrong word shows a field error; Revoir les mots shows the same words again |
-| O11 | Vos dossiers | Step 2/4; "Comment ranger vos documents ?" and that everything can change later; two radio cards: **Dossiers proposés** (tagged Conseillé, pre-selected; "16 dossiers et leurs sous-dossiers, chacun avec une description…", saying Fyde files by those descriptions, a strip of their first folder chips and "+ n autres") and **Coffre vide** (folders the user creates and describes; everything goes to À classer meanwhile; À classer and a dashed "Vos dossiers" chip); Continuer | Continuer creates the folders (proposed layout) or nothing (blank), then O7. No back button (the account behind it is already created). Skipping isn't offered: a choice is always made, the proposed layout by default |
-| O7 | Choisir ses sources | Step 3/4; plan counter "Offre Gratuit · 3 / 5"; search; public scrapers with checkboxes (no category chips: scripts have no category yet) | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
+| O7 | Choisir ses sources | Step 2/3; plan counter "Offre Gratuit · 3 / 5"; search; public scrapers with checkboxes (no category chips: scripts have no category yet) | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
 | O7b | Limite de l'offre atteinte | O7 scrolled: the counter stays pinned under the bar, in `warning`, "Limite atteinte"; one line on unticking to swap; unticked sources dimmed and not tickable; pointer to Moi › Offre et usage | See [Plan quota](#plan-quota) |
-| O8 | Notifications | Step 4/4; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
+| O8 | Notifications | Step 3/3; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
 | O9 | Ouverture | Ring "142 sur 214", the device's name, "Vous pouvez déjà parcourir" | Replaces an empty vault on a new device |
 | O10 | Récupérer mon coffre | Identifiant; the 24 words in one field (pasted or typed, case and spacing ignored, a live "n mots sur 24" count); note that the words stay on the device; Continuer | From O2's "Mot de passe oublié ?". Words that aren't BIP39 are caught locally as a field error; a key that isn't the account's (`InvalidRecoveryKey`) shows the SDK's wording on O10b's submit and returns here |
 | O10b | Nouveau mot de passe | New password with strength meter, confirm; warning that the other devices will be signed out; ok note that the kit stays valid; Rouvrir mon coffre | Runs `recoverAccount`, then continues as a first sign-in on this device (O9). The missing-keyring sheet (O4) can open over it |
@@ -806,21 +799,20 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO2 | Connexion | As O2; "Entrée pour valider" hint under the button | Session expired → warning note |
 | DO2b | Connexion en cours | Fields disabled at 55%, button spinner "Ouverture du coffre…", info note on key derivation taking a few seconds | — |
 | DO2c | Échec de connexion | Error note with the SDK's wording, password emptied and focused, button disabled until it's typed again, "Mot de passe oublié ? Utiliser mon kit de récupération" | The link opens DO10 |
-| DO3 | Créer le coffre | Step 1 of 4: as O3 | — |
+| DO3 | Créer le coffre | Step 1 of 3: as O3 | — |
 | DO3b | Créer le coffre — erreurs | Username taken (field error, red 2dp border), weak password (meter in `warning`), mismatch, checkbox unticked, Continuer disabled | Errors appear on blur or submit, not while typing |
 | DO4b | Trousseau absent | Dialog over DO3 (drawn) or DO2: warning tile, "Pas de trousseau système sur cet ordinateur", which keyrings were tried (GNOME Keyring, KWallet), the risk, opt-in checkbox, Annuler · Réessayer · "Créer quand même" over DO3 or "Ouvrir quand même" over DO2 (enabled once ticked; drawn ticked) | On `SecureStorageUnavailable`; Réessayer re-runs the call without the opt-in (for after installing a keyring); the confirm re-runs it with `allowInsecureStorage` |
 | DO5 | Trop d'appareils | As O5; Voir les offres · Retirer le MacBook Air | — |
 | DO6 | Kit de récupération | As O6, opened from M2 beside the Moi menu (the mockup's step-2 brand panel is dropped): the 24 words in 4×6, Enregistrer le PDF / Imprimer, note that the words are never copied or sent | No copy to clipboard on desktop |
 | DO6b | Vérifier le kit | As O6b, beside the Moi menu | — |
-| DO11 | Vos dossiers | Step 2 of 4: as O11 in the 560dp form; the proposed card shows its first eight folders | — |
-| DO7 | Choisir ses sources | Step 3 of 4: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
+| DO7 | Choisir ses sources | Step 2 of 3: plan counter ("Votre offre Gratuit inclut 5 sources", 3 / 5), search, 2-column source cards (selected = 2dp `primary` border + ticked box), Connecter n sources; Passer at the top right | — |
 | DO7h | Limite de l'offre atteinte | Counter in `warning` ("Limite de l'offre Gratuit atteinte", 5 / 5); unticked cards dimmed and not tickable; warning note on unticking to swap and upgrading later from Moi › Offre et usage | See [Plan quota](#plan-quota) |
-| DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 3 with their state | Connect installs the script and starts its first run |
+| DO7b | Connecter une source | "Source 1 sur 3"; the source's tile and what it fetches; info note naming the only sites Fyde will contact (`allowedDomains`); one field per script parameter (here e-mail and password, with "Celui de votre espace client EDF, pas celui de Fyde."); ok note "Chiffrés avec votre coffre"; Récupérer automatiquement; Connecter EDF; "Passer cette source" at the top right. The brand panel lists the ticked sources under step 2 with their state | Connect installs the script and starts its first run |
 | DO7c | Récupération en cours | Run stepper (Connexion → Recherche → Téléchargement i / n → Rangement) in a card; note that the run goes on in the background and Fyde will say if a code is asked; Attendre ici / Source suivante | Moving on doesn't stop the run; its state stays in the brand panel. No Arrêter here: the first run is short, and it can be stopped from DO7d or, later, D4 |
 | DO7d | Code reçu par SMS | "impots.gouv demande un code"; code card (SMS, masked number, six boxes, step trail); "Collez le code ou tapez-le : il est envoyé dès le 6ᵉ chiffre."; Arrêter la récupération / Valider. An e-mail code uses the same card: "Code reçu par e-mail", the masked address, a spam hint, "Ouvrez votre messagerie, copiez le code et collez-le ici" | Valider stays disabled until 6 digits; wrong code → field error with the provider's wording, boxes emptied |
 | DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
 | DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, stopped with "Arrêtée · n documents gardés" and Relancer, or skipped with Réessayer), Continuer, "Ajouter une autre source" | — |
-| DO8 | Notifications | Step 4 of 4: a sample system notification at the top right of the pane, the promise, a note that on a computer Fyde notifies while it's open | — |
+| DO8 | Notifications | Step 3 of 3: a sample system notification at the top right of the pane, the promise, a note that on a computer Fyde notifies while it's open | — |
 | DO9 | Ouverture sur cet ordinateur | Ring with the replayed count, names this computer, Parcourir le coffre | Needs the replay total (SDK) |
 | DO10 | Récupérer mon coffre | As O10 in the 440dp form, sign-in brand panel | From DO2 and DO2c |
 | DO10b | Nouveau mot de passe | As O10b | Then DO9 |
@@ -894,7 +886,7 @@ left out (principle 5), not faked.
 | Per-source run record: last run, outcome, failure kind, new count | S1, S5, S6, D4 |
 | Runs on a chosen device: once a day on open, in the background where the OS allows | S1, S3, S5, D4, DO7b |
 | Provenance on document metadata (source script, device, fetched at) | V5 Source facet, V6, S5 |
-| Folders: create, rename, describe, recolour, move, delete (as encrypted changelog events), a document's folder, the proposed layout with its descriptions, classifying an upload against folder descriptions (today's zero-shot classifier with the folders as labels), folder facets and counts, searching within a folder | V1–V3, V5, V9, V12–V15, D1, D6–D10, O11, DO11, sidebar |
+| Folders: create, rename, describe, recolour, move, delete (as encrypted changelog events), a document's folder, classifying an upload against folder descriptions (today's zero-shot classifier with the folders as labels), folder facets and counts, searching within a folder | V1–V3, V5, V9, V12–V15, D1, D6–D10, sidebar |
 | Remembering a deleted document so its source doesn't fetch it again (scrapers skip only what is still saved) | V10, D2c note |
 | Account recovery (`recoverAccount`, in fyde-sdk, not yet in the bindings) | O10, DO10 |
 | Replay progress and per-device last seen | O9, M5, M2 |

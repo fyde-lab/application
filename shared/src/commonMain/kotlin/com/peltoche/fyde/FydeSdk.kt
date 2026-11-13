@@ -802,9 +802,6 @@ expect object FydeSdk {
     /** Deletes the folder [id], keeping or deleting what it holds. Mirrors [`crate::FoldersService::delete`]. */
     suspend fun deleteFolder(id: String, contents: FydeFolderContents): Result<Unit>
 
-    /** Publishes the proposed folder layout, named in [language]. Mirrors [`crate::FoldersService::create_proposed_layout`]. */
-    suspend fun createProposedFolders(language: String): Result<List<FydeFolder>>
-
     /**
      * Publishes the deletion of the document [id] as a changelog event; it
      * leaves the local cache, and [initialize]'s callback fires, once sync

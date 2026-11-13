@@ -1781,24 +1781,6 @@ impl FydeClient {
         .await
     }
 
-    /// Publishes the proposed folder layout, named in `language`, and
-    /// returns the folders created. Mirrors
-    /// [`fyde_sdk::FoldersService::create_proposed_layout`].
-    pub async fn create_proposed_folders(
-        &self,
-        language: String,
-    ) -> Result<Vec<FfiFolder>, FfiError> {
-        self.localized(async {
-            let folders = self
-                .inner
-                .folders()
-                .create_proposed_layout(&language)
-                .await?;
-            Ok(folders.into_iter().map(FfiFolder::from).collect())
-        })
-        .await
-    }
-
     /// Publishes the deletion of the document `id` as a changelog event: it
     /// leaves the local cache once the SDK's automatic sync consumes it,
     /// which `on_document_change` then reports as an
