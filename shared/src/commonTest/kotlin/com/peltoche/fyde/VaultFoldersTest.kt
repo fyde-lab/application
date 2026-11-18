@@ -9,7 +9,7 @@ class VaultFoldersTest {
     private val home = FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.HOME)
 
     private fun folder(id: String, name: String, parentId: String? = null, appearance: FydeFolderAppearance? = null) =
-        FydeFolder(id = id, parentId = parentId, name = name, description = "", appearance = appearance)
+        FydeFolder(id = id, parentId = parentId, name = name, appearance = appearance)
 
     private val housing = folder("housing", "Logement", appearance = home)
     private val energy = folder("energy", "Énergie", parentId = "housing")

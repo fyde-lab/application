@@ -96,11 +96,11 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   Folder sheets (`VaultFolderSheets.kt`, a `FolderSheetState` in `VaultUiState.Loaded`, called
   back through `FolderCallbacks`): V12/D10 new folder (the home's "+ Nouveau dossier", a folder
   page's "+ Nouveau" and its actions' Nouveau sous-dossier), V13/D7 actions from a folder page's
-  "…", editing the name, description and (top level only) colour and icon, V14/D8 moving through
+  "…", editing the name and (top level only) colour and icon, V14/D8 moving through
   `FolderPicker` (browsable by level, the moved folder and what's below it left out, the current
-  parent tagged Actuel), V15/D9 deleting (Les garder / Les supprimer aussi, a note when the
-  folder had a description). Each only publishes its event, busy until it's sent; the SDK's
-  refusal (a taken name...) stays in the sheet. Deleting the open folder opens its parent.
+  parent tagged Actuel), V15/D9 deleting (Les garder / Les supprimer aussi). Folders have no
+  description (design-system.md § Folders' Filing). Each only publishes its event, busy until
+  it's sent; the SDK's refusal (a taken name...) stays in the sheet. Deleting the open folder opens its parent.
   At Expanded, `VaultShortcuts` handles the keyboard on the open document, else the open folder:
   ⇧⌘N new folder (a subfolder of the open one), F2 rename (folders only: the SDK can't rename
   documents), ⇧⌘M move (V9 / D8), ⌘⌫ or Delete delete (D2c / D9); Ctrl for ⌘ off macOS.

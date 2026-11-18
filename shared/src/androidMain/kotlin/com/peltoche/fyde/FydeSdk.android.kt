@@ -262,19 +262,17 @@ actual object FydeSdk {
     actual suspend fun createFolder(
         parentId: String?,
         name: String,
-        description: String,
         appearance: FydeFolderAppearance?,
     ): Result<FydeFolder> = withClient("createFolder") { client ->
-        client.createFolder(parentId, name, description, appearance?.toFfiFolderAppearance()).toFydeFolder()
+        client.createFolder(parentId, name, appearance?.toFfiFolderAppearance()).toFydeFolder()
     }
 
     actual suspend fun updateFolder(
         id: String,
         name: String?,
-        description: String?,
         appearance: FydeFolderAppearance?,
     ): Result<Unit> = withClient("updateFolder") { client ->
-        client.updateFolder(id, name, description, appearance?.toFfiFolderAppearance())
+        client.updateFolder(id, name, appearance?.toFfiFolderAppearance())
     }
 
     actual suspend fun moveFolder(id: String, parentId: String?): Result<Unit> = withClient("moveFolder") { client ->
@@ -610,7 +608,6 @@ private fun FfiFolder.toFydeFolder() = FydeFolder(
     id = id,
     parentId = parentId,
     name = name,
-    description = description,
     appearance = appearance?.let {
         FydeFolderAppearance(FydeFolderColor.valueOf(it.color.name), FydeFolderIcon.valueOf(it.icon.name))
     },

@@ -617,7 +617,8 @@
     <string name="folder_new_short">Nouveau</string>
     <string name="folder_new_subfolder">Nouveau sous-dossier</string>
     <string name="folder_actions">Actions du dossier</string>
-    <string name="folder_edit">Renommer et décrire</string>
+    <string name="folder_edit">Renommer</string>
+    <string name="folder_edit_top_level">Renommer, couleur et icône</string>
     <string name="folder_edit_title">Modifier le dossier</string>
     <string name="folder_move">Déplacer</string>
     <string name="folder_move_title">Déplacer « %1$s »</string>
@@ -636,16 +637,12 @@
     <string name="folder_delete_keep_detail">Ils passent dans %1$s.</string>
     <string name="folder_delete_all">Les supprimer aussi</string>
     <string name="folder_delete_all_detail">Supprimés de tous vos appareils.</string>
-    <string name="folder_delete_description_note">Les nouveaux documents qui correspondaient à sa description iront dans le dossier le plus proche, sinon dans À classer.</string>
     <string name="folder_deleted">Dossier supprimé</string>
     <string name="folder_created">Dossier créé</string>
     <string name="folder_saved">Dossier enregistré</string>
     <string name="folder_moved">Dossier déplacé</string>
     <string name="folder_name">Nom</string>
     <string name="folder_name_too_long">60 caractères au plus</string>
-    <string name="folder_description">Description</string>
-    <string name="folder_description_help">Fyde s’en sert pour ranger ici les documents qui arrivent. Sans description, rien n’y est rangé tout seul.</string>
-    <string name="folder_description_too_long">300 caractères au plus</string>
     <string name="folder_location">Emplacement : %1$s</string>
     <string name="folder_vault_root">Coffre</string>
     <string name="folder_color">Couleur</string>

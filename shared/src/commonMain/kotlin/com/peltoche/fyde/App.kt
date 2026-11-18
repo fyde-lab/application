@@ -802,7 +802,7 @@ private fun AppContent(
                     isSubmitting = isConnectingSource,
                     onConnect = { parameters, folderId -> connectSource(script, parameters, folderId) },
                     createFolder = { parentId, form ->
-                        FydeSdk.createFolder(parentId, form.name, form.description, form.appearance).fold(
+                        FydeSdk.createFolder(parentId, form.name, form.appearance).fold(
                             onSuccess = { folder ->
                                 onboardingCreatedFolders = onboardingCreatedFolders + folder
                                 FolderCreation.Created(folder)
@@ -1467,10 +1467,10 @@ private fun VaultContainer(
                     }
                 },
                 onCreate = { parentId, form ->
-                    publish(Res.string.folder_created) { FydeSdk.createFolder(parentId, form.name, form.description, form.appearance) }
+                    publish(Res.string.folder_created) { FydeSdk.createFolder(parentId, form.name, form.appearance) }
                 },
                 onUpdate = { id, form ->
-                    publish(Res.string.folder_saved) { FydeSdk.updateFolder(id, form.name, form.description, form.appearance) }
+                    publish(Res.string.folder_saved) { FydeSdk.updateFolder(id, form.name, form.appearance) }
                 },
                 onMove = { id, parentId -> publish(Res.string.folder_moved) { FydeSdk.moveFolder(id, parentId) } },
                 onDelete = { id, contents ->
@@ -1679,7 +1679,7 @@ private fun SourcesTabContainer(
             }
         },
         createFolder = { parentId, form ->
-            FydeSdk.createFolder(parentId, form.name, form.description, form.appearance).fold(
+            FydeSdk.createFolder(parentId, form.name, form.appearance).fold(
                 onSuccess = { folder ->
                     createdFolders = createdFolders + folder
                     showFolders()

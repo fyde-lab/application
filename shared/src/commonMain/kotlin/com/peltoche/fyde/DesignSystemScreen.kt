@@ -451,7 +451,6 @@ private fun ContentSection() {
                 name = "Logement",
                 subtitle = "2 sous-dossiers · 38 documents",
                 color = Housing.colors(),
-                description = "Bail, quittances de loyer, factures d'énergie et assurance habitation",
                 icon = { tint -> FolderIconGlyph(Housing.icon, tint) },
             )
         }

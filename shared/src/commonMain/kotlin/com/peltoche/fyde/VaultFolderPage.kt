@@ -65,10 +65,10 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * V3: back to the parent, the path, the folder's band (its description
- * under it), its subfolders, then its documents by month. Documents count
- * and list everything below the folder: the SDK's folder filter includes
- * subfolders.
+ * V3: back to the parent, the path, the folder's band (for À classer,
+ * what it holds under it), its subfolders, then its documents by month.
+ * Documents count and list everything below the folder: the SDK's folder
+ * filter includes subfolders.
  */
 @Composable
 internal fun FolderPage(vault: Vault, page: VaultPage.Folder) {
@@ -82,7 +82,7 @@ internal fun FolderPage(vault: Vault, page: VaultPage.Folder) {
             name = folderName(page),
             subtitle = contents?.let { folderSubtitle(it) },
             color = folders.appearanceOf(page.folderId).colors(),
-            description = folder?.description ?: stringResource(Res.string.vault_unfiled_description).takeIf { page.folderId == null },
+            description = stringResource(Res.string.vault_unfiled_description).takeIf { page.folderId == null },
             icon = { tint -> if (folder != null) FolderMark(folder, tint) else FolderIconGlyph(null, tint) },
         )
         VaultNotes(vault)
@@ -96,11 +96,10 @@ internal fun FolderPage(vault: Vault, page: VaultPage.Folder) {
     }
 }
 
-/** D1: the folder's header and description, its subfolders as cards, then its documents as cards by month. */
+/** D1: the folder's header (for À classer, what it holds under it), its subfolders as cards, then its documents as cards by month. */
 @Composable
 internal fun FolderGridPage(vault: Vault, page: VaultPage.Folder) {
     val contents = vault.contents(page)
-    val folder = LocalVaultFolders.current[page.folderId]
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(AppSpacing.space5))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -125,10 +124,9 @@ internal fun FolderGridPage(vault: Vault, page: VaultPage.Folder) {
             FolderMoreButton(vault, page)
         }
         FolderBreadcrumb(vault, page)
-        val description = folder?.description ?: stringResource(Res.string.vault_unfiled_description).takeIf { page.folderId == null }
-        if (!description.isNullOrBlank()) {
+        if (page.folderId == null) {
             Text(
-                text = description,
+                text = stringResource(Res.string.vault_unfiled_description),
                 style = AppTypography.body,
                 color = AppColors.textMuted,
                 modifier = Modifier.padding(top = AppSpacing.space3),

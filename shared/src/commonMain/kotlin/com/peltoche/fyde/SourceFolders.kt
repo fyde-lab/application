@@ -279,7 +279,7 @@ private fun SourceFolderCreateSheet(
     FolderFormSheet(
         title = stringResource(Res.string.source_folder_new_title, accountName),
         subtitle = stringResource(Res.string.source_folder_new_line, accountName),
-        initial = FolderForm(sourceName.take(FOLDER_NAME_MAX), "", appearance.takeIf { sheet.parentId == null }),
+        initial = FolderForm(sourceName.take(FOLDER_NAME_MAX), appearance.takeIf { sheet.parentId == null }),
         parentId = sheet.parentId,
         confirmLabel = stringResource(Res.string.folder_create),
         state = FolderSheetState(FolderSheet.Create(sheet.parentId), busy = busy, error = error),

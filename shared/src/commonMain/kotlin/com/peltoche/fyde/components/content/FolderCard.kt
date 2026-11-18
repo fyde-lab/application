@@ -122,7 +122,7 @@ fun FolderCardPlaceholder(modifier: Modifier = Modifier) {
 /**
  * The head of a folder page (V3): the folder's icon, [name] and [subtitle]
  * ("2 sous-dossiers · 38 documents") on its fill — the page's heading —
- * then its [description], what Fyde files in it.
+ * then a [description] (À classer's: what lands there).
  */
 @Composable
 fun FolderBand(

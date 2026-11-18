@@ -58,15 +58,12 @@ data class FydeFolderAppearance(val color: FydeFolderColor, val icon: FydeFolder
 /**
  * A folder of the vault, mirroring the SDK's `FfiFolder`: it holds documents,
  * subfolders, or both. [appearance] is set on top-level folders only; a
- * subfolder shows its top-level folder's. [description] says what belongs in
- * it: what new documents are filed by (blank: nothing is filed there by
- * itself).
+ * subfolder shows its top-level folder's.
  */
 data class FydeFolder(
     val id: String,
     val parentId: String?,
     val name: String,
-    val description: String,
     val appearance: FydeFolderAppearance?,
 )
 
@@ -787,15 +784,13 @@ expect object FydeSdk {
     suspend fun createFolder(
         parentId: String?,
         name: String,
-        description: String,
         appearance: FydeFolderAppearance?,
     ): Result<FydeFolder>
 
-    /** Renames, re-describes or recolours the folder [id]; each `null` keeps its value. Mirrors [`crate::FoldersService::update`]. */
+    /** Renames or recolours the folder [id]; each `null` keeps its value. Mirrors [`crate::FoldersService::update`]. */
     suspend fun updateFolder(
         id: String,
         name: String? = null,
-        description: String? = null,
         appearance: FydeFolderAppearance? = null,
     ): Result<Unit>
 

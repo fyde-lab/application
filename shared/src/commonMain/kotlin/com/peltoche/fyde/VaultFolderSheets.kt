@@ -36,8 +36,6 @@ import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.content.FolderFillTile
 import com.peltoche.fyde.components.feedback.AppErrorNote
-import com.peltoche.fyde.components.feedback.AppNote
-import com.peltoche.fyde.components.feedback.AppNoteKind
 import com.peltoche.fyde.components.form.AppRadio
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.overlay.AppBottomSheet
@@ -46,7 +44,6 @@ import com.peltoche.fyde.icons.ChevronLeftGlyph
 import com.peltoche.fyde.icons.ChevronRightGlyph
 import com.peltoche.fyde.icons.FolderGlyph
 import com.peltoche.fyde.icons.GridGlyph
-import com.peltoche.fyde.icons.InfoGlyph
 import com.peltoche.fyde.icons.PencilGlyph
 import com.peltoche.fyde.icons.PlusGlyph
 import com.peltoche.fyde.icons.TrashGlyph
@@ -73,17 +70,14 @@ import com.peltoche.fyde.resources.folder_create
 import com.peltoche.fyde.resources.folder_delete
 import com.peltoche.fyde.resources.folder_delete_all
 import com.peltoche.fyde.resources.folder_delete_all_detail
-import com.peltoche.fyde.resources.folder_delete_description_note
 import com.peltoche.fyde.resources.folder_delete_empty
 import com.peltoche.fyde.resources.folder_delete_holds
 import com.peltoche.fyde.resources.folder_delete_keep
 import com.peltoche.fyde.resources.folder_delete_keep_detail
 import com.peltoche.fyde.resources.folder_delete_title
-import com.peltoche.fyde.resources.folder_description
-import com.peltoche.fyde.resources.folder_description_help
-import com.peltoche.fyde.resources.folder_description_too_long
 import com.peltoche.fyde.resources.folder_edit
 import com.peltoche.fyde.resources.folder_edit_title
+import com.peltoche.fyde.resources.folder_edit_top_level
 import com.peltoche.fyde.resources.folder_icon
 import com.peltoche.fyde.resources.folder_icon_n
 import com.peltoche.fyde.resources.folder_location
@@ -124,7 +118,7 @@ sealed interface FolderSheet {
     /** V12 / D10: a new folder in [parentId], `null` for the top level. */
     data class Create(val parentId: String?) : FolderSheet
 
-    /** The folder's name, description and, at the top level, colour and icon. */
+    /** The folder's name and, at the top level, colour and icon. */
     data class Edit(val folderId: String) : FolderSheet
 
     /** V14 / D8: the folder picker, to move it. */
@@ -138,7 +132,7 @@ sealed interface FolderSheet {
 data class FolderSheetState(val sheet: FolderSheet, val busy: Boolean = false, val error: String? = null)
 
 /** What the create and edit forms hand `App.kt`: [appearance] only for a top-level folder. */
-data class FolderForm(val name: String, val description: String, val appearance: FydeFolderAppearance?)
+data class FolderForm(val name: String, val appearance: FydeFolderAppearance?)
 
 /**
  * The documents V9 moves (one), or V9b (the ticked ones). [busy] while
@@ -169,7 +163,6 @@ class FolderCallbacks(
 
 /** fyde-sdk's folder rules, checked here only to say so before publishing (the SDK checks again). */
 internal const val FOLDER_NAME_MAX = 60
-internal const val FOLDER_DESCRIPTION_MAX = 300
 
 /** The appearance of a top-level folder that has none. */
 private val DefaultAppearance = FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.FOLDER)
@@ -207,7 +200,7 @@ internal fun FolderSheets(vault: Vault) {
         is FolderSheet.Actions -> FolderActionsSheet(folder!!, onOpen = ::open, onDismissRequest = close)
         is FolderSheet.Create -> FolderFormSheet(
             title = stringResource(Res.string.folder_new),
-            initial = FolderForm("", "", remember(sheet) { randomNewAppearance() }.takeIf { sheet.parentId == null }),
+            initial = FolderForm("", remember(sheet) { randomNewAppearance() }.takeIf { sheet.parentId == null }),
             parentId = sheet.parentId,
             confirmLabel = stringResource(Res.string.folder_create),
             state = state,
@@ -216,7 +209,7 @@ internal fun FolderSheets(vault: Vault) {
         )
         is FolderSheet.Edit -> FolderFormSheet(
             title = stringResource(Res.string.folder_edit_title),
-            initial = FolderForm(folder!!.name, folder.description, folder.appearance ?: DefaultAppearance.takeIf { folder.parentId == null }),
+            initial = FolderForm(folder!!.name, folder.appearance ?: DefaultAppearance.takeIf { folder.parentId == null }),
             parentId = folder.parentId,
             confirmLabel = stringResource(Res.string.folder_save),
             state = state,
@@ -262,7 +255,7 @@ private fun locationLabel(parentId: String?): String {
 
 /**
  * V13 / D7: the folder's tile, name and place over its actions — a
- * subfolder, renaming and describing it (and its colour at the top level),
+ * subfolder, renaming it (and its colour and icon at the top level),
  * moving it, then deleting it apart in `error`.
  */
 @Composable
@@ -282,9 +275,8 @@ private fun FolderActionsSheet(folder: FydeFolder, onOpen: (FolderSheet) -> Unit
                     onOpen(FolderSheet.Create(folder.id))
                 }
                 ActionRow(
-                    label = stringResource(Res.string.folder_edit),
+                    label = stringResource(if (folder.parentId == null) Res.string.folder_edit_top_level else Res.string.folder_edit),
                     icon = { PencilGlyph(Modifier.size(AppIconSize.md), AppColors.text) },
-                    detail = folder.description.lineSequence().firstOrNull()?.takeIf { it.isNotBlank() },
                 ) {
                     onOpen(FolderSheet.Edit(folder.id))
                 }
@@ -322,8 +314,7 @@ private fun ActionRow(label: String, icon: @Composable () -> Unit, detail: Strin
 
 /**
  * V12 / D10, and editing a folder: its name (with the tile it will have),
- * its description with what Fyde does with it, where it is, and for a
- * top-level folder its colour and icon. A subfolder picks neither.
+ * where it is, and for a top-level folder its colour and icon. A subfolder picks neither.
  * [subtitle] goes under the title (S9b's "EDF y rangera tous ses documents.").
  */
 @Composable
@@ -338,12 +329,10 @@ internal fun FolderFormSheet(
     subtitle: String? = null,
 ) {
     var name by remember(state.sheet) { mutableStateOf(initial.name) }
-    var description by remember(state.sheet) { mutableStateOf(initial.description) }
     var appearance by remember(state.sheet) { mutableStateOf(initial.appearance) }
     val topLevel = parentId == null
     val nameTooLong = name.trim().length > FOLDER_NAME_MAX
-    val descriptionTooLong = description.trim().length > FOLDER_DESCRIPTION_MAX
-    val valid = name.isNotBlank() && !nameTooLong && !descriptionTooLong
+    val valid = name.isNotBlank() && !nameTooLong
     val tileAppearance = if (topLevel) appearance else LocalVaultFolders.current.appearanceOf(parentId)
     AppBottomSheet(onDismissRequest = onDismissRequest) {
         Column(modifier = Modifier.padding(horizontal = AppSpacing.space5), verticalArrangement = Arrangement.spacedBy(AppSpacing.space4)) {
@@ -361,15 +350,6 @@ internal fun FolderFormSheet(
                     }
                 },
             )
-            AppTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = stringResource(Res.string.folder_description),
-                supportingText = stringResource(Res.string.folder_description_help),
-                errorText = stringResource(Res.string.folder_description_too_long).takeIf { descriptionTooLong },
-                enabled = !state.busy,
-                singleLine = false,
-            )
             Text(
                 text = stringResource(Res.string.folder_location, locationLabel(parentId)),
                 style = AppTypography.caption,
@@ -383,7 +363,7 @@ internal fun FolderFormSheet(
             state.error?.let { AppErrorNote(it) }
             AppButton(
                 text = confirmLabel,
-                onClick = { onConfirm(FolderForm(name.trim(), description.trim(), appearance.takeIf { topLevel })) },
+                onClick = { onConfirm(FolderForm(name.trim(), appearance.takeIf { topLevel })) },
                 enabled = valid,
                 loading = state.busy,
                 modifier = Modifier.fillMaxWidth(),
@@ -618,7 +598,7 @@ private fun FolderMoveSheet(folder: FydeFolder, state: FolderSheetState, onMove:
  * V15 / D9: an empty folder asks a plain confirmation. Otherwise it says
  * what the folder holds and offers Les garder (moved up to its parent, or
  * À classer from the top level; the default) or Les supprimer aussi (from
- * every device), and where documents matching its description will go.
+ * every device).
  */
 @Composable
 private fun DeleteFolderDialog(
@@ -665,13 +645,6 @@ private fun DeleteFolderDialog(
                         onClick = { contents = FydeFolderContents.DELETE },
                     )
                 }
-            }
-            if (folder.description.isNotBlank()) {
-                AppNote(
-                    message = stringResource(Res.string.folder_delete_description_note),
-                    kind = AppNoteKind.Info,
-                    icon = { tint -> InfoGlyph(modifier = Modifier.size(AppIconSize.sm), tint = tint) },
-                )
             }
             state.error?.let { AppErrorNote(it) }
         }

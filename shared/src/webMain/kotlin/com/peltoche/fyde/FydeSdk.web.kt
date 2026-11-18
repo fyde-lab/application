@@ -78,14 +78,12 @@ actual object FydeSdk {
     actual suspend fun createFolder(
         parentId: String?,
         name: String,
-        description: String,
         appearance: FydeFolderAppearance?,
     ): Result<FydeFolder> = unsupported()
 
     actual suspend fun updateFolder(
         id: String,
         name: String?,
-        description: String?,
         appearance: FydeFolderAppearance?,
     ): Result<Unit> = unsupported()
 

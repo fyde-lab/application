@@ -9,7 +9,7 @@ import kotlin.test.assertNull
 class VaultDragTest {
 
     private fun folder(id: String, parentId: String? = null) =
-        FydeFolder(id = id, parentId = parentId, name = id, description = "", appearance = null)
+        FydeFolder(id = id, parentId = parentId, name = id, appearance = null)
 
     private val folders = VaultFolders(listOf(folder("housing"), folder("energy", "housing"), folder("work")))
 

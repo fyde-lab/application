@@ -217,7 +217,6 @@ pub struct FfiFolder {
     /// `None` for a top-level folder.
     pub parent_id: Option<String>,
     pub name: String,
-    pub description: String,
     /// Set on top-level folders only.
     pub appearance: Option<FfiFolderAppearance>,
 }
@@ -228,7 +227,6 @@ impl From<Folder> for FfiFolder {
             id: folder.id.to_string(),
             parent_id: folder.parent_id.map(|id| id.to_string()),
             name: folder.name,
-            description: folder.description,
             appearance: folder.appearance.map(Into::into),
         }
     }
@@ -1718,7 +1716,6 @@ impl FydeClient {
         &self,
         parent_id: Option<String>,
         name: String,
-        description: String,
         appearance: Option<FfiFolderAppearance>,
     ) -> Result<FfiFolder, FfiError> {
         self.localized(async {
@@ -1728,7 +1725,6 @@ impl FydeClient {
                 .create(CreateFolderRequest {
                     parent_id: parent_id.as_deref().map(parse_uuid).transpose()?,
                     name,
-                    description,
                     appearance: appearance.map(Into::into),
                 })
                 .await?;
@@ -1737,13 +1733,12 @@ impl FydeClient {
         .await
     }
 
-    /// Renames, re-describes or recolours the folder `id`; each `None`
-    /// keeps its value. Mirrors [`fyde_sdk::FoldersService::update`].
+    /// Renames or recolours the folder `id`; each `None` keeps its value.
+    /// Mirrors [`fyde_sdk::FoldersService::update`].
     pub async fn update_folder(
         &self,
         id: String,
         name: Option<String>,
-        description: Option<String>,
         appearance: Option<FfiFolderAppearance>,
     ) -> Result<(), FfiError> {
         self.localized(async {
@@ -1752,7 +1747,6 @@ impl FydeClient {
                 .update(UpdateFolderRequest {
                     id: parse_uuid(&id)?,
                     name,
-                    description,
                     appearance: appearance.map(Into::into),
                 })
                 .await
@@ -2124,7 +2118,6 @@ mod tests {
                 id: folder.id.to_string(),
                 parent_id: Some(parent.id.to_string()),
                 name: "Énergie".to_string(),
-                description: folder.description.clone(),
                 appearance: None,
             }
         );

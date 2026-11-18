@@ -623,7 +623,8 @@
     <string name="folder_new_short">New</string>
     <string name="folder_new_subfolder">New subfolder</string>
     <string name="folder_actions">Folder actions</string>
-    <string name="folder_edit">Rename and describe</string>
+    <string name="folder_edit">Rename</string>
+    <string name="folder_edit_top_level">Rename, colour and icon</string>
     <string name="folder_edit_title">Edit folder</string>
     <string name="folder_move">Move</string>
     <string name="folder_move_title">Move “%1$s”</string>
@@ -642,16 +643,12 @@
     <string name="folder_delete_keep_detail">They move to %1$s.</string>
     <string name="folder_delete_all">Delete them too</string>
     <string name="folder_delete_all_detail">Deleted from all your devices.</string>
-    <string name="folder_delete_description_note">New documents that would have matched its description will go to the closest other folder, or to Unfiled.</string>
     <string name="folder_deleted">Folder deleted</string>
     <string name="folder_created">Folder created</string>
     <string name="folder_saved">Folder saved</string>
     <string name="folder_moved">Folder moved</string>
     <string name="folder_name">Name</string>
     <string name="folder_name_too_long">60 characters at most</string>
-    <string name="folder_description">Description</string>
-    <string name="folder_description_help">Fyde uses it to file incoming documents here. Without one, nothing is filed here by itself.</string>
-    <string name="folder_description_too_long">300 characters at most</string>
     <string name="folder_location">Location: %1$s</string>
     <string name="folder_vault_root">Vault</string>
     <string name="folder_color">Colour</string>

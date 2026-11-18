@@ -24,20 +24,20 @@ internal object ScreenshotFixtures {
     private val free = script("free", "Free", "Factures internet et mobile", listOf("free.fr"))
     private val scripts = listOf(ameli, edf, free, impots)
 
-    private val housingFolder = folder("housing", "Logement", FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.HOME), description = "")
+    private val housingFolder = folder("housing", "Logement", FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.HOME))
     private val folders = VaultFolders(
         listOf(
             housingFolder,
-            folder("energy", "Énergie", parentId = "housing", description = "Factures d'électricité et de gaz, relevés de compteur"),
-            folder("water", "Eau", parentId = "housing", description = "Factures d'eau"),
-            folder("rent", "Loyer", parentId = "housing", description = "Quittances de loyer et bail"),
+            folder("energy", "Énergie", parentId = "housing"),
+            folder("water", "Eau", parentId = "housing"),
+            folder("rent", "Loyer", parentId = "housing"),
             folder("health", "Santé", FydeFolderAppearance(FydeFolderColor.ROSE, FydeFolderIcon.HEART)),
-            folder("health_insurance", "Assurance maladie", parentId = "health", description = "Décomptes de remboursement"),
+            folder("health_insurance", "Assurance maladie", parentId = "health"),
             folder("work", "Travail", FydeFolderAppearance(FydeFolderColor.TEAL, FydeFolderIcon.BRIEFCASE)),
-            folder("payslips", "Bulletins de paie", parentId = "work", description = "Bulletins de salaire mensuels"),
+            folder("payslips", "Bulletins de paie", parentId = "work"),
             folder("taxes", "Impôts", FydeFolderAppearance(FydeFolderColor.BRICK, FydeFolderIcon.LANDMARK)),
             folder("pets", "Animaux", FydeFolderAppearance(FydeFolderColor.RUST, FydeFolderIcon.PAW)),
-            folder("income_tax", "Impôt sur le revenu", parentId = "taxes", description = "Avis d'imposition, déclarations"),
+            folder("income_tax", "Impôt sur le revenu", parentId = "taxes"),
         ),
     )
 
@@ -456,6 +456,5 @@ internal object ScreenshotFixtures {
         name: String,
         appearance: FydeFolderAppearance? = null,
         parentId: String? = null,
-        description: String = "",
-    ) = FydeFolder(id = id, parentId = parentId, name = name, description = description, appearance = appearance)
+    ) = FydeFolder(id = id, parentId = parentId, name = name, appearance = appearance)
 }
