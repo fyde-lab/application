@@ -105,6 +105,7 @@ internal object ScreenshotFixtures {
         onOpenFolder = {},
         onOpenScripts = {},
         onOpenSettings = {},
+        onNewFolder = {},
     )
     private val home = VaultHome(
         folders = listOf(

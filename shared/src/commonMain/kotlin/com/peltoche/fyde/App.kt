@@ -328,6 +328,8 @@ private fun AppContent(
     // The vault page the next visit opens on: home, or the folder picked
     // in the sidebar from another destination.
     var vaultEntry by remember { mutableStateOf(VaultFocus()) }
+    // The folder sheet it opens with: the sidebar's "+" from another destination.
+    var vaultEntrySheet by remember { mutableStateOf<FolderSheet?>(null) }
 
     // Startup check: if a session token is already persisted from a previous
     // run, skip straight to the document list instead of making the user log
@@ -553,7 +555,10 @@ private fun AppContent(
     // any later way into the vault opens on its home.
     LaunchedEffect(signedIn, screen) {
         if (!signedIn) sidebarSummary = SidebarSummary()
-        if (!signedIn || screen == Screen.Vault) vaultEntry = VaultFocus()
+        if (!signedIn || screen == Screen.Vault) {
+            vaultEntry = VaultFocus()
+            vaultEntrySheet = null
+        }
     }
     // The sidebar's figures, not at Compact, which has no sidebar. Document
     // counts follow the changelog; sources and devices, which documents don't
@@ -598,6 +603,11 @@ private fun AppContent(
             },
             onOpenScripts = { screen = Screen.Scripts },
             onOpenSettings = { screen = Screen.Settings },
+            onNewFolder = {
+                vaultEntry = VaultFocus()
+                vaultEntrySheet = FolderSheet.Create(null)
+                screen = Screen.Vault
+            },
         )
     }
 
@@ -875,6 +885,7 @@ private fun AppContent(
             )
             Screen.Vault -> VaultContainer(
                 initialFocus = vaultEntry,
+                initialFolderSheet = vaultEntrySheet,
                 documentChanges = documentChanges,
                 onDocumentChange = { scope.launch { documentChanges++ } },
                 navigation = navigation,
@@ -1172,6 +1183,7 @@ private suspend fun publishEach(documents: List<FydeDocument>, change: suspend (
 @Composable
 private fun VaultContainer(
     initialFocus: VaultFocus,
+    initialFolderSheet: FolderSheet?,
     documentChanges: Int,
     onDocumentChange: () -> Unit,
     navigation: TopLevelNavigation,
@@ -1195,7 +1207,7 @@ private fun VaultContainer(
     var notice by remember { mutableStateOf<String?>(null) }
     var loadError by remember { mutableStateOf<String?>(null) }
     var deletion by remember { mutableStateOf<DocumentDeletion?>(null) }
-    var folderSheet by remember { mutableStateOf<FolderSheetState?>(null) }
+    var folderSheet by remember { mutableStateOf(initialFolderSheet?.let(::FolderSheetState)) }
     var documentMove by remember { mutableStateOf<DocumentMove?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current

@@ -50,14 +50,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.peltoche.fyde.components.action.AppIconButton
 import com.peltoche.fyde.components.content.AppDivider
 import com.peltoche.fyde.components.content.FolderFillTile
 import com.peltoche.fyde.icons.GearGlyph
 import com.peltoche.fyde.icons.GridGlyph
 import com.peltoche.fyde.icons.PlugGlyph
+import com.peltoche.fyde.icons.PlusGlyph
 import com.peltoche.fyde.icons.ShieldGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.app_title
+import com.peltoche.fyde.resources.folder_new
 import com.peltoche.fyde.resources.nav_scripts
 import com.peltoche.fyde.resources.settings
 import com.peltoche.fyde.resources.sidebar_all_vault
@@ -84,8 +87,9 @@ sealed interface SidebarSelection {
 
 /**
  * The desktop sidebar (design-system.md § Layout, D1–D6 and T1): the brand,
- * "Tout le coffre", À classer while it holds documents, the folder tree
- * (top-level folders by name, the open folder's branch expanded), then
+ * "Tout le coffre", À classer while it holds documents, DOSSIERS with its
+ * "+" (D10) and the folder tree (top-level folders by name, the open
+ * folder's branch expanded), then
  * Sources, the seal line and Settings at its foot. 260dp wide.
  */
 @Composable
@@ -138,14 +142,8 @@ internal fun AppSidebar(
                         UnfiledTile(size = 24.dp, iconSize = AppIconSize.sm, shape = RoundedCornerShape(7.dp))
                     }
                 }
-                if (summary.folders.topLevel.isNotEmpty()) {
-                    Text(
-                        text = stringResource(Res.string.sidebar_folders).uppercase(),
-                        style = AppTypography.overline,
-                        color = AppColors.textMuted,
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = AppSpacing.space5, bottom = 6.dp),
-                    )
-                }
+                // Shown with no folder too: its "+" makes the first one.
+                FoldersHeading(onNewFolder = navigation.onNewFolder)
                 val openBranch = (selection as? SidebarSelection.Folder)?.folderId
                     ?.let { open -> summary.folders.path(open).map { it.id }.toSet() }
                     .orEmpty()
@@ -289,6 +287,25 @@ private fun SidebarRow(
         )
         if (count != null) {
             Text(text = count.toString(), style = AppTypography.caption, color = AppColors.textMuted)
+        }
+    }
+}
+
+/** DOSSIERS, with the "+" that opens D10 for a new top-level folder at its end. */
+@Composable
+private fun FoldersHeading(onNewFolder: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(start = 10.dp, top = AppSpacing.space4),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(Res.string.sidebar_folders).uppercase(),
+            style = AppTypography.overline,
+            color = AppColors.textMuted,
+            modifier = Modifier.weight(1f),
+        )
+        AppIconButton(onClick = onNewFolder, contentDescription = stringResource(Res.string.folder_new)) {
+            PlusGlyph(modifier = Modifier.size(AppIconSize.sm))
         }
     }
 }
