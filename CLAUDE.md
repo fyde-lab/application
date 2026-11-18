@@ -66,7 +66,9 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 
 - Shell: `TopLevelScaffold.kt` hosts the Vault (Coffre), Sources, Settings — a bottom bar at
   Compact, T2's 80dp icon rail at Medium and the 260dp sidebar at Expanded (D6/T1), both in
-  `AppSidebar.kt`: Whole vault, À classer (while it holds documents), the folder tree (top-level
+  `AppSidebar.kt`: Whole vault, À classer (while it holds documents), DOSSIERS with its "+"
+  (`TopLevelNavigation.onNewFolder`: D10 for a top-level folder over the open vault page, or
+  over the vault's home from another destination; Expanded only), the folder tree (top-level
   folders by name, the open folder's branch expanded; the rail shows top-level folders only),
   Sources, the seal line, Settings. `App.kt` holds its figures: the folders (`listFolders`) and
   document counts from the facets, reloaded on each changelog event; source and device counts (`getUsage`, `listSessions`) as each destination

@@ -72,6 +72,8 @@ data class TopLevelNavigation(
     val onOpenFolder: (String?) -> Unit,
     val onOpenScripts: () -> Unit,
     val onOpenSettings: () -> Unit,
+    /** The sidebar's "+" beside DOSSIERS: D10, a new top-level folder, over the vault. */
+    val onNewFolder: () -> Unit,
 )
 
 /**
