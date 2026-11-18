@@ -753,7 +753,7 @@ The tables hold each screen's content and states; how screens lead to one anothe
 | O7 | Choisir ses sources | Step 2/3; plan counter "Offre Gratuit · 3 / 5"; search; public scrapers with checkboxes (no category chips: scripts have no category yet) | Each pick opens S3, then its first run (S4), in turn, inside onboarding; a code asked during that run opens the code sheet there |
 | O7b | Limite de l'offre atteinte | O7 scrolled: the counter stays pinned under the bar, in `warning`, "Limite atteinte"; one line on unticking to swap; unticked sources dimmed and not tickable; pointer to Moi › Offre et usage | See [Plan quota](#plan-quota) |
 | O8 | Notifications | Step 3/3; sample notifications; Autoriser / Plus tard | OS prompt only after the tap |
-| O9 | Ouverture | Ring "142 sur 214", the device's name, "Vous pouvez déjà parcourir" | Replaces an empty vault on a new device |
+| O9 | Ouverture | Ring "142 sur 214 éléments" (`FydeSdk.syncProgress`: changelog events, not documents, since the server can't tell them apart), "sur cet appareil" (device names are OS names, not "Pixel 8"), "Vous pouvez déjà parcourir"; Parcourir le coffre | Follows every sign-in (logout and an expired session wipe the device's copy, so each one replays the history). Before the server has counted (or if it can't), a quarter arc turns and the caption reads "n éléments reçus". Caught up → the note says everything has arrived. An account with nothing to replay skips it |
 | O10 | Récupérer mon coffre | Identifiant; the 24 words in one field (pasted or typed, case and spacing ignored, a live "n mots sur 24" count); note that the words stay on the device; Continuer | From O2's "Mot de passe oublié ?". Words that aren't BIP39 are caught locally as a field error; a key that isn't the account's (`InvalidRecoveryKey`) shows the SDK's wording on O10b's submit and returns here |
 | O10b | Nouveau mot de passe | New password with strength meter, confirm; warning that the other devices will be signed out; ok note that the kit stays valid; Rouvrir mon coffre | Runs `recoverAccount`, then continues as a first sign-in on this device (O9). The missing-keyring sheet (O4) can open over it |
 
@@ -893,7 +893,7 @@ Same flows, content and SDK calls as O1–O9; layout in
 | DO7f | Mot de passe refusé | Error note "Ameli a refusé ces identifiants"; the failing secret emptied and focused; Passer cette source / Réessayer; "Vous pourrez la reconnecter plus tard depuis Sources." | Skipping keeps the source installed but paused, with its failure, in S1 |
 | DO7g | Sources connectées | "Vos sources sont prêtes", one row per ticked source (documents fetched, still running with i / n, stopped with "Arrêtée · n documents gardés" and Relancer, or skipped with Réessayer), Continuer, "Ajouter une autre source" | — |
 | DO8 | Notifications | Step 3 of 3: a sample system notification at the top right of the pane, the promise, a note that on a computer Fyde notifies while it's open | — |
-| DO9 | Ouverture sur cet ordinateur | Ring with the replayed count, names this computer, Parcourir le coffre | Needs the replay total (SDK) |
+| DO9 | Ouverture sur cet ordinateur | As O9 in the 440dp column, "sur cet ordinateur", sign-in brand panel | As O9 |
 | DO10 | Récupérer mon coffre | As O10 in the 440dp form, sign-in brand panel | From DO2 and DO2c |
 | DO10b | Nouveau mot de passe | As O10b | Then DO9 |
 
@@ -972,7 +972,7 @@ left out (principle 5), not faked.
 | A folder per source account: kept in the installation (encrypted with it), its fetched documents filed into that folder, or the subfolder whose documents are closest, back to automatic filing when the folder is deleted | S3, S3b, S3c, S5, S5b, S5c, S9, S9b, D4, D12, DO7b, DO7i, V2 |
 | Remembering a deleted document so its source doesn't fetch it again (scrapers skip only what is still saved) | V10, D2c note |
 | Account recovery (`recoverAccount`, in fyde-sdk, not yet in the bindings) | O10, DO10 |
-| Replay progress and per-device last seen | O9, M5, M2 |
+| Per-device last seen | M5, M2 |
 | First-page thumbnails | V3, D1, D2 |
 | Sorting by amount or name | V3, D1 |
 | Default attributes for the dropped pass cells (hours, tax shares, reference tax income, a booking's route, car and seat) | V6, D2 |

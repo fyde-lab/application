@@ -50,6 +50,8 @@ actual object FydeSdk {
 
     actual suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> = unsupported()
 
+    actual suspend fun syncProgress(): Result<FydeSyncProgress> = unsupported()
+
     actual suspend fun analyzePassword(password: String): Result<FydePasswordAnalysis> = unsupported()
 
     actual suspend fun listDocuments(offset: Long, limit: Long): Result<List<FydeDocument>> = unsupported()

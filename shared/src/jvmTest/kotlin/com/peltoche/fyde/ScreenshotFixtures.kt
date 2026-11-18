@@ -244,6 +244,9 @@ internal object ScreenshotFixtures {
             )
         },
         shot("session-limit") { SessionLimitScreen(maxSessions = 2, sessions = sessions.map { it.copy(isCurrent = false) }, onReplace = {}, onCancel = {}) },
+        shot("opening") { OpeningScreen(progress = FydeSyncProgress(consumed = 142, total = 214, caughtUp = false), onBrowse = {}) },
+        shot("opening-uncounted") { OpeningScreen(progress = FydeSyncProgress(consumed = 12, total = null, caughtUp = false), onBrowse = {}) },
+        shot("opening-done") { OpeningScreen(progress = FydeSyncProgress(consumed = 214, total = 214, caughtUp = true), onBrowse = {}) },
         shot("insecure-storage") { InsecureStorageSheet(isRegistration = true, onContinue = {}, onRetry = {}, onDismiss = {}) },
         shot("already-running") { AlreadyRunningScreen(message = "Fyde est déjà ouvert sur cet appareil.", onRetry = {}) },
         shot("vault-loading") { vault(VaultUiState.Loaded(deviceCount = 2), VaultFocus()) },

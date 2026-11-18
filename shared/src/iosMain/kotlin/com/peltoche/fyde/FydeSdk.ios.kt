@@ -38,6 +38,7 @@ import uniffi.fyde_sdk.FfiSearchFilters
 import uniffi.fyde_sdk.FfiSearchOrder
 import uniffi.fyde_sdk.FfiAttribute
 import uniffi.fyde_sdk.FfiStorage
+import uniffi.fyde_sdk.FfiSyncProgress
 import uniffi.fyde_sdk.FfiUsage
 import uniffi.fyde_sdk.FydeClient
 import uniffi.fyde_sdk.LogListener
@@ -227,6 +228,10 @@ actual object FydeSdk {
 
     actual suspend fun changePassword(currentPassword: String, newPassword: String): Result<Unit> =
         withClient("changePassword") { client -> client.changePassword(currentPassword, newPassword) }
+
+    actual suspend fun syncProgress(): Result<FydeSyncProgress> = withClient("syncProgress") { client ->
+        client.syncProgress().toFydeSyncProgress()
+    }
 
     actual suspend fun analyzePassword(password: String): Result<FydePasswordAnalysis> =
         withClient("analyzePassword") { client -> client.analyzePassword(password).toFydePasswordAnalysis() }
@@ -526,6 +531,12 @@ private fun FfiUsage.toFydePlanUsage() = FydePlanUsage(
     enabledScripts = enabledScripts.toInt(),
     openSessions = openSessions.toInt(),
     totalSize = totalSize.toLong(),
+)
+
+private fun FfiSyncProgress.toFydeSyncProgress() = FydeSyncProgress(
+    consumed = consumed.toLong(),
+    total = total?.toLong(),
+    caughtUp = caughtUp,
 )
 
 private fun FfiPasswordAnalysis.toFydePasswordAnalysis() = FydePasswordAnalysis(

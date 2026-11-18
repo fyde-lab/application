@@ -52,6 +52,23 @@
     <string name="session_limit_see_plans">Voir les offres</string>
     <string name="session_limit_failed">Échec de la déconnexion de l’appareil</string>
 
+    <!-- Opening screen (O9, DO9): the account's history arriving on a device just signed into -->
+    <string name="opening_title">Ouverture de votre coffre</string>
+    <string name="opening_explanation_computer">Vos documents chiffrés arrivent de votre compte et sont déchiffrés ici, sur cet ordinateur.</string>
+    <string name="opening_explanation_device">Vos documents chiffrés arrivent de votre compte et sont déchiffrés ici, sur cet appareil.</string>
+    <plurals name="opening_of_total">
+        <item quantity="one">sur %1$s élément</item>
+        <item quantity="other">sur %1$s éléments</item>
+    </plurals>
+    <plurals name="opening_received">
+        <item quantity="one">élément reçu</item>
+        <item quantity="other">éléments reçus</item>
+    </plurals>
+    <string name="opening_progress_description">%1$s éléments reçus sur %2$s</string>
+    <string name="opening_browse_note">Vous pouvez déjà parcourir ce qui est arrivé. Le reste suit en arrière-plan.</string>
+    <string name="opening_done_note">Tout est arrivé : votre coffre est à jour ici.</string>
+    <string name="opening_browse">Parcourir le coffre</string>
+
     <!-- Register screen -->
     <string name="create_account_title">Créer un compte</string>
     <string name="confirm_password_label">Confirmer le mot de passe</string>
