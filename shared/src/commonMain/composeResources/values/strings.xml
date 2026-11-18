@@ -52,6 +52,23 @@
     <string name="session_limit_see_plans">See plans</string>
     <string name="session_limit_failed">Failed to disconnect the device</string>
 
+    <!-- Opening screen (O9, DO9): the account's history arriving on a device just signed into -->
+    <string name="opening_title">Opening your vault</string>
+    <string name="opening_explanation_computer">Your encrypted documents are arriving from your account and are decrypted here, on this computer.</string>
+    <string name="opening_explanation_device">Your encrypted documents are arriving from your account and are decrypted here, on this device.</string>
+    <plurals name="opening_of_total">
+        <item quantity="one">of %1$s item</item>
+        <item quantity="other">of %1$s items</item>
+    </plurals>
+    <plurals name="opening_received">
+        <item quantity="one">item received</item>
+        <item quantity="other">items received</item>
+    </plurals>
+    <string name="opening_progress_description">%1$s of %2$s items received</string>
+    <string name="opening_browse_note">You can already browse what has arrived. The rest follows in the background.</string>
+    <string name="opening_done_note">Everything has arrived: your vault is up to date here.</string>
+    <string name="opening_browse">Browse the vault</string>
+
     <!-- Register screen -->
     <string name="create_account_title">Create an account</string>
     <string name="confirm_password_label">Confirm password</string>

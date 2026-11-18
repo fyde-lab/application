@@ -192,6 +192,13 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   DO2c empties and refocuses the password): back to `WelcomeScreen`. `App.kt` passes why the
   session ended as `noticeMessage` (warning note, `sessionNotice`), separate from a failed attempt's
   `errorMessage` (error note, `authError`).
+- `OpeningScreen` (O9 at Compact, DO9 at Medium/Expanded in `SignInSplitLayout`): where every
+  successful login lands (`Screen.Opening`; logout and an expired session wipe the device's copy,
+  so each sign-in replays the account's history), with Parcourir le coffre → Vault. Its ring is
+  `FydeSdk.syncProgress` (the SDK counting consumed changelog events against the server's
+  `CountSince`), polled by `App.kt`: events, not documents ("sur 214 éléments"), a turning arc
+  until there's a total. Names the device by kind ("cet ordinateur" / "cet appareil": device
+  names are OS names). An account with nothing to replay goes straight to the Vault.
 - `RegisterScreen` (the original form at Compact, DO3 at Medium/Expanded in
   `VaultCreationSplitLayout`; DO3b's mismatch error shows on blur or submit): back to
   `WelcomeScreen`; on success, `SourcesScreen` (the vault starts with no folder; the design's recovery kit step, O6/DO6, is left out of

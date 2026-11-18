@@ -21,7 +21,7 @@ use fyde_sdk::{
     LoginOutcome, Metadata, OpenSession, PasswordAnalysis, PasswordStrength, ProgressEvent,
     ProgressStep, Script, ScriptMetadata, ScriptParameter, ScriptParameterType, ScriptType,
     SearchFacets, SearchFilters, SearchOrder, SearchQuery, SetAttributeRequest, SimilarDocument,
-    Storage, UpdateFolderRequest, UploadRequest, Usage, system_language,
+    Storage, SyncProgress, UpdateFolderRequest, UploadRequest, Usage, system_language,
 };
 
 // Keeps the generated Kotlin package `uniffi.fyde_sdk` (the namespace
@@ -705,6 +705,31 @@ impl From<Usage> for FfiUsage {
             enabled_scripts: usage.enabled_scripts(),
             open_sessions: usage.open_sessions(),
             total_size: usage.total_size(),
+        }
+    }
+}
+
+/// How far sync has got through the account's changelog since it started
+/// (at login, or at `init` with a session open), mirroring
+/// [`SyncProgress`] across the FFI boundary: counts changelog events (a
+/// document's, a folder's, a source's), not documents.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Record)]
+pub struct FfiSyncProgress {
+    /// Events gone through so far.
+    pub consumed: u64,
+    /// Events to go through to catch up, `None` until the server has
+    /// counted them (or if it can't). Never below `consumed`.
+    pub total: Option<u64>,
+    /// Whether every event the server counted has been gone through.
+    pub caught_up: bool,
+}
+
+impl From<SyncProgress> for FfiSyncProgress {
+    fn from(progress: SyncProgress) -> Self {
+        Self {
+            consumed: progress.consumed,
+            total: progress.total,
+            caught_up: progress.is_caught_up(),
         }
     }
 }
@@ -1519,6 +1544,13 @@ impl FydeClient {
             .await
     }
 
+    /// How far sync has got through the account's changelog, for a device
+    /// just logged into to show its history arriving. Local, never fails.
+    /// Mirrors [`fyde_sdk::DocumentsService::sync_progress`].
+    pub fn sync_progress(&self) -> FfiSyncProgress {
+        self.inner.documents().sync_progress().into()
+    }
+
     /// Returns whether the fyde server currently responds as reachable.
     /// Mirrors [`fyde_sdk::ServerStateService::is_server_reachable`].
     pub async fn is_server_reachable(&self) -> Result<bool, FfiError> {
@@ -2014,6 +2046,33 @@ mod tests {
             std::path::Path::new("/cache/fyde/models")
         );
         assert_eq!(config.log_level, LogLevel::Debug);
+    }
+
+    #[test]
+    fn sync_progress_conversion_tells_whether_it_caught_up() {
+        let replaying = FfiSyncProgress::from(SyncProgress {
+            consumed: 142,
+            total: Some(214),
+        });
+        let caught_up = FfiSyncProgress::from(SyncProgress {
+            consumed: 214,
+            total: Some(214),
+        });
+        let uncounted = FfiSyncProgress::from(SyncProgress {
+            consumed: 3,
+            total: None,
+        });
+
+        assert_eq!(
+            replaying,
+            FfiSyncProgress {
+                consumed: 142,
+                total: Some(214),
+                caught_up: false,
+            }
+        );
+        assert!(caught_up.caught_up);
+        assert!(!uncounted.caught_up);
     }
 
     #[test]

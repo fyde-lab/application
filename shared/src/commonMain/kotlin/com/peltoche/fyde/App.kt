@@ -82,6 +82,9 @@ private const val SERVER_REACHABILITY_POLL_INTERVAL_MS = 5_000L
  */
 private const val SESSION_CHECK_INTERVAL_MS = 5_000L
 
+/** How often [OpeningScreen]'s ring re-reads [FydeSdk.syncProgress], a local read. */
+private const val SYNC_PROGRESS_POLL_INTERVAL_MS = 400L
+
 /**
  * How long the vault's search waits after a keystroke before searching, so
  * typing a word runs one search rather than one per letter.
@@ -171,6 +174,14 @@ private sealed interface Screen {
      * run (DO7c) until the user moves on to the next one.
      */
     data object FetchingSource : Screen
+
+    /**
+     * Right after signing in: logging out and an expired session both wipe
+     * this device's copy of the vault, so every sign-in replays the
+     * account's history, which [OpeningScreen] (O9, DO9) shows arriving
+     * until the user moves on to the vault.
+     */
+    data object Opening : Screen
 
     data object Vault : Screen
     data object Settings : Screen
@@ -292,6 +303,9 @@ private fun AppContent(
     var onboardingCreatedFolders by remember { mutableStateOf<List<FydeFolder>>(emptyList()) }
     // "Wait here" on SourceFetchingScreen: move on by itself once the run succeeds.
     var isWaitingForFetch by remember { mutableStateOf(false) }
+    // How far sync has got replaying the account's history, while
+    // OpeningScreen shows it; null before its first answer.
+    var syncProgress by remember { mutableStateOf<FydeSyncProgress?>(null) }
     // fyde-sdk's wording while startup is refused because another instance
     // of the app is running (see AlreadyRunningScreen), `null` otherwise.
     var alreadyRunningMessage by remember { mutableStateOf<String?>(null) }
@@ -374,7 +388,7 @@ private fun AppContent(
             }
                 .onSuccess { outcome ->
                     screen = when (outcome) {
-                        FydeLoginOutcome.LoggedIn -> Screen.Vault
+                        FydeLoginOutcome.LoggedIn -> Screen.Opening
                         is FydeLoginOutcome.SessionLimitReached -> Screen.SessionLimit(
                             username = username,
                             password = password,
@@ -673,6 +687,24 @@ private fun AppContent(
     }
 
     // The source on SourceFetchingScreen, if its first run is over: after
+    // OpeningScreen's ring, from fyde-sdk's local count (polled: nothing
+    // calls back on it). An account with nothing to replay skips it. A
+    // failed read keeps the last one.
+    LaunchedEffect(screen) {
+        if (screen != Screen.Opening) return@LaunchedEffect
+        syncProgress = null
+        while (true) {
+            FydeSdk.syncProgress().getOrNull()?.let { progress ->
+                if (progress.caughtUp && progress.total == 0L) {
+                    screen = Screen.Vault
+                    return@LaunchedEffect
+                }
+                syncProgress = progress
+            }
+            delay(SYNC_PROGRESS_POLL_INTERVAL_MS)
+        }
+    }
+
     // "Wait here", a success moves on by itself, a failure stays to be seen.
     val fetchingOutcome = connectQueue.getOrNull(connectIndex)
         ?.takeIf { screen == Screen.FetchingSource }
@@ -837,6 +869,10 @@ private fun AppContent(
                     onNext = ::nextSource,
                 )
             }
+            Screen.Opening -> OpeningScreen(
+                progress = syncProgress,
+                onBrowse = { screen = Screen.Vault },
+            )
             Screen.Vault -> VaultContainer(
                 initialFocus = vaultEntry,
                 documentChanges = documentChanges,

@@ -535,6 +535,22 @@ fun InfoGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
     }
 }
 
+/** A check in a circle — an ok note's mark (O9). Traced from `i-check-c` in `icons.svg`. */
+@Composable
+fun CheckCircleGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.success, strokeWidth: Dp = 1.6.dp) {
+    Canvas(modifier = modifier) {
+        val unit = size.minDimension / 24f
+        val stroke = Stroke(width = strokeWidth.toPx(), join = StrokeJoin.Round, cap = StrokeCap.Round)
+        drawCircle(color = tint, radius = 9f * unit, center = Offset(12f * unit, 12f * unit), style = stroke)
+        val check = Path().apply {
+            moveTo(8f * unit, 12.3f * unit)
+            lineTo(10.7f * unit, 15f * unit)
+            lineTo(16f * unit, 9.7f * unit)
+        }
+        drawPath(check, color = tint, style = stroke)
+    }
+}
+
 /** Two stacked pages. Traced from `i-pages` in `icons.svg`. */
 @Composable
 fun PagesGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.6.dp) {

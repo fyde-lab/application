@@ -512,6 +512,23 @@ data class FydeOpenSession(
 )
 
 /**
+ * How far this device's sync has got through the account's changelog since
+ * it started (at login, or at launch with a session open), mirroring the
+ * SDK's `FfiSyncProgress`: what a device just signed into shows while the
+ * account's history arrives (O9, DO9). Counts changelog events (a
+ * document's, a folder's, a source's), not documents: the server can't tell
+ * them apart.
+ */
+data class FydeSyncProgress(
+    /** Events gone through so far. */
+    val consumed: Long,
+    /** Events to go through to catch up; null until the server has counted them, or if it can't. Never below [consumed]. */
+    val total: Long?,
+    /** Whether every event the server counted has been gone through: what arrives from then on is live. */
+    val caughtUp: Boolean,
+)
+
+/**
  * The plan the signed-in account is on, its limits and what the account
  * currently uses of each, mirroring the SDK's `FfiUsage`. Every figure is
  * shared by all the account's devices. A usage figure can exceed its limit
@@ -666,6 +683,14 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun getUsage(): Result<FydePlanUsage>
+
+    /**
+     * How far sync has got through the account's changelog (see
+     * [FydeSyncProgress]), counted afresh at each login. Local: poll it.
+     * Mirrors `DocumentsService::sync_progress`; fails if [initialize]
+     * hasn't been called yet.
+     */
+    suspend fun syncProgress(): Result<FydeSyncProgress>
 
     /**
      * Lists every session open on the signed-in account, across all of its
