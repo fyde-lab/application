@@ -110,3 +110,66 @@ tasks.withType<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>().configureEach {
         additionalEnvironment.set(environment.mapValues { (_, value) -> value.replace(pluginWrapper, minSdkWrapper) })
     }
 }
+
+// fyde-sdk's HTTP client, wreq (scrapers' fyde.http and the on-device models'
+// downloads), vendors a patched BoringSSL (btls-sys) that links the C++
+// runtime, which on Android is the NDK's shared one: libfyde_sdk_bridge.so
+// needs libc++_shared.so, which the NDK ships but nothing puts in the APK, so
+// the library failed to load on devices ("library libc++_shared.so not
+// found"). Bundle it beside the bridge for every ABI the plugin builds it for.
+abstract class BundleCxxSharedTask : DefaultTask() {
+    /** The NDK sysroot's `usr/lib`, holding one directory per target triple. */
+    @get:Internal
+    abstract val sysrootLib: DirectoryProperty
+
+    /** Android ABI → the NDK triple its libraries are under. */
+    @get:Input
+    abstract val triplesByAbi: MapProperty<String, String>
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val libraries: List<Provider<RegularFile>>
+        get() = triplesByAbi.get().values.map { sysrootLib.file("$it/libc++_shared.so") }
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun bundle() {
+        val out = outputDir.get().asFile
+        out.deleteRecursively()
+        triplesByAbi.get().forEach { (abi, triple) ->
+            sysrootLib.file("$triple/libc++_shared.so").get().asFile
+                .copyTo(out.resolve("$abi/libc++_shared.so"))
+        }
+    }
+}
+
+val androidComponents =
+    extensions.getByType<com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension>()
+val ndkHostTag: String = System.getProperty("os.name").let { os ->
+    when {
+        os.contains("Mac", ignoreCase = true) -> "darwin-x86_64"
+        os.contains("Windows", ignoreCase = true) -> "windows-x86_64"
+        else -> "linux-x86_64"
+    }
+}
+val bundleCxxShared = tasks.register<BundleCxxSharedTask>("bundleCxxShared") {
+    sysrootLib.set(
+        androidComponents.sdkComponents.sdkDirectory.map {
+            it.dir("ndk/${libs.versions.android.ndk.get()}/toolchains/llvm/prebuilt/$ndkHostTag/sysroot/usr/lib")
+        },
+    )
+    // The ABIs libfyde_sdk_bridge.so is built for.
+    triplesByAbi.set(
+        mapOf(
+            "arm64-v8a" to "aarch64-linux-android",
+            "armeabi-v7a" to "arm-linux-androideabi",
+            "x86_64" to "x86_64-linux-android",
+        ),
+    )
+    outputDir.set(layout.buildDirectory.dir("generated/cxxShared/jniLibs"))
+}
+androidComponents.onVariants { variant ->
+    variant.sources.jniLibs?.addGeneratedSourceDirectory(bundleCxxShared, BundleCxxSharedTask::outputDir)
+}
