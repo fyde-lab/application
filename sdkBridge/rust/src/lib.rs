@@ -19,7 +19,7 @@ use fyde_sdk::{
     ErrorContext as _, EventType, FacetCount, Folder, FolderAppearance, FolderColor,
     FolderContents, FolderFilter, FolderIcon, InstallScriptRequest, InstalledScript, LogLevel,
     LoginOutcome, Metadata, OpenSession, PasswordAnalysis, PasswordStrength, ProgressEvent,
-    ProgressStep, Script, ScriptMetadata, ScriptParameter, ScriptParameterType, ScriptType,
+    ProgressStep, Script, ScriptMetadata, ScriptParameter, ScriptParameterChoice, ScriptParameterType, ScriptType,
     SearchFacets, SearchFilters, SearchOrder, SearchQuery, SetAttributeRequest, SimilarDocument,
     Storage, SyncProgress, Thumbnail, UpdateFolderRequest, UploadRequest, Usage, system_language,
 };
@@ -926,6 +926,9 @@ pub struct FfiScriptParameter {
     pub parameter_type: FfiScriptParameterType,
     pub required: bool,
     pub secret: bool,
+    /// The only values a string parameter accepts, offered as a select;
+    /// empty for free input.
+    pub choices: Vec<FfiScriptParameterChoice>,
 }
 
 impl From<ScriptParameter> for FfiScriptParameter {
@@ -936,7 +939,23 @@ impl From<ScriptParameter> for FfiScriptParameter {
             parameter_type: parameter.parameter_type.into(),
             required: parameter.required,
             secret: parameter.secret,
+            choices: parameter.choices.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+/// One of the values a [`FfiScriptParameter`] accepts, mirroring
+/// [`ScriptParameterChoice`]: `value` is what the script receives, `label`
+/// what the form shows.
+#[derive(Debug, Clone, uniffi::Record)]
+pub struct FfiScriptParameterChoice {
+    pub value: String,
+    pub label: String,
+}
+
+impl From<ScriptParameterChoice> for FfiScriptParameterChoice {
+    fn from(choice: ScriptParameterChoice) -> Self {
+        Self { value: choice.value, label: choice.label }
     }
 }
 

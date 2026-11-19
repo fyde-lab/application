@@ -167,6 +167,36 @@ class ScriptParametersTest {
         assertEquals("no", displayedParameterValue(parameter(FydeScriptParameterType.BOOLEAN), FydeScriptParameterValue.Bool(false), labels))
     }
 
+    private val channel = parameter(FydeScriptParameterType.STRING, required = true).copy(
+        choices = listOf(FydeScriptParameterChoice("email", "E-mail"), FydeScriptParameterChoice("sms", "SMS")),
+    )
+
+    @Test
+    fun validatedParameterValuesOnlyTakesOneOfAParametersChoices() {
+        val parameters = mapOf("otp_channel" to channel)
+
+        assertEquals(
+            mapOf("otp_channel" to FydeScriptParameterValue.Text("sms")),
+            validatedParameterValues(parameters, mapOf("otp_channel" to "sms")),
+        )
+        assertNull(validatedParameterValues(parameters, mapOf("otp_channel" to "telephone")))
+        assertNull(validatedParameterValues(parameters, emptyMap()))
+    }
+
+    @Test
+    fun displayedParameterValueShowsAChoiceByItsLabel() {
+        assertEquals("SMS", displayedParameterValue(channel, FydeScriptParameterValue.Text("sms"), labels))
+        // One installed before the script declared its choices reads as typed.
+        assertEquals("mail", displayedParameterValue(channel, FydeScriptParameterValue.Text("mail"), labels))
+    }
+
+    @Test
+    fun onlyAStringParameterIsASelect() {
+        assertEquals(true, channel.hasChoices)
+        assertEquals(false, parameter(FydeScriptParameterType.STRING).hasChoices)
+        assertEquals(false, channel.copy(type = FydeScriptParameterType.NUMBER).hasChoices)
+    }
+
     @Test
     fun displayedParameterValueShowsAMissingValueAsUnsetEvenForASecret() {
         assertEquals("unset", displayedParameterValue(parameter(FydeScriptParameterType.STRING), null, labels))

@@ -517,6 +517,7 @@ private fun FfiScriptParameter.toFydeScriptParameter() = FydeScriptParameter(
     type = parameterType.toFydeScriptParameterType(),
     required = required,
     secret = secret,
+    choices = choices.map { FydeScriptParameterChoice(value = it.value, label = it.label) },
 )
 
 private fun FfiLoginOutcome.toFydeLoginOutcome(): FydeLoginOutcome = when (this) {

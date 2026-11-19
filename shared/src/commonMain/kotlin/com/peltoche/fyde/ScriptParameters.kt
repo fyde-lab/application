@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import com.peltoche.fyde.components.form.AppDropdown
 import com.peltoche.fyde.components.form.AppSwitch
 import com.peltoche.fyde.components.form.AppTextField
 import com.peltoche.fyde.components.overlay.AppDialog
@@ -22,7 +23,9 @@ import org.jetbrains.compose.resources.stringResource
 
 /**
  * The control one of a script's [parameter]s is entered with: a switch for
- * a boolean ([value] "true"/"false"), a text field otherwise — masked for a
+ * a boolean ([value] "true"/"false"), a select of its
+ * [FydeScriptParameter.choices] for a string that declares some ([value]
+ * the picked choice's value), a text field otherwise — masked for a
  * secret, numeric keyboard for a number. Shared by every form a source's
  * credentials are typed in, so a parameter reads the same wherever it's asked.
  */
@@ -46,6 +49,19 @@ internal fun ScriptParameterField(
             enabled = enabled,
             modifier = modifier,
         )
+    } else if (parameter.hasChoices) {
+        AppDropdown(
+            label = parameter.label,
+            options = parameter.choices,
+            selectedOption = parameter.choices.firstOrNull { it.value == value },
+            onOptionSelected = { choice -> onValueChange(choice.value) },
+            optionLabel = { it.label },
+            placeholder = parameter.placeholder.ifBlank { null },
+            supportingText = supportingText,
+            errorText = errorText,
+            enabled = enabled,
+            modifier = modifier,
+        )
     } else {
         AppTextField(
             value = value,
@@ -66,12 +82,16 @@ internal fun ScriptParameterField(
     }
 }
 
+/** Whether [this] is entered with a select of its choices rather than typed. */
+internal val FydeScriptParameter.hasChoices: Boolean
+    get() = type == FydeScriptParameterType.STRING && choices.isNotEmpty()
+
 /** The localized words [displayedParameterValue] reads a value as. */
 internal data class ParameterValueLabels(val hidden: String, val yes: String, val no: String, val unset: String)
 
 /**
  * How an installed [value] reads: a secret never shows, only that it's set;
- * a boolean as yes/no; nothing (an optional parameter left blank) as the
+ * a boolean as yes/no; a choice as its label; nothing (an optional parameter left blank) as the
  * standard unset value.
  */
 internal fun displayedParameterValue(
@@ -82,6 +102,8 @@ internal fun displayedParameterValue(
     value == null -> labels.unset
     parameter.secret -> labels.hidden
     value is FydeScriptParameterValue.Bool -> if (value.value) labels.yes else labels.no
+    value is FydeScriptParameterValue.Text && parameter.hasChoices ->
+        parameter.choices.firstOrNull { it.value == value.value }?.label ?: value.value
     else -> formText(value).ifBlank { labels.unset }
 }
 
@@ -152,8 +174,9 @@ internal fun formText(value: FydeScriptParameterValue): String = when (value) {
 /**
  * The form's raw [values] as typed values per [parameters]' declared types
  * (see [typedParameterValues]), or `null` while the form isn't valid: a
- * required parameter is blank, or a number field holds something that isn't
- * a finite number.
+ * required parameter is blank, a number field holds something that isn't
+ * a finite number, or a select holds a value that isn't one of its choices
+ * (one installed before the script declared them).
  */
 internal fun validatedParameterValues(
     parameters: Map<String, FydeScriptParameter>,
@@ -164,7 +187,8 @@ internal fun validatedParameterValues(
         val blank = value.isBlank()
         // A boolean is never blank in effect: an untouched switch is `false`.
         (!blank || !parameter.required || parameter.type == FydeScriptParameterType.BOOLEAN) &&
-            (parameter.type != FydeScriptParameterType.NUMBER || blank || value.toFiniteDoubleOrNull() != null)
+            (parameter.type != FydeScriptParameterType.NUMBER || blank || value.toFiniteDoubleOrNull() != null) &&
+            (!parameter.hasChoices || blank || parameter.choices.any { it.value == value })
     }
     return if (valid) typedParameterValues(parameters, values) else null
 }

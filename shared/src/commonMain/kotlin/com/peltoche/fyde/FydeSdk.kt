@@ -251,7 +251,19 @@ data class FydeScriptParameter(
     val type: FydeScriptParameterType,
     val required: Boolean,
     val secret: Boolean,
+    /**
+     * The only values a [FydeScriptParameterType.STRING] parameter accepts,
+     * offered as a select; empty for free input.
+     */
+    val choices: List<FydeScriptParameterChoice> = emptyList(),
 )
+
+/**
+ * One of the values a [FydeScriptParameter] accepts, mirroring the SDK's
+ * `FfiScriptParameterChoice`: [value] is what the script receives, [label]
+ * what the form shows.
+ */
+data class FydeScriptParameterChoice(val value: String, val label: String)
 
 /**
  * A value entered for one of a script's [FydeScriptParameter]s, typed per

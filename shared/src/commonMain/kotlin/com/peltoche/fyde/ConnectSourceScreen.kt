@@ -454,6 +454,8 @@ internal fun ConnectSourceFields(form: ConnectSourceForm, firstField: FocusReque
                         key !in form.keptSecrets && form.showRequiredErrors
                 }
                 parameter.type == FydeScriptParameterType.NUMBER && value.toDoubleOrNull()?.isFinite() != true -> invalidNumberError
+                // A value installed before the script declared its choices: the select shows nothing picked.
+                parameter.hasChoices && parameter.choices.none { it.value == value } -> requiredError.takeIf { form.showRequiredErrors }
                 else -> null
             },
             supportingText = when {

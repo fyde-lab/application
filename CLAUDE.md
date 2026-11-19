@@ -225,7 +225,8 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
 - `ConnectSourceScreen` (S3 inside onboarding at Compact, DO7b at Medium/Expanded in
   `VaultCreationSplitLayout`, whose brand panel lists the ticked sources as `VaultSource`s):
   each ticked source in turn, `App.kt` holding the queue (`connectQueue`/`connectIndex`). One
-  field per script parameter (`ScriptParameterField`, `ScriptParameters.kt`, shared with the Sources tab),
+  field per script parameter (`ScriptParameterField`, `ScriptParameters.kt`, shared with the Sources tab;
+  an `AppDropdown` for a string parameter with `choices`, which only accepts their values),
   then Ranger dans (`SourceFolderRow`, as in the Sources tab): a new vault has no folder, so it
   reads À classer with Créer un dossier (S3c, DO7b), opening the new-folder sheet named after the
   source (S9b, DO7i) whose folder is picked; once a folder exists (one made for an earlier source
