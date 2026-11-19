@@ -2,6 +2,7 @@ package com.peltoche.fyde
 
 import android.content.Context
 import androidx.startup.Initializer
+import io.crates.keyring.Keyring
 
 /**
  * The application [Context], captured automatically at process startup by
@@ -17,6 +18,9 @@ internal lateinit var appContext: Context
 class AppContextInitializer : Initializer<Context> {
     override fun create(context: Context): Context {
         appContext = context.applicationContext
+        // fyde-sdk's Android credential store needs the app context on the
+        // Rust side before the SDK is first used (see Keyring).
+        Keyring.initializeNdkContext(appContext)
         return appContext
     }
 
