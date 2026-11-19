@@ -58,6 +58,7 @@ import com.peltoche.fyde.resources.vault_unclassified
 import com.peltoche.fyde.resources.vault_unfiled_description
 import com.peltoche.fyde.resources.vault_year_before
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
@@ -146,6 +147,7 @@ internal fun FolderGridPage(vault: Vault, page: VaultPage.Folder) {
                     caption = localizedShortDate(document.createdAt),
                     color = document.colors(),
                     onClick = { vault.openDocument(document) },
+                    thumbnail = rememberDocumentThumbnail(document, AppDimensions.documentCardPageWidth, AppDimensions.documentCardWell),
                     icon = { tint -> DocumentFolderGlyph(document, tint) },
                 )
             }

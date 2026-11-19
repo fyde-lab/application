@@ -41,6 +41,7 @@ import com.peltoche.fyde.components.content.AppGroupRow
 import com.peltoche.fyde.components.content.AppIconTile
 import com.peltoche.fyde.components.content.DocumentAttributes
 import com.peltoche.fyde.components.content.DocumentPass
+import com.peltoche.fyde.components.content.DocumentPage
 import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.navigation.AppPageBar
 import com.peltoche.fyde.components.overlay.AppBottomSheet
@@ -490,7 +491,7 @@ private fun DeletedNames(documents: List<FydeDocument>) {
     }
 }
 
-/** The document's file: its name, "PDF · 182 Ko", opening the viewer. */
+/** The document's file: its first page (its type's tile without one), its name, "PDF · 182 Ko", opening the viewer. */
 @Composable
 private fun FileRow(document: FydeDocument, size: String, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -505,7 +506,12 @@ private fun FileRow(document: FydeDocument, size: String, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
     ) {
-        AppIconTile { PagesGlyph(modifier = Modifier.size(AppIconSize.md)) }
+        val thumbnail = rememberDocumentThumbnail(document, AppDimensions.documentFilePageWidth, AppDimensions.documentFilePageHeight)
+        if (thumbnail != null) {
+            DocumentPage(thumbnail, width = AppDimensions.documentFilePageWidth, height = AppDimensions.documentFilePageHeight)
+        } else {
+            AppIconTile { PagesGlyph(modifier = Modifier.size(AppIconSize.md)) }
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(text = document.name, style = AppTypography.bodyEmphasis, color = AppColors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(

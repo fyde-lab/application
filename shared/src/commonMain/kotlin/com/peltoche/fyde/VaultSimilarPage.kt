@@ -42,6 +42,7 @@ import com.peltoche.fyde.resources.vault_similar_none_title
 import com.peltoche.fyde.resources.vault_similar_see_all
 import com.peltoche.fyde.resources.vault_similar_this
 import com.peltoche.fyde.theme.AppColors
+import com.peltoche.fyde.theme.AppDimensions
 import com.peltoche.fyde.theme.AppIconSize
 import com.peltoche.fyde.theme.AppSpacing
 import com.peltoche.fyde.theme.AppTypography
@@ -218,6 +219,7 @@ private fun SimilarDocumentRow(
         checked = checked,
         onCheckedChange = onCheckedChange,
         checkDescription = stringResource(Res.string.select_document, document.name),
+        thumbnail = rememberDocumentThumbnail(document, AppDimensions.documentRowPageWidth, AppDimensions.documentRowPageHeight),
         trailing = {
             if (confidence != null) {
                 val percent = similarityPercent(confidence)

@@ -264,6 +264,12 @@ actual object FydeSdk {
         client.getDocument(id)?.content
     }
 
+    actual suspend fun documentThumbnail(id: String, maxWidth: Int, maxHeight: Int): Result<FydeThumbnail?> =
+        withClient("documentThumbnail") { client ->
+            client.documentThumbnail(id, maxWidth.coerceAtLeast(1).toUInt(), maxHeight.coerceAtLeast(1).toUInt())
+                ?.let { FydeThumbnail(it.png, it.width.toInt(), it.height.toInt()) }
+        }
+
     actual suspend fun uploadDocument(path: String): Result<String> = withClient("uploadDocument") { client ->
         client.uploadDocument(path)
     }
