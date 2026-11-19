@@ -118,6 +118,17 @@ object AppDimensions {
     /** `DocumentCard`'s preview well (D1). */
     val documentCardWell: Dp = 160.dp
 
+    /** The first page in `DocumentCard`'s well (D1): this wide, the well's bottom cutting it. */
+    val documentCardPageWidth: Dp = 104.dp
+
+    /** The box a `DocumentRow`'s first page fits in, in its folder tile's place (V3, D2). */
+    val documentRowPageWidth: Dp = 40.dp
+    val documentRowPageHeight: Dp = 52.dp
+
+    /** The box V6's file row's first page fits in. */
+    val documentFilePageWidth: Dp = 62.dp
+    val documentFilePageHeight: Dp = 84.dp
+
     /** D2's list column, the folder's documents beside the open one. */
     val documentListColumn: Dp = 400.dp
 

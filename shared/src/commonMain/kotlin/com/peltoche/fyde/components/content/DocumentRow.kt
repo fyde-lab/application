@@ -1,5 +1,6 @@
 package com.peltoche.fyde.components.content
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,10 +9,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -20,8 +23,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
@@ -31,6 +39,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.peltoche.fyde.components.form.AppCheckbox
 import com.peltoche.fyde.theme.AppCategoryColor
 import com.peltoche.fyde.theme.AppColors
@@ -52,6 +61,9 @@ import com.peltoche.fyde.theme.appFocusRing
  * With [checked] (V16, D11) an [AppCheckbox] named [checkDescription] leads
  * the row, a control of its own beside the row's click. [trailing], when
  * given, takes the amount's place (a [SimilarityBadge], a tag).
+ *
+ * With a [thumbnail] (its first page, from the SDK) the row leads with it
+ * as a [DocumentPage] instead of the folder's tile.
  */
 @Composable
 fun DocumentRow(
@@ -67,10 +79,11 @@ fun DocumentRow(
     onCheckedChange: (Boolean) -> Unit = {},
     checkDescription: String? = null,
     trailing: (@Composable () -> Unit)? = null,
+    thumbnail: ImageBitmap? = null,
     icon: @Composable (tint: Color) -> Unit,
 ) {
     if (checked == null) {
-        DocumentRowContent(title, subtitle, amount, color, onClick, modifier, selected, highlightTerms, trailing, icon)
+        DocumentRowContent(title, subtitle, amount, color, onClick, modifier, selected, highlightTerms, trailing, thumbnail, icon)
         return
     }
     Row(
@@ -85,7 +98,7 @@ fun DocumentRow(
                 .semantics { if (checkDescription != null) contentDescription = checkDescription },
         )
         DocumentRowContent(
-            title, subtitle, amount, color, onClick, Modifier.weight(1f), selected, highlightTerms, trailing, icon,
+            title, subtitle, amount, color, onClick, Modifier.weight(1f), selected, highlightTerms, trailing, thumbnail, icon,
             startPadding = AppSpacing.space1,
         )
     }
@@ -102,6 +115,7 @@ private fun DocumentRowContent(
     selected: Boolean,
     highlightTerms: List<String>,
     trailing: (@Composable () -> Unit)?,
+    thumbnail: ImageBitmap?,
     icon: @Composable (tint: Color) -> Unit,
     startPadding: Dp = AppSpacing.space5,
 ) {
@@ -118,7 +132,11 @@ private fun DocumentRowContent(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
     ) {
-        FolderFillTile(size = AppDimensions.iconTile, color = color, icon = icon)
+        if (thumbnail != null) {
+            DocumentPage(thumbnail, width = AppDimensions.documentRowPageWidth, height = AppDimensions.documentRowPageHeight)
+        } else {
+            FolderFillTile(size = AppDimensions.iconTile, color = color, icon = icon)
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = highlighted(title, highlightTerms, AppColors.highlight),
@@ -140,7 +158,9 @@ private fun DocumentRowContent(
 
 /**
  * A document in a folder's grid at Expanded (D1): a preview well holding
- * its folder's tile, then [title] and [caption] (its date).
+ * its first page ([thumbnail], from the SDK) as a sheet the well's bottom
+ * cuts, or its folder's tile without one, then [title] and [caption] (its
+ * date).
  */
 @Composable
 fun DocumentCard(
@@ -149,6 +169,7 @@ fun DocumentCard(
     color: AppCategoryColor,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    thumbnail: ImageBitmap? = null,
     icon: @Composable (tint: Color) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -162,10 +183,24 @@ fun DocumentCard(
             .semantics(mergeDescendants = true) {},
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth().height(AppDimensions.documentCardWell).background(AppColors.background),
-            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxWidth().height(AppDimensions.documentCardWell).clipToBounds().background(AppColors.background),
+            contentAlignment = if (thumbnail != null) Alignment.TopCenter else Alignment.Center,
         ) {
-            FolderFillTile(size = AppDimensions.iconTileLarge, color = color, icon = icon)
+            if (thumbnail != null) {
+                val width = AppDimensions.documentCardPageWidth
+                Image(
+                    bitmap = thumbnail,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .padding(top = AppSpacing.space4)
+                        // Its own height, however far past the well's bottom.
+                        .requiredSize(width, width * thumbnail.height / thumbnail.width)
+                        .shadow(elevation = 1.dp, shape = RectangleShape),
+                )
+            } else {
+                FolderFillTile(size = AppDimensions.iconTileLarge, color = color, icon = icon)
+            }
         }
         Column(modifier = Modifier.padding(AppSpacing.space4)) {
             Text(text = title, style = AppTypography.bodyEmphasis, color = AppColors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -173,6 +208,27 @@ fun DocumentCard(
                 Text(text = caption, style = AppTypography.caption, color = AppColors.textMuted, maxLines = 1)
             }
         }
+    }
+}
+
+/**
+ * A document's first page ([image], drawn by the SDK on white) as a small
+ * sheet of paper with a hairline edge, as large as fits [width] x [height]
+ * with its own proportions. Decorative: the row or card around it names the
+ * document.
+ */
+@Composable
+fun DocumentPage(image: ImageBitmap, width: Dp, height: Dp, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.size(width, height), contentAlignment = Alignment.Center) {
+        Image(
+            bitmap = image,
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .aspectRatio(image.width.toFloat() / image.height)
+                .clip(AppRadius.xs)
+                .border(AppDimensions.borderHairline, AppColors.border, AppRadius.xs),
+        )
     }
 }
 

@@ -29,6 +29,13 @@ data class FydeDocument(
 data class FydeSimilarDocument(val document: FydeDocument, val confidence: Float)
 
 /**
+ * A document's first page as an image, from [FydeSdk.documentThumbnail],
+ * mirroring the SDK's `Thumbnail`: [png] is PNG-encoded, [width] x [height]
+ * pixels. Not a data class, so its content never lands in a `toString`.
+ */
+class FydeThumbnail(val png: ByteArray, val width: Int, val height: Int)
+
+/**
  * One typed value of a document's attributes, mirroring the SDK's
  * `FfiAttribute`. Amounts are minor units of their ISO 4217 currency (cents
  * for `"EUR"`), never floats; dates are ISO 8601 `YYYY-MM-DD`.
@@ -783,6 +790,15 @@ expect object FydeSdk {
      * [initialize] hasn't been called yet.
      */
     suspend fun getDocumentContent(id: String): Result<ByteArray?>
+
+    /**
+     * The first page of the PDF document [id] cached locally, drawn as large
+     * as fits [maxWidth] x [maxHeight] pixels (each clamped by the SDK to
+     * `1..=2048`), its aspect ratio kept, on white; `null` if it isn't
+     * cached here. Fails for content that isn't a readable PDF. Drawn on
+     * every call, never stored. Mirrors [`crate::DocumentsService::thumbnail`].
+     */
+    suspend fun documentThumbnail(id: String, maxWidth: Int, maxHeight: Int): Result<FydeThumbnail?>
 
     /**
      * Reads the local file at [path], encrypts it and its metadata, then

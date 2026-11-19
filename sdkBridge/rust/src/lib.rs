@@ -21,7 +21,7 @@ use fyde_sdk::{
     LoginOutcome, Metadata, OpenSession, PasswordAnalysis, PasswordStrength, ProgressEvent,
     ProgressStep, Script, ScriptMetadata, ScriptParameter, ScriptParameterType, ScriptType,
     SearchFacets, SearchFilters, SearchOrder, SearchQuery, SetAttributeRequest, SimilarDocument,
-    Storage, SyncProgress, UpdateFolderRequest, UploadRequest, Usage, system_language,
+    Storage, SyncProgress, Thumbnail, UpdateFolderRequest, UploadRequest, Usage, system_language,
 };
 
 // Keeps the generated Kotlin package `uniffi.fyde_sdk` (the namespace
@@ -634,6 +634,37 @@ impl From<SimilarDocument> for FfiSimilarDocument {
         Self {
             metadata: similar.metadata.into(),
             confidence: similar.confidence,
+        }
+    }
+}
+
+/// A document's first page as an image, from [`FydeClient::document_thumbnail`],
+/// mirroring [`Thumbnail`] across the FFI boundary.
+#[derive(Clone, PartialEq, Eq, uniffi::Record)]
+pub struct FfiThumbnail {
+    /// The image, PNG-encoded.
+    pub png: Vec<u8>,
+    /// Its size, in pixels.
+    pub width: u32,
+    pub height: u32,
+}
+
+impl std::fmt::Debug for FfiThumbnail {
+    // Never the image, like `Thumbnail`'s: it shows the document's content.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("FfiThumbnail")
+            .field("width", &self.width)
+            .field("height", &self.height)
+            .finish_non_exhaustive()
+    }
+}
+
+impl From<Thumbnail> for FfiThumbnail {
+    fn from(thumbnail: Thumbnail) -> Self {
+        Self {
+            png: thumbnail.png,
+            width: thumbnail.width,
+            height: thumbnail.height,
         }
     }
 }
@@ -1704,6 +1735,29 @@ impl FydeClient {
         .await
     }
 
+    /// The first page of the PDF document `id` cached locally, as a PNG as
+    /// large as fits `max_width` x `max_height` pixels (each clamped to
+    /// `1..=MAX_THUMBNAIL_SIDE`), its aspect ratio kept, or `None` if it isn't
+    /// cached here. Drawn on every call, never stored. Mirrors
+    /// [`fyde_sdk::DocumentsService::thumbnail`].
+    pub async fn document_thumbnail(
+        &self,
+        id: String,
+        max_width: u32,
+        max_height: u32,
+    ) -> Result<Option<FfiThumbnail>, FfiError> {
+        self.localized(async {
+            let id = parse_uuid(&id)?;
+            let thumbnail = self
+                .inner
+                .documents()
+                .thumbnail(id, max_width, max_height)
+                .await?;
+            Ok(thumbnail.map(FfiThumbnail::from))
+        })
+        .await
+    }
+
     /// Encrypts `metadata` as given and publishes it as an "update metadata"
     /// changelog event, replacing whatever metadata was previously
     /// associated with `metadata.id`. Mirrors
@@ -2100,6 +2154,19 @@ mod tests {
         assert_eq!(ffi.metadata.id, metadata.id().to_string());
         assert_eq!(ffi.metadata.name, metadata.name());
         assert_eq!(ffi.confidence, 0.75);
+    }
+
+    #[test]
+    fn thumbnail_conversion_keeps_the_image_and_its_size() {
+        let ffi = FfiThumbnail::from(Thumbnail {
+            png: b"\x89PNG".to_vec(),
+            width: 141,
+            height: 200,
+        });
+
+        assert_eq!(ffi.png, b"\x89PNG");
+        assert_eq!((ffi.width, ffi.height), (141, 200));
+        assert!(!format!("{ffi:?}").contains("png"));
     }
 
     #[test]
