@@ -2140,7 +2140,7 @@ dependencies = [
 [[package]]
 name = "fyde-sdk"
 version = "0.1.0"
-source = "git+https://github.com/fyde-lab/sdk.git?branch=master#c43d45185bb215ecec05d4989ac5b07bfdedbe94"
+source = "git+https://github.com/fyde-lab/sdk.git?branch=master#7d52670683c862da29fb32917b8dccddd1666139"
 dependencies = [
  "aes-gcm",
  "android-native-keyring-store",
@@ -2165,6 +2165,7 @@ dependencies = [
  "prost",
  "rand 0.10.2",
  "rand 0.8.8",
+ "regex",
  "rmp-serde",
  "scraper",
  "serde",

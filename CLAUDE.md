@@ -240,8 +240,9 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   cette source / back move along the queue; after the last source → Vault until DO7d–DO7g
   and DO8 exist. No "Récupérer automatiquement" switch: fyde-sdk has no scheduled runs.
 - `SourceFetchingScreen` (DO7c at Medium/Expanded, a stacked version at Compact): the connected
-  source's first run as a `RunStepper` (Connexion → Recherche → Téléchargement i / n →
-  Rangement), from its `ScraperRun`'s typed `stepKind`/`update`/`found` and, once over, its
+  source's first run as a `RunStepper` (Préparation → Connexion → Recherche → Téléchargement
+  i / n → Rangement; Préparation, not in DO7c, is the SDK's `SETTING_UP` step, and where a run
+  starts before its first step), from its `ScraperRun`'s typed `stepKind`/`update`/`found` and, once over, its
   `outcomes` entry (`sourceFetchStatusOf` in `App.kt`). Source suivante / Continuer moves on
   without stopping the run; Attendre ici moves on by itself once it succeeds; a failure shows
   the SDK's message with Réessayer. No Arrêter here (DO7c stays as drawn), but a run stopped

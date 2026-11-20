@@ -1272,6 +1272,8 @@ impl From<FfiClientConfig> for ClientConfig {
             client_name: config.client_name,
             storage: config.storage.into(),
             models_dir: config.models_dir.into(),
+            // The SDK's default: GLiNER unloaded after a minute unused.
+            attribute_model_idle_timeout: None,
             log_level: config.log_level.into(),
             on_log: None,
             on_document_change: None,
@@ -1295,6 +1297,7 @@ pub trait DocumentChangeListener: Send + Sync {
 /// the FFI boundary.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
 pub enum FfiProgressStep {
+    SettingUp,
     LoggingIn,
     CheckingSession,
     WaitingForVerificationCode,
@@ -1307,6 +1310,7 @@ pub enum FfiProgressStep {
 impl From<ProgressStep> for FfiProgressStep {
     fn from(step: ProgressStep) -> Self {
         match step {
+            ProgressStep::SettingUp => Self::SettingUp,
             ProgressStep::LoggingIn => Self::LoggingIn,
             ProgressStep::CheckingSession => Self::CheckingSession,
             ProgressStep::WaitingForVerificationCode => Self::WaitingForVerificationCode,

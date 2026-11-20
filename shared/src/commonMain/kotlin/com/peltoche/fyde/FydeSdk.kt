@@ -484,6 +484,8 @@ data class FydeInstallation(
 
 /** A high-level stage of a scraper run, mirroring the SDK's `FfiProgressStep`. */
 enum class FydeScraperStep {
+    /** The SDK preparing the run (on-device model, browser) before its script starts. */
+    SETTING_UP,
     LOGGING_IN,
     CHECKING_SESSION,
     WAITING_FOR_VERIFICATION_CODE,

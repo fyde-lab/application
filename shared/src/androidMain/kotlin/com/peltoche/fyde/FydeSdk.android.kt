@@ -377,6 +377,7 @@ private fun FfiProgressEvent.toFydeScraperProgress(): FydeScraperProgress = when
 }
 
 private fun FfiProgressStep.toFydeScraperStep() = when (this) {
+    FfiProgressStep.SETTING_UP -> FydeScraperStep.SETTING_UP
     FfiProgressStep.LOGGING_IN -> FydeScraperStep.LOGGING_IN
     FfiProgressStep.CHECKING_SESSION -> FydeScraperStep.CHECKING_SESSION
     FfiProgressStep.WAITING_FOR_VERIFICATION_CODE -> FydeScraperStep.WAITING_FOR_VERIFICATION_CODE
