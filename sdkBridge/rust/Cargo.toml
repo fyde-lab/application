@@ -22,6 +22,14 @@ tracing = "0.1.44"
 uniffi = { version = "=0.32.0", features = ["tokio"] }
 uuid = "1.26.1"
 
+# Android only: `src/android.rs`'s JNI entry point, which hands
+# `rustls-platform-verifier` (fyde-sdk's HTTPS certificate checks, through
+# `reqwest`) the JVM it needs. The same major version as fyde-sdk's, so both
+# share the one verifier this initializes.
+[target.'cfg(target_os = "android")'.dependencies]
+jni = { version = "0.22", default-features = false }
+rustls-platform-verifier = "0.7"
+
 [dev-dependencies]
 # `testing`: the SDK's `Fake*` builders, to test conversions against.
 fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master", features = ["testing"] }

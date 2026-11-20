@@ -16,6 +16,12 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
+        // rustls-platform-verifier's Kotlin half (see sdkBridge/build.gradle.kts),
+        // published only in its own GitHub-hosted Maven repository.
+        maven {
+            url = uri("https://github.com/rustls/rustls-platform-verifier/raw/maven-archive/android-release-support/maven/")
+            mavenContent { includeGroup("org.rustls") }
+        }
         google {
             mavenContent {
                 includeGroupAndSubgroups("androidx")

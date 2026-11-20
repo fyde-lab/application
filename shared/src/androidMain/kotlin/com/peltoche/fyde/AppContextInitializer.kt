@@ -21,6 +21,9 @@ class AppContextInitializer : Initializer<Context> {
         // fyde-sdk's Android credential store needs the app context on the
         // Rust side before the SDK is first used (see Keyring).
         Keyring.initializeNdkContext(appContext)
+        // Its HTTPS certificate checks call Android's through the JVM, which
+        // they need the app context for (see PlatformVerifier).
+        PlatformVerifier.initialize(appContext)
         return appContext
     }
 
