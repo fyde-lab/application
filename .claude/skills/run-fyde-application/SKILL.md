@@ -30,8 +30,8 @@ nix-shell --run "./gradlew :desktopApp:compileKotlin --console=plain"
 
 First run triggers an `sdkBridge` cargo build of `../sdk` (~2-4 min); cached
 after that. If this fails with an rustc-version error, `application/shell.nix`'s
-pinned Rust toolchain is out of sync with `../sdk`'s `wreq` dependency's
-minimum version — bump it to match `../sdk/shell.nix`.
+pinned Rust toolchain is older than `../sdk`'s dependencies need — bump it to
+match `../sdk/shell.nix`.
 
 ## Run (agent path)
 
@@ -144,9 +144,9 @@ Opens a real window. Useless on a headless machine — use the agent path.
 
 ## Troubleshooting
 
-- **`rustc X.Y.Z is not supported by … wreq`** during `build`/`launch`:
-  `application/shell.nix`'s pinned rustc is older than `../sdk`'s `wreq`
-  dependency requires. Bump the version in `application/shell.nix` to match
+- **`rustc X.Y.Z is not supported by …`** during `build`/`launch`:
+  `application/shell.nix`'s pinned rustc is older than one of `../sdk`'s
+  dependencies requires. Bump the version in `application/shell.nix` to match
   `../sdk/shell.nix`.
 - **`wait-window` times out:** check the `launch` background task's output —
   a real build error looks like a Gradle `BUILD FAILED` block, not the
