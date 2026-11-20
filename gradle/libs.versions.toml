@@ -46,6 +46,8 @@ kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-s
 wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
 pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
 onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxruntime" }
+# No version: sdkBridge/build.gradle.kts sets the one Cargo.lock pins.
+rustls-platform-verifier = { module = "org.rustls:rustls-platform-verifier" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

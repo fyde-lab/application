@@ -44,6 +44,46 @@ kotlin {
             // than linking it in: this ships it for every ABI. Only its native
             // library is used, never its Java API.
             runtimeOnly(libs.onnxruntime.android)
+            // The Kotlin half of rustls-platform-verifier, which fyde-sdk's
+            // HTTPS clients verify certificates through: Android's checks are
+            // reached over JNI (rust/src/android.rs, called by shared's
+            // PlatformVerifier). Its version is Cargo.lock's, set below.
+            implementation(libs.rustls.platform.verifier)
+        }
+    }
+}
+
+// rustls-platform-verifier's Kotlin half must be the exact version of the
+// `rustls-platform-verifier-android` crate in rust/Cargo.lock (the Rust half
+// calls into it by name), so it's read from there rather than pinned twice.
+// A ValueSource, so the configuration cache re-reads it when the lock changes.
+abstract class RustlsPlatformVerifierVersion : ValueSource<String, RustlsPlatformVerifierVersion.Params> {
+    interface Params : ValueSourceParameters {
+        val lockFile: RegularFileProperty
+    }
+
+    override fun obtain(): String {
+        val lines = parameters.lockFile.get().asFile.readLines()
+        val nameIndex = lines.indexOfFirst { it.trim() == "name = \"rustls-platform-verifier-android\"" }
+        return lines.drop(nameIndex + 1)
+            .takeIf { nameIndex >= 0 }
+            ?.firstOrNull { it.trimStart().startsWith("version = ") }
+            ?.substringAfter('"')
+            ?.substringBefore('"')
+            ?.takeIf { it.isNotEmpty() }
+            ?: error("rustls-platform-verifier-android not found in rust/Cargo.lock")
+    }
+}
+
+val rustlsPlatformVerifierVersion = providers.of(RustlsPlatformVerifierVersion::class.java) {
+    parameters.lockFile.set(layout.projectDirectory.file("rust/Cargo.lock"))
+}
+
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.rustls" && requested.name == "rustls-platform-verifier") {
+            useVersion(rustlsPlatformVerifierVersion.get())
+            because("must match rustls-platform-verifier-android in rust/Cargo.lock")
         }
     }
 }

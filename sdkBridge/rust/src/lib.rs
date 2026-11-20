@@ -29,6 +29,9 @@ use fyde_sdk::{
 // in `fyde-sdk` itself.
 uniffi::setup_scaffolding!("fyde_sdk");
 
+#[cfg(target_os = "android")]
+mod android;
+
 macro_rules! define_ffi_error {
     ($($(#[$meta:meta])* $name:ident = $value:literal,)*) => {
         /// Error type surfaced to FFI callers, mirroring [`Error`]: one

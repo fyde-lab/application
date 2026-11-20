@@ -59,6 +59,12 @@ unset), the Rust toolchain `sdkBridge` needs to build `../sdk`, and desktop's na
   `sdkBridge/rust/` (it dev-depends on the SDK's `testing` feature for `Fake*` fixtures).
   `FydeSdk.kt` is an `expect object` with per-platform `actual`s; Web is stubbed (`fyde-sdk`
   can't compile to wasm).
+  On Android, `AppContextInitializer` also calls `PlatformVerifier.initialize` (JNI, exported by
+  `sdkBridge/rust/src/android.rs`): the SDK's HTTPS clients check certificates through
+  `rustls-platform-verifier`, which panics on first use without the app context. Its Kotlin half
+  (`org.rustls:rustls-platform-verifier`, from its GitHub Maven repo in `settings.gradle.kts`) is
+  pinned by `sdkBridge/build.gradle.kts` to `rustls-platform-verifier-android`'s version in
+  `rust/Cargo.lock`, and kept from R8 by `androidApp/proguard-rules.pro`.
 - `androidApp/`, `desktopApp/` (`com.peltoche.fyde.MainKt`), `webApp/`, `iosApp/` (Xcode, not
   Gradle) — thin shells bootstrapping `App()`; no business logic.
 
