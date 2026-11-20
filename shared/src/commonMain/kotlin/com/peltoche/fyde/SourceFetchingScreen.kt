@@ -51,6 +51,7 @@ import com.peltoche.fyde.resources.source_fetch_queued
 import com.peltoche.fyde.resources.source_fetch_retry
 import com.peltoche.fyde.resources.source_fetch_step_connecting
 import com.peltoche.fyde.resources.source_fetch_step_downloading
+import com.peltoche.fyde.resources.source_fetch_step_preparing
 import com.peltoche.fyde.resources.source_fetch_step_searching
 import com.peltoche.fyde.resources.source_fetch_step_storing
 import com.peltoche.fyde.resources.source_fetch_title
@@ -95,16 +96,22 @@ sealed interface SourceFetchStatus {
     ) : SourceFetchStatus
 }
 
-/** The four stages DO7c lists, coarser than the SDK's [FydeScraperStep]s. */
-internal enum class SourceFetchPhase { Connecting, Searching, Downloading, Storing }
+/**
+ * The four stages DO7c lists, coarser than the SDK's [FydeScraperStep]s,
+ * after the SDK's own setup ([Preparing], not in DO7c: loading the on-device
+ * model, which can take minutes the first time it downloads).
+ */
+internal enum class SourceFetchPhase { Preparing, Connecting, Searching, Downloading, Storing }
 
 /**
- * The phase [step] belongs to: signing in, checking the session and waiting
- * for a code or captcha are all still "Connexion"; before the first step,
- * the run is connecting too.
+ * The phase [step] belongs to: before the first step, the run is preparing,
+ * as it is while the SDK sets it up; signing in, checking the session and
+ * waiting for a code or captcha are all "Connexion".
  */
 internal fun sourceFetchPhaseOf(step: FydeScraperStep?): SourceFetchPhase = when (step) {
     null,
+    FydeScraperStep.SETTING_UP,
+    -> SourceFetchPhase.Preparing
     FydeScraperStep.LOGGING_IN,
     FydeScraperStep.CHECKING_SESSION,
     FydeScraperStep.WAITING_FOR_VERIFICATION_CODE,
@@ -148,8 +155,8 @@ internal fun sourceFetchPhaseStates(status: SourceFetchStatus): List<RunStepStat
  * DO7c at Medium and Expanded (`design/assets/screens/DO7c-recuperation-en-cours.png`):
  * [VaultCreationSplitLayout] at its sources step, listing [sources], beside
  * "Source 1 of 3", the source's tile and what it's doing, a card with the
- * run's [RunStepper] (Connexion → Recherche → Téléchargement i / n →
- * Rangement), a note that the run goes on in the background and Fyde will
+ * run's [RunStepper] (Préparation → Connexion → Recherche → Téléchargement
+ * i / n → Rangement; Préparation isn't in DO7c, see [SourceFetchPhase]), a note that the run goes on in the background and Fyde will
  * say if a code is asked, then "Wait here" and "Next source" ("Continue"
  * after the last, [isLast]). At Compact the same content scrolls, the
  * buttons pinned at the bottom (S4's stepper inside onboarding).
@@ -338,7 +345,7 @@ private fun SourceFetchBody(content: SourceFetchContent) {
     }
 }
 
-/** [status]'s four phases as [RunStepper] rows, with what's known of each: found, i / n, waiting on the user. */
+/** [status]'s five phases as [RunStepper] rows, with what's known of each: found, i / n, waiting on the user. */
 @Composable
 internal fun sourceFetchSteps(status: SourceFetchStatus): List<RunStep> {
     val states = sourceFetchPhaseStates(status)
@@ -356,6 +363,10 @@ internal fun sourceFetchSteps(status: SourceFetchStatus): List<RunStep> {
     return SourceFetchPhase.entries.mapIndexed { index, phase ->
         val state = states[index]
         when (phase) {
+            SourceFetchPhase.Preparing -> RunStep(
+                label = stringResource(Res.string.source_fetch_step_preparing),
+                state = state,
+            )
             SourceFetchPhase.Connecting -> RunStep(
                 label = stringResource(Res.string.source_fetch_step_connecting),
                 state = state,

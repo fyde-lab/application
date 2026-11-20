@@ -151,6 +151,7 @@
         <item quantity="other">%1$d documents récupérés</item>
     </plurals>
     <string name="source_fetch_finished">Récupération terminée</string>
+    <string name="source_fetch_step_preparing">Préparation</string>
     <string name="source_fetch_step_connecting">Connexion</string>
     <string name="source_fetch_step_searching">Recherche des documents</string>
     <string name="source_fetch_step_downloading">Téléchargement</string>

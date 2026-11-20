@@ -151,6 +151,7 @@
         <item quantity="other">%1$d documents fetched</item>
     </plurals>
     <string name="source_fetch_finished">Fetch finished</string>
+    <string name="source_fetch_step_preparing">Preparing</string>
     <string name="source_fetch_step_connecting">Signing in</string>
     <string name="source_fetch_step_searching">Looking for documents</string>
     <string name="source_fetch_step_downloading">Downloading</string>
