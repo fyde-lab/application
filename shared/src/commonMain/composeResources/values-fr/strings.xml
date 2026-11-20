@@ -57,13 +57,14 @@
     <string name="opening_explanation_computer">Vos documents chiffrés arrivent de votre compte et sont déchiffrés ici, sur cet ordinateur.</string>
     <string name="opening_explanation_device">Vos documents chiffrés arrivent de votre compte et sont déchiffrés ici, sur cet appareil.</string>
     <plurals name="opening_of_total">
-        <item quantity="one">sur %1$s élément</item>
-        <item quantity="other">sur %1$s éléments</item>
+        <item quantity="one">%1$s sur %2$s élément</item>
+        <item quantity="other">%1$s sur %2$s éléments</item>
     </plurals>
     <plurals name="opening_received">
         <item quantity="one">élément reçu</item>
         <item quantity="other">éléments reçus</item>
     </plurals>
+    <string name="opening_percent">%1$d&#8239;%</string>
     <string name="opening_progress_description">%1$s éléments reçus sur %2$s</string>
     <string name="opening_browse_note">Vous pouvez déjà parcourir ce qui est arrivé. Le reste suit en arrière-plan.</string>
     <string name="opening_done_note">Tout est arrivé : votre coffre est à jour ici.</string>

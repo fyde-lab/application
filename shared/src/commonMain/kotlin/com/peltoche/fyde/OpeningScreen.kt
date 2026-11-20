@@ -53,6 +53,7 @@ import com.peltoche.fyde.resources.opening_done_note
 import com.peltoche.fyde.resources.opening_explanation_computer
 import com.peltoche.fyde.resources.opening_explanation_device
 import com.peltoche.fyde.resources.opening_of_total
+import com.peltoche.fyde.resources.opening_percent
 import com.peltoche.fyde.resources.opening_progress_description
 import com.peltoche.fyde.resources.opening_received
 import com.peltoche.fyde.resources.opening_title
@@ -64,6 +65,13 @@ import com.peltoche.fyde.theme.AppTypography
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * How far the replay has got, in whole percent: rounded down, so 100 only
+ * once [consumed] reaches [total]; an empty history is 100.
+ */
+internal fun replayPercent(consumed: Long, total: Long): Int =
+    if (total <= 0L) 100 else (consumed.coerceIn(0L, total) * 100 / total).toInt()
+
 /** The replay ring's diameter and stroke: `.ringp`, 200px around a 176px disc. */
 private val RingSize = 200.dp
 private val RingStroke = 12.dp
@@ -73,7 +81,7 @@ private val RingStroke = 12.dp
  * (logging out and an expired session both wipe this device's copy, so every
  * sign-in starts from an empty vault). [progress] is [FydeSdk.syncProgress]
  * as [App] polls it, `null` before the first answer. A ring shows how much
- * has arrived ("142 sur 214"), naming this device, with Parcourir le coffre
+ * has arrived ("66 %", "142 sur 214 éléments"), naming this device, with Parcourir le coffre
  * ([onBrowse]) as the only action: what has arrived can be browsed already,
  * and the rest keeps arriving in the background after it.
  *
@@ -203,10 +211,10 @@ private fun OpeningContent(progress: FydeSyncProgress?) {
 
 /**
  * `.ringp`: a `primary` arc over a `sunk` track (`border` until the tokens
- * migrate), filled as far as [progress] has got, with the count in
- * the middle ("142", "sur 214 éléments"). Without a total yet, a quarter arc
- * turns and the caption says how many have been received. Read out as one
- * progress bar.
+ * migrate), filled as far as [progress] has got, with the percentage in
+ * the middle and the count under it ("66 %", "142 sur 214 éléments"). Without
+ * a total yet, a quarter arc turns and the middle shows how many have been
+ * received ("142", "éléments reçus"). Read out as one progress bar.
  */
 @Composable
 private fun ReplayRing(progress: FydeSyncProgress?) {
@@ -230,8 +238,18 @@ private fun ReplayRing(progress: FydeSyncProgress?) {
     // `surfaceElevated`, the usual stand-in, is near-white and vanishes here.
     val track = AppColors.border
     val arc = AppColors.primary
+    val figure = if (total != null) {
+        stringResource(Res.string.opening_percent, replayPercent(consumed, total))
+    } else {
+        consumed.toString()
+    }
     val caption = if (total != null) {
-        pluralStringResource(Res.plurals.opening_of_total, total.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(), total.toString())
+        pluralStringResource(
+            Res.plurals.opening_of_total,
+            total.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
+            consumed.toString(),
+            total.toString(),
+        )
     } else {
         pluralStringResource(Res.plurals.opening_received, consumed.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
     }
@@ -288,7 +306,7 @@ private fun ReplayRing(progress: FydeSyncProgress?) {
             modifier = Modifier.padding(horizontal = RingStroke + AppSpacing.space4),
         ) {
             Text(
-                text = consumed.toString(),
+                text = figure,
                 style = AppTypography.data.copy(fontSize = 40.sp, lineHeight = 44.sp, fontWeight = FontWeight.SemiBold),
                 color = AppColors.text,
                 maxLines = 1,
