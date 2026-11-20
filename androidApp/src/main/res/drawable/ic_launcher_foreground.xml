@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The launcher icon's foreground: Fyde's logo (shared's
+  composeResources/drawable/fyde_logo.xml, in its 512-unit source
+  coordinates) scaled by 0.14 and centred on the 108dp adaptive-icon
+  canvas, so it sits inside the 66dp safe zone every launcher mask keeps.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.14"
+        android:scaleY="0.14"
+        android:translateX="18.3"
+        android:translateY="18.48">
+
+        <!-- Rear sheets -->
+        <path android:pathData="M112,120 Q112,96 137,96 L284,96 Q307,96 307,120 L307,305 L112,305 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="112"
+                    android:startY="96"
+                    android:endX="307"
+                    android:endY="305">
+                    <item android:offset="0" android:color="#FF6245E8" />
+                    <item android:offset="1" android:color="#FF4338C8" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path android:pathData="M150,82 Q150,58 176,60 L340,74 Q361,76 361,99 L361,316 L150,316 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="150"
+                    android:startY="59.8"
+                    android:endX="361"
+                    android:endY="316">
+                    <item android:offset="0" android:color="#FF55B8FF" />
+                    <item android:offset="1" android:color="#FF2878F0" />
+                </gradient>
+            </aapt:attr>
+        </path>
+
+        <!-- Main document -->
+        <path android:pathData="M190,72 Q190,54 211,54 L345,54 L402,111 L402,329 L190,329 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="190"
+                    android:startY="54"
+                    android:endX="402"
+                    android:endY="329">
+                    <item android:offset="0" android:color="#FFFFFFFF" />
+                    <item android:offset="1" android:color="#FFEDF4FF" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path
+            android:fillColor="#FF4D86F5"
+            android:pathData="M345,54 L345,91 Q345,111 365,111 L402,111 Z" />
+
+        <!-- Document text lines -->
+        <path
+            android:fillColor="#FFA7C1E3"
+            android:pathData="M233,176 L308,176 A8,8 0 0,1 308,192 L233,192 A8,8 0 0,1 233,176 Z
+                M233,210 L362,210 A8,8 0 0,1 362,226 L233,226 A8,8 0 0,1 233,210 Z
+                M233,244 L321,244 A8,8 0 0,1 321,260 L233,260 A8,8 0 0,1 233,244 Z" />
+
+        <!-- Rounded folder / protective base -->
+        <path android:pathData="M108,237 Q145,276 205,294 L282,318 Q302,324 322,311 L402,263 L402,331 Q402,376 366,398 L302,435 Q270,453 238,438 L145,392 Q108,373 108,329 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="108"
+                    android:startY="237"
+                    android:endX="372.6"
+                    android:endY="444.8">
+                    <item android:offset="0" android:color="#FF39A5FF" />
+                    <item android:offset="1" android:color="#FF2874ED" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path android:pathData="M282,318 Q302,324 322,311 L402,263 L402,331 Q402,376 366,398 L302,435 Q270,453 238,438 Q235,390 257,355 Q267,333 282,318 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="237.6"
+                    android:startY="263"
+                    android:endX="402"
+                    android:endY="444.8">
+                    <item android:offset="0" android:color="#FF5147D9" />
+                    <item android:offset="1" android:color="#FF273EBA" />
+                </gradient>
+            </aapt:attr>
+        </path>
+    </group>
+</vector>
