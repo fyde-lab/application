@@ -12,10 +12,8 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 # The independently-versioned `sdk` repo, tracked at its remote `master`
 # (pinned to a commit in Cargo.lock; `cargo update -p fyde-sdk` to bump it).
-# TEMPORARY: on fyde-lab/sdk#83's branch (reqwest instead of wreq) until it
-# merges; point both entries back at `branch = "master"` before merging.
 # See its CLAUDE.md.
-fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "ccr-590b8913-zylalz" }
+fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master" }
 serde_json = "1.0.151"
 thiserror = "2.0.20"
 tracing = "0.1.44"
@@ -34,7 +32,7 @@ rustls-platform-verifier = "0.7"
 
 [dev-dependencies]
 # `testing`: the SDK's `Fake*` builders, to test conversions against.
-fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "ccr-590b8913-zylalz", features = ["testing"] }
+fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master", features = ["testing"] }
 
 # Same as the sdk's Cargo.toml: Argon2id runs on every login/registration
 # and takes ~3s per call unoptimized. Profiles are only read from the crate
