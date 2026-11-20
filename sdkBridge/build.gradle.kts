@@ -151,12 +151,12 @@ tasks.withType<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>().configureEach {
     }
 }
 
-// fyde-sdk's HTTP client, wreq (scrapers' fyde.http and the on-device models'
-// downloads), vendors a patched BoringSSL (btls-sys) that links the C++
-// runtime, which on Android is the NDK's shared one: libfyde_sdk_bridge.so
-// needs libc++_shared.so, which the NDK ships but nothing puts in the APK, so
-// the library failed to load on devices ("library libc++_shared.so not
-// found"). Bundle it beside the bridge for every ABI the plugin builds it for.
+// fyde-sdk's tokenizers (the embedding and GLiNER models' input) build
+// esaxx-rs, C++ that links the C++ runtime, which on Android is the NDK's
+// shared one: libfyde_sdk_bridge.so needs libc++_shared.so, which the NDK
+// ships but nothing puts in the APK, so the library fails to load on devices
+// ("library libc++_shared.so not found"). Bundle it beside the bridge for
+// every ABI the plugin builds it for.
 abstract class BundleCxxSharedTask : DefaultTask() {
     /** The NDK sysroot's `usr/lib`, holding one directory per target triple. */
     @get:Internal

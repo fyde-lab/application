@@ -23,7 +23,7 @@ let
   # ../sdk) for Android via the
   # ch.ubique.uniffi.plugin cargo integration; the JVM/Desktop/Wasm targets
   # only ever need the host target.
-  # ../sdk's wreq/wreq-util dependency requires rustc >=1.98 (see ../sdk/shell.nix).
+  # ../sdk needs rustc >= 1.95 (oar-ocr's MSRV; see ../sdk/shell.nix).
   rustToolchain = pkgs.rust-bin.stable."1.98.1".default.override {
     extensions = [ "rust-src" "clippy" "rustfmt" "rust-analyzer" ];
     targets = [ "x86_64-unknown-linux-gnu" ] ++ androidTargets;
@@ -42,20 +42,6 @@ let
     includeSystemImages = false;
   };
   androidSdk = "${androidComposition.androidsdk}/libexec/android-sdk";
-  ndkSysroot = "${androidSdk}/ndk/${ndkVersion}/toolchains/llvm/prebuilt/linux-x86_64/sysroot";
-  # btls-sys's bindgen run breaks when cross-compiling for Android
-  # ('gnu/stubs-32.h' file not found) because the host's glibc/gcc headers leak
-  # in twice: through bindgenHook's BINDGEN_EXTRA_CLANG_ARGS, and through
-  # bindgen's include-path detection, which runs the `clang` on PATH - the nix
-  # wrapper, injecting host glibc whatever the target. bindgen prefers a
-  # BINDGEN_EXTRA_CLANG_ARGS_<target> over the generic one, so give each
-  # Android target the NDK sysroot instead (keeping nix clang's own builtin
-  # headers, which the unwrapped libclang can't locate by itself); CLANG_PATH
-  # (shellHook) points detection at the unwrapped clang, which only reports
-  # what those args say.
-  androidBindgenArgs = pkgs.lib.concatMapStrings (target: ''
-    export BINDGEN_EXTRA_CLANG_ARGS_${builtins.replaceStrings [ "-" ] [ "_" ] target}="--sysroot=${ndkSysroot} -resource-dir=${pkgs.clang}/resource-root"
-  '') androidTargets;
 in
 pkgs.mkShell {
   packages = with pkgs; [
@@ -67,15 +53,6 @@ pkgs.mkShell {
     # access) and compiles them with protoc — see ../sdk/CLAUDE.md.
     buf
     protobuf
-
-    # ../sdk's wreq dependency vendors a patched BoringSSL (btls-sys) that
-    # needs these to build — see ../sdk/shell.nix.
-    cmake
-    perl
-    go
-    clang
-    # Sets up LIBCLANG_PATH/BINDGEN_EXTRA_CLANG_ARGS correctly for bindgen.
-    rustPlatform.bindgenHook
 
     # required (via pkg-config) to build ../sdk's wry/tao dependency, the real
     # embedded webview behind fyde.browser — see ../sdk/shell.nix. sdkBridge
@@ -147,8 +124,6 @@ pkgs.mkShell {
     export ANDROID_HOME="${androidSdk}"
     export ANDROID_SDK_ROOT="${androidSdk}"
     export ANDROID_NDK_HOME="${androidSdk}/ndk-bundle"
-    ${androidBindgenArgs}
-    export CLANG_PATH="${pkgs.clang.cc}/bin/clang"
     # AGP otherwise runs the aapt2 it fetches from Maven, a dynamically linked
     # binary that can't run on NixOS - use the SDK's patched one instead.
     export GRADLE_OPTS="-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/build-tools/${buildToolsVersion}/aapt2''${GRADLE_OPTS:+ $GRADLE_OPTS}"
