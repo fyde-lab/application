@@ -27,7 +27,9 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through this repo's own 
   dependency, so mobile builds never pull in tao/wry/GTK). Without one on mobile, `fyde.browser`
   fails with `BrowserFailed`. An engine only hosts webviews (one isolated, ephemeral data store
   per session, or it refuses to open one): every decision is the SDK's, asked of the
-  session's `FfiWebviewHandler`. Never put a rule in an engine.
+  session's `FfiWebviewHandler`. Never put a rule in an engine. iOS's is `IosWebviewEngine`
+  (iosMain): a WKWebView per run on its own non-persistent `WKWebsiteDataStore`, in the key
+  window (1×1 and nearly transparent unless visible); calls hop to the main queue and wait.
 - **Visual rules:** `design/design-system.md` is the source of truth (tokens in
   `shared/.../theme/`, components in `shared/.../components/`, glyphs in `shared/.../icons/`).
   Root `DESIGN.md` is superseded — don't implement against it.
