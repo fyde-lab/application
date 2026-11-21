@@ -5,6 +5,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.coroutines.cancellation.CancellationException
 import uniffi.fyde_sdk.DocumentChangeListener
+import uniffi.fyde_sdk.FfiBackgroundJobs
 import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocumentType
@@ -149,6 +150,7 @@ actual object FydeSdk {
                     clientName = "desktop",
                     storage = FfiStorage.Disk(path = defaultDataDirectory()),
                     modelsDir = defaultModelsDirectory(),
+                    backgroundJobs = FfiBackgroundJobs(sync = true, modelPreloading = true, thumbnails = true),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so

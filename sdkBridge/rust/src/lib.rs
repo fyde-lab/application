@@ -1256,6 +1256,25 @@ pub trait LogListener: Send + Sync {
     fn on_log(&self, level: FfiLogLevel, line: String);
 }
 
+/// Which of the SDK's background jobs the client runs, mirroring
+/// [`fyde_sdk::BackgroundJobs`] (see each of its fields).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Record)]
+pub struct FfiBackgroundJobs {
+    pub sync: bool,
+    pub model_preloading: bool,
+    pub thumbnails: bool,
+}
+
+impl From<FfiBackgroundJobs> for fyde_sdk::BackgroundJobs {
+    fn from(jobs: FfiBackgroundJobs) -> Self {
+        Self {
+            sync: jobs.sync,
+            model_preloading: jobs.model_preloading,
+            thumbnails: jobs.thumbnails,
+        }
+    }
+}
+
 /// Configuration for [`FydeClient::init`], mirroring [`ClientConfig`].
 #[derive(Debug, Clone, uniffi::Record)]
 pub struct FfiClientConfig {
@@ -1265,6 +1284,8 @@ pub struct FfiClientConfig {
     /// See [`ClientConfig::models_dir`]: never inside `storage`'s client
     /// directory, which logout empties.
     pub models_dir: String,
+    /// See [`ClientConfig::background_jobs`].
+    pub background_jobs: FfiBackgroundJobs,
     pub log_level: FfiLogLevel,
 }
 
@@ -1277,6 +1298,7 @@ impl From<FfiClientConfig> for ClientConfig {
             models_dir: config.models_dir.into(),
             // The SDK's default: GLiNER unloaded after a minute unused.
             attribute_model_idle_timeout: None,
+            background_jobs: config.background_jobs.into(),
             log_level: config.log_level.into(),
             on_log: None,
             on_document_change: None,
@@ -1599,6 +1621,13 @@ impl FydeClient {
     pub async fn get_usage(&self) -> Result<FfiUsage, FfiError> {
         self.localized(async { Ok(FfiUsage::from(self.inner.usage().get_usage().await?)) })
             .await
+    }
+
+    /// Starts the changelog sync job, for a client whose
+    /// [`FfiBackgroundJobs::sync`] is off (otherwise `login`/`create_user`
+    /// start it). Mirrors [`fyde_sdk::DocumentsService::start_sync`].
+    pub async fn start_sync(&self) -> Result<(), FfiError> {
+        self.localized(self.inner.documents().start_sync()).await
     }
 
     /// How far sync has got through the account's changelog, for a device
@@ -2113,6 +2142,11 @@ mod tests {
                 path: "/data/fyde".into(),
             },
             models_dir: "/cache/fyde/models".into(),
+            background_jobs: FfiBackgroundJobs {
+                sync: true,
+                model_preloading: false,
+                thumbnails: false,
+            },
             log_level: FfiLogLevel::Debug,
         };
 
@@ -2124,6 +2158,14 @@ mod tests {
         assert_eq!(
             config.models_dir,
             std::path::Path::new("/cache/fyde/models")
+        );
+        assert_eq!(
+            config.background_jobs,
+            fyde_sdk::BackgroundJobs {
+                sync: true,
+                model_preloading: false,
+                thumbnails: false,
+            }
         );
         assert_eq!(config.log_level, LogLevel::Debug);
     }
