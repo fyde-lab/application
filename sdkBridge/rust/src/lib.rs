@@ -1807,8 +1807,9 @@ impl FydeClient {
 
     /// The first page of the PDF document `id` cached locally, as a PNG as
     /// large as fits the SDK's fixed square (512 px a side), its aspect
-    /// ratio kept, or `None` if it isn't cached here. The SDK stores it
-    /// once drawn, so this mostly reads it back. Mirrors
+    /// ratio kept, or `None` if it isn't cached here or none is stored: only
+    /// read back from the local database, never drawn on request (only the
+    /// `thumbnails` background job draws them). Mirrors
     /// [`fyde_sdk::DocumentsService::thumbnail`].
     pub async fn document_thumbnail(&self, id: String) -> Result<Option<FfiThumbnail>, FfiError> {
         self.localized(async {

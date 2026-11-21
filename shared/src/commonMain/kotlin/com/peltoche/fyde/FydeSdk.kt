@@ -806,11 +806,13 @@ expect object FydeSdk {
     suspend fun getDocumentContent(id: String): Result<ByteArray?>
 
     /**
-     * The first page of the PDF document [id] cached locally, drawn as large
-     * as fits the SDK's fixed square (512 px a side), its aspect ratio kept,
-     * on white; `null` if it isn't cached here. Fails for content that isn't
-     * a readable PDF. The SDK stores it once drawn, so this mostly reads it
-     * back. Mirrors [`crate::DocumentsService::thumbnail`].
+     * The first page of the PDF document [id] as stored in the SDK's local
+     * database, as large as fits the SDK's fixed square (512 px a side), its
+     * aspect ratio kept, on white; `null` if the document isn't cached here
+     * or no page is stored for it. Never drawn on request: only the SDK's
+     * background job draws them (`FfiBackgroundJobs.thumbnails`). Fails for
+     * content that isn't a readable PDF. Mirrors
+     * [`crate::DocumentsService::thumbnail`].
      */
     suspend fun documentThumbnail(id: String): Result<FydeThumbnail?>
 
