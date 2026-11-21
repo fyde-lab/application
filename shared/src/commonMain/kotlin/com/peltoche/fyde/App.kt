@@ -1429,7 +1429,7 @@ private fun VaultContainer(
             }
         },
         loadContent = { document -> FydeSdk.getDocumentContent(document.id) },
-        loadThumbnail = { id, maxWidth, maxHeight -> FydeSdk.documentThumbnail(id, maxWidth, maxHeight) },
+        loadThumbnail = { id -> FydeSdk.documentThumbnail(id) },
         onRetryLoad = {
             loadError = null
             reloadKey++

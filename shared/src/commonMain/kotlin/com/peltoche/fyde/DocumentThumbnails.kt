@@ -6,31 +6,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 
 /**
- * Documents' first pages as drawn by the SDK (`FydeSdk.documentThumbnail`,
- * through [render], which `App.kt` supplies), decoded and kept in memory
- * while the vault is shown: the SDK draws one on every call and stores
- * none. Least recently used first out past [budgetBytes] of pixels; a
- * document it couldn't draw is remembered too, so it isn't tried again on
- * every scroll. Never on disk: it goes with the composition holding it,
- * logout included.
+ * Documents' first pages from the SDK (`FydeSdk.documentThumbnail`, through
+ * [render], which `App.kt` supplies), decoded and kept in memory while the
+ * vault is shown: the SDK stores one fixed-size PNG per document, so this
+ * only saves decoding it again, and every box scales that one image. Least
+ * recently used first out past [budgetBytes] of pixels; a document it
+ * couldn't draw is remembered too, so it isn't tried again on every scroll.
+ * Never on disk here: it goes with the composition holding it, logout
+ * included.
  *
  * Only PDFs have one (the SDK draws nothing else); everywhere else rows and
  * cards keep their folder's tile.
  */
 internal class DocumentThumbnails(
-    private val render: suspend (id: String, maxWidth: Int, maxHeight: Int) -> Result<FydeThumbnail?>,
+    private val render: suspend (id: String) -> Result<FydeThumbnail?>,
     private val budgetBytes: Long = THUMBNAIL_CACHE_BYTES,
 ) {
-    /** A drawing at one size: the same document at another box is drawn again, sharp. */
-    data class Key(val documentId: String, val size: Long, val maxWidth: Int, val maxHeight: Int)
+    /** A document's image; [size] keeps a replaced file from showing its old page. */
+    data class Key(val documentId: String, val size: Long)
 
     // Insertion order is recency order: a hit is moved to the end.
     // Only touched from the composition's (main) thread.
@@ -49,7 +48,7 @@ internal class DocumentThumbnails(
     /** [key]'s image, drawn by the SDK unless it already was; `null` for none. */
     suspend fun load(key: Key): ImageBitmap? {
         peek(key)?.let { return it.image }
-        val result = drawing.withPermit { render(key.documentId, key.maxWidth, key.maxHeight) }
+        val result = drawing.withPermit { render(key.documentId) }
         // Not cached on this device (yet): asked again next time.
         if (result.getOrNull() == null && result.isSuccess) return null
         val image = result.getOrNull()?.let { withContext(Dispatchers.Default) { decodeIconBitmap(it.png) } }
@@ -75,7 +74,7 @@ internal class DocumentThumbnails(
     private val ImageBitmap?.byteCount: Long get() = if (this == null) 0L else width.toLong() * height * 4
 
     companion object {
-        /** ~32 MiB of pixels: a few hundred row thumbnails, or a hundred cards at 2×. */
+        /** ~32 MiB of pixels: about 45 of the SDK's 512 px pages; past that, one is read back from the SDK again. */
         const val THUMBNAIL_CACHE_BYTES: Long = 32L * 1024 * 1024
 
         /** Each drawing takes one of the SDK's blocking threads: a screenful of rows shouldn't take them all. */
@@ -87,21 +86,15 @@ internal class DocumentThumbnails(
 internal val LocalDocumentThumbnails = staticCompositionLocalOf<DocumentThumbnails?> { null }
 
 /**
- * [document]'s first page fitting [width] x [height], or `null` while it's
- * drawn, for a document that isn't a PDF, or one the SDK can't draw — the
- * caller then shows its folder's tile.
+ * [document]'s first page (the caller scales it to its box), or `null` while
+ * it's drawn, for a document that isn't a PDF, or one the SDK can't draw —
+ * the caller then shows its folder's tile.
  */
 @Composable
-internal fun rememberDocumentThumbnail(document: FydeDocument, width: Dp, height: Dp): ImageBitmap? {
+internal fun rememberDocumentThumbnail(document: FydeDocument): ImageBitmap? {
     val thumbnails = LocalDocumentThumbnails.current
-    val density = LocalDensity.current
     val key = if (thumbnails != null && document.kind == DocumentKind.PDF) {
-        DocumentThumbnails.Key(
-            documentId = document.id,
-            size = document.size,
-            maxWidth = with(density) { width.roundToPx() },
-            maxHeight = with(density) { height.roundToPx() },
-        )
+        DocumentThumbnails.Key(documentId = document.id, size = document.size)
     } else {
         null
     }

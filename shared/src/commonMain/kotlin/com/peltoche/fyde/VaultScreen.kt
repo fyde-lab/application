@@ -268,12 +268,12 @@ fun VaultScreen(
     navigation: TopLevelNavigation,
     modifier: Modifier = Modifier,
     folderCallbacks: FolderCallbacks = FolderCallbacks(),
-    loadThumbnail: suspend (id: String, maxWidth: Int, maxHeight: Int) -> Result<FydeThumbnail?> = { _, _, _ -> Result.success(null) },
+    loadThumbnail: suspend (id: String) -> Result<FydeThumbnail?> = { Result.success(null) },
 ) {
     val folders = (state as? VaultUiState.Loaded)?.folders ?: VaultFolders()
     // Kept while the vault is shown, gone with it (logout included).
     val currentLoadThumbnail by rememberUpdatedState(loadThumbnail)
-    val thumbnails = remember { DocumentThumbnails(render = { id, width, height -> currentLoadThumbnail(id, width, height) }) }
+    val thumbnails = remember { DocumentThumbnails(render = { id -> currentLoadThumbnail(id) }) }
     val currentFolders by rememberUpdatedState(folders)
     val callbacks by rememberUpdatedState(folderCallbacks)
     // Drag and drop is Expanded's, where a mouse is expected.
@@ -825,7 +825,7 @@ internal fun VaultDocumentRow(
             onClick = onClick,
             selected = selected,
             highlightTerms = highlightTerms,
-            thumbnail = rememberDocumentThumbnail(document, AppDimensions.documentRowPageWidth, AppDimensions.documentRowPageHeight),
+            thumbnail = rememberDocumentThumbnail(document),
             icon = { tint -> DocumentFolderGlyph(document, tint) },
         )
         if (onDelete != null) {

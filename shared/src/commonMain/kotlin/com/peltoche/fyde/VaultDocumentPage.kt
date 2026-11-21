@@ -506,7 +506,7 @@ private fun FileRow(document: FydeDocument, size: String, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AppSpacing.space4),
     ) {
-        val thumbnail = rememberDocumentThumbnail(document, AppDimensions.documentFilePageWidth, AppDimensions.documentFilePageHeight)
+        val thumbnail = rememberDocumentThumbnail(document)
         if (thumbnail != null) {
             DocumentPage(thumbnail, width = AppDimensions.documentFilePageWidth, height = AppDimensions.documentFilePageHeight)
         } else {

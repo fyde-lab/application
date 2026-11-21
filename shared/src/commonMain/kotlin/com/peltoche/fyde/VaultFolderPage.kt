@@ -147,7 +147,7 @@ internal fun FolderGridPage(vault: Vault, page: VaultPage.Folder) {
                     caption = localizedShortDate(document.createdAt),
                     color = document.colors(),
                     onClick = { vault.openDocument(document) },
-                    thumbnail = rememberDocumentThumbnail(document, AppDimensions.documentCardPageWidth, AppDimensions.documentCardWell),
+                    thumbnail = rememberDocumentThumbnail(document),
                     icon = { tint -> DocumentFolderGlyph(document, tint) },
                 )
             }
