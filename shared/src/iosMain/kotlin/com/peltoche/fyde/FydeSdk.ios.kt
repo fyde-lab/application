@@ -174,7 +174,7 @@ actual object FydeSdk {
                     override fun onQuestion(installationId: String, question: String): String =
                         scraperHandler?.let { handler -> runBlocking { handler.onQuestion(installationId, question) } } ?: ""
                 }
-                client = FydeClient.init(config, IosLogListener(), documentListener, scraperListener)
+                client = FydeClient.init(config, IosLogListener(), documentListener, scraperListener, null)
             }
         }
     }

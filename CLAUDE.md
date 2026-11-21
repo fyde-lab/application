@@ -21,6 +21,13 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through this repo's own 
   `fyde_sdk::for_each_error_code!`, and the `Ffi*` mirrors of SDK types must follow any SDK
   change (e.g. a new `ProgressStep` needs an `FfiProgressStep` variant). Keep its uniffi
   namespace `fyde_sdk` (Kotlin package `uniffi.fyde_sdk`).
+- **`fyde.browser`'s webview** (`sdkBridge/rust/src/browser.rs`): `FydeClient.init`'s
+  `browserEngine`, a `WebviewEngine` callback interface the app implements on Android and iOS;
+  `null` on desktop, where the bindings run `fyde-browser-wry` themselves (a desktop-only
+  dependency, so mobile builds never pull in tao/wry/GTK). Without one on mobile, `fyde.browser`
+  fails with `BrowserFailed`. An engine only hosts webviews (one isolated, ephemeral data store
+  per session, or it refuses to open one): every decision is the SDK's, asked of the
+  session's `FfiWebviewHandler`. Never put a rule in an engine.
 - **Visual rules:** `design/design-system.md` is the source of truth (tokens in
   `shared/.../theme/`, components in `shared/.../components/`, glyphs in `shared/.../icons/`).
   Root `DESIGN.md` is superseded — don't implement against it.
