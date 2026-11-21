@@ -30,6 +30,11 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through this repo's own 
   session's `FfiWebviewHandler`. Never put a rule in an engine. iOS's is `IosWebviewEngine`
   (iosMain): a WKWebView per run on its own non-persistent `WKWebsiteDataStore`, in the key
   window (1×1 and nearly transparent unless visible); calls hop to the main queue and wait.
+  Android's is `AndroidWebviewEngine` (androidMain): a WebView per run on its own androidx.webkit
+  profile, deleted with it (leftovers at the next start); without multi-profile support (WebView
+  < 110) it refuses to open one. Its WebView sits in `ResumedActivity`'s window (1×1 and
+  transparent unless visible); calls hop to the main thread and wait. `CookieManager` only gives
+  names and values, so cookies read back lose their other attributes.
 - **Visual rules:** `design/design-system.md` is the source of truth (tokens in
   `shared/.../theme/`, components in `shared/.../components/`, glyphs in `shared/.../icons/`).
   Root `DESIGN.md` is superseded — don't implement against it.
