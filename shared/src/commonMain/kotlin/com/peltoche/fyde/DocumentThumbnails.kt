@@ -13,14 +13,15 @@ import kotlinx.coroutines.withContext
  * Reads a document's first page as stored in the SDK's SQLite database
  * (`FydeSdk.documentThumbnail`, which `App.kt` supplies): `null` when none is
  * stored. The SDK never draws one on request, only its background job does
- * (`FfiBackgroundJobs.thumbnails`, off on Android and iOS, which then show
- * none), and nothing is cached here: each box reads it back.
+ * (`FfiBackgroundJobs.thumbnails`), and nothing is cached here: each box
+ * reads it back. Only where [FydeSdk.showsThumbnails] (desktop): elsewhere
+ * there's no reader, so no box ever asks.
  */
 internal fun interface DocumentThumbnailReader {
     suspend fun read(documentId: String): Result<FydeThumbnail?>
 }
 
-/** The vault's [DocumentThumbnailReader]; `null` outside it (the design-system screen), where nothing has one. */
+/** The vault's [DocumentThumbnailReader]; `null` outside it (the design-system screen) and off desktop, where nothing has one. */
 internal val LocalDocumentThumbnails = staticCompositionLocalOf<DocumentThumbnailReader?> { null }
 
 /**

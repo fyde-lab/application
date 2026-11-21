@@ -268,11 +268,15 @@ fun VaultScreen(
     navigation: TopLevelNavigation,
     modifier: Modifier = Modifier,
     folderCallbacks: FolderCallbacks = FolderCallbacks(),
-    loadThumbnail: suspend (id: String) -> Result<FydeThumbnail?> = { Result.success(null) },
+    /** Reads a document's stored first page; `null` where previews aren't shown, so none is ever asked for. */
+    loadThumbnail: (suspend (id: String) -> Result<FydeThumbnail?>)? = null,
 ) {
     val folders = (state as? VaultUiState.Loaded)?.folders ?: VaultFolders()
     val currentLoadThumbnail by rememberUpdatedState(loadThumbnail)
-    val thumbnails = remember { DocumentThumbnailReader { id -> currentLoadThumbnail(id) } }
+    val showsThumbnails = loadThumbnail != null
+    val thumbnails = remember(showsThumbnails) {
+        if (showsThumbnails) DocumentThumbnailReader { id -> currentLoadThumbnail?.invoke(id) ?: Result.success(null) } else null
+    }
     val currentFolders by rememberUpdatedState(folders)
     val callbacks by rememberUpdatedState(folderCallbacks)
     // Drag and drop is Expanded's, where a mouse is expected.

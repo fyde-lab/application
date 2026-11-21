@@ -1,6 +1,8 @@
 package com.peltoche.fyde
 
 actual object FydeSdk {
+    actual val showsThumbnails: Boolean = false
+
     /**
      * Fails like every other platform's [FydeSdk] does for a failure that
      * isn't fyde-sdk's own: logged to the browser console in full, with no
