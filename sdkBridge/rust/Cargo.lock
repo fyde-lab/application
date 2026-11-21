@@ -2080,7 +2080,7 @@ dependencies = [
 [[package]]
 name = "fyde-browser-wry"
 version = "0.1.0"
-source = "git+https://github.com/fyde-lab/sdk.git?branch=master#0695a470eefd5754216ffb028010fc97980fbc49"
+source = "git+https://github.com/fyde-lab/sdk.git?branch=master#77efc35d0bdf842c232a377db3a860ab11ca5b88"
 dependencies = [
  "cookie",
  "fyde-sdk",
@@ -2093,7 +2093,7 @@ dependencies = [
 [[package]]
 name = "fyde-sdk"
 version = "0.1.0"
-source = "git+https://github.com/fyde-lab/sdk.git?branch=master#0695a470eefd5754216ffb028010fc97980fbc49"
+source = "git+https://github.com/fyde-lab/sdk.git?branch=master#77efc35d0bdf842c232a377db3a860ab11ca5b88"
 dependencies = [
  "aes-gcm",
  "android-native-keyring-store",
