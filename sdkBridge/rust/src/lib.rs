@@ -1305,6 +1305,9 @@ impl From<FfiClientConfig> for ClientConfig {
             // Set by `FydeClient::init` from its `scraper_listener`.
             on_scraper_progress: None,
             on_scraper_question: None,
+            // No webview engine yet, so `fyde.browser` fails with
+            // `BrowserFailed` on every platform until the app passes one.
+            browser_engine: None,
         }
     }
 }
