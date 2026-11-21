@@ -17,12 +17,12 @@ class DocumentThumbnailsJvmTest {
         return out.toByteArray()
     }
 
-    private fun key(id: String, width: Int = 40, height: Int = 52) = DocumentThumbnails.Key(id, size = 1, maxWidth = width, maxHeight = height)
+    private fun key(id: String, size: Long = 1) = DocumentThumbnails.Key(id, size = size)
 
     @Test
     fun drawsEachDocumentOnceThenKeepsItsImage() = runBlocking<Unit> {
         val calls = mutableListOf<String>()
-        val thumbnails = DocumentThumbnails({ id, _, _ ->
+        val thumbnails = DocumentThumbnails({ id ->
             calls += id
             Result.success(FydeThumbnail(png(30, 40), 30, 40))
         })
@@ -38,23 +38,24 @@ class DocumentThumbnailsJvmTest {
     }
 
     @Test
-    fun drawsTheSameDocumentAgainAtAnotherSize() = runBlocking<Unit> {
-        val calls = mutableListOf<Pair<Int, Int>>()
-        val thumbnails = DocumentThumbnails({ _, width, height ->
-            calls += width to height
-            Result.success(FydeThumbnail(png(width, height), width, height))
+    fun drawsADocumentAgainOnceItsFileChanges() = runBlocking<Unit> {
+        var calls = 0
+        val thumbnails = DocumentThumbnails({ _ ->
+            calls++
+            Result.success(FydeThumbnail(png(30, 40), 30, 40))
         })
 
-        thumbnails.load(key("a", 40, 52))
-        thumbnails.load(key("a", 104, 160))
+        thumbnails.load(key("a", size = 1))
+        thumbnails.load(key("a", size = 1))
+        thumbnails.load(key("a", size = 2))
 
-        assertEquals(listOf(40 to 52, 104 to 160), calls)
+        assertEquals(2, calls)
     }
 
     @Test
     fun aDocumentNotCachedHereIsAskedForAgain() = runBlocking<Unit> {
         var calls = 0
-        val thumbnails = DocumentThumbnails({ _, _, _ ->
+        val thumbnails = DocumentThumbnails({ _ ->
             calls++
             Result.success(null)
         })
@@ -69,7 +70,7 @@ class DocumentThumbnailsJvmTest {
     @Test
     fun aDocumentTheSdkCannotDrawIsNotTriedAgain() = runBlocking<Unit> {
         var calls = 0
-        val thumbnails = DocumentThumbnails({ _, _, _ ->
+        val thumbnails = DocumentThumbnails({ _ ->
             calls++
             Result.failure(IllegalStateException("unreadable PDF"))
         })
@@ -84,7 +85,7 @@ class DocumentThumbnailsJvmTest {
     @Test
     fun dropsTheLeastRecentlyUsedPastItsBudget() = runBlocking<Unit> {
         // Room for two 10 x 10 images (400 bytes each).
-        val thumbnails = DocumentThumbnails({ _, _, _ -> Result.success(FydeThumbnail(png(10, 10), 10, 10)) }, budgetBytes = 800)
+        val thumbnails = DocumentThumbnails({ _ -> Result.success(FydeThumbnail(png(10, 10), 10, 10)) }, budgetBytes = 800)
 
         thumbnails.load(key("a"))
         thumbnails.load(key("b"))

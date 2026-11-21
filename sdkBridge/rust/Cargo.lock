@@ -2080,7 +2080,7 @@ dependencies = [
 [[package]]
 name = "fyde-sdk"
 version = "0.1.0"
-source = "git+https://github.com/fyde-lab/sdk.git?branch=master#4041b210178c31949b2c06eb4f9c560458f00ba1"
+source = "git+https://github.com/fyde-lab/sdk.git?branch=master#58825da7fbd637b82b4f0e09d48e372a2a30ad15"
 dependencies = [
  "aes-gcm",
  "android-native-keyring-store",
@@ -2097,8 +2097,10 @@ dependencies = [
  "hayro",
  "hkdf 0.12.4",
  "image",
+ "jni 0.21.1",
  "keyring-core",
  "mlua",
+ "ndk-context",
  "oar-ocr",
  "opaque-ke",
  "ort",

@@ -807,12 +807,12 @@ expect object FydeSdk {
 
     /**
      * The first page of the PDF document [id] cached locally, drawn as large
-     * as fits [maxWidth] x [maxHeight] pixels (each clamped by the SDK to
-     * `1..=2048`), its aspect ratio kept, on white; `null` if it isn't
-     * cached here. Fails for content that isn't a readable PDF. Drawn on
-     * every call, never stored. Mirrors [`crate::DocumentsService::thumbnail`].
+     * as fits the SDK's fixed square (512 px a side), its aspect ratio kept,
+     * on white; `null` if it isn't cached here. Fails for content that isn't
+     * a readable PDF. The SDK stores it once drawn, so this mostly reads it
+     * back. Mirrors [`crate::DocumentsService::thumbnail`].
      */
-    suspend fun documentThumbnail(id: String, maxWidth: Int, maxHeight: Int): Result<FydeThumbnail?>
+    suspend fun documentThumbnail(id: String): Result<FydeThumbnail?>
 
     /**
      * Reads the local file at [path], encrypts it and its metadata, then
