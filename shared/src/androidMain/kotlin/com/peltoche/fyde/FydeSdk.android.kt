@@ -4,6 +4,7 @@ import android.util.Log
 import java.io.File
 import kotlin.coroutines.cancellation.CancellationException
 import uniffi.fyde_sdk.DocumentChangeListener
+import uniffi.fyde_sdk.FfiBackgroundJobs
 import uniffi.fyde_sdk.FfiChangelogEvent
 import uniffi.fyde_sdk.FfiClientConfig
 import uniffi.fyde_sdk.FfiDocumentType
@@ -137,6 +138,9 @@ actual object FydeSdk {
                     clientName = "android",
                     storage = FfiStorage.Disk(path = defaultDataDirectory()),
                     modelsDir = defaultModelsDirectory(),
+                    // No thumbnails drawn in the background, to spare the
+                    // battery: each is drawn when first shown instead.
+                    backgroundJobs = FfiBackgroundJobs(sync = true, modelPreloading = true, thumbnails = false),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so
