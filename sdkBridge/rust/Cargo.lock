@@ -2078,9 +2078,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "fyde-browser-wry"
+version = "0.1.0"
+source = "git+https://github.com/fyde-lab/sdk.git?branch=master#346b19276ce76b3c3df9e8dd4d8d806b0682cd36"
+dependencies = [
+ "cookie",
+ "fyde-sdk",
+ "rand 0.10.2",
+ "tao",
+ "tracing",
+ "wry",
+]
+
+[[package]]
 name = "fyde-sdk"
 version = "0.1.0"
-source = "git+https://github.com/fyde-lab/sdk.git?branch=master#58825da7fbd637b82b4f0e09d48e372a2a30ad15"
+source = "git+https://github.com/fyde-lab/sdk.git?branch=master#346b19276ce76b3c3df9e8dd4d8d806b0682cd36"
 dependencies = [
  "aes-gcm",
  "android-native-keyring-store",
@@ -2119,7 +2132,6 @@ dependencies = [
  "sha2 0.10.9",
  "sha2 0.11.0",
  "sqlx",
- "tao",
  "thiserror 2.0.20",
  "tokenizers",
  "tokio",
@@ -2134,7 +2146,6 @@ dependencies = [
  "url",
  "uuid",
  "windows-native-keyring-store",
- "wry",
  "xdg",
  "zeroize",
 ]
@@ -2143,6 +2154,7 @@ dependencies = [
 name = "fyde-sdk-bridge"
 version = "0.1.0"
 dependencies = [
+ "fyde-browser-wry",
  "fyde-sdk",
  "jni 0.22.4",
  "rustls-platform-verifier",
