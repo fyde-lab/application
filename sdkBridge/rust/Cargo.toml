@@ -22,6 +22,12 @@ tracing = "0.1.44"
 uniffi = { version = "=0.32.0", features = ["tokio"] }
 uuid = "1.26.1"
 
+# Desktop only: the `wry` webview `fyde.browser` runs on there (`src/browser.rs`);
+# Android and iOS pass the app's native one instead, so never build tao/wry/GTK.
+# From the same repo and commit as `fyde-sdk`.
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+fyde-browser-wry = { git = "https://github.com/fyde-lab/sdk.git", branch = "master" }
+
 # Android only: `src/android.rs`'s JNI entry point, which hands
 # `rustls-platform-verifier` (fyde-sdk's HTTPS certificate checks, through
 # `reqwest`) the JVM it needs. The same major version as fyde-sdk's, so both

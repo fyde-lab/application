@@ -174,7 +174,9 @@ actual object FydeSdk {
                     override fun onQuestion(installationId: String, question: String): String =
                         scraperHandler?.let { handler -> runBlocking { handler.onQuestion(installationId, question) } } ?: ""
                 }
-                client = FydeClient.init(config, IosLogListener(), documentListener, scraperListener)
+                // fyde.browser's webview: one non-persistent WKWebView per run.
+                val browserEngine = IosWebviewEngine()
+                client = FydeClient.init(config, IosLogListener(), documentListener, scraperListener, browserEngine)
             }
         }
     }
