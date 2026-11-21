@@ -2540,7 +2540,6 @@ mod tests {
         let document_id = Uuid::now_v7();
         let event = FakeChangelogEvent::new()
             .with_id(id)
-            .with_event_type(EventType::DocumentUploaded)
             .with_subject_id(document_id)
             .with_content(b"body".to_vec())
             .with_metadata(FakeMetadata::new().build())
@@ -2558,10 +2557,8 @@ mod tests {
     #[test]
     fn changelog_event_conversion_handles_events_with_no_content_or_metadata() {
         let event = FakeChangelogEvent::new()
-            .with_event_type(EventType::DocumentDeleted)
+            .deleting()
             .with_subject_id(Uuid::now_v7())
-            .without_content()
-            .without_metadata()
             .build();
 
         let ffi: FfiChangelogEvent = event.into();
