@@ -31,6 +31,12 @@ uniffi::setup_scaffolding!("fyde_sdk");
 
 #[cfg(target_os = "android")]
 mod android;
+mod browser;
+
+pub use browser::{
+    FfiBrowserError, FfiWebviewConfig, FfiWebviewCookie, FfiWebviewHandler, FfiWebviewSameSite,
+    WebviewEngine,
+};
 
 macro_rules! define_ffi_error {
     ($($(#[$meta:meta])* $name:ident = $value:literal,)*) => {
@@ -1305,6 +1311,8 @@ impl From<FfiClientConfig> for ClientConfig {
             // Set by `FydeClient::init` from its `scraper_listener`.
             on_scraper_progress: None,
             on_scraper_question: None,
+            // Set by `FydeClient::init` from its `browser_engine`.
+            browser_engine: None,
         }
     }
 }
@@ -1430,14 +1438,21 @@ impl FydeClient {
     /// Needs `async_runtime = "tokio"`: `Client::init` goes through sqlx's
     /// connection pool, which requires an active Tokio context to spawn its
     /// background tasks on — not just a generic future poller.
+    ///
+    /// `browser_engine` is the platform's webview scraper scripts'
+    /// `fyde.browser` runs on (see [`WebviewEngine`]): the app's on Android
+    /// and iOS; `null` on desktop, where the bindings run `wry` themselves.
+    /// Without one on mobile, `fyde.browser` fails with `BrowserFailed`.
     #[uniffi::constructor(async_runtime = "tokio")]
     pub async fn init(
         config: FfiClientConfig,
         on_log: Option<Box<dyn LogListener>>,
         on_document_change: Option<Box<dyn DocumentChangeListener>>,
         scraper_listener: Option<Box<dyn ScraperListener>>,
+        browser_engine: Option<Box<dyn WebviewEngine>>,
     ) -> Result<Arc<Self>, FfiError> {
         let mut config: ClientConfig = config.into();
+        config.browser_engine = browser::engine(browser_engine);
         config.on_log = on_log.map(|listener| -> Arc<dyn Fn(LogLevel, String) + Send + Sync> {
             let listener: Arc<dyn LogListener> = Arc::from(listener);
             Arc::new(move |level, line| listener.on_log(level.into(), line))
