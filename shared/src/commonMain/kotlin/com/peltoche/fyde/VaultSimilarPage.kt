@@ -219,7 +219,7 @@ private fun SimilarDocumentRow(
         checked = checked,
         onCheckedChange = onCheckedChange,
         checkDescription = stringResource(Res.string.select_document, document.name),
-        thumbnail = rememberDocumentThumbnail(document, AppDimensions.documentRowPageWidth, AppDimensions.documentRowPageHeight),
+        thumbnail = rememberDocumentThumbnail(document),
         trailing = {
             if (confidence != null) {
                 val percent = similarityPercent(confidence)

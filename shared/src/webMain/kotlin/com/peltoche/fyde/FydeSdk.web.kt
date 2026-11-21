@@ -71,7 +71,7 @@ actual object FydeSdk {
 
     actual suspend fun getDocumentContent(id: String): Result<ByteArray?> = unsupported()
 
-    actual suspend fun documentThumbnail(id: String, maxWidth: Int, maxHeight: Int): Result<FydeThumbnail?> = unsupported()
+    actual suspend fun documentThumbnail(id: String): Result<FydeThumbnail?> = unsupported()
 
     actual suspend fun uploadDocument(path: String): Result<String> = unsupported()
 
