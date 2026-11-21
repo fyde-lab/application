@@ -122,6 +122,8 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
 }
 
 actual object FydeSdk {
+    actual val showsThumbnails: Boolean = false
+
     private var client: FydeClient? = null
 
     /** Serializes [initialize], so concurrent first calls can't create two clients. */
@@ -152,9 +154,7 @@ actual object FydeSdk {
                     clientName = "ios",
                     storage = FfiStorage.Disk(path = defaultDataDirectory()),
                     modelsDir = defaultModelsDirectory(),
-                    // No previews here: no thumbnail is ever drawn, to spare
-                    // the battery (the SDK only shows the ones it stored).
-                    backgroundJobs = FfiBackgroundJobs(sync = true, modelPreloading = true, thumbnails = false),
+                    backgroundJobs = FfiBackgroundJobs(sync = true, modelPreloading = true, thumbnails = showsThumbnails),
                     logLevel = FfiLogLevel.INFO,
                 )
                 // Both listeners forward to whatever is registered *now*, so
