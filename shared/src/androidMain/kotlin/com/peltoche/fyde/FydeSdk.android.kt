@@ -138,8 +138,8 @@ actual object FydeSdk {
                     clientName = "android",
                     storage = FfiStorage.Disk(path = defaultDataDirectory()),
                     modelsDir = defaultModelsDirectory(),
-                    // No thumbnails drawn in the background, to spare the
-                    // battery: each is drawn when first shown instead.
+                    // No previews here: no thumbnail is ever drawn, to spare
+                    // the battery (the SDK only shows the ones it stored).
                     backgroundJobs = FfiBackgroundJobs(sync = true, modelPreloading = true, thumbnails = false),
                     logLevel = FfiLogLevel.INFO,
                 )

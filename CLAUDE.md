@@ -116,13 +116,12 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   `DocumentAttributesTest`), their wording in `DocumentAttributesText.kt`. What the SDK can't back
   (sharing, recent searches, the Source facet) is left out.
   First pages (`DocumentThumbnails.kt`): document rows, D1's cards and V6's file row show a
-  PDF's first page from `FydeSdk.documentThumbnail`: the SDK stores one fixed-size PNG per
-  document (`THUMBNAIL_SIDE`, 512 px a side) and draws a missing one on first ask, so every box
-  scales that one image. Desktop draws them in the background (`FfiBackgroundJobs.thumbnails`);
-  Android and iOS turn that off to spare the battery. `LocalDocumentThumbnails` is an
-  in-memory LRU of decoded images that `VaultScreen` holds, so it goes with the vault, logout
-  included. A drawing that failed is kept (not retried); a document not cached here is asked
-  for again. Other kinds, and a page still being drawn, keep the folder's tile.
+  PDF's first page only as stored in the SDK's SQLite database (`FydeSdk.documentThumbnail`, one
+  fixed-size PNG per document, `THUMBNAIL_SIDE`, 512 px a side, so every box scales that one
+  image). Nothing draws one on request and the app caches none in memory: each box reads it back
+  through `LocalDocumentThumbnails`. Only the SDK's background job draws them
+  (`FfiBackgroundJobs.thumbnails`, on for desktop); Android and iOS turn it off, so they show no
+  previews. Other kinds, and a document with no stored page, keep the folder's tile.
   Folder sheets (`VaultFolderSheets.kt`, a `FolderSheetState` in `VaultUiState.Loaded`, called
   back through `FolderCallbacks`): V12/D10 new folder (the home's "+ Nouveau dossier", a folder
   page's "+ Nouveau" and its actions' Nouveau sous-dossier), V13/D7 actions from a folder page's

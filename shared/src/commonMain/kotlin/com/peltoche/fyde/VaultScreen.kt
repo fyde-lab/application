@@ -271,9 +271,8 @@ fun VaultScreen(
     loadThumbnail: suspend (id: String) -> Result<FydeThumbnail?> = { Result.success(null) },
 ) {
     val folders = (state as? VaultUiState.Loaded)?.folders ?: VaultFolders()
-    // Kept while the vault is shown, gone with it (logout included).
     val currentLoadThumbnail by rememberUpdatedState(loadThumbnail)
-    val thumbnails = remember { DocumentThumbnails(render = { id -> currentLoadThumbnail(id) }) }
+    val thumbnails = remember { DocumentThumbnailReader { id -> currentLoadThumbnail(id) } }
     val currentFolders by rememberUpdatedState(folders)
     val callbacks by rememberUpdatedState(folderCallbacks)
     // Drag and drop is Expanded's, where a mouse is expected.
