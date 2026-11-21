@@ -1095,31 +1095,51 @@ impl TryFrom<InstalledScript> for FfiInstalledScript {
 /// [`EventType`].
 #[derive(Debug, Clone, Copy, uniffi::Enum)]
 pub enum FfiEventType {
-    SaveDocument,
-    UpdateMetadata,
-    Deleted,
-    InstallScript,
-    UninstallScript,
-    SaveFolder,
-    DeleteFolder,
+    DocumentUploaded,
+    DocumentRenamed,
+    DocumentAttributesUpdated,
+    DocumentMoved,
+    DocumentDeleted,
+    FolderCreated,
+    FolderRenamed,
+    FolderAppearanceChanged,
+    FolderMoved,
+    FolderDeleted,
+    ScriptInstalled,
+    InstallationCredentialsUpdated,
+    InstallationRenamed,
+    InstallationFolderChanged,
+    InstallationUpgraded,
+    ScriptUninstalled,
 }
 
 impl From<EventType> for FfiEventType {
     fn from(event_type: EventType) -> Self {
         match event_type {
-            EventType::SaveDocument => FfiEventType::SaveDocument,
-            EventType::UpdateMetadata => FfiEventType::UpdateMetadata,
-            EventType::Deleted => FfiEventType::Deleted,
-            EventType::InstallScript => FfiEventType::InstallScript,
-            EventType::UninstallScript => FfiEventType::UninstallScript,
-            EventType::SaveFolder => FfiEventType::SaveFolder,
-            EventType::DeleteFolder => FfiEventType::DeleteFolder,
+            EventType::DocumentUploaded => FfiEventType::DocumentUploaded,
+            EventType::DocumentRenamed => FfiEventType::DocumentRenamed,
+            EventType::DocumentAttributesUpdated => FfiEventType::DocumentAttributesUpdated,
+            EventType::DocumentMoved => FfiEventType::DocumentMoved,
+            EventType::DocumentDeleted => FfiEventType::DocumentDeleted,
+            EventType::FolderCreated => FfiEventType::FolderCreated,
+            EventType::FolderRenamed => FfiEventType::FolderRenamed,
+            EventType::FolderAppearanceChanged => FfiEventType::FolderAppearanceChanged,
+            EventType::FolderMoved => FfiEventType::FolderMoved,
+            EventType::FolderDeleted => FfiEventType::FolderDeleted,
+            EventType::ScriptInstalled => FfiEventType::ScriptInstalled,
+            EventType::InstallationCredentialsUpdated => {
+                FfiEventType::InstallationCredentialsUpdated
+            }
+            EventType::InstallationRenamed => FfiEventType::InstallationRenamed,
+            EventType::InstallationFolderChanged => FfiEventType::InstallationFolderChanged,
+            EventType::InstallationUpgraded => FfiEventType::InstallationUpgraded,
+            EventType::ScriptUninstalled => FfiEventType::ScriptUninstalled,
         }
     }
 }
 
 /// A single recorded write, mirroring [`ChangelogEvent`] across the FFI
-/// boundary. `subject_id` is a document or script id depending on
+/// boundary. `subject_id` is a document, folder or installation id depending on
 /// `event_type` (see [`ChangelogEvent`]). `id`/`subject_id` cross as strings since
 /// UniFFI has no native UUID type. `content`/`metadata` are `None` for
 /// event types that don't carry them.
@@ -1930,7 +1950,7 @@ impl FydeClient {
     /// Publishes the deletion of the document `id` as a changelog event: it
     /// leaves the local cache once the SDK's automatic sync consumes it,
     /// which `on_document_change` then reports as an
-    /// [`FfiEventType::Deleted`] event. Mirrors
+    /// [`FfiEventType::DocumentDeleted`] event. Mirrors
     /// [`fyde_sdk::DocumentsService::delete`].
     pub async fn delete_document(&self, id: String) -> Result<(), FfiError> {
         self.localized(async {
@@ -2449,24 +2469,68 @@ mod tests {
     #[test]
     fn event_type_conversion_maps_every_variant() {
         assert!(matches!(
-            FfiEventType::from(EventType::SaveDocument),
-            FfiEventType::SaveDocument
+            FfiEventType::from(EventType::DocumentUploaded),
+            FfiEventType::DocumentUploaded
         ));
         assert!(matches!(
-            FfiEventType::from(EventType::UpdateMetadata),
-            FfiEventType::UpdateMetadata
+            FfiEventType::from(EventType::DocumentRenamed),
+            FfiEventType::DocumentRenamed
         ));
         assert!(matches!(
-            FfiEventType::from(EventType::Deleted),
-            FfiEventType::Deleted
+            FfiEventType::from(EventType::DocumentAttributesUpdated),
+            FfiEventType::DocumentAttributesUpdated
         ));
         assert!(matches!(
-            FfiEventType::from(EventType::InstallScript),
-            FfiEventType::InstallScript
+            FfiEventType::from(EventType::DocumentMoved),
+            FfiEventType::DocumentMoved
         ));
         assert!(matches!(
-            FfiEventType::from(EventType::UninstallScript),
-            FfiEventType::UninstallScript
+            FfiEventType::from(EventType::DocumentDeleted),
+            FfiEventType::DocumentDeleted
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::FolderCreated),
+            FfiEventType::FolderCreated
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::FolderRenamed),
+            FfiEventType::FolderRenamed
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::FolderAppearanceChanged),
+            FfiEventType::FolderAppearanceChanged
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::FolderMoved),
+            FfiEventType::FolderMoved
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::FolderDeleted),
+            FfiEventType::FolderDeleted
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::ScriptInstalled),
+            FfiEventType::ScriptInstalled
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::InstallationCredentialsUpdated),
+            FfiEventType::InstallationCredentialsUpdated
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::InstallationRenamed),
+            FfiEventType::InstallationRenamed
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::InstallationFolderChanged),
+            FfiEventType::InstallationFolderChanged
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::InstallationUpgraded),
+            FfiEventType::InstallationUpgraded
+        ));
+        assert!(matches!(
+            FfiEventType::from(EventType::ScriptUninstalled),
+            FfiEventType::ScriptUninstalled
         ));
     }
 
@@ -2476,7 +2540,7 @@ mod tests {
         let document_id = Uuid::now_v7();
         let event = FakeChangelogEvent::new()
             .with_id(id)
-            .with_event_type(EventType::SaveDocument)
+            .with_event_type(EventType::DocumentUploaded)
             .with_subject_id(document_id)
             .with_content(b"body".to_vec())
             .with_metadata(FakeMetadata::new().build())
@@ -2485,7 +2549,7 @@ mod tests {
         let ffi: FfiChangelogEvent = event.into();
 
         assert_eq!(ffi.id, id.to_string());
-        assert!(matches!(ffi.event_type, FfiEventType::SaveDocument));
+        assert!(matches!(ffi.event_type, FfiEventType::DocumentUploaded));
         assert_eq!(ffi.subject_id, document_id.to_string());
         assert_eq!(ffi.content, Some(b"body".to_vec()));
         assert!(ffi.metadata.is_some());
@@ -2494,7 +2558,7 @@ mod tests {
     #[test]
     fn changelog_event_conversion_handles_events_with_no_content_or_metadata() {
         let event = FakeChangelogEvent::new()
-            .with_event_type(EventType::Deleted)
+            .with_event_type(EventType::DocumentDeleted)
             .with_subject_id(Uuid::now_v7())
             .without_content()
             .without_metadata()

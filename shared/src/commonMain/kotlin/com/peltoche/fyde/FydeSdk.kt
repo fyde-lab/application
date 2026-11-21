@@ -193,31 +193,63 @@ enum class FydeSearchOrder {
  * `FfiEventType`.
  */
 enum class FydeEventType {
-    SAVE_DOCUMENT,
-    UPDATE_METADATA,
-    DELETED,
+    /** A document was uploaded, by the user or a source's run. */
+    DOCUMENT_UPLOADED,
 
-    /** A script was installed for the account, or an installation replaced, see [FydeSdk.installScript]. */
-    INSTALL_SCRIPT,
+    /** A document's name changed. */
+    DOCUMENT_RENAMED,
+
+    /** A document's type or attributes changed. */
+    DOCUMENT_ATTRIBUTES_UPDATED,
+
+    /** A document moved to another folder, or to À classer. */
+    DOCUMENT_MOVED,
+
+    /** A document was deleted. */
+    DOCUMENT_DELETED,
+
+    /** A folder was created. */
+    FOLDER_CREATED,
+
+    /** A folder's name changed. */
+    FOLDER_RENAMED,
+
+    /** A top-level folder's colour or icon changed. */
+    FOLDER_APPEARANCE_CHANGED,
+
+    /** A folder moved under another one, or to the top level. */
+    FOLDER_MOVED,
+
+    /** A folder was deleted, keeping or deleting what it held. */
+    FOLDER_DELETED,
+
+    /** A script was installed: a new installation, see [FydeSdk.installScript]. */
+    SCRIPT_INSTALLED,
+
+    /** An installation's parameters (its credentials) changed. */
+    INSTALLATION_CREDENTIALS_UPDATED,
+
+    /** An installation's label changed. */
+    INSTALLATION_RENAMED,
+
+    /** An installation now files its documents into another folder. */
+    INSTALLATION_FOLDER_CHANGED,
+
+    /** An installation moved to another version of its script. */
+    INSTALLATION_UPGRADED,
 
     /** An installation was removed, see [FydeSdk.uninstallScript]. */
-    UNINSTALL_SCRIPT,
-
-    /** A folder was created or changed. */
-    SAVE_FOLDER,
-
-    /** A folder was deleted. */
-    DELETE_FOLDER,
+    SCRIPT_UNINSTALLED,
 }
 
 /**
  * A single recorded write, mirroring the SDK's `FfiChangelogEvent` without
  * leaking `:sdkBridge`'s generated bindings into `commonMain`. [subjectId]
- * is the id of whatever the write is about: a document for
- * [FydeEventType.SAVE_DOCUMENT]/[FydeEventType.UPDATE_METADATA]/
- * [FydeEventType.DELETED], an installation for [FydeEventType.INSTALL_SCRIPT]/[FydeEventType.UNINSTALL_SCRIPT].
- * [document] (metadata only) is only present for [FydeEventType.SAVE_DOCUMENT]
- * events, which are the only ones that carry document content and metadata today.
+ * is the id of whatever the write is about: a document for the `DOCUMENT_*`
+ * events, a folder for the `FOLDER_*` ones, an installation for the others.
+ * [document] (metadata only) is only present for
+ * [FydeEventType.DOCUMENT_UPLOADED] events, the only ones that carry document
+ * content.
  */
 data class FydeChangelogEvent(
     val id: String,
@@ -913,7 +945,9 @@ expect object FydeSdk {
      * fetches is filed in [folderId], or automatically when `null`; a
      * reinstall passes the installation's [FydeInstallation.folderId] to keep
      * it. Publishes the installation, encrypted, as a
-     * [FydeEventType.INSTALL_SCRIPT] changelog event, and returns its id.
+     * [FydeEventType.SCRIPT_INSTALLED] changelog event (for a reinstall, one
+     * event per change: [FydeEventType.INSTALLATION_CREDENTIALS_UPDATED],
+     * [FydeEventType.INSTALLATION_RENAMED]...), and returns its id.
      * Fails if a parameter the script marks required is missing, the label is
      * too long, or [folderId] isn't a folder synced here. Mirrors
      * [`crate::ScriptsService::install_script`]; doesn't enable the script
@@ -929,7 +963,7 @@ expect object FydeSdk {
 
     /**
      * Uninstalls [installationId]: publishes a
-     * [FydeEventType.UNINSTALL_SCRIPT] event, which erases its credentials
+     * [FydeEventType.SCRIPT_UNINSTALLED] event, which erases its credentials
      * and saved sign-in from every device once synced. Doesn't disable its
      * script ([disableScript]): callers do once none of its installations
      * remains. Mirrors [`crate::ScriptsService::uninstall_script`].

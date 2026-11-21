@@ -631,13 +631,22 @@ private fun FfiAttribute.toFydeAttribute(): FydeAttribute = when (this) {
 private fun FfiChangelogEvent.toFydeChangelogEvent() = FydeChangelogEvent(
     id = id,
     eventType = when (eventType) {
-        FfiEventType.SAVE_DOCUMENT -> FydeEventType.SAVE_DOCUMENT
-        FfiEventType.UPDATE_METADATA -> FydeEventType.UPDATE_METADATA
-        FfiEventType.DELETED -> FydeEventType.DELETED
-        FfiEventType.INSTALL_SCRIPT -> FydeEventType.INSTALL_SCRIPT
-        FfiEventType.UNINSTALL_SCRIPT -> FydeEventType.UNINSTALL_SCRIPT
-        FfiEventType.SAVE_FOLDER -> FydeEventType.SAVE_FOLDER
-        FfiEventType.DELETE_FOLDER -> FydeEventType.DELETE_FOLDER
+        FfiEventType.DOCUMENT_UPLOADED -> FydeEventType.DOCUMENT_UPLOADED
+        FfiEventType.DOCUMENT_RENAMED -> FydeEventType.DOCUMENT_RENAMED
+        FfiEventType.DOCUMENT_ATTRIBUTES_UPDATED -> FydeEventType.DOCUMENT_ATTRIBUTES_UPDATED
+        FfiEventType.DOCUMENT_MOVED -> FydeEventType.DOCUMENT_MOVED
+        FfiEventType.DOCUMENT_DELETED -> FydeEventType.DOCUMENT_DELETED
+        FfiEventType.FOLDER_CREATED -> FydeEventType.FOLDER_CREATED
+        FfiEventType.FOLDER_RENAMED -> FydeEventType.FOLDER_RENAMED
+        FfiEventType.FOLDER_APPEARANCE_CHANGED -> FydeEventType.FOLDER_APPEARANCE_CHANGED
+        FfiEventType.FOLDER_MOVED -> FydeEventType.FOLDER_MOVED
+        FfiEventType.FOLDER_DELETED -> FydeEventType.FOLDER_DELETED
+        FfiEventType.SCRIPT_INSTALLED -> FydeEventType.SCRIPT_INSTALLED
+        FfiEventType.INSTALLATION_CREDENTIALS_UPDATED -> FydeEventType.INSTALLATION_CREDENTIALS_UPDATED
+        FfiEventType.INSTALLATION_RENAMED -> FydeEventType.INSTALLATION_RENAMED
+        FfiEventType.INSTALLATION_FOLDER_CHANGED -> FydeEventType.INSTALLATION_FOLDER_CHANGED
+        FfiEventType.INSTALLATION_UPGRADED -> FydeEventType.INSTALLATION_UPGRADED
+        FfiEventType.SCRIPT_UNINSTALLED -> FydeEventType.SCRIPT_UNINSTALLED
     },
     subjectId = subjectId,
     document = content?.let { metadata?.toFydeDocument() },
