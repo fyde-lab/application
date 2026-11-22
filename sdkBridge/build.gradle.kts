@@ -131,6 +131,22 @@ tasks.withType<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>().configureEach {
     onlyIf("builds only this host's desktop library") { target.get() !in skipped }
 }
 
+// The plugin generates the Kotlin bindings (generateFromLibrary) from a host
+// library it always builds in debug, whatever `-PreleaseBuild` says, so a
+// release build compiled fyde-sdk twice, debug only to read its metadata.
+// Release builds read it from the host's release library instead, the one the
+// jvm() jar ships; it keeps the uniffi metadata, since only debug info is
+// stripped (rust/Cargo.toml's [profile.release]). The bindings are the same.
+if (providers.gradleProperty("releaseBuild").orNull == "true") {
+    val hostReleaseBuild = "cargoBuild${RustTarget.forCurrentPlatform.name}Release"
+    tasks.named<ch.ubique.uniffi.plugin.tasks.BuildBindingsTask>("buildBindings") {
+        libraryFile.set(
+            tasks.named<ch.ubique.uniffi.plugin.tasks.CargoBuildTask>(hostReleaseBuild)
+                .flatMap { it.dynamicLibraryFile },
+        )
+    }
+}
+
 // The plugin points Android's cargo builds at the NDK's API 21 clang wrappers
 // (`armv7a-linux-androideabi21-clang`, …), a level it hard-codes whatever the
 // android target's minSdk. Below API 24, 32-bit bionic doesn't declare

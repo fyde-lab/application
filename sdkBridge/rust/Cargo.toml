@@ -48,3 +48,9 @@ opt-level = 3
 
 [profile.dev.package.blake2]
 opt-level = 3
+
+# Release libraries ship without DWARF debug info (a much smaller .deb/jar);
+# backtraces keep function names. Not "symbols": uniffi-bindgen reads the
+# UNIFFI_META_* symbols out of the release library (../build.gradle.kts).
+[profile.release]
+strip = "debuginfo"
