@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import com.peltoche.fyde.components.navigation.SystemBackHandler
 import com.peltoche.fyde.icons.ChevronLeftGlyph
 import com.peltoche.fyde.resources.Res
 import com.peltoche.fyde.resources.back
@@ -29,9 +30,20 @@ import org.jetbrains.compose.resources.stringResource
  * The circular back button of a pushed screen (design-system.md § Compact:
  * "a 44pt circular back button"), as drawn in O2 and O3: an [AppCircleButton]
  * around a left chevron, labelled "Back" for assistive tech.
+ *
+ * The system back gesture (`SystemBackHandler`) does the same, and does
+ * nothing while [enabled] is off rather than falling through to what's
+ * behind the screen. [handlesSystemBack] off is for a button drawn as a
+ * sample, never for a screen's own.
  */
 @Composable
-fun AppBackButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+fun AppBackButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    handlesSystemBack: Boolean = true,
+) {
+    if (handlesSystemBack) SystemBackHandler { if (enabled) onClick() }
     AppCircleButton(onClick = onClick, contentDescription = stringResource(Res.string.back), modifier = modifier, enabled = enabled) {
         ChevronLeftGlyph(modifier = Modifier.size(AppIconSize.md), tint = AppColors.text)
     }

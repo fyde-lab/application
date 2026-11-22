@@ -22,6 +22,8 @@ kotlinx-coroutines = "1.11.0"
 # Runtime" section): keep it on the release fyde-sdk links on other targets.
 onnxruntime = "1.28.0"
 material3 = "1.12.0-alpha03"
+# The one Compose UI 1.12.0 depends on (SystemBackHandler calls it directly).
+navigationevent = "1.1.0"
 pdfbox = "3.0.3"
 uniffiKotlinMultiplatform = "1.2.2"
 
@@ -45,6 +47,7 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
+navigationevent-compose = { module = "org.jetbrains.androidx.navigationevent:navigationevent-compose", version.ref = "navigationevent" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 wrappers-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-wrappers" }
 pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }

@@ -35,6 +35,11 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through this repo's own 
   < 110) it refuses to open one. Its WebView sits in `ResumedActivity`'s window (1×1 and
   transparent unless visible); calls hop to the main thread and wait. `CookieManager` only gives
   names and values, so cookies read back lose their other attributes.
+- **The system back gesture does what the visible back control does.** `AppBackButton`,
+  `AppPageBar` and `AppTopBar`'s `onBack` register a `SystemBackHandler` (Android's system
+  back, iOS's edge swipe; off on desktop and web, where Compose maps Esc to back). A page that
+  goes back through another control (an Annuler, a close button) calls `SystemBackHandler`
+  itself; design-system samples pass `handlesSystemBack = false`.
 - **Visual rules:** `design/design-system.md` is the source of truth (tokens in
   `shared/.../theme/`, components in `shared/.../components/`, glyphs in `shared/.../icons/`).
   Root `DESIGN.md` is superseded — don't implement against it.

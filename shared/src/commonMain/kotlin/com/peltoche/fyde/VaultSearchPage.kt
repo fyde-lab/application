@@ -31,6 +31,7 @@ import com.peltoche.fyde.components.content.AppGroup
 import com.peltoche.fyde.components.content.AppSectionTitle
 import com.peltoche.fyde.components.feedback.AppEmptyState
 import com.peltoche.fyde.components.form.AppSearchField
+import com.peltoche.fyde.components.navigation.SystemBackHandler
 import com.peltoche.fyde.components.overlay.AppDropdownMenu
 import com.peltoche.fyde.components.overlay.AppDropdownMenuItem
 import com.peltoche.fyde.icons.SearchGlyph
@@ -91,6 +92,7 @@ private fun SearchBar(vault: Vault, page: VaultPage.Search, focusOnOpen: Boolean
     val query = page.query
     val focusRequester = remember { FocusRequester() }
     if (focusOnOpen) LaunchedEffect(Unit) { focusRequester.requestFocus() }
+    SystemBackHandler { vault.openPage(page.origin) }
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = AppSpacing.space4),
         verticalAlignment = Alignment.CenterVertically,
