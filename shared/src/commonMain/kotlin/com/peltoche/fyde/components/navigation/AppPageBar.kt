@@ -19,7 +19,8 @@ import com.peltoche.fyde.theme.AppTypography
  * A page's bar below Expanded (`sources-account.html`'s `.navb`): the back
  * circle at the start, an optional [title] centred in `bodyEmphasis`, an
  * optional [trailing] action at the end. [enabled] disables the back button
- * while the page is busy.
+ * while the page is busy. The system back gesture does what the back button
+ * does (see [AppBackButton]).
  *
  * Not [AppTopBar], whose title starts at the content edge and whose height
  * follows the size class: this is the reference screens' centred bar, the
@@ -32,12 +33,18 @@ fun AppPageBar(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     trailing: (@Composable () -> Unit)? = null,
+    handlesSystemBack: Boolean = true,
 ) {
     Box(
         modifier = modifier.fillMaxWidth().heightIn(min = AppDimensions.topBarHeight),
         contentAlignment = Alignment.Center,
     ) {
-        AppBackButton(onClick = onBack, enabled = enabled, modifier = Modifier.align(Alignment.CenterStart))
+        AppBackButton(
+            onClick = onBack,
+            enabled = enabled,
+            handlesSystemBack = handlesSystemBack,
+            modifier = Modifier.align(Alignment.CenterStart),
+        )
         if (title != null) {
             Text(
                 text = title,

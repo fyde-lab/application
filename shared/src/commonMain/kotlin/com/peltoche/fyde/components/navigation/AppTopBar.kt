@@ -100,6 +100,7 @@ fun AppTopBar(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (onBack != null) {
+                SystemBackHandler(onBack)
                 // Localized like every other string: found via review that a
                 // caller passing nothing got a hardcoded English "Back".
                 AppIconButton(onClick = onBack, contentDescription = backContentDescription ?: stringResource(Res.string.back)) {

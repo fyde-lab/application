@@ -220,8 +220,8 @@ private fun ActionsSection(onShowSnackbar: () -> Unit) {
         }
         CatalogueRow("AppBackButton — enabled / disabled") {
             Row(horizontalArrangement = Arrangement.spacedBy(AppSpacing.space3)) {
-                AppBackButton(onClick = {})
-                AppBackButton(onClick = {}, enabled = false)
+                AppBackButton(onClick = {}, handlesSystemBack = false)
+                AppBackButton(onClick = {}, enabled = false, handlesSystemBack = false)
             }
         }
         CatalogueRow("AppCircleButton — enabled / disabled / active (D2b)") {
@@ -722,9 +722,9 @@ private fun NavigationSection() {
     CatalogueSection("Navigation") {
         CatalogueRow("AppPageBar — title / no title / trailing action") {
             Column {
-                AppPageBar(title = "Logement · Énergie", onBack = {})
-                AppPageBar(title = null, onBack = {})
-                AppPageBar(title = "Sources", onBack = {}, trailing = { AppIconButton(onClick = {}, contentDescription = "Add") { DotIcon() } })
+                AppPageBar(title = "Logement · Énergie", onBack = {}, handlesSystemBack = false)
+                AppPageBar(title = null, onBack = {}, handlesSystemBack = false)
+                AppPageBar(title = "Sources", onBack = {}, handlesSystemBack = false, trailing = { AppIconButton(onClick = {}, contentDescription = "Add") { DotIcon() } })
             }
         }
         CatalogueRow("AppTopBar — this screen's own top bar, above, demonstrates both title sizes (with/without back)") {

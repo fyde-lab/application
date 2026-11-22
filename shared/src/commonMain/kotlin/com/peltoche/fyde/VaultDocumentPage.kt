@@ -44,6 +44,7 @@ import com.peltoche.fyde.components.content.DocumentPass
 import com.peltoche.fyde.components.content.DocumentPage
 import com.peltoche.fyde.components.feedback.AppErrorNote
 import com.peltoche.fyde.components.navigation.AppPageBar
+import com.peltoche.fyde.components.navigation.SystemBackHandler
 import com.peltoche.fyde.components.overlay.AppBottomSheet
 import com.peltoche.fyde.components.overlay.AppDialog
 import com.peltoche.fyde.components.overlay.AppDropdownMenu
@@ -177,6 +178,7 @@ internal fun DocumentViewer(
     loadContent: suspend (FydeDocument) -> Result<ByteArray?>,
     onClose: () -> Unit,
 ) {
+    SystemBackHandler(onClose)
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.fillMaxWidth().heightIn(min = AppDimensions.topBarHeight),
