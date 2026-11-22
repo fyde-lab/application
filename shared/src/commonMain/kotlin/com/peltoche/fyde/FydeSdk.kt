@@ -611,10 +611,10 @@ sealed interface FydeLoginOutcome {
  */
 expect object FydeSdk {
     /**
-     * Whether this platform shows documents' first pages: desktop only.
-     * Starts the SDK's thumbnail job (`FfiBackgroundJobs.thumbnails`), the
-     * only thing that draws them; off (Android, iOS, Web), none is ever
-     * drawn and the app never asks for one ([documentThumbnail]).
+     * Whether this platform shows documents' first pages: desktop, Android
+     * and iOS. Starts the SDK's thumbnail job (`FfiBackgroundJobs.thumbnails`),
+     * the only thing that draws them; off (Web), none is ever drawn and the
+     * app never asks for one ([documentThumbnail]).
      */
     val showsThumbnails: Boolean
 

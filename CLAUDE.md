@@ -120,9 +120,9 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   fixed-size PNG per document, `THUMBNAIL_SIDE`, 512 px a side, so every box scales that one
   image). Nothing draws one on request and the app caches none in memory: each box reads it back
   through `LocalDocumentThumbnails`. Only the SDK's background job draws them
-  (`FfiBackgroundJobs.thumbnails`). Both follow `FydeSdk.showsThumbnails` (desktop only): on
-  Android and iOS the job never starts and `LocalDocumentThumbnails` is `null`, so no thumbnail is
-  ever drawn or asked for. Other kinds, and a document with no stored page, keep the folder's tile.
+  (`FfiBackgroundJobs.thumbnails`). Both follow `FydeSdk.showsThumbnails` (desktop, Android and
+  iOS; Web has no SDK): where it's off the job never starts and `LocalDocumentThumbnails` is
+  `null`, so no thumbnail is ever drawn or asked for. Other kinds, and a document with no stored page, keep the folder's tile.
   Folder sheets (`VaultFolderSheets.kt`, a `FolderSheetState` in `VaultUiState.Loaded`, called
   back through `FolderCallbacks`): V12/D10 new folder (the home's "+ Nouveau dossier", a folder
   page's "+ Nouveau" and its actions' Nouveau sous-dossier), V13/D7 actions from a folder page's
