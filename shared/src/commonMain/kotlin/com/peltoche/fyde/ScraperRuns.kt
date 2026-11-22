@@ -283,6 +283,20 @@ class ScraperRuns(
     }
 }
 
+/**
+ * The status [run], an account's last report ([FydeSdk.lastScriptRuns]),
+ * shows when this app session hasn't run it: a run cut short by the app
+ * closing reads as stopped (muted, "Interrompue"), never as a failure. `null`
+ * for one still running: live runs are [ScraperRuns]'.
+ */
+internal fun sourceStatusOfReport(run: FydeScraperLastRun): SourceFetchStatus? = when (val outcome = run.outcome) {
+    FydeScraperRunReportOutcome.Running -> null
+    FydeScraperRunReportOutcome.Succeeded -> SourceFetchStatus.Succeeded(run.found)
+    is FydeScraperRunReportOutcome.Failed -> SourceFetchStatus.Failed(outcome.message, run.step, run.found)
+    FydeScraperRunReportOutcome.Stopped -> SourceFetchStatus.Stopped(run.step, run.update, run.found)
+    FydeScraperRunReportOutcome.Interrupted -> SourceFetchStatus.Stopped(run.step, run.update, run.found, interrupted = true)
+}
+
 /** How often [ScraperRuns.runOnceInstalled] checks whether the installation has synced. */
 private const val INSTALL_SYNC_POLL_MS = 500L
 

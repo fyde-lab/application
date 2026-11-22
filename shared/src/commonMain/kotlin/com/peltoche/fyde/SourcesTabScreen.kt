@@ -130,6 +130,7 @@ import com.peltoche.fyde.resources.source_settings
 import com.peltoche.fyde.resources.source_sites
 import com.peltoche.fyde.resources.source_status_failed
 import com.peltoche.fyde.resources.source_status_queued
+import com.peltoche.fyde.resources.source_status_interrupted
 import com.peltoche.fyde.resources.source_status_stopped
 import com.peltoche.fyde.resources.source_fetching_stopped_title
 import com.peltoche.fyde.resources.source_fetching_stopped_note
@@ -1377,7 +1378,11 @@ internal fun SourceStatusLine(status: SourceFetchStatus, modifier: Modifier = Mo
         SourceFetchStatus.Queued -> SourceStatus(SourceStatusKind.Queued, stringResource(Res.string.source_status_queued), modifier)
         is SourceFetchStatus.Succeeded -> SourceStatus(SourceStatusKind.UpToDate, stringResource(Res.string.source_status_up_to_date), modifier)
         is SourceFetchStatus.Failed -> SourceStatus(SourceStatusKind.Failed, status.message, modifier)
-        is SourceFetchStatus.Stopped -> SourceStatus(SourceStatusKind.Stopped, stringResource(Res.string.source_status_stopped), modifier)
+        is SourceFetchStatus.Stopped -> SourceStatus(
+            SourceStatusKind.Stopped,
+            stringResource(if (status.interrupted) Res.string.source_status_interrupted else Res.string.source_status_stopped),
+            modifier,
+        )
     }
 }
 

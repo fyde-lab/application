@@ -19,9 +19,10 @@ use fyde_sdk::{
     ErrorContext as _, EventType, FacetCount, Folder, FolderAppearance, FolderColor,
     FolderContents, FolderFilter, FolderIcon, InstallScriptRequest, InstalledScript, LogLevel,
     LoginOutcome, Metadata, OpenSession, PasswordAnalysis, PasswordStrength, ProgressEvent,
-    ProgressStep, Script, ScriptMetadata, ScriptParameter, ScriptParameterChoice, ScriptParameterType, ScriptType,
-    SearchFacets, SearchFilters, SearchOrder, SearchQuery, SetAttributeRequest, SimilarDocument,
-    Storage, SyncProgress, Thumbnail, UpdateFolderRequest, UploadRequest, Usage, system_language,
+    ProgressStep, ScraperRun, ScraperRunOutcome, Script, ScriptMetadata, ScriptParameter,
+    ScriptParameterChoice, ScriptParameterType, ScriptType, SearchFacets, SearchFilters,
+    SearchOrder, SearchQuery, SetAttributeRequest, SimilarDocument, Storage, SyncProgress,
+    Thumbnail, UpdateFolderRequest, UploadRequest, Usage, system_language,
 };
 
 // Keeps the generated Kotlin package `uniffi.fyde_sdk` (the namespace
@@ -964,7 +965,10 @@ pub struct FfiScriptParameterChoice {
 
 impl From<ScriptParameterChoice> for FfiScriptParameterChoice {
     fn from(choice: ScriptParameterChoice) -> Self {
-        Self { value: choice.value, label: choice.label }
+        Self {
+            value: choice.value,
+            label: choice.label,
+        }
     }
 }
 
@@ -1399,6 +1403,87 @@ impl FfiProgressEvent {
                 message: step.user_message(language).to_string(),
             },
             ProgressEvent::Update { current, total } => Self::Update { current, total },
+        }
+    }
+}
+
+/// How a [`FfiScraperRun`] ended, or that it hasn't, mirroring
+/// [`ScraperRunOutcome`].
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Enum)]
+pub enum FfiScraperRunOutcome {
+    /// Going on now, in this process (or waiting for its turn).
+    Running,
+    Succeeded,
+    /// Failed, `message` being its error code's wording in the user's
+    /// language (see [`ErrorCode::user_message`]).
+    Failed {
+        message: String,
+    },
+    /// Stopped on request: not a failure.
+    Stopped,
+    /// Never ended: the process running it was closed (or crashed) mid-run.
+    Interrupted,
+}
+
+impl FfiScraperRunOutcome {
+    /// Converts `outcome`, wording a failure in `language`.
+    fn localized(outcome: ScraperRunOutcome, language: &str) -> Self {
+        match outcome {
+            ScraperRunOutcome::Running => Self::Running,
+            ScraperRunOutcome::Succeeded => Self::Succeeded,
+            ScraperRunOutcome::Failed { code } => Self::Failed {
+                message: code.user_message(language).to_string(),
+            },
+            ScraperRunOutcome::Stopped => Self::Stopped,
+            ScraperRunOutcome::Interrupted => Self::Interrupted,
+        }
+    }
+}
+
+/// A run's last `fyde.progress.update(current, total)`, mirroring
+/// [`fyde_sdk::ScraperRunUpdate`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Record)]
+pub struct FfiScraperRunUpdate {
+    pub current: i64,
+    pub total: i64,
+}
+
+/// An installation's latest run on this device, as its report keeps it,
+/// mirroring [`ScraperRun`].
+#[derive(Debug, Clone, PartialEq, Eq, uniffi::Record)]
+pub struct FfiScraperRun {
+    /// The installation it ran (the run's name).
+    pub installation_id: String,
+    /// In milliseconds since the Unix epoch.
+    pub started_at_ms: i64,
+    /// `None` while running, or if it was interrupted.
+    pub ended_at_ms: Option<i64>,
+    pub outcome: FfiScraperRunOutcome,
+    /// The last step it announced, if any.
+    pub step: Option<FfiProgressStep>,
+    /// Its last update since that step, if any.
+    pub update: Option<FfiScraperRunUpdate>,
+    /// How many documents it said it found, if it said.
+    pub found: Option<i64>,
+    /// How many documents new to the vault it saved.
+    pub saved: u64,
+}
+
+impl FfiScraperRun {
+    /// Converts `run`, wording a failure in `language`.
+    fn localized(run: ScraperRun, language: &str) -> Self {
+        Self {
+            installation_id: run.name,
+            started_at_ms: run.started_at_ms,
+            ended_at_ms: run.ended_at_ms,
+            outcome: FfiScraperRunOutcome::localized(run.outcome, language),
+            step: run.step.map(FfiProgressStep::from),
+            update: run.update.map(|update| FfiScraperRunUpdate {
+                current: update.current,
+                total: update.total,
+            }),
+            found: run.found,
+            saved: run.saved,
         }
     }
 }
@@ -2151,6 +2236,23 @@ impl FydeClient {
         })
         .await
     }
+
+    /// Every scraper's latest run on this device, latest first, from its
+    /// report — so it outlives the process that ran it: one whose process
+    /// ended mid-run reads as `Interrupted`. A failure is worded in the
+    /// user's language. Never synced to other devices. Mirrors
+    /// [`fyde_sdk::ScrapersService::last_runs`].
+    pub async fn last_script_runs(&self) -> Result<Vec<FfiScraperRun>, FfiError> {
+        self.localized(async {
+            let runs = self.inner.scrapers().last_runs().await?;
+            let language = self.inner.language().await;
+            Ok(runs
+                .into_iter()
+                .map(|run| FfiScraperRun::localized(run, &language))
+                .collect())
+        })
+        .await
+    }
 }
 
 #[cfg(test)]
@@ -2195,6 +2297,65 @@ mod tests {
             }
         );
         assert_eq!(config.log_level, LogLevel::Debug);
+    }
+
+    #[test]
+    fn scraper_run_conversion_keeps_the_report_and_words_a_failure() {
+        let id = Uuid::now_v7().to_string();
+        let run = ScraperRun {
+            name: id.clone(),
+            started_at_ms: 1_700_000_000_000,
+            ended_at_ms: Some(1_700_000_060_000),
+            outcome: ScraperRunOutcome::Failed {
+                code: ErrorCode::InvalidUuid,
+            },
+            step: Some(ProgressStep::LoggingIn),
+            update: Some(fyde_sdk::ScraperRunUpdate {
+                current: 2,
+                total: 5,
+            }),
+            found: Some(5),
+            saved: 2,
+        };
+
+        let ffi = FfiScraperRun::localized(run, "fr");
+
+        assert_eq!(
+            ffi,
+            FfiScraperRun {
+                installation_id: id,
+                started_at_ms: 1_700_000_000_000,
+                ended_at_ms: Some(1_700_000_060_000),
+                outcome: FfiScraperRunOutcome::Failed {
+                    message: ErrorCode::InvalidUuid.user_message("fr").to_string(),
+                },
+                step: Some(FfiProgressStep::LoggingIn),
+                update: Some(FfiScraperRunUpdate {
+                    current: 2,
+                    total: 5,
+                }),
+                found: Some(5),
+                saved: 2,
+            }
+        );
+    }
+
+    #[test]
+    fn scraper_run_outcome_conversion_maps_every_outcome() {
+        for (outcome, expected) in [
+            (ScraperRunOutcome::Running, FfiScraperRunOutcome::Running),
+            (
+                ScraperRunOutcome::Succeeded,
+                FfiScraperRunOutcome::Succeeded,
+            ),
+            (ScraperRunOutcome::Stopped, FfiScraperRunOutcome::Stopped),
+            (
+                ScraperRunOutcome::Interrupted,
+                FfiScraperRunOutcome::Interrupted,
+            ),
+        ] {
+            assert_eq!(FfiScraperRunOutcome::localized(outcome, "en"), expected);
+        }
     }
 
     #[test]

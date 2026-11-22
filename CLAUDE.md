@@ -193,7 +193,10 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   The container's folders come from `listFolders`, re-read on every changelog event, plus those
   created here until they sync. Remove uninstalls the account (`FydeSdk.uninstallScript`,
   S7, or S7b for one among several) and disables the source with its last account. Statuses come from
-  `ScraperRuns` (this app session's runs): no run history, schedule, counts or categories.
+  `ScraperRuns` (this app session's runs), else from each account's last report on this device
+  (`FydeSdk.lastScriptRuns`, the SDK's `last_runs`, re-read as the tab opens and on each
+  changelog event; `sourceStatusOfReport`: a run cut short by the app closing reads as stopped,
+  "Interrompue"): no run history, schedule or categories.
   Arrêter (`ScraperRuns.stop`, `FydeSdk.stopScriptRun`) sits under S4's primary and in S5/D4's
   Lancer slot while the account runs, busy until the run has ended; a stopped run's outcome is
   `ScraperRunOutcome.Stopped` (from `FydeSdkException.isRunStopped`), shown muted, never as a

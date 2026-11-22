@@ -1572,6 +1572,9 @@ private fun SourcesTabContainer(
     var createdFolders by remember { mutableStateOf<List<FydeFolder>>(emptyList()) }
     var catalogueOpen by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
+    // Each account's last report on this device, by installation id: its
+    // status until this app session runs it.
+    var lastRuns by remember { mutableStateOf<Map<String, FydeScraperLastRun>>(emptyMap()) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = LocalAppSnackbarHostState.current
 
@@ -1592,6 +1595,11 @@ private fun SourcesTabContainer(
     suspend fun refreshFolders() {
         syncedFolders = FydeSdk.listFolders().getOrNull() ?: return
         showFolders()
+    }
+
+    suspend fun refreshLastRuns() {
+        // Latest first, so the first of an installation's is its last.
+        lastRuns = FydeSdk.lastScriptRuns().getOrNull()?.distinctBy { it.installationId }?.associateBy { it.installationId } ?: return
     }
 
     LaunchedEffect(retryKey) {
@@ -1615,6 +1623,7 @@ private fun SourcesTabContainer(
             installations = FydeSdk.listInstallations().getOrElse { emptyList() },
         )
         refreshFolders()
+        refreshLastRuns()
         refreshQuota()
 
         fetchScriptIcons(scripts) { scriptId, icon ->
@@ -1629,6 +1638,7 @@ private fun SourcesTabContainer(
     LaunchedEffect(changelogChanges) {
         if (uiState !is SourcesTabUiState.Loaded || changelogChanges == 0) return@LaunchedEffect
         refreshFolders()
+        refreshLastRuns()
         val synced = FydeSdk.listInstallations().getOrNull() ?: return@LaunchedEffect
         update { latest ->
             val inFlight = latest.installations.filter { it.id in latest.pendingIds }
@@ -1678,7 +1688,10 @@ private fun SourcesTabContainer(
     SourcesTabScreen(
         state = uiState,
         statuses = (uiState as? SourcesTabUiState.Loaded)?.installations.orEmpty()
-            .mapNotNull { installation -> sourceStatusOf(installation.id, scraperRuns)?.let { installation.id to it } }
+            .mapNotNull { installation ->
+                (sourceStatusOf(installation.id, scraperRuns) ?: lastRuns[installation.id]?.let(::sourceStatusOfReport))
+                    ?.let { installation.id to it }
+            }
             .toMap(),
         runningIds = scraperRuns.runningIds,
         stoppingIds = scraperRuns.stoppingIds,
@@ -1799,7 +1812,8 @@ private const val FOLDER_SYNC_TIMEOUT_MS = 15_000L
 /**
  * Where [installationId]'s latest run in this app session is: waiting for
  * its installation to reach this device, running, or over; `null` if it
- * hasn't been run.
+ * hasn't been run here (the Sources tab then shows its last report's, see
+ * [sourceStatusOfReport]).
  */
 private fun sourceStatusOf(installationId: String, runs: ScraperRuns): SourceFetchStatus? {
     runs.runOf(installationId)?.let { run ->

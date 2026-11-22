@@ -188,6 +188,7 @@
     <string name="source_status_queued">En attente</string>
     <string name="source_status_failed">Dernier passage en échec</string>
     <string name="source_status_stopped">Arrêtée</string>
+    <string name="source_status_interrupted">Interrompue</string>
     <string name="catalogue_search_placeholder">Fournisseur, banque, administration</string>
     <string name="catalogue_all">Toutes les sources</string>
     <string name="catalogue_own">Vos scripts</string>
