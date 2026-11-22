@@ -122,7 +122,7 @@ private inline fun <T> sdkCall(operation: String, block: () -> T): Result<T> = t
 }
 
 actual object FydeSdk {
-    actual val showsThumbnails: Boolean = false
+    actual val showsThumbnails: Boolean = true
 
     private var client: FydeClient? = null
 

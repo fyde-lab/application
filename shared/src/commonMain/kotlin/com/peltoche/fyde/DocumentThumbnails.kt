@@ -14,14 +14,14 @@ import kotlinx.coroutines.withContext
  * (`FydeSdk.documentThumbnail`, which `App.kt` supplies): `null` when none is
  * stored. The SDK never draws one on request, only its background job does
  * (`FfiBackgroundJobs.thumbnails`), and nothing is cached here: each box
- * reads it back. Only where [FydeSdk.showsThumbnails] (desktop): elsewhere
+ * reads it back. Only where [FydeSdk.showsThumbnails] (not Web): elsewhere
  * there's no reader, so no box ever asks.
  */
 internal fun interface DocumentThumbnailReader {
     suspend fun read(documentId: String): Result<FydeThumbnail?>
 }
 
-/** The vault's [DocumentThumbnailReader]; `null` outside it (the design-system screen) and off desktop, where nothing has one. */
+/** The vault's [DocumentThumbnailReader]; `null` outside it (the design-system screen) and on Web, where nothing has one. */
 internal val LocalDocumentThumbnails = staticCompositionLocalOf<DocumentThumbnailReader?> { null }
 
 /**
