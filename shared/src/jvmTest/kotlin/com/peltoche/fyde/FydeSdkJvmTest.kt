@@ -43,4 +43,16 @@ class FydeSdkJvmTest {
         FydeSdk.setLanguage("en").getOrThrow()
         assertEquals("en", FydeSdk.getLanguage().getOrThrow())
     }
+
+    @Test
+    fun `setSetting persists and getSetting reads it back through the native fyde-sdk client`() = runBlocking {
+        // Purely local, like setLanguage above.
+        FydeSdk.initialize("http://127.0.0.1:1").getOrThrow()
+
+        FydeSdk.setSetting("appearance", "dark").getOrThrow()
+        assertEquals("dark", FydeSdk.getSetting("appearance").getOrThrow())
+
+        FydeSdk.setSetting("appearance", "light").getOrThrow()
+        assertEquals("light", FydeSdk.getSetting("appearance").getOrThrow())
+    }
 }

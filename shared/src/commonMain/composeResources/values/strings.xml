@@ -515,6 +515,7 @@
     <string name="usage_fraction">%1$s / %2$s</string>
     <string name="appearance_text_size_note">Text size follows your device’s setting.</string>
     <string name="language_section_title">Language</string>
+    <string name="appearance_save_failed">Couldn’t save appearance: %1$s</string>
     <string name="language_save_failed">Couldn’t save language: %1$s</string>
     <string name="theme_section_title">Theme</string>
     <string name="theme_fyde">Fyde</string>

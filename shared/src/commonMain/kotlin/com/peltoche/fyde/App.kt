@@ -17,6 +17,7 @@ import com.peltoche.fyde.resources.auth_error_register_failed
 import com.peltoche.fyde.resources.document_save_failed
 import com.peltoche.fyde.resources.document_saved
 import com.peltoche.fyde.resources.error_unknown
+import com.peltoche.fyde.resources.appearance_save_failed
 import com.peltoche.fyde.resources.language_save_failed
 import com.peltoche.fyde.resources.log_out_failed
 import com.peltoche.fyde.resources.session_expired
@@ -93,6 +94,9 @@ private const val SEARCH_DEBOUNCE_MS = 250L
 
 /** How many documents the vault's home lists as its latest arrivals. */
 private const val LATEST_ARRIVALS = 5L
+
+/** The app setting (`FydeSdk.setSetting`) the picked [AppAppearance]'s `id` is saved under. Never rename it. */
+private const val APPEARANCE_SETTING = "appearance"
 
 /**
  * How many [FydeSdk.fetchIcon] calls [SourcesTabContainer] keeps in
@@ -208,8 +212,9 @@ private val Screen.isSignedOut: Boolean
 @Preview
 fun App() {
     // The light/dark appearance picked in Settings, held here rather than in
-    // AppContent since AppTheme has to wrap every screen. Not persisted yet:
-    // fyde-sdk has no preference for it (unlike the language).
+    // AppContent since AppTheme has to wrap every screen. AppContent saves it
+    // on this device (FydeSdk.setSetting, under APPEARANCE_SETTING) and
+    // restores it at startup, with the language.
     var appearance by remember { mutableStateOf(AppAppearance.Default) }
     AppTheme(theme = AppThemeOption.Default, darkTheme = appearance.isDark()) {
         AppWindowSizeClassProvider {
@@ -263,6 +268,7 @@ private fun AppContent(
     // notice that locale changed.
     var language by remember { mutableStateOf<String?>(null) }
     var languageError by remember { mutableStateOf<String?>(null) }
+    var appearanceError by remember { mutableStateOf<String?>(null) }
     var isLoggingOut by remember { mutableStateOf(false) }
     var logoutError by remember { mutableStateOf<String?>(null) }
     // Settings' open page, held above `key(language)` so picking a language
@@ -347,6 +353,9 @@ private fun AppContent(
                 FydeSdk.getLanguage().getOrNull()?.let { savedLanguage ->
                     applyPlatformLocale(savedLanguage)
                     language = savedLanguage
+                }
+                FydeSdk.getSetting(APPEARANCE_SETTING).getOrNull()?.let { savedAppearance ->
+                    onAppearanceChange(AppAppearance.fromId(savedAppearance))
                 }
                 if (FydeSdk.isConnected().getOrDefault(false)) {
                     screen = Screen.Vault
@@ -524,6 +533,7 @@ private fun AppContent(
         }
         logoutError = null
         languageError = null
+        appearanceError = null
     }
 
     LaunchedEffect(settingsSection) {
@@ -894,7 +904,14 @@ private fun AppContent(
                 openSection = settingsSection,
                 onOpenSectionChange = { settingsSection = it },
                 currentAppearance = appearance,
-                onAppearanceChange = onAppearanceChange,
+                onAppearanceChange = { newAppearance ->
+                    onAppearanceChange(newAppearance)
+                    appearanceError = null
+                    scope.launch {
+                        FydeSdk.setSetting(APPEARANCE_SETTING, newAppearance.id)
+                            .onFailure { appearanceError = getString(Res.string.appearance_save_failed, it.userMessage()) }
+                    }
+                },
                 currentLanguage = language,
                 onLanguageChange = { newLanguage ->
                     applyPlatformLocale(newLanguage)
@@ -927,6 +944,7 @@ private fun AppContent(
                 isLoggingOut = isLoggingOut,
                 logoutError = logoutError,
                 languageError = languageError,
+                appearanceError = appearanceError,
                 planUsage = planUsage,
                 sessions = sessions,
                 // Refreshes the list and the plan's device count in place,
