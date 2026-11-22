@@ -2059,6 +2059,21 @@ impl FydeClient {
         self.localized(self.inner.users().get_language()).await
     }
 
+    /// Stores `value` under the app's own setting `key` on this device
+    /// (e.g. the picked light/dark appearance), overwriting any previous
+    /// value. Never synced; cleared with the rest of the local state at
+    /// logout. Mirrors [`fyde_sdk::SettingsService::set`] on
+    /// [`fyde_sdk::Client::settings`], whose keys never reach the SDK's own.
+    pub async fn set_setting(&self, key: String, value: String) -> Result<(), FfiError> {
+        self.localized(self.inner.settings().set(&key, &value)).await
+    }
+
+    /// Returns the app's own setting stored under `key` on this device, or
+    /// `None` if never set. Mirrors [`fyde_sdk::SettingsService::get`].
+    pub async fn get_setting(&self, key: String) -> Result<Option<String>, FfiError> {
+        self.localized(self.inner.settings().get(&key)).await
+    }
+
     /// Fetches the script matching `id`. Mirrors
     /// [`fyde_sdk::ScriptsService::fetch_script`].
     pub async fn fetch_script(&self, id: String) -> Result<FfiScript, FfiError> {

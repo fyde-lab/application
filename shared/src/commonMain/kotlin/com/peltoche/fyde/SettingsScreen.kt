@@ -204,7 +204,8 @@ enum class SettingsSection(val title: StringResource) {
  * [changePasswordError] says why it failed.
  *
  * [currentAppearance] is switched by [onAppearanceChange] (see
- * [AppAppearance]); [currentLanguage] by [onLanguageChange], which `App.kt`
+ * [AppAppearance]), which `App.kt` saves on this device, reporting a failure
+ * as [appearanceError]; [currentLanguage] by [onLanguageChange], which `App.kt`
  * saves through `fyde-sdk`'s `set_language`, reporting a failure as
  * [languageError]. [planUsage] and [sessions] feed M6 and M5 (see
  * [PlanUsageSection], [SessionsSection]).
@@ -227,6 +228,7 @@ fun SettingsScreen(
     isLoggingOut: Boolean = false,
     logoutError: String? = null,
     languageError: String? = null,
+    appearanceError: String? = null,
     planUsage: PlanUsageUiState = PlanUsageUiState.Loading,
     sessions: SessionsUiState = SessionsUiState.Loading,
     onDisconnectSession: (FydeOpenSession) -> Unit = {},
@@ -249,6 +251,7 @@ fun SettingsScreen(
         language = currentLanguage,
         onLanguageChange = onLanguageChange,
         languageError = languageError,
+        appearanceError = appearanceError,
         planUsage = planUsage,
         sessions = sessions,
         onDisconnectSession = onDisconnectSession,
@@ -316,6 +319,7 @@ private class SettingsUi(
     val language: String?,
     val onLanguageChange: (String) -> Unit,
     val languageError: String?,
+    val appearanceError: String?,
     val planUsage: PlanUsageUiState,
     val sessions: SessionsUiState,
     val onDisconnectSession: (FydeOpenSession) -> Unit,
@@ -867,6 +871,10 @@ private fun AppearancePage(ui: SettingsUi) {
                 modifier = Modifier.weight(1f),
             )
         }
+    }
+    ui.appearanceError?.let { message ->
+        Spacer(Modifier.height(AppSpacing.space4))
+        AppErrorNote(message)
     }
     AppSectionTitle(stringResource(Res.string.language_section_title))
     // With no saved preference the app follows the platform locale, so that's

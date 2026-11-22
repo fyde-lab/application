@@ -218,7 +218,7 @@ Screens (all in `shared/src/commonMain/kotlin/com/peltoche/fyde/`):
   revoke another device via `revokeSession` after confirmation, then re-fetch sessions and
   usage), `PlanUsageSection.kt` (M6, `FydeSdk.getUsage`, re-fetched each time Settings opens),
   appearance and language (M7; the light/dark `theme/AppAppearance.kt` is held in `App()` above
-  `AppTheme`, not persisted yet; no theme picker while `AppThemeOption` has one entry). Logout
+  `AppTheme`, saved on this device with `FydeSdk.setSetting` (the SDK's `Client::settings`) and restored at startup with the language; no theme picker while `AppThemeOption` has one entry). Logout
   (M8, confirmed in an `AppDialog` that stays busy until it's done) is the only way to end this
   device's session and clears local state.
 - `WelcomeScreen` (O1 at Compact, DO1 at Medium/Expanded): the first screen without a session,
