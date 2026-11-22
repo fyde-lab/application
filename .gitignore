@@ -20,3 +20,7 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
 .direnv/
+# Android release signing key and its passwords (androidApp/build.gradle.kts).
+keystore.properties
+*.jks
+*.keystore
