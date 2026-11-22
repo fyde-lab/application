@@ -29,6 +29,8 @@ import uniffi.fyde_sdk.FfiPasswordAnalysis
 import uniffi.fyde_sdk.FfiPasswordStrength
 import uniffi.fyde_sdk.FfiProgressEvent
 import uniffi.fyde_sdk.FfiProgressStep
+import uniffi.fyde_sdk.FfiScraperRun
+import uniffi.fyde_sdk.FfiScraperRunOutcome
 import uniffi.fyde_sdk.FfiScript
 import uniffi.fyde_sdk.FfiScriptMetadata
 import uniffi.fyde_sdk.FfiScriptParameter
@@ -377,6 +379,9 @@ actual object FydeSdk {
     actual suspend fun stopScriptRun(installationId: String): Result<Boolean> =
         withClient("stopScriptRun") { client -> client.stopScriptRun(installationId) }
 
+    actual suspend fun lastScriptRuns(): Result<List<FydeScraperLastRun>> =
+        withClient("lastScriptRuns") { client -> client.lastScriptRuns().map(FfiScraperRun::toFydeScraperLastRun) }
+
     actual suspend fun listInstallations(): Result<List<FydeInstallation>> =
         withClient("listInstallations") { client ->
             client.listInstalledScripts().map { installed ->
@@ -395,6 +400,23 @@ private fun FfiProgressEvent.toFydeScraperProgress(): FydeScraperProgress = when
     is FfiProgressEvent.Step -> FydeScraperProgress.Step(step.toFydeScraperStep(), message)
     is FfiProgressEvent.Update -> FydeScraperProgress.Update(current, total)
 }
+
+private fun FfiScraperRun.toFydeScraperLastRun() = FydeScraperLastRun(
+    installationId = installationId,
+    startedAtMs = startedAtMs,
+    endedAtMs = endedAtMs,
+    outcome = when (val outcome = outcome) {
+        is FfiScraperRunOutcome.Running -> FydeScraperRunReportOutcome.Running
+        is FfiScraperRunOutcome.Succeeded -> FydeScraperRunReportOutcome.Succeeded
+        is FfiScraperRunOutcome.Failed -> FydeScraperRunReportOutcome.Failed(outcome.message)
+        is FfiScraperRunOutcome.Stopped -> FydeScraperRunReportOutcome.Stopped
+        is FfiScraperRunOutcome.Interrupted -> FydeScraperRunReportOutcome.Interrupted
+    },
+    step = step?.toFydeScraperStep(),
+    update = update?.let { FydeScraperProgress.Update(it.current, it.total) },
+    found = found,
+    saved = saved.toLong(),
+)
 
 private fun FfiProgressStep.toFydeScraperStep() = when (this) {
     FfiProgressStep.SETTING_UP -> FydeScraperStep.SETTING_UP

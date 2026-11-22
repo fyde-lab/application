@@ -88,11 +88,16 @@ sealed interface SourceFetchStatus {
     /** Failed during [step], [message] saying why in the user's words. */
     data class Failed(val message: String, val step: FydeScraperStep?, val found: Long?) : SourceFetchStatus
 
-    /** Stopped by the user during [step], [update] how far that stage had got: not a failure. */
+    /**
+     * Stopped by the user during [step], [update] how far that stage had got:
+     * not a failure. [interrupted] when it was rather cut short by the app
+     * closing, as its report tells (see [sourceStatusOfReport]).
+     */
     data class Stopped(
         val step: FydeScraperStep?,
         val update: FydeScraperProgress.Update?,
         val found: Long?,
+        val interrupted: Boolean = false,
     ) : SourceFetchStatus
 }
 

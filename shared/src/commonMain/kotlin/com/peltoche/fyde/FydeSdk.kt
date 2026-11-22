@@ -537,6 +537,41 @@ sealed interface FydeScraperProgress {
 }
 
 /**
+ * An installation's latest run on this device, as its report keeps it,
+ * mirroring the SDK's `FfiScraperRun` ([FydeSdk.lastScriptRuns]). Times are
+ * in milliseconds since the Unix epoch; [endedAtMs] is `null` while running
+ * or once interrupted. [found] is how many documents it said it found,
+ * [saved] how many new ones it kept.
+ */
+data class FydeScraperLastRun(
+    val installationId: String,
+    val startedAtMs: Long,
+    val endedAtMs: Long?,
+    val outcome: FydeScraperRunReportOutcome,
+    val step: FydeScraperStep?,
+    val update: FydeScraperProgress.Update?,
+    val found: Long?,
+    val saved: Long,
+)
+
+/** How a [FydeScraperLastRun] ended, or that it hasn't, mirroring the SDK's `FfiScraperRunOutcome`. */
+sealed interface FydeScraperRunReportOutcome {
+    /** Going on now, in this process. */
+    data object Running : FydeScraperRunReportOutcome
+
+    data object Succeeded : FydeScraperRunReportOutcome
+
+    /** [message] is its error's wording in the user's language. */
+    data class Failed(val message: String) : FydeScraperRunReportOutcome
+
+    /** Stopped on request: not a failure. */
+    data object Stopped : FydeScraperRunReportOutcome
+
+    /** Never ended: the app was closed (or crashed) while it ran. */
+    data object Interrupted : FydeScraperRunReportOutcome
+}
+
+/**
  * Receives a [FydeSdk.runInstalledScript] run's progress, and answers the
  * questions its script asks (a one-time code, ...). Called from the run's
  * own background thread, never the UI's: [onQuestion] suspends until the
@@ -1020,4 +1055,11 @@ expect object FydeSdk {
      * on is abandoned, its answer dropped. Mirrors `FfiClient::stop_script_run`.
      */
     suspend fun stopScriptRun(installationId: String): Result<Boolean>
+
+    /**
+     * Every account's latest run on this device, latest first, read from
+     * its report, so it outlives the app session that ran it. Never synced
+     * to other devices. Mirrors `FfiClient::last_script_runs`.
+     */
+    suspend fun lastScriptRuns(): Result<List<FydeScraperLastRun>>
 }

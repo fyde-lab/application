@@ -131,4 +131,6 @@ actual object FydeSdk {
     actual suspend fun runInstalledScript(installationId: String): Result<Unit> = unsupported()
 
     actual suspend fun stopScriptRun(installationId: String): Result<Boolean> = unsupported()
+
+    actual suspend fun lastScriptRuns(): Result<List<FydeScraperLastRun>> = unsupported()
 }
