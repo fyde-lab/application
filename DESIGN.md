@@ -1,6 +1,6 @@
 # Fyde Design System
 
-> **Superseded by [`design/design-system.md`](design/design-system.md)** —
+> **Superseded by [`design/`](design/README.md)** —
 > kept here for history only. This file describes an early dark-only,
 > lime-accented spec that no longer matches the app or the current design
 > system. Do not implement against this file.

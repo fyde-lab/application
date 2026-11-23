@@ -74,9 +74,9 @@ import org.jetbrains.compose.resources.stringResource
  * the picked session's id through [onReplace], or goes back to the login
  * form on [onCancel].
  *
- * At Compact it's O5 (`design/assets/screens/O5-trop-appareils.png`), the
+ * At Compact it's O5 (`design/proposals/000-original-design/assets/screens/O5-trop-appareils.png`), the
  * actions pinned at the bottom. At Medium and Expanded it's DO5
- * (`design/assets/screens/DO5-trop-dappareils.png`): [SignInSplitLayout]'s
+ * (`design/proposals/000-original-design/assets/screens/DO5-trop-dappareils.png`): [SignInSplitLayout]'s
  * brand panel beside the list centred in an [AppDimensions.authFormColumn]
  * column, back at the pane's top left and the actions side by side. The
  * selection lives here, above both, so resizing across Compact keeps it.

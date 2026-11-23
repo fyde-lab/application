@@ -66,9 +66,9 @@ import org.jetbrains.compose.resources.stringResource
  * no `FydeSdk` import — so it can be redesigned without touching auth
  * wiring.
  *
- * At Compact it's O2 (`design/assets/screens/O2-connexion.png`), the link
+ * At Compact it's O2 (`design/proposals/000-original-design/assets/screens/O2-connexion.png`), the link
  * pinned at the bottom. At Medium and Expanded it's DO2
- * (`design/assets/screens/DO2-connexion.png`): [SignInSplitLayout]'s brand
+ * (`design/proposals/000-original-design/assets/screens/DO2-connexion.png`): [SignInSplitLayout]'s brand
  * panel beside a centred form, back at the pane's top left and the link at
  * its top right. The typed username and password live here, above both, so
  * resizing the window across Compact keeps them.

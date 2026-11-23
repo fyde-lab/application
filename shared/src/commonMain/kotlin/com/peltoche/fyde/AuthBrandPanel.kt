@@ -67,7 +67,7 @@ import org.jetbrains.compose.resources.stringResource
 /**
  * The brand panel beside the onboarding and access forms at Expanded
  * (design-system.md § Onboarding and access on Medium and Expanded,
- * `design/assets/mockups/desktop-auth.html`'s `.brand`): a full-height
+ * `design/proposals/000-original-design/assets/mockups/desktop-auth.html`'s `.brand`): a full-height
  * `primary` column with the Fyde mark at the top, [content] centred in
  * between, and a reassurance at the bottom: [footer], or by default that
  * the password stays on this device. Its content is `onPrimary`.

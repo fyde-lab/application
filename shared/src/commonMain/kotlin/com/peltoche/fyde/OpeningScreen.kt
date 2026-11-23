@@ -91,9 +91,9 @@ private val RingStroke = 12.dp
  * (or if it can't), then fills; once caught up, the note says everything
  * has arrived.
  *
- * At Compact it's O9 (`design/assets/screens/O9-ouverture.png`), the button
+ * At Compact it's O9 (`design/proposals/000-original-design/assets/screens/O9-ouverture.png`), the button
  * pinned at the bottom. At Medium and Expanded it's DO9
- * (`design/assets/screens/DO9-ouverture-sur-cet-ordinateur.png`):
+ * (`design/proposals/000-original-design/assets/screens/DO9-ouverture-sur-cet-ordinateur.png`):
  * [SignInSplitLayout]'s brand panel beside the content centred in an
  * [AppDimensions.authFormColumn] column. No back: the session is open.
  */

@@ -2,7 +2,7 @@
 
 Both typefaces are bundled under `shared/src/commonMain/composeResources/font/`
 so text renders identically across Android, iOS, desktop, and web instead of
-falling back to each platform's system font (see `design/design-system.md`).
+falling back to each platform's system font (see `design/current/design-system.md`).
 Both are licensed under the SIL Open Font License 1.1, which permits
 bundling/redistribution with software, including in compiled/binary form.
 

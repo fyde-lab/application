@@ -13,7 +13,7 @@ import com.peltoche.fyde.theme.AppColors
 private val RadioSize: Dp = 22.dp
 
 /**
- * A radio mark (`design/assets/mockups/tokens.css`'s `.radio`): a 1.5dp
+ * A radio mark (`design/proposals/000-original-design/assets/mockups/tokens.css`'s `.radio`): a 1.5dp
  * `borderStrong` ring, or, [selected], a thick `primary` ring around a
  * `surface` dot. Only the mark — no click handling of its own: the row it
  * sits in is the target, through `Modifier.selectable` with

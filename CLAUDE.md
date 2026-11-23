@@ -40,9 +40,15 @@ Desktop/JVM, Web JS + Wasm) on top of `../sdk`, reached through this repo's own 
   back, iOS's edge swipe; off on desktop and web, where Compose maps Esc to back). A page that
   goes back through another control (an Annuler, a close button) calls `SystemBackHandler`
   itself; design-system samples pass `handlesSystemBack = false`.
-- **Visual rules:** `design/design-system.md` is the source of truth (tokens in
-  `shared/.../theme/`, components in `shared/.../components/`, glyphs in `shared/.../icons/`).
-  Root `DESIGN.md` is superseded — don't implement against it.
+- **Visual rules** (`design/README.md`): `design/current/` is the app as built
+  (`design-system.md` read from the code, screens rendered from it in English), the base new UI
+  starts from; new or changed UI follows its accepted proposal in `design/proposals/NNN-*/`.
+  Tokens live in `shared/.../theme/` (mirrored by `design/kit/tokens.css`), components in
+  `shared/.../components/`, glyphs in `shared/.../icons/`. A UI change updates `current/` in the
+  same PR: a `shot(...)` in `ScreenshotFixtures.kt` for a new screen or state, `design/capture.sh`
+  to re-render, `current/design-system.md` by hand. Never edit `current/` otherwise, nor another
+  proposal's folder. Root `DESIGN.md` and `design/proposals/000-original-design/` (the earlier
+  target design) are history: don't implement against them.
 
 ## Commands
 

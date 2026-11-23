@@ -1,0 +1,258 @@
+/* Fyde design tokens, as built.
+   Mirrors shared/src/commonMain/kotlin/com/peltoche/fyde/theme/ (AppColors.kt,
+   AppCategoryColors.kt, AppTypography.kt, AppSpacing.kt, AppShapes.kt,
+   AppDimensions.kt) and must be updated with it: every value here comes from
+   those files, never the other way round. Described in design/current/
+   (§ Colour, § Typography, § Shape, spacing, elevation, § Layout and navigation).
+
+   Units: 1dp = 1px and 1sp = 1px. Light is the default; dark applies under
+   [data-theme="dark"] (or .fyde.dark). Colours marked "computed" are Compose
+   lerps (Oklab) of two source colours, rounded. */
+
+/* Bundled fonts (shared/src/commonMain/composeResources/font/). */
+@font-face { font-family: "Public Sans"; font-weight: 400; src: url("../../shared/src/commonMain/composeResources/font/public_sans_regular.ttf") format("truetype"); }
+@font-face { font-family: "Public Sans"; font-weight: 500; src: url("../../shared/src/commonMain/composeResources/font/public_sans_medium.ttf") format("truetype"); }
+@font-face { font-family: "Public Sans"; font-weight: 600; src: url("../../shared/src/commonMain/composeResources/font/public_sans_semibold.ttf") format("truetype"); }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; src: url("../../shared/src/commonMain/composeResources/font/plex_mono_regular.ttf") format("truetype"); }
+
+:root, .fyde {
+  /* ---- Colour roles (AppColors) ---- */
+  --bg: #F5F4F1;            /* background */
+  --surface: #FFFFFF;       /* surface */
+  --elevated: #FFFFFF;      /* surfaceElevated (M3 surfaceContainerHigh) */
+  --border: #E3E0DA;        /* border (M3 outlineVariant) */
+  --bstrong: #8F8A7C;       /* borderStrong (M3 outline) */
+  --text: #211E18;          /* text */
+  --muted: #6B6558;         /* textMuted (M3 onSurfaceVariant) */
+  --primary: #1B5E63;
+  --onp: #FFFFFF;           /* onPrimary */
+  --secondary: #6B5636;     /* defined, unused by screens */
+  --ons: #FFFFFF;           /* onSecondary */
+  --err: #B3261E;           /* error */
+  --onerr: #FFFFFF;         /* onError */
+  --warn: #95610A;          /* warning */
+  --onwarn: #FFFFFF;        /* onWarning */
+  --ok: #2E7D46;            /* success */
+  --onok: #FFFFFF;          /* onSuccess */
+  --sel: #E7EFEF;           /* selectionSurface */
+  --seltext: #BFE0E1;       /* selectionTextBackground (defined, unused) */
+  --hl: #F3E2A9;            /* highlight: behind matched search words */
+  --cat-tile: rgb(255 255 255 / 0.62); /* categoryTile, both themes */
+  --cat-cap: #4C4840;       /* categoryCaption */
+  --brand-done: #8FD1AE;    /* brandStepDoneFill, both themes */
+  --brand-done-ink: #0B2418;/* brandStepDoneInk, both themes */
+
+  /* M3 slots some components read directly */
+  --variant: #EDEBE6;       /* surfaceVariant: AppNote Info wash */
+  --highest: #E7E4DE;       /* surfaceContainerHighest: AppMenuButton */
+  --pcont: #C9D4D3;         /* primaryContainer, computed: primary 80% toward bg (tonal button) */
+  --econt: #EDCDC6;         /* errorContainer, computed: error 80% toward bg */
+
+  /* ---- Folder colours (AppCategoryColors): fill, and -i for ink ---- */
+  --c-housing: #E8DCC6;       --c-housing-i: #6E5328;
+  --c-money: #D7E8DA;         --c-money-i: #2B6E45;
+  --c-work: #D4E6E3;          --c-work-i: #1D5C55;
+  --c-taxes: #EBD8D6;         --c-taxes-i: #8A3B36;
+  --c-health: #EFDAE3;        --c-health-i: #8E3459;
+  --c-telecom: #D8E3EF;       --c-telecom-i: #2C5582;
+  --c-transport: #DDDBEF;     --c-transport-i: #45428F;
+  --c-shopping: #F0E1CF;      --c-shopping-i: #86501C;
+  --c-family: #E9E3CB;        --c-family-i: #6A5B1E;
+  --c-identity: #D3E7EB;      --c-identity-i: #1B5866;
+  --c-legal: #DDE1E7;         --c-legal-i: #3F4A5C;
+  --c-education: #DAEAD3;     --c-education-i: #3A6A2A;
+  --c-pets: #EFDCD2;          --c-pets-i: #8A4325;
+  --c-leisure: #EDD9EE;       --c-leisure-i: #7A3580;
+  --c-subscriptions: #E3DCEC; --c-subscriptions-i: #5D3F80;
+  --c-donations: #DDE8CF;     --c-donations-i: #4A6326;
+  --c-unclassified: #E6E3DB;  --c-unclassified-i: #5B574F; /* À classer */
+
+  /* ---- Typography (AppTypography): font shorthand + tracking ---- */
+  --font: "Public Sans", sans-serif;
+  --mono: "IBM Plex Mono", monospace;   /* data only; use font-feature-settings: "tnum" */
+  --t-pass-amount: 600 44px/48px var(--font);   --t-pass-amount-ls: -0.88px;
+  --t-brand-headline: 600 38px/44px var(--font);
+  --t-display: 600 30px/38px var(--font);
+  --t-title: 600 22px/28px var(--font);
+  --t-section: 600 17px/24px var(--font);
+  --t-body-emphasis: 500 15px/22px var(--font);
+  --t-body: 400 15px/22px var(--font);
+  --t-caption: 400 13px/18px var(--font);       --t-caption-ls: 0.1px;
+  --t-micro: 500 11px/16px var(--font);         --t-micro-ls: 0.3px;
+  --t-overline: 600 11px/16px var(--font);      --t-overline-ls: 0.72px; /* uppercase */
+  --t-label: 500 14px/20px var(--font);         --t-label-ls: 0.1px;     /* M3 labelLarge baseline: button labels */
+  --t-data: 400 13px/18px var(--mono);
+
+  /* ---- Spacing (AppSpacing) ---- */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 8px;
+  --space-4: 12px;
+  --space-5: 16px;
+  --space-6: 20px;
+  --space-7: 24px;
+  --space-8: 32px;
+  --space-9: 40px;
+  --space-10: 56px;
+
+  /* ---- Radii (AppRadius, AppShapes) ---- */
+  --r-none: 0;
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-full: 9999px;
+  --r-button: var(--r-md);
+  --r-input: var(--r-sm);
+  --r-card: var(--r-md);
+  --r-dialog: var(--r-lg);
+  --r-note: var(--r-sm);
+  --r-popover: var(--r-lg);
+  --r-tile: var(--r-md);
+  --r-rail-cell: 12px;
+
+  /* ---- Strokes ---- */
+  --hairline: 1px;          /* borderHairline */
+  --focus: 2px;             /* borderFocus; the focus ring is 2px primary, 2px outside */
+
+  /* ---- Icon sizes (AppIconSize) ---- */
+  --ic-xs: 12px;
+  --ic-sm: 16px;
+  --ic-md: 20px;
+  --ic-prominent: 24px;
+  --ic-lg: 32px;
+  --ic-xl: 40px;
+  --ic-stroke: 1.6px;       /* default glyph stroke, round caps and joins */
+
+  /* ---- Layout (AppWindowSizeClass, AppContentContainer, AppDimensions) ---- */
+  /* Breakpoints, for reference only (custom properties can't be used in @media):
+     Compact < 600px, Medium 600-839px, Expanded >= 840px. */
+  --bp-medium: 600px;
+  --bp-expanded: 840px;
+  --margin-compact: var(--space-5);
+  --margin-medium: var(--space-7);
+  --margin-expanded: var(--space-8);
+  --max-list: 1280px;
+  --max-detail: 720px;
+  --sidebar: 260px;               /* Expanded, its divider included */
+  --rail: 80px;                   /* Medium, its divider included */
+  --sidebar-row: 40px;
+  --rail-cell: 48px;
+  --selection-bar: 3px;
+  --nav-indicator-w: 56px;        /* bottom bar's selected indicator */
+  --nav-indicator-h: 32px;
+  --topbar: 56px;                 /* Compact */
+  --topbar-expanded: 64px;        /* Medium and Expanded */
+  --two-pane-list: 360px;
+  --two-pane-list-expanded: 480px;/* defined, unused */
+  --doc-list-col: 400px;
+  --doc-pass-col: 360px;
+  --source-detail: 380px;
+  --search-launcher: 300px;
+  --sheet-panel-max: 500px;
+  --dialog-min: 280px;
+  --auth-brand-panel: 520px;
+  --auth-brand-band: 96px;
+  --auth-form: 440px;
+  --auth-form-wide: 600px;
+
+  /* ---- Component sizes (AppDimensions) ---- */
+  --touch: 48px;
+  --row-comfortable: 72px;
+  --row-standard: 64px;
+  --row-compact: 56px;
+  --tile-sm: 36px;
+  --tile: 44px;
+  --tile-header: 48px;
+  --tile-lg: 52px;
+  --back-button: 44px;
+  --progress-h: 6px;
+  --meter-h: 4px;
+  --auth-logo: 56px;
+  --seal: 168px;
+  --folder-card-h: 132px;
+  --folder-card-icon: 38px;
+  --doc-card-well: 160px;
+  --doc-card-page-w: 104px;
+  --doc-row-page-w: 40px;   --doc-row-page-h: 52px;
+  --doc-file-page-w: 62px;  --doc-file-page-h: 84px;
+}
+
+[data-theme="dark"], .fyde.dark {
+  --bg: #16140F;
+  --surface: #1E1B16;
+  --elevated: #282420;
+  --border: #35302A;
+  --bstrong: #7A7364;
+  --text: #EDE9E1;
+  --muted: #9B9484;
+  --primary: #5FBFC4;
+  --onp: #06232A;
+  --secondary: #B99569;
+  --ons: #2B1B08;
+  --err: #F2938A;
+  --onerr: #3A0F0B;
+  --warn: #E8B34D;
+  --onwarn: #2B1C02;
+  --ok: #7FD98A;
+  --onok: #0F2A17;
+  --sel: #1F3638;
+  --seltext: #2C5457;
+  --hl: #5C4A12;
+  --cat-cap: #9B9484;
+
+  --variant: #282420;
+  --highest: #332D25;
+  --pcont: #314947;         /* computed: primary 65% toward bg */
+  --econt: #5A3D36;         /* computed: error 65% toward bg */
+
+  --c-housing: #3A3121;       --c-housing-i: #E3C58F;
+  --c-money: #1E3326;         --c-money-i: #9ED5AE;
+  --c-work: #1B3331;          --c-work-i: #8FD0C6;
+  --c-taxes: #3A2422;         --c-taxes-i: #EBA49E;
+  --c-health: #3A2230;        --c-health-i: #EDA3C4;
+  --c-telecom: #1F2B3A;       --c-telecom-i: #9DBDE3;
+  --c-transport: #26253B;     --c-transport-i: #B4B1EC;
+  --c-shopping: #3A2C1D;      --c-shopping-i: #E9B887;
+  --c-family: #33301C;        --c-family-i: #DCCB8A;
+  --c-identity: #1B3138;      --c-identity-i: #8DCCDB;
+  --c-legal: #252A33;         --c-legal-i: #B5C0D2;
+  --c-education: #213019;     --c-education-i: #A9D696;
+  --c-pets: #3A261D;          --c-pets-i: #EDAF92;
+  --c-leisure: #35223A;       --c-leisure-i: #E2A8E8;
+  --c-subscriptions: #2B2436; --c-subscriptions-i: #C9B3E8;
+  --c-donations: #26301C;     --c-donations-i: #BCD69A;
+  --c-unclassified: #262A28;  --c-unclassified-i: #B7B9B4;
+}
+
+/* AppColors.tintOf(accent): the accent at 15% alpha. Declared on both theme
+   roots so each resolves against its own theme's accents. */
+:root, .fyde, [data-theme="dark"], .fyde.dark {
+  --tint: 15%;
+  --pwash: color-mix(in srgb, var(--primary) var(--tint), transparent);
+  --warnwash: color-mix(in srgb, var(--warn) var(--tint), transparent);
+  --errwash: color-mix(in srgb, var(--err) var(--tint), transparent);
+  --okwash: color-mix(in srgb, var(--ok) var(--tint), transparent);
+  --mutedwash: color-mix(in srgb, var(--muted) var(--tint), transparent);
+}
+
+/* A folder's picked colour (FydeFolderColor) -> its palette entry
+   (FydeFolderAppearance.colors() in VaultFolders.kt). Set --cbg/--ci on a
+   folder's element, e.g. class="f-teal", then draw with var(--cbg) / var(--ci). */
+.f-sand   { --cbg: var(--c-housing);       --ci: var(--c-housing-i); }
+.f-green  { --cbg: var(--c-money);         --ci: var(--c-money-i); }
+.f-teal   { --cbg: var(--c-work);          --ci: var(--c-work-i); }
+.f-brick  { --cbg: var(--c-taxes);         --ci: var(--c-taxes-i); }
+.f-rose   { --cbg: var(--c-health);        --ci: var(--c-health-i); }
+.f-blue   { --cbg: var(--c-telecom);       --ci: var(--c-telecom-i); }
+.f-indigo { --cbg: var(--c-transport);     --ci: var(--c-transport-i); }
+.f-amber  { --cbg: var(--c-shopping);      --ci: var(--c-shopping-i); }
+.f-ochre  { --cbg: var(--c-family);        --ci: var(--c-family-i); }
+.f-cyan   { --cbg: var(--c-identity);      --ci: var(--c-identity-i); }
+.f-slate  { --cbg: var(--c-legal);         --ci: var(--c-legal-i); }
+.f-leaf   { --cbg: var(--c-education);     --ci: var(--c-education-i); }
+.f-rust   { --cbg: var(--c-pets);          --ci: var(--c-pets-i); }
+.f-plum   { --cbg: var(--c-leisure);       --ci: var(--c-leisure-i); }
+.f-violet { --cbg: var(--c-subscriptions); --ci: var(--c-subscriptions-i); }
+.f-moss   { --cbg: var(--c-donations);     --ci: var(--c-donations-i); }
+.f-none   { --cbg: var(--c-unclassified);  --ci: var(--c-unclassified-i); } /* À classer */

@@ -24,12 +24,12 @@ import com.peltoche.fyde.theme.AppDimensions
  * two `border` hairline rings. Heads Welcome (O1), and Sécurité (M2) once
  * it exists.
  *
- * Proportions come from `design/assets/mockups/onboarding.html`'s `.hero`,
+ * Proportions come from `design/proposals/000-original-design/assets/mockups/onboarding.html`'s `.hero`,
  * on its [AppDimensions.sealHero] diameter of 168: a 116 wash, rings at
  * radius 72 and 84, an 84 disc holding a 38 lock.
  *
  * [onPrimary] draws it on a `primary` fill instead — the desktop brand panel
- * (DO1, `design/assets/mockups/desktop-auth.html`'s `.seal`): an `onPrimary`
+ * (DO1, `design/proposals/000-original-design/assets/mockups/desktop-auth.html`'s `.seal`): an `onPrimary`
  * disc holding a `primary` lock, an `onPrimary` wash, and rings at 22% and
  * 16% `onPrimary`.
  */

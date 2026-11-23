@@ -17,7 +17,7 @@ import com.peltoche.fyde.resources.public_sans_semibold
 import org.jetbrains.compose.resources.Font
 
 /**
- * Public Sans, bundled — see `design/design-system.md` § Typography and
+ * Public Sans, bundled — see `design/current/design-system.md` § Typography and
  * `shared/THIRD_PARTY_LICENSES.md`. Bundling (rather than each platform's
  * system font) is what makes text measure identically on Android, iOS,
  * desktop, and web.

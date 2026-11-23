@@ -52,9 +52,9 @@ import org.jetbrains.compose.resources.stringResource
  * dismissing the sheet) leaves the form as it was.
  *
  * Two references, one per platform:
- * - phones, O4 (`design/assets/screens/O4-stockage-indisponible.png`):
+ * - phones, O4 (`design/proposals/000-original-design/assets/screens/O4-stockage-indisponible.png`):
  *   Continue anyway and Cancel stacked under the checkbox.
- * - desktop, DO4b (`design/assets/screens/DO4b-stockage-indisponible-a-la-creation.png`):
+ * - desktop, DO4b (`design/proposals/000-original-design/assets/screens/DO4b-stockage-indisponible-a-la-creation.png`):
  *   worded for a computer and its keyring daemons, with Cancel, Retry and
  *   Create anyway in a row. [onRetry] looks for the keyring again — one
  *   that was locked or not answering can come back, unlike a phone's.

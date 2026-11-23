@@ -157,7 +157,7 @@ internal fun sourceFetchPhaseStates(status: SourceFetchStatus): List<RunStepStat
  * on [ConnectSourceScreen]: its first run, followed live. Pure presentation:
  * `App.kt` maps [ScraperRuns] into [status].
  *
- * DO7c at Medium and Expanded (`design/assets/screens/DO7c-recuperation-en-cours.png`):
+ * DO7c at Medium and Expanded (`design/proposals/000-original-design/assets/screens/DO7c-recuperation-en-cours.png`):
  * [VaultCreationSplitLayout] at its sources step, listing [sources], beside
  * "Source 1 of 3", the source's tile and what it's doing, a card with the
  * run's [RunStepper] (Préparation → Connexion → Recherche → Téléchargement

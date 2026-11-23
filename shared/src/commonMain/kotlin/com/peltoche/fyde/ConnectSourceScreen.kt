@@ -87,10 +87,10 @@ import org.jetbrains.compose.resources.stringResource
  * the others ([sources], for the brand panel), and installs it through
  * [onConnect] with the typed values, or moves on through [onSkip].
  *
- * At Compact it's S3 inside onboarding (`design/assets/screens/S3-connecter.png`):
+ * At Compact it's S3 inside onboarding (`design/proposals/000-original-design/assets/screens/S3-connecter.png`):
  * back and "Skip this source" on top, the fields scrolling, the connect
  * button pinned at the bottom. At Medium and Expanded it's DO7b
- * (`design/assets/screens/DO7b-connecter-une-source.png`):
+ * (`design/proposals/000-original-design/assets/screens/DO7b-connecter-une-source.png`):
  * [VaultCreationSplitLayout] at its sources step, listing [sources] with
  * their state, beside the form in a 440dp column, back at the pane's top
  * left and "Skip this source" at its top right.
