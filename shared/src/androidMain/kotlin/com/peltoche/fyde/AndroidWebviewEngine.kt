@@ -28,6 +28,7 @@ import java.util.TimeZone
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import uniffi.fyde_sdk.FfiBrowserException
 import uniffi.fyde_sdk.FfiWebviewConfig
 import uniffi.fyde_sdk.FfiWebviewCookie
@@ -279,29 +280,48 @@ internal class AndroidWebviewEngine(private val context: Context) : WebviewEngin
          * profile that reports its first URL and is destroyed. An allowed popup
          * then loads in the session's own WebView: there's no second window
          * here.
+         *
+         * The throwaway WebView never loads anything itself: its requests are
+         * refused in `shouldInterceptRequest`, which sees one before it's
+         * sent (unlike `onPageStarted`), so a popup's URL is asked about before
+         * any byte goes to its host. A popup that is a download is reported
+         * by its download listener. `about:blank`, the empty page a script's
+         * `window.open()` starts on before setting its location, isn't the
+         * popup's URL yet.
          */
         private inner class SessionChromeClient : WebChromeClient() {
             override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
                 val popup = newWebView()
-                popup.webViewClient = object : WebViewClient() {
-                    private var decided = false
+                // `shouldInterceptRequest` runs off the main thread.
+                val decided = AtomicBoolean(false)
 
-                    private fun decide(url: String): Boolean {
-                        if (decided) return true
-                        decided = true
-                        if (handler.allowNewWindow(url)) load(url)
-                        mainHandler.post { popup.destroy() }
+                fun decide(url: String) {
+                    if (url == "about:blank" || !decided.compareAndSet(false, true)) return
+                    val allowed = handler.allowNewWindow(url)
+                    mainHandler.post {
+                        if (allowed) load(url)
+                        popup.stopLoading()
+                        popup.destroy()
+                    }
+                }
+
+                popup.webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                        decide(request.url.toString())
                         return true
                     }
 
-                    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
-                        decide(request.url.toString())
+                    override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse {
+                        if (request.isForMainFrame) decide(request.url.toString())
+                        return WebResourceResponse("text/plain", "utf-8", 204, "No Content", emptyMap(), ByteArrayInputStream(ByteArray(0)))
+                    }
 
                     override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
                         view.stopLoading()
                         decide(url)
                     }
                 }
+                popup.setDownloadListener { url, _, _, _, _ -> decide(url) }
                 (resultMsg.obj as WebView.WebViewTransport).webView = popup
                 resultMsg.sendToTarget()
                 return true
