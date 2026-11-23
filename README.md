@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="design/kit/fyde-logo.svg" alt="Fyde logo" width="140">
+</p>
+
 <h1 align="center">Fyde</h1>
 
 <p align="center">

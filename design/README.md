@@ -6,7 +6,7 @@ Two kinds of design live here, and they never mix:
 |---|---|---|
 | [`current/`](current/) | **The app as built.** Screenshots of the real screens and the design system as it is in the code. The base every new design starts from. | Only when the code changes, regenerated from it. |
 | [`proposals/`](proposals/) | **Propositions for new or changed UI**, one folder each. They show what *would* change, against `current/`. | Freely, while a proposal is being designed. |
-| [`kit/`](kit/) | Tooling to draw proposals in today's look: `tokens.css` mirroring `shared/.../theme/`, the icon sprite (the app's fonts load from `composeResources/`), a starter page and `render.py`. | With the theme (`tokens.css`), or when the tooling improves. |
+| [`kit/`](kit/) | Tooling to draw proposals in today's look: `tokens.css` mirroring `shared/.../theme/`, the icon sprite (the app's fonts load from `composeResources/`), the logo (`fyde-logo.svg`, from `composeResources/drawable/fyde_logo.xml`), a starter page and `render.py`. | With the theme (`tokens.css`) or the logo, or when the tooling improves. |
 
 ## `current/`: what the app looks like today
 
