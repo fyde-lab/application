@@ -28,7 +28,7 @@
 > CLI, an integration or an automation? Use the SDK. See [Build on Fyde](#build-on-fyde) below.
 
 <p align="center">
-  <img src="design/assets/screens/D6-bureau-coffre.png" alt="The Fyde vault on desktop: folders such as Achats, Argent, Impôts, Logement and Santé, with the latest documents below" width="900">
+  <img src="design/current/screens/vault-home-expanded.png" alt="The Fyde vault on desktop: folders such as Health, Housing, Taxes and Work, with the latest arrivals below" width="900">
 </p>
 
 ---
@@ -51,15 +51,15 @@ notice on impots.gouv. Fyde gathers all of it into one vault.
 ### Your vault, organised your way
 
 You arrange documents in your own folders and subfolders. Anything Fyde can't place yet waits in
-**À classer** (*to file*). Each document opens as a pass that shows what matters at a glance,
+**Unfiled**. Each document opens as a pass that shows what matters at a glance,
 such as the amount, the due date and the reference, with the original file one tap away.
 
 <p align="center">
-  <img src="design/assets/screens/V1-coffre.png" alt="Vault home on a phone, with colour-coded folders" width="260">
+  <img src="design/current/screens/vault-home-compact.png" alt="Vault home on a phone, with colour-coded folders" width="260">
   &nbsp;
-  <img src="design/assets/screens/V6-document.png" alt="A document's pass: an EDF bill of 84.20 € due 27 October" width="260">
+  <img src="design/current/screens/vault-document-compact.png" alt="A document's pass: an EDF bill of €84.23, filed in Housing › Energy" width="260">
   &nbsp;
-  <img src="design/assets/screens/V5-resultats.png" alt="Search results for 'attestation', matches highlighted" width="260">
+  <img src="design/current/screens/vault-search-compact.png" alt="Search results for 'bill', matches highlighted" width="260">
 </p>
 
 - **Search everything.** Search runs on your device, inside the documents' text, and you can
@@ -72,7 +72,7 @@ such as the amount, the due date and the reference, with the original file one t
 On a large screen the folder, its documents and the open document's preview all sit side by side:
 
 <p align="center">
-  <img src="design/assets/screens/D2-bureau-document.png" alt="Desktop: a folder's documents beside an open electricity bill and its preview" width="900">
+  <img src="design/current/screens/vault-document-expanded.png" alt="Desktop: a folder's documents beside an open electricity bill and its preview" width="900">
 </p>
 
 ### Sources: let the documents come to you
@@ -83,11 +83,11 @@ site and choose which folder its documents go into. Fyde then signs in on your d
 back what's new. You can follow each run as it happens and stop it at any time.
 
 <p align="center">
-  <img src="design/assets/screens/D4-bureau-sources.png" alt="Desktop: the Sources table with each provider's status, and one account's details" width="900">
+  <img src="design/current/screens/sources-tab-detail-expanded.png" alt="Desktop: the Sources table with each account's status, and one source's details" width="900">
 </p>
 
 <p align="center">
-  <img src="design/assets/screens/S4-recuperation.png" alt="A run in progress: signed in, 12 documents found, downloading 5 of 12" width="260">
+  <img src="design/current/screens/sources-tab-fetching-compact.png" alt="A run in progress: signed in, 3 documents found, downloading 3 of 10" width="260">
 </p>
 
 - **Several accounts per source.** For example, you can connect your own Ameli account and your
@@ -102,7 +102,7 @@ spells out exactly what that means:
 
 <table>
   <tr>
-    <td width="300"><img src="design/assets/screens/M3-ce-que-voit-le-serveur.png" alt="The 'What the server sees' page" width="280"></td>
+    <td width="300"><img src="design/current/screens/settings-serverview-compact.png" alt="The 'What the server sees' page" width="280"></td>
     <td>
       <strong>The server never sees</strong>
       <ul>
@@ -165,10 +165,9 @@ The interface is available in **French** and **English**, in light and dark appe
 
 ## About the screenshots
 
-The images above are Fyde's reference designs (from [`design/assets/screens/`](design/assets/screens/)).
-The app is moving to this look and currently still draws an older colour palette and typeface.
-Every feature described in this README already works in the app. A few elements in the pictures,
-such as the camera button or document sharing, are still to come.
+The images above are the app itself: its real screens, rendered from sample data (from
+[`design/current/screens/`](design/current/screens/), regenerated whenever the interface changes).
+Every feature described in this README works in the app today.
 
 ## Build on Fyde
 
@@ -203,5 +202,5 @@ and source runs live in the Rust [`fyde-sdk`](https://github.com/fyde-lab/sdk), 
 reaches through UniFFI bindings in `sdkBridge/`.
 
 - [`CLAUDE.md`](CLAUDE.md): architecture, conventions and build commands
-- [`design/design-system.md`](design/design-system.md): the visual design system and every
-  reference screen
+- [`design/`](design/README.md): the design system as built, every screen of the app, and the
+  proposals for new ones

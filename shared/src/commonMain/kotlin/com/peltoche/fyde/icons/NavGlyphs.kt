@@ -24,7 +24,7 @@ import kotlin.math.sqrt
 /**
  * Hand-drawn `Canvas` glyphs for the navigation and list rows, in the
  * same vocabulary as [DocumentGlyph] — this project has no icon pack (see
- * `design/design-system.md`'s open questions), so every icon here is a
+ * `design/current/design-system.md`'s open questions), so every icon here is a
  * small geometric shape rather than a font glyph or bitmap asset.
  */
 
@@ -326,7 +326,7 @@ fun AlertGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.error, str
 
 /**
  * A lightning bolt — Welcome's "fetched by itself" promise. Traced from
- * `i-bolt` in `design/assets/mockups/icons.svg`, on its 24-unit grid.
+ * `i-bolt` in `design/proposals/000-original-design/assets/mockups/icons.svg`, on its 24-unit grid.
  */
 @Composable
 fun BoltGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {
@@ -348,7 +348,7 @@ fun BoltGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, 
 /**
  * Two arrows chasing each other round a circle — sync across devices
  * (Welcome's "on every device" promise). Traced from `i-sync` in
- * `design/assets/mockups/icons.svg`, on its 24-unit grid.
+ * `design/proposals/000-original-design/assets/mockups/icons.svg`, on its 24-unit grid.
  */
 @Composable
 fun SyncGlyph(modifier: Modifier = Modifier, tint: Color = AppColors.textMuted, strokeWidth: Dp = 1.4.dp) {

@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * The 4dp-based spacing scale from `design/design-system.md` § Spacing.
+ * The 4dp-based spacing scale from `design/current/design-system.md` § Spacing.
  * Identical in both themes and on every platform, so this is a plain object
  * rather than a `CompositionLocal` — nothing about it varies at runtime.
  */

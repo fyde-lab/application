@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 
 /**
- * The handful of roles `design/design-system.md` § Color names that Material
+ * The handful of roles `design/current/design-system.md` § Color names that Material
  * 3's [ColorScheme] has no slot for at all (`success`, `warning`, the two
  * `selection` roles, `highlight`, the category colours). Everything else in the spec maps onto a real M3 role —
  * see [appLightColorScheme]/[appDarkColorScheme] — and is read through

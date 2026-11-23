@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
- * The corner-radius scale from `design/design-system.md` § Shape — small on
+ * The corner-radius scale from `design/current/design-system.md` § Shape — small on
  * purpose: precise and geometric rather than the soft/pill rounding generic
  * SaaS UIs default to. Nothing here is a pill except [full], which is
  * reserved for genuine circles.

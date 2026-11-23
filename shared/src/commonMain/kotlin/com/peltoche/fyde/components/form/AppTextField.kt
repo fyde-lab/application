@@ -37,7 +37,7 @@ import org.jetbrains.compose.resources.stringResource
 
 /**
  * The general-purpose bordered field, as drawn in O2/O3
- * (`design/assets/mockups/tokens.css`'s `.field`): its [label] above a
+ * (`design/proposals/000-original-design/assets/mockups/tokens.css`'s `.field`): its [label] above a
  * `surface` box with a `borderStrong` hairline (2dp `primary` when
  * focused), then [supportingText] — or [errorText], in `error` — flush
  * under it. Used everywhere text input is needed, so the app has one field

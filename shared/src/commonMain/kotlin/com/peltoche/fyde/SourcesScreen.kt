@@ -134,12 +134,12 @@ sealed interface SourcesUiState {
  * [selected] (in ticking order, the order they'll be connected in) and
  * [query], and moves on through [onConnect] or [onSkip].
  *
- * At Compact it's O7 (`design/assets/screens/O7-sources.png`): the step dots
+ * At Compact it's O7 (`design/proposals/000-original-design/assets/screens/O7-sources.png`): the step dots
  * and "Passer" on top, the plan counter, the search, the sources as rows of
  * one card, the connect button pinned at the bottom. Once the title scrolls
  * away the bar names the step and the counter stays pinned under it (O7b).
  * At Medium and Expanded it's DO7
- * (`design/assets/screens/DO7-choisir-ses-sources.png`):
+ * (`design/proposals/000-original-design/assets/screens/DO7-choisir-ses-sources.png`):
  * [VaultCreationSplitLayout] at its sources step beside the same content in
  * a 600dp column, the sources as two columns of cards scrolling in a
  * fixed-height box, so the connect button stays close under them.

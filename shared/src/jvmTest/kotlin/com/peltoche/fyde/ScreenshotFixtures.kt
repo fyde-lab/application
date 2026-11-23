@@ -10,57 +10,68 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import com.peltoche.fyde.theme.AppColors
 import com.peltoche.fyde.theme.AppSpacing
+import java.io.ByteArrayOutputStream
+import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.pdmodel.PDPage
+import org.apache.pdfbox.pdmodel.PDPageContentStream
+import org.apache.pdfbox.pdmodel.common.PDRectangle
+import org.apache.pdfbox.pdmodel.font.PDType1Font
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts
 
-/** The screens [ScreenshotsJvmTest] renders, each in a fixed state from fake data. */
+/**
+ * The screens [ScreenshotsJvmTest] renders, each in a fixed state from fake data,
+ * written in English like the UI they're rendered in. Also the source of
+ * `design/current/screens/`: a new screen or state belongs here.
+ */
 internal object ScreenshotFixtures {
 
     // 2026-03-14T10:00:00Z and earlier: fixed, so dates render the same on every run.
     private const val T0 = 1_773_482_400L
     private const val DAY = 86_400L
 
-    private val edf = script("edf", "EDF", "Factures d'électricité", listOf("edf.fr"))
-    private val ameli = script("ameli", "Ameli", "Remboursements de santé", listOf("ameli.fr"))
-    private val impots = script("impots", "Impôts", "Avis d'imposition", listOf("impots.gouv.fr"))
-    private val free = script("free", "Free", "Factures internet et mobile", listOf("free.fr"))
+    private val edf = script("edf", "EDF", "Electricity bills", listOf("edf.fr"))
+    private val ameli = script("ameli", "Ameli", "Health refunds", listOf("ameli.fr"))
+    private val impots = script("impots", "Impôts", "Tax notices", listOf("impots.gouv.fr"))
+    private val free = script("free", "Free", "Internet and mobile bills", listOf("free.fr"))
     private val scripts = listOf(ameli, edf, free, impots)
 
-    private val housingFolder = folder("housing", "Logement", FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.HOME))
+    private val housingFolder = folder("housing", "Housing", FydeFolderAppearance(FydeFolderColor.SAND, FydeFolderIcon.HOME))
     private val folders = VaultFolders(
         listOf(
             housingFolder,
-            folder("energy", "Énergie", parentId = "housing"),
-            folder("water", "Eau", parentId = "housing"),
-            folder("rent", "Loyer", parentId = "housing"),
-            folder("health", "Santé", FydeFolderAppearance(FydeFolderColor.ROSE, FydeFolderIcon.HEART)),
-            folder("health_insurance", "Assurance maladie", parentId = "health"),
-            folder("work", "Travail", FydeFolderAppearance(FydeFolderColor.TEAL, FydeFolderIcon.BRIEFCASE)),
-            folder("payslips", "Bulletins de paie", parentId = "work"),
-            folder("taxes", "Impôts", FydeFolderAppearance(FydeFolderColor.BRICK, FydeFolderIcon.LANDMARK)),
-            folder("pets", "Animaux", FydeFolderAppearance(FydeFolderColor.RUST, FydeFolderIcon.PAW)),
-            folder("income_tax", "Impôt sur le revenu", parentId = "taxes"),
+            folder("energy", "Energy", parentId = "housing"),
+            folder("water", "Water", parentId = "housing"),
+            folder("rent", "Rent", parentId = "housing"),
+            folder("health", "Health", FydeFolderAppearance(FydeFolderColor.ROSE, FydeFolderIcon.HEART)),
+            folder("health_insurance", "Health insurance", parentId = "health"),
+            folder("work", "Work", FydeFolderAppearance(FydeFolderColor.TEAL, FydeFolderIcon.BRIEFCASE)),
+            folder("payslips", "Payslips", parentId = "work"),
+            folder("taxes", "Taxes", FydeFolderAppearance(FydeFolderColor.BRICK, FydeFolderIcon.LANDMARK)),
+            folder("pets", "Pets", FydeFolderAppearance(FydeFolderColor.RUST, FydeFolderIcon.PAW)),
+            folder("income_tax", "Income tax", parentId = "taxes"),
         ),
     )
 
     private val invoice = document(
-        "d1", "Facture EDF mars 2026", "energy", FydeDocumentType.INVOICE, T0,
+        "d1", "EDF bill March 2026", "energy", FydeDocumentType.INVOICE, T0,
         mapOf("issuer" to FydeAttribute.Text("EDF"), "total_amount" to FydeAttribute.Amount(8_423, "EUR")),
     )
-    private val water = document("d2", "Facture eau février", "water", FydeDocumentType.INVOICE, T0 - 20 * DAY)
-    private val payslip = document("d3", "Bulletin de paie février 2026", "payslips", FydeDocumentType.PAYSLIP, T0 - 12 * DAY)
-    private val refund = document("d4", "Décompte de remboursement", "health_insurance", FydeDocumentType.REIMBURSEMENT_STATEMENT, T0 - 3 * DAY)
-    private val tax = document("d5", "Avis d'impôt 2025", "income_tax", FydeDocumentType.TAX_NOTICE, T0 - 200 * DAY)
-    private val rent = document("d6", "Quittance de loyer janvier", "rent", FydeDocumentType.RECEIPT, T0 - 60 * DAY)
+    private val water = document("d2", "Water bill February", "water", FydeDocumentType.INVOICE, T0 - 20 * DAY)
+    private val payslip = document("d3", "Payslip February 2026", "payslips", FydeDocumentType.PAYSLIP, T0 - 12 * DAY)
+    private val refund = document("d4", "Refund statement", "health_insurance", FydeDocumentType.REIMBURSEMENT_STATEMENT, T0 - 3 * DAY)
+    private val tax = document("d5", "Tax notice 2025", "income_tax", FydeDocumentType.TAX_NOTICE, T0 - 200 * DAY)
+    private val rent = document("d6", "Rent receipt January", "rent", FydeDocumentType.RECEIPT, T0 - 60 * DAY)
     private val unfiled = document("d7", "Scan 2026-03-02", null, null, T0 - DAY)
     private val housing = listOf(invoice, water, rent)
 
     // The invoice's similar documents (V6c, V16, D11), most similar first.
-    private val invoiceCopy = document("d8", "Facture EDF mars 2026 (2)", null, FydeDocumentType.INVOICE, T0 - DAY)
+    private val invoiceCopy = document("d8", "EDF bill March 2026 (2)", null, FydeDocumentType.INVOICE, T0 - DAY)
     private val invoiceFebruary = document(
-        "d9", "Facture EDF février 2026", "energy", FydeDocumentType.INVOICE, T0 - 28 * DAY,
+        "d9", "EDF bill February 2026", "energy", FydeDocumentType.INVOICE, T0 - 28 * DAY,
         mapOf("issuer" to FydeAttribute.Text("EDF"), "total_amount" to FydeAttribute.Amount(7_963, "EUR")),
     )
-    private val invoiceJanuary = document("d10", "Facture EDF janvier 2026", "energy", FydeDocumentType.INVOICE, T0 - 59 * DAY)
-    private val schedule = document("d11", "Échéancier EDF 2026-2027", "energy", FydeDocumentType.STATEMENT, T0 - 70 * DAY)
+    private val invoiceJanuary = document("d10", "EDF bill January 2026", "energy", FydeDocumentType.INVOICE, T0 - 59 * DAY)
+    private val schedule = document("d11", "EDF payment schedule 2026-2027", "energy", FydeDocumentType.STATEMENT, T0 - 70 * DAY)
     private val similarToInvoice = listOf(
         FydeSimilarDocument(invoiceCopy, 0.995f),
         FydeSimilarDocument(invoiceFebruary, 0.96f),
@@ -74,7 +85,7 @@ internal object ScreenshotFixtures {
     private val ticked = listOf(invoice, invoiceCopy, invoiceFebruary)
 
     private val sessions = listOf(
-        FydeOpenSession("s1", "MacBook Pro de Pierre", T0 - 40 * DAY, isCurrent = true),
+        FydeOpenSession("s1", "Pierre's MacBook Pro", T0 - 40 * DAY, isCurrent = true),
         FydeOpenSession("s2", "Pixel 9", T0 - 10 * DAY),
     )
     private val usage = FydePlanUsage(
@@ -131,7 +142,7 @@ internal object ScreenshotFixtures {
         options = VaultFilterOptions(years = listOf(YearFilter.In(2026), YearFilter.In(2025))),
         documents = housing,
     )
-    private val searchQuery = VaultQuery(text = "facture")
+    private val searchQuery = VaultQuery(text = "bill")
     private val searchContents = VaultSearchContents(
         query = searchQuery,
         options = VaultFilterOptions(
@@ -179,12 +190,12 @@ internal object ScreenshotFixtures {
                 onLogIn = { _, _ -> },
                 onNavigateToRegister = {},
                 onBack = {},
-                noticeMessage = "Votre session a expiré.",
-                errorMessage = "Identifiant ou mot de passe incorrect.",
+                noticeMessage = "Your session has expired.",
+                errorMessage = "Incorrect username or password.",
             )
         },
         shot("register") { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}) },
-        shot("register-error") { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}, errorMessage = "Ce nom d'utilisateur est déjà pris.") },
+        shot("register-error") { RegisterScreen(onRegister = { _, _ -> }, onNavigateToLogin = {}, onBack = {}, errorMessage = "This username is already taken.") },
         shot("onboarding-sources") {
             SourcesScreen(
                 state = SourcesUiState.Loaded(scripts, SourceQuota("free", 0, 3)),
@@ -236,7 +247,7 @@ internal object ScreenshotFixtures {
                 position = 2,
                 count = 3,
                 sources = creationSources,
-                status = SourceFetchStatus.Failed("Le site ne répond pas.", FydeScraperStep.LOGGING_IN, null),
+                status = SourceFetchStatus.Failed("The site isn't responding.", FydeScraperStep.LOGGING_IN, null),
                 isLast = true,
                 isWaiting = false,
                 onWait = {},
@@ -249,7 +260,7 @@ internal object ScreenshotFixtures {
         shot("opening-uncounted") { OpeningScreen(progress = FydeSyncProgress(consumed = 12, total = null, caughtUp = false), onBrowse = {}) },
         shot("opening-done") { OpeningScreen(progress = FydeSyncProgress(consumed = 214, total = 214, caughtUp = true), onBrowse = {}) },
         shot("insecure-storage") { InsecureStorageSheet(isRegistration = true, onContinue = {}, onRetry = {}, onDismiss = {}) },
-        shot("already-running") { AlreadyRunningScreen(message = "Fyde est déjà ouvert sur cet appareil.", onRetry = {}) },
+        shot("already-running") { AlreadyRunningScreen(message = "Fyde is already open on this device.", onRetry = {}) },
         shot("vault-loading") { vault(VaultUiState.Loaded(deviceCount = 2), VaultFocus()) },
         shot("vault-home") { vault(vaultLoaded, VaultFocus()) },
         shot("vault-folder") { vault(vaultLoaded, VaultFocus(page = housingPage)) },
@@ -267,7 +278,7 @@ internal object ScreenshotFixtures {
         },
         shot("vault-document-delete-failed") {
             vault(
-                vaultLoaded.copy(deletion = DocumentDeletion(invoice, error = "La suppression des documents n’est pas encore disponible.")),
+                vaultLoaded.copy(deletion = DocumentDeletion(invoice, error = "Deleting documents isn't available yet.")),
                 VaultFocus(page = housingPage, document = invoice),
             )
         },
@@ -281,11 +292,11 @@ internal object ScreenshotFixtures {
         },
         shot("vault-documents-delete-failed") {
             vault(
-                vaultLoaded.copy(deletion = DocumentDeletion(listOf(invoiceCopy), error = "1 sur 3 n’a pas pu être supprimé : le serveur est injoignable.")),
+                vaultLoaded.copy(deletion = DocumentDeletion(listOf(invoiceCopy), error = "1 of 3 couldn't be deleted: the server can't be reached.")),
                 VaultFocus(page = similarTicked),
             )
         },
-        shot("vault-failed") { vault(VaultUiState.ConnectFailed("Le serveur est injoignable.", onRetry = {}), VaultFocus()) },
+        shot("vault-failed") { vault(VaultUiState.ConnectFailed("The server can't be reached.", onRetry = {}), VaultFocus()) },
         shot("sources-tab") { sourcesTab(sourcesTab, null) },
         shot("sources-tab-loading") { sourcesTab(SourcesTabUiState.Loaded(scripts = null), null) },
         shot("sources-tab-detail") { sourcesTab(sourcesTab, SourceFocus.Detail("edf-1")) },
@@ -307,9 +318,9 @@ internal object ScreenshotFixtures {
         shot("settings-security-no-kit") { settings(SettingsSection.Security, recoveryKeyStatus = RecoveryKeyStatus.Missing) },
         shot("settings-recoverykit-missing") { settings(SettingsSection.RecoveryKit, recoveryKeyStatus = RecoveryKeyStatus.Missing) },
         shot("settings-recoverykit-ready") {
-            settings(SettingsSection.RecoveryKit, recoveryKit = RecoveryKitUiState.Ready(List(24) { "mot${it + 1}" }))
+            settings(SettingsSection.RecoveryKit, recoveryKit = RecoveryKitUiState.Ready(List(24) { "word${it + 1}" }))
         },
-        shot("settings-plan-failed") { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Failed("Impossible de charger l'offre.", onRetry = {})) },
+        shot("settings-plan-failed") { settings(SettingsSection.Plan, planUsage = PlanUsageUiState.Failed("Couldn't load the plan.", onRetry = {})) },
     ) + SettingsSection.entries.map { section -> shot("settings-${section.name.lowercase()}") { settings(section) } } +
         listOf(
             shot("design-system") { DesignSystemScreen(onBack = {}) },
@@ -324,6 +335,54 @@ internal object ScreenshotFixtures {
             },
         )
 
+    /** A one-page EDF bill, so open documents preview a real page. */
+    private val invoicePdf: ByteArray by lazy {
+        PDDocument().use { pdf ->
+            val page = PDPage(PDRectangle.A4).also(pdf::addPage)
+            val regular = PDType1Font(Standard14Fonts.FontName.HELVETICA)
+            val bold = PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD)
+            PDPageContentStream(pdf, page).use { out ->
+                fun text(x: Float, y: Float, size: Float, value: String, font: PDType1Font = regular) {
+                    out.beginText()
+                    out.setFont(font, size)
+                    out.newLineAtOffset(x, y)
+                    out.showText(value)
+                    out.endText()
+                }
+                out.setNonStrokingColor(0.0f, 0.36f, 0.66f)
+                out.addRect(0f, 782f, 595f, 60f)
+                out.fill()
+                out.setNonStrokingColor(1f, 1f, 1f)
+                text(48f, 805f, 24f, "EDF", bold)
+                text(400f, 808f, 11f, "Electricity bill")
+                out.setNonStrokingColor(0.13f, 0.12f, 0.1f)
+                text(48f, 730f, 11f, "Bill no. 1024 5568 31  -  14 March 2026")
+                text(48f, 712f, 11f, "Pierre Martin, 12 rue des Lilas, 69003 Lyon")
+                text(48f, 650f, 16f, "Amount due", bold)
+                text(48f, 612f, 34f, "EUR 84.23", bold)
+                text(48f, 590f, 11f, "Direct debit on 27 March 2026")
+                val rows = listOf(
+                    "Subscription (9 kVA)" to "EUR 16.41",
+                    "Consumption, 412 kWh" to "EUR 55.62",
+                    "Taxes and contributions" to "EUR 12.20",
+                )
+                rows.forEachIndexed { i, (label, amount) ->
+                    val y = 520f - i * 28f
+                    text(48f, y, 12f, label)
+                    text(460f, y, 12f, amount)
+                    out.setStrokingColor(0.85f, 0.84f, 0.82f)
+                    out.moveTo(48f, y - 10f)
+                    out.lineTo(547f, y - 10f)
+                    out.stroke()
+                }
+                text(48f, 420f, 12f, "Total incl. tax", bold)
+                text(460f, 420f, 12f, "EUR 84.23", bold)
+                text(48f, 120f, 9f, "Sample document rendered for Fyde's design screenshots.")
+            }
+            ByteArrayOutputStream().also(pdf::save).toByteArray()
+        }
+    }
+
     private fun shot(name: String, content: @Composable () -> Unit): Pair<String, @Composable () -> Unit> = name to content
 
     @Composable
@@ -334,7 +393,7 @@ internal object ScreenshotFixtures {
             onFocusChange = {},
             onUpload = {},
             onSave = {},
-            loadContent = { Result.success(null) },
+            loadContent = { Result.success(invoicePdf) },
             onRetryLoad = {},
             onDeletionChange = {},
             onDelete = {},
@@ -410,7 +469,7 @@ internal object ScreenshotFixtures {
         SettingsScreen(
             openSection = section,
             onOpenSectionChange = {},
-            currentLanguage = "fr",
+            currentLanguage = "en",
             onLanguageChange = {},
             navigation = navigation,
             planUsage = planUsage,
@@ -431,8 +490,8 @@ internal object ScreenshotFixtures {
         version = 1,
         lastUpdated = T0,
         parameters = mapOf(
-            "username" to FydeScriptParameter("Identifiant", "vous@exemple.fr", FydeScriptParameterType.STRING, required = true, secret = false),
-            "password" to FydeScriptParameter("Mot de passe", "", FydeScriptParameterType.STRING, required = true, secret = true),
+            "username" to FydeScriptParameter("Username", "you@example.com", FydeScriptParameterType.STRING, required = true, secret = false),
+            "password" to FydeScriptParameter("Password", "", FydeScriptParameterType.STRING, required = true, secret = true),
         ),
         type = FydeScriptType.SCRAPER,
     )

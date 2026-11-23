@@ -55,8 +55,8 @@ import org.jetbrains.compose.resources.stringResource
  * [RegisterScreen], [onOpenVault] to [LoginScreen]. The first screen on a
  * device with no account open. Pure presentation, like [LoginScreen].
  *
- * At Compact it's O1 (`design/assets/screens/O1-bienvenue.png`). At Medium
- * and Expanded it's DO1 (`design/assets/screens/DO1-bienvenue.png`): the
+ * At Compact it's O1 (`design/proposals/000-original-design/assets/screens/O1-bienvenue.png`). At Medium
+ * and Expanded it's DO1 (`design/proposals/000-original-design/assets/screens/DO1-bienvenue.png`): the
  * seal and promises move to [SignInBrandPanel] (a mark-only [AuthBrandBand]
  * at Medium), and the form pane greets, offers both ways in and names
  * [serverName], the server this build talks to.

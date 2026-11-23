@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Named, cross-cutting sizes from `design/design-system.md` § Shape/Layout —
+ * Named, cross-cutting sizes from `design/current/design-system.md` § Shape/Layout —
  * things that are a *size*, not a gap (see [AppSpacing]). Component-internal
  * cosmetic sizing (an icon's own pixel size, a skeleton placeholder's width)
  * stays local to that component rather than living here; only values the
@@ -81,7 +81,7 @@ object AppDimensions {
 
     /**
      * A small `AppIconTile` beside a line or two of body text — Welcome's
-     * promises (`design/assets/screens/O1-bienvenue.png`).
+     * promises (`design/proposals/000-original-design/assets/screens/O1-bienvenue.png`).
      */
     val iconTileSmall: Dp = 36.dp
 

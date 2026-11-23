@@ -21,7 +21,7 @@ import com.peltoche.fyde.theme.AppColors
 
 /**
  * The folder icons and the vault's own controls, traced from `i-xxx` in
- * `design/assets/mockups/icons.svg` (gift, id card, scale, paw, ticket,
+ * `design/proposals/000-original-design/assets/mockups/icons.svg` (gift, id card, scale, paw, ticket,
  * graduation cap and car have no symbol there and are drawn in the same hand). Unlike `NavGlyphs.kt`'s hand-placed shapes, these replay the
  * SVG's own 24-unit paths, scaled to the glyph's size.
  */

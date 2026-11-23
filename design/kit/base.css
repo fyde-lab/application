@@ -1,0 +1,18 @@
+/* The three window frames, for proposals' HTML mockups.
+   Fonts and values come from tokens.css (which mirrors shared/.../theme/); don't put design values here. */
+
+* { box-sizing: border-box; margin: 0; }
+body { background: #d9d9d6; padding: 40px; display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start;
+       font-family: var(--font); -webkit-font-smoothing: antialiased; }
+svg.ic { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.75;
+         stroke-linecap: round; stroke-linejoin: round; }
+
+/* One artboard per [data-shot], at the sizes ScreenshotsJvmTest renders current/screens/ at. */
+.frame { position: relative; overflow: hidden; background: var(--bg); color: var(--text); }
+.frame.compact { width: 390px; height: 844px; }
+.frame.medium { width: 834px; height: 1194px; }
+.frame.expanded { width: 1440px; height: 900px; }
+
+/* Starting a proposal from a current screen: <img class="base" src="../../../current/screens/x-compact.png">
+   under the frame's content, then draw only what changes on top. */
+.frame > img.base { position: absolute; inset: 0; width: 100%; height: 100%; }

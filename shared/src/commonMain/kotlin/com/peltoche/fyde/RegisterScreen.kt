@@ -83,7 +83,7 @@ import org.jetbrains.compose.resources.stringResource
  *
  * At Compact it's the original single-column form, with a link to
  * [LoginScreen] under the button. At Medium and Expanded it's DO3
- * (`design/assets/screens/DO3-creer-le-coffre.png`): [VaultCreationBrandPanel]
+ * (`design/proposals/000-original-design/assets/screens/DO3-creer-le-coffre.png`): [VaultCreationBrandPanel]
  * beside "Your account", back to [WelcomeScreen] at the pane's top left, a
  * strength meter under the password, the key warning and an acknowledgement
  * to tick before Continue. Its errors (DO3b) show on blur or submit, not
