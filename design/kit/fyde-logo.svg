@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fyde's logo, from shared/src/commonMain/composeResources/drawable/fyde_logo.xml
+  (the app's own copy, cropped to the artwork). Keep the two in step.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="408" height="408" viewBox="0 0 408 408" role="img" aria-label="Fyde">
+  <defs>
+    <linearGradient id="rear-back" gradientUnits="userSpaceOnUse" x1="112" y1="96" x2="307" y2="305">
+      <stop offset="0" stop-color="#6245E8"/>
+      <stop offset="1" stop-color="#4338C8"/>
+    </linearGradient>
+    <linearGradient id="rear-front" gradientUnits="userSpaceOnUse" x1="150" y1="59.8" x2="361" y2="316">
+      <stop offset="0" stop-color="#55B8FF"/>
+      <stop offset="1" stop-color="#2878F0"/>
+    </linearGradient>
+    <linearGradient id="document" gradientUnits="userSpaceOnUse" x1="190" y1="54" x2="402" y2="329">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EDF4FF"/>
+    </linearGradient>
+    <linearGradient id="base" gradientUnits="userSpaceOnUse" x1="108" y1="237" x2="372.6" y2="444.8">
+      <stop offset="0" stop-color="#39A5FF"/>
+      <stop offset="1" stop-color="#2874ED"/>
+    </linearGradient>
+    <linearGradient id="base-fold" gradientUnits="userSpaceOnUse" x1="237.6" y1="263" x2="402" y2="444.8">
+      <stop offset="0" stop-color="#5147D9"/>
+      <stop offset="1" stop-color="#273EBA"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(-51 -45.4)">
+    <!-- Rear sheets -->
+    <path fill="url(#rear-back)" d="M112,120 Q112,96 137,96 L284,96 Q307,96 307,120 L307,305 L112,305 Z"/>
+    <path fill="url(#rear-front)" d="M150,82 Q150,58 176,60 L340,74 Q361,76 361,99 L361,316 L150,316 Z"/>
+    <!-- Main document -->
+    <path fill="url(#document)" d="M190,72 Q190,54 211,54 L345,54 L402,111 L402,329 L190,329 Z"/>
+    <path fill="#4D86F5" d="M345,54 L345,91 Q345,111 365,111 L402,111 Z"/>
+    <!-- Document text lines -->
+    <path fill="#A7C1E3" d="M233,176 L308,176 A8,8 0 0,1 308,192 L233,192 A8,8 0 0,1 233,176 Z M233,210 L362,210 A8,8 0 0,1 362,226 L233,226 A8,8 0 0,1 233,210 Z M233,244 L321,244 A8,8 0 0,1 321,260 L233,260 A8,8 0 0,1 233,244 Z"/>
+    <!-- Rounded folder / protective base -->
+    <path fill="url(#base)" d="M108,237 Q145,276 205,294 L282,318 Q302,324 322,311 L402,263 L402,331 Q402,376 366,398 L302,435 Q270,453 238,438 L145,392 Q108,373 108,329 Z"/>
+    <path fill="url(#base-fold)" d="M282,318 Q302,324 322,311 L402,263 L402,331 Q402,376 366,398 L302,435 Q270,453 238,438 Q235,390 257,355 Q267,333 282,318 Z"/>
+  </g>
+</svg>
