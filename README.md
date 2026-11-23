@@ -16,6 +16,17 @@
 > require you to start over with a new vault. Don't keep the only copy of an important document
 > in Fyde yet.
 
+> [!IMPORTANT]
+> ### 🧩 Want to build something with Fyde? Start with the SDK
+>
+> This app is one client among many possible ones. Everything that makes Fyde work lives in
+> **[`fyde-sdk`](https://github.com/fyde-lab/sdk)**, a Rust library you can use in your own
+> project. It handles accounts, end-to-end encryption, sync, local search, folders and sources,
+> and the server only ever sees ciphertext.
+>
+> **→ [github.com/fyde-lab/sdk](https://github.com/fyde-lab/sdk)**: building your own client, a
+> CLI, an integration or an automation? Use the SDK. See [Build on Fyde](#build-on-fyde) below.
+
 <p align="center">
   <img src="design/assets/screens/D6-bureau-coffre.png" alt="The Fyde vault on desktop: folders such as Achats, Argent, Impôts, Logement and Santé, with the latest documents below" width="900">
 </p>
@@ -158,6 +169,31 @@ The images above are Fyde's reference designs (from [`design/assets/screens/`](d
 The app is moving to this look and currently still draws an older colour palette and typeface.
 Every feature described in this README already works in the app. A few elements in the pictures,
 such as the camera button or document sharing, are still to come.
+
+## Build on Fyde
+
+If you want to create something around Fyde, such as your own app, a command-line tool, a
+backup script or an integration with another service, use
+**[`fyde-sdk`](https://github.com/fyde-lab/sdk)** rather than this app. It's the same library
+this app runs on:
+
+- **Accounts:** sign up and sign in without the password ever leaving the device.
+- **Documents:** encrypted on the device, kept in a local cache that works offline and is
+  searchable by full text or by similarity.
+- **Folders:** create, move and file documents into them.
+- **Sync:** every write is an encrypted event that the other devices replay.
+- **Sources:** run the scripts that collect documents from providers' sites.
+
+The crate isn't on crates.io yet. Depend on it from git:
+
+```toml
+[dependencies]
+fyde-sdk = { git = "https://github.com/fyde-lab/sdk.git", branch = "master" }
+```
+
+To add a new provider, write a Lua script in
+[`fyde-scripts`](https://github.com/fyde-lab/scripts), the home of every source Fyde can collect
+from.
 
 ## For contributors
 
